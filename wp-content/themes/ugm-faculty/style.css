@@ -1,0 +1,14 @@
+﻿/*
+Theme Name: UGM Faculty Theme
+Theme URI: https://www.ugm.ac.id/
+Author: UGM Faculty
+Author URI: https://www.ugm.ac.id/
+Description: Institutional, content-focused WordPress theme for faculty websites.
+Version: 1.0.0
+Requires at least: 6.4
+Tested up to: 6.8
+Requires PHP: 7.4
+Text Domain: ugm-faculty
+*/
+
+/* Main stylesheet manifest. Styles are loaded from assets/css/*.css via inc/enqueue.php. */
