@@ -9,6 +9,26 @@
  * @package ugm-faculty
  */
 
+$faculty_whatsapp = trim( (string) get_theme_mod( 'ugm_faculty_whatsapp', '+628112869988' ) );
+$faculty_phone    = trim( (string) get_theme_mod( 'ugm_faculty_phone', '+62(274)588688' ) );
+
+$cs_number_raw = '' !== $faculty_whatsapp ? $faculty_whatsapp : $faculty_phone;
+$cs_digits     = preg_replace( '/[^0-9]/', '', $cs_number_raw );
+
+if ( '' !== $cs_digits && '0' === substr( $cs_digits, 0, 1 ) ) {
+	$cs_digits = '62' . substr( $cs_digits, 1 );
+}
+
+$cs_link   = '' !== $cs_digits ? 'https://wa.me/' . $cs_digits : '';
+$cs_target = '_blank';
+$cs_rel    = 'noopener noreferrer';
+
+if ( '' === $cs_link && '' !== $faculty_phone ) {
+	$cs_link   = 'tel:' . preg_replace( '/[^0-9+]/', '', $faculty_phone );
+	$cs_target = '';
+	$cs_rel    = '';
+}
+
 ?><!doctype html>
 <html <?php language_attributes(); ?>>
 <head>
@@ -44,6 +64,22 @@
 			</div>
 		</div>
 	</header>
+
+	<?php if ( '' !== $cs_link ) : ?>
+		<a
+			class="floating-cs-button"
+			href="<?php echo esc_url( $cs_link ); ?>"
+			aria-label="<?php esc_attr_e( 'Hubungi customer service', 'ugm-faculty' ); ?>"
+			<?php echo $cs_target ? 'target="' . esc_attr( $cs_target ) . '"' : ''; ?>
+			<?php echo $cs_rel ? 'rel="' . esc_attr( $cs_rel ) . '"' : ''; ?>
+		>
+			<span class="floating-cs-button__icon" aria-hidden="true">
+				<svg viewBox="0 0 24 24" role="presentation" focusable="false">
+					<path d="M6.6 10.8a15.7 15.7 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.2c1.1.4 2.2.6 3.4.6a1 1 0 0 1 1 1V21a1 1 0 0 1-1 1C10.3 22 2 13.7 2 3.5a1 1 0 0 1 1-1H7a1 1 0 0 1 1 1c0 1.2.2 2.3.6 3.4a1 1 0 0 1-.2 1L6.6 10.8z"/>
+				</svg>
+			</span>
+		</a>
+	<?php endif; ?>
 
 	<?php get_template_part( 'parts/content/hero' ); ?>
 
