@@ -40,7 +40,7 @@
 .menu-backdrop {
 	position: fixed;
 	inset: 0;
-	background: rgba(7, 18, 36, 0.22);
+	background: rgba(6, 50, 83, 0.22);
 	backdrop-filter: blur(6px);
 	-webkit-backdrop-filter: blur(6px);
 	opacity: 0;
@@ -173,8 +173,8 @@
 	right: auto;
 	width: min(30rem, calc(100vw - 3.5rem));
 	height: 100vh;
-	background: #173153;
-	border-right: 2px solid #0f62fe;
+	background: var(--color-primary-900);
+	border-right: 2px solid var(--color-primary-800);
 	padding-top: var(--site-header-height);
 	display: flex;
 	flex-direction: column;
@@ -258,7 +258,7 @@
 .mobile-drawer__footer {
 	margin-top: auto;
 	padding: 1rem;
-	background: #0c4570;
+	background: var(--color-primary-800);
 	opacity: 0;
 	transform: translateY(0.75rem);
 	transition: transform 280ms ease, opacity 240ms ease;
@@ -520,7 +520,7 @@
 	justify-content: center;
 	gap: 0.55rem;
 	text-decoration: none;
-	background: #0e3f70;
+	background: var(--color-primary-800);
 	color: #ffffff;
 	width: 3.5rem;
 	height: 3.5rem;
@@ -588,7 +588,7 @@
 }
 
 .site-header.is-front-page:not(.is-scrolled):not(.menu-open):not(.search-open) .header-search__panel .search-field {
-	background: rgba(11, 31, 58, 0.28);
+	background: rgba(6, 50, 83, 0.28);
 	border-color: rgba(255, 255, 255, 0.45);
 }
 
@@ -642,34 +642,34 @@
 	}
 
 	.site-branding {
-		flex: 0 0 clamp(8.2rem, 38vw, 11rem);
-		min-width: 8.2rem;
+		flex: 1 1 auto;
+		min-width: 0;
 	}
 
 	.brand-link {
-		display: flex;
+		display: inline-flex;
 		align-items: center;
-		justify-content: center;
-		min-height: 2.15rem;
-		padding: 0.16rem 0.4rem;
-		background: #f3f4f6;
-		border: 1px solid rgba(15, 36, 64, 0.22);
-		border-radius: 0;
-		width: 100%;
+		justify-content: flex-start;
+		min-height: 2.5rem;
+		padding: 0;
+		background: transparent;
+		border: 0;
+		width: auto;
+		max-width: min(56vw, 13.5rem);
 	}
 
 	.brand-logo {
-		height: 1.5rem;
+		height: clamp(1.9rem, 5.4vw, 2.35rem);
 		max-width: 100%;
 	}
 
 	.brand-text {
 		display: block;
 		width: 100%;
-		text-align: center;
+		text-align: left;
 		font-size: 0.92rem;
 		font-weight: 700;
-		color: #0f2440;
+		color: var(--color-neutral-0);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -694,9 +694,22 @@
 	}
 }
 
-@media (max-width: 480px) {
+	@media (max-width: 480px) {
 	.primary-navigation {
 		width: min(19rem, calc(100vw - 5.25rem));
+	}
+
+	.site-branding {
+		flex: 1 1 auto;
+	}
+
+	.brand-link {
+		max-width: min(50vw, 10.5rem);
+		min-height: 2.2rem;
+	}
+
+	.brand-logo {
+		height: clamp(1.6rem, 6.6vw, 2rem);
 	}
 
 	.primary-navigation a {

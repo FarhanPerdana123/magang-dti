@@ -12,19 +12,57 @@ get_header();
 	<div class="home-content">
 		<section class="home-section section-news" aria-labelledby="section-news-title">
 			<header class="section-header">
-				<h2 id="section-news-title" class="section-title"><?php esc_html_e( 'Berita Terbaru', 'ugm-faculty' ); ?></h2>
+				<h2 id="section-news-title" class="section-title">
+					<?php echo esc_html( get_theme_mod( 'ugm_latest_section_title', __( 'Berita Terbaru', 'ugm-faculty' ) ) ); ?>
+				</h2>
 				<span class="section-line" aria-hidden="true"></span>
 			</header>
 
 			<?php
-			// 3 post terbaru: 1 card besar + 2 card kecil.
-			$latest_news_query = new WP_Query(
-				array(
+			// Post terbaru untuk section berita landing page.
+			$latest_news_count = max( 1, absint( get_theme_mod( 'ugm_latest_news_count', 3 ) ) );
+			$latest_news_mode  = get_theme_mod( 'ugm_latest_news_mode', 'auto' );
+			$latest_news_args  = array();
+			$latest_news_archive_link = add_query_arg( 'ugm_latest_news', '1', home_url( '/' ) );
+
+			if ( 'manual' === $latest_news_mode ) {
+				$manual_news_ids = array_values(
+					array_filter(
+						array(
+							absint( get_theme_mod( 'ugm_latest_news_post_1', 0 ) ),
+							absint( get_theme_mod( 'ugm_latest_news_post_2', 0 ) ),
+							absint( get_theme_mod( 'ugm_latest_news_post_3', 0 ) ),
+						)
+					)
+				);
+
+				if ( ! empty( $manual_news_ids ) ) {
+					$latest_news_args = array(
+						'post_type'           => 'post',
+						'post__in'            => $manual_news_ids,
+						'orderby'             => 'post__in',
+						'posts_per_page'      => count( $manual_news_ids ),
+						'ignore_sticky_posts' => true,
+						'post_status'         => 'publish',
+						'no_found_rows'       => true,
+					);
+				}
+			}
+
+			if ( empty( $latest_news_args ) ) {
+				$latest_news_args = array(
 					'post_type'           => 'post',
-					'posts_per_page'      => 3,
+					'posts_per_page'      => $latest_news_count,
 					'ignore_sticky_posts' => true,
-				)
-			);
+					'post_status'         => 'publish',
+					'orderby'             => 'date',
+					'order'               => 'DESC',
+					'no_found_rows'       => true,
+				);
+
+			}
+
+			$latest_news_query = new WP_Query( $latest_news_args );
 			?>
 
 			<?php if ( $latest_news_query->have_posts() ) : ?>
@@ -33,8 +71,18 @@ get_header();
 					<?php while ( $latest_news_query->have_posts() ) : $latest_news_query->the_post(); ?>
 						<?php
 						$news_index++;
-						$categories     = get_the_category();
-						$category_label = ! empty( $categories ) ? $categories[0]->name : __( 'Kepakaran', 'ugm-faculty' );
+						$categories          = get_the_category();
+						$default_category_id = (int) get_option( 'default_category' );
+						$category_label      = __( 'Kepakaran', 'ugm-faculty' );
+
+						if ( ! empty( $categories ) ) {
+							foreach ( $categories as $category ) {
+								if ( $default_category_id !== (int) $category->term_id && 'uncategorized' !== $category->slug ) {
+									$category_label = $category->name;
+									break;
+								}
+							}
+						}
 						?>
 						<article <?php post_class( 1 === $news_index ? 'news-card news-card--featured' : 'news-card news-card--compact' ); ?>>
 							<?php if ( has_post_thumbnail() ) : ?>
@@ -60,37 +108,84 @@ get_header();
 			<?php else : ?>
 				<p class="section-empty"><?php esc_html_e( 'Belum ada berita terbaru.', 'ugm-faculty' ); ?></p>
 			<?php endif; ?>
+
+			<a class="section-arrow-link" href="<?php echo esc_url( $latest_news_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua berita terbaru', 'ugm-faculty' ); ?>">&#8594;</a>
 		</section>
 
 		<section class="home-section section-academic" aria-labelledby="section-academic-title">
 			<header class="section-header">
-				<h2 id="section-academic-title" class="section-title"><?php esc_html_e( 'Berita Akademik', 'ugm-faculty' ); ?></h2>
+				<h2 id="section-academic-title" class="section-title">
+					<?php echo esc_html( get_theme_mod( 'ugm_academic_section_title', __( 'Berita Akademik', 'ugm-faculty' ) ) ); ?>
+				</h2>
 				<span class="section-line" aria-hidden="true"></span>
 			</header>
 
 			<?php
-			// 2 post kategori "akademik".
-			$academic_query = new WP_Query(
-				array(
+			// Berita akademik landing page (kategori induk "pendidikan" + subkategori).
+			$academic_news_count = max( 1, absint( get_theme_mod( 'ugm_academic_news_count', 2 ) ) );
+			$academic_news_mode  = get_theme_mod( 'ugm_academic_news_mode', 'auto' );
+			$academic_news_args  = array();
+			$education_category  = get_category_by_slug( 'pendidikan' );
+			$education_cat_id    = $education_category ? (int) $education_category->term_id : 0;
+			$academic_archive_link = $education_cat_id > 0 ? get_category_link( $education_cat_id ) : home_url( '/category/pendidikan/' );
+
+			if ( 'manual' === $academic_news_mode ) {
+				$manual_academic_ids = array_values(
+					array_filter(
+						array(
+							absint( get_theme_mod( 'ugm_academic_news_post_1', 0 ) ),
+							absint( get_theme_mod( 'ugm_academic_news_post_2', 0 ) ),
+							absint( get_theme_mod( 'ugm_academic_news_post_3', 0 ) ),
+							absint( get_theme_mod( 'ugm_academic_news_post_4', 0 ) ),
+							absint( get_theme_mod( 'ugm_academic_news_post_5', 0 ) ),
+							absint( get_theme_mod( 'ugm_academic_news_post_6', 0 ) ),
+						)
+					)
+				);
+
+				if ( ! empty( $manual_academic_ids ) ) {
+					$academic_news_args = array(
+						'post_type'           => 'post',
+						'post__in'            => $manual_academic_ids,
+						'orderby'             => 'post__in',
+						'posts_per_page'      => count( $manual_academic_ids ),
+						'ignore_sticky_posts' => true,
+						'post_status'         => 'publish',
+						'no_found_rows'       => true,
+					);
+
+					if ( $education_cat_id > 0 ) {
+						$academic_news_args['cat'] = $education_cat_id;
+					} else {
+						$academic_news_args['category_name'] = 'pendidikan';
+					}
+				}
+			}
+
+			if ( empty( $academic_news_args ) ) {
+				$academic_news_args = array(
 					'post_type'           => 'post',
-					'posts_per_page'      => 2,
-					'category_name'       => 'akademik',
+					'posts_per_page'      => $academic_news_count,
 					'ignore_sticky_posts' => true,
 					'post_status'         => 'publish',
 					'orderby'             => 'date',
 					'order'               => 'DESC',
 					'no_found_rows'       => true,
-				)
-			);
+				);
+
+				if ( $education_cat_id > 0 ) {
+					$academic_news_args['cat'] = $education_cat_id;
+				} else {
+					$academic_news_args['category_name'] = 'pendidikan';
+				}
+			}
+
+			$academic_query = new WP_Query( $academic_news_args );
 			?>
 
 			<?php if ( $academic_query->have_posts() ) : ?>
 				<div class="academic-stack">
 					<?php while ( $academic_query->have_posts() ) : $academic_query->the_post(); ?>
-						<?php
-						$categories     = get_the_category();
-						$category_label = ! empty( $categories ) ? $categories[0]->name : __( 'Kepakaran', 'ugm-faculty' );
-						?>
 						<article <?php post_class( 'academic-card' ); ?>>
 							<?php if ( has_post_thumbnail() ) : ?>
 								<div class="card-image">
@@ -102,7 +197,6 @@ get_header();
 								</div>
 							<?php endif; ?>
 							<div class="academic-card__content">
-								<p class="card-kicker"><?php echo esc_html( $category_label ); ?></p>
 								<h3 class="card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
 								<div class="card-excerpt"><?php the_excerpt(); ?></div>
 								<p class="card-date"><?php echo esc_html( get_the_date( 'd F Y, H.i' ) ); ?></p>
@@ -115,29 +209,81 @@ get_header();
 				<p class="section-empty"><?php esc_html_e( 'Belum ada berita akademik.', 'ugm-faculty' ); ?></p>
 			<?php endif; ?>
 
-			<a class="section-arrow-link" href="<?php echo esc_url( home_url( '/category/akademik/' ) ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua berita akademik', 'ugm-faculty' ); ?>">&#8594;</a>
+			<a class="section-arrow-link" href="<?php echo esc_url( $academic_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua berita akademik', 'ugm-faculty' ); ?>">&#8594;</a>
 		</section>
 
 		<section class="home-section section-profile" aria-labelledby="section-profile-title">
 			<header class="section-header">
-				<h2 id="section-profile-title" class="section-title"><?php esc_html_e( 'Profile', 'ugm-faculty' ); ?></h2>
+				<h2 id="section-profile-title" class="section-title">
+					<?php echo esc_html( get_theme_mod( 'ugm_profile_section_title', __( 'Profile', 'ugm-faculty' ) ) ); ?>
+				</h2>
 				<span class="section-line" aria-hidden="true"></span>
 			</header>
 
 			<?php
-			// 3 post kategori "profile".
-			$profile_query = new WP_Query(
-				array(
+			// Konten profile landing page (kategori profile).
+			$profile_news_count   = max( 1, absint( get_theme_mod( 'ugm_profile_news_count', 3 ) ) );
+			$profile_news_mode    = get_theme_mod( 'ugm_profile_news_mode', 'auto' );
+			$profile_news_args    = array();
+			$profile_root         = ugm_get_category_root_by_slugs( array( 'profile', 'profil' ) );
+
+			$profile_term_ids     = array();
+			$profile_archive_link = home_url( '/category/profile/' );
+
+			if ( $profile_root ) {
+				$profile_root_id = (int) $profile_root->term_id;
+				$profile_term_ids = ugm_get_category_tree_ids( $profile_root_id );
+				$profile_archive_link = get_category_link( $profile_root_id );
+			}
+
+			if ( 'manual' === $profile_news_mode ) {
+				$manual_profile_ids = array_values(
+					array_filter(
+						array(
+							absint( get_theme_mod( 'ugm_profile_news_post_1', 0 ) ),
+							absint( get_theme_mod( 'ugm_profile_news_post_2', 0 ) ),
+							absint( get_theme_mod( 'ugm_profile_news_post_3', 0 ) ),
+							absint( get_theme_mod( 'ugm_profile_news_post_4', 0 ) ),
+							absint( get_theme_mod( 'ugm_profile_news_post_5', 0 ) ),
+							absint( get_theme_mod( 'ugm_profile_news_post_6', 0 ) ),
+						)
+					)
+				);
+
+				if ( ! empty( $manual_profile_ids ) ) {
+					$profile_news_args = array(
+						'post_type'           => 'post',
+						'post__in'            => $manual_profile_ids,
+						'orderby'             => 'post__in',
+						'posts_per_page'      => count( $manual_profile_ids ),
+						'ignore_sticky_posts' => true,
+						'post_status'         => 'publish',
+						'no_found_rows'       => true,
+					);
+
+					if ( ! empty( $profile_term_ids ) ) {
+						$profile_news_args['category__in'] = $profile_term_ids;
+					}
+				}
+			}
+
+			if ( empty( $profile_news_args ) ) {
+				$profile_news_args = array(
 					'post_type'           => 'post',
-					'posts_per_page'      => 3,
-					'category_name'       => 'profile',
+					'posts_per_page'      => $profile_news_count,
 					'ignore_sticky_posts' => true,
 					'post_status'         => 'publish',
 					'orderby'             => 'date',
 					'order'               => 'DESC',
 					'no_found_rows'       => true,
-				)
-			);
+				);
+
+				if ( ! empty( $profile_term_ids ) ) {
+					$profile_news_args['category__in'] = $profile_term_ids;
+				}
+			}
+
+			$profile_query = new WP_Query( $profile_news_args );
 			?>
 
 			<?php if ( $profile_query->have_posts() ) : ?>
@@ -169,37 +315,111 @@ get_header();
 				<p class="section-empty"><?php esc_html_e( 'Belum ada konten profile.', 'ugm-faculty' ); ?></p>
 			<?php endif; ?>
 
-			<a class="section-arrow-link" href="<?php echo esc_url( home_url( '/category/profile/' ) ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua profile', 'ugm-faculty' ); ?>">&#8594;</a>
+			<a class="section-arrow-link" href="<?php echo esc_url( $profile_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua profile', 'ugm-faculty' ); ?>">&#8594;</a>
 		</section>
 
 		<section class="home-section section-achievement" aria-labelledby="section-achievement-title">
 			<header class="section-header">
-				<h2 id="section-achievement-title" class="section-title"><?php esc_html_e( 'Prestasi', 'ugm-faculty' ); ?></h2>
+				<h2 id="section-achievement-title" class="section-title">
+					<?php echo esc_html( get_theme_mod( 'ugm_achievement_section_title', __( 'Prestasi', 'ugm-faculty' ) ) ); ?>
+				</h2>
 				<span class="section-line" aria-hidden="true"></span>
 			</header>
 
 			<?php
-			// 3 post kategori "prestasi".
-			$achievement_query = new WP_Query(
-				array(
+			// Konten prestasi landing page (kategori prestasi + subkategori).
+			$achievement_news_count  = max( 1, absint( get_theme_mod( 'ugm_achievement_news_count', 3 ) ) );
+			$achievement_news_mode   = get_theme_mod( 'ugm_achievement_news_mode', 'auto' );
+			$achievement_news_args   = array();
+			$achievement_root        = ugm_get_category_root_by_slugs( array( 'prestasi' ) );
+			$achievement_term_ids    = array();
+			$achievement_archive_link = home_url( '/category/prestasi/' );
+
+			if ( $achievement_root ) {
+				$achievement_root_id = (int) $achievement_root->term_id;
+				$achievement_term_ids = ugm_get_category_tree_ids( $achievement_root_id );
+				$achievement_archive_link = get_category_link( $achievement_root_id );
+			}
+
+			if ( 'manual' === $achievement_news_mode ) {
+				$manual_achievement_ids = array_values(
+					array_filter(
+						array(
+							absint( get_theme_mod( 'ugm_achievement_news_post_1', 0 ) ),
+							absint( get_theme_mod( 'ugm_achievement_news_post_2', 0 ) ),
+							absint( get_theme_mod( 'ugm_achievement_news_post_3', 0 ) ),
+							absint( get_theme_mod( 'ugm_achievement_news_post_4', 0 ) ),
+							absint( get_theme_mod( 'ugm_achievement_news_post_5', 0 ) ),
+							absint( get_theme_mod( 'ugm_achievement_news_post_6', 0 ) ),
+						)
+					)
+				);
+
+				if ( ! empty( $manual_achievement_ids ) ) {
+					$achievement_news_args = array(
+						'post_type'           => 'post',
+						'post__in'            => $manual_achievement_ids,
+						'orderby'             => 'post__in',
+						'posts_per_page'      => count( $manual_achievement_ids ),
+						'ignore_sticky_posts' => true,
+						'post_status'         => 'publish',
+						'no_found_rows'       => true,
+					);
+
+					if ( ! empty( $achievement_term_ids ) ) {
+						$achievement_news_args['category__in'] = $achievement_term_ids;
+					} else {
+						$achievement_news_args['category_name'] = 'prestasi';
+					}
+				}
+			}
+
+			if ( empty( $achievement_news_args ) ) {
+				$achievement_news_args = array(
 					'post_type'           => 'post',
-					'posts_per_page'      => 3,
-					'category_name'       => 'prestasi',
+					'posts_per_page'      => $achievement_news_count,
 					'ignore_sticky_posts' => true,
 					'post_status'         => 'publish',
 					'orderby'             => 'date',
 					'order'               => 'DESC',
 					'no_found_rows'       => true,
-				)
-			);
+				);
+
+				if ( ! empty( $achievement_term_ids ) ) {
+					$achievement_news_args['category__in'] = $achievement_term_ids;
+				} else {
+					$achievement_news_args['category_name'] = 'prestasi';
+				}
+			}
+
+			$achievement_query = new WP_Query( $achievement_news_args );
 			?>
 
 			<?php if ( $achievement_query->have_posts() ) : ?>
 				<div class="list-cards">
 					<?php while ( $achievement_query->have_posts() ) : $achievement_query->the_post(); ?>
 						<?php
-						$categories     = get_the_category();
-						$category_label = ! empty( $categories ) ? $categories[0]->name : __( 'Kepakaran', 'ugm-faculty' );
+						$categories          = get_the_category();
+						$default_category_id = (int) get_option( 'default_category' );
+						$category_label      = __( 'Kepakaran', 'ugm-faculty' );
+
+						if ( ! empty( $categories ) ) {
+							foreach ( $categories as $category ) {
+								if ( 'prestasi' === $category->slug ) {
+									$category_label = $category->name;
+									break;
+								}
+							}
+
+							if ( __( 'Kepakaran', 'ugm-faculty' ) === $category_label ) {
+								foreach ( $categories as $category ) {
+									if ( $default_category_id !== (int) $category->term_id && 'uncategorized' !== $category->slug ) {
+										$category_label = $category->name;
+										break;
+									}
+								}
+							}
+						}
 						?>
 						<article <?php post_class( 'list-card list-card--reverse' ); ?>>
 							<div class="list-card__content">
@@ -223,7 +443,7 @@ get_header();
 				<p class="section-empty"><?php esc_html_e( 'Belum ada konten prestasi.', 'ugm-faculty' ); ?></p>
 			<?php endif; ?>
 
-			<a class="section-arrow-link" href="<?php echo esc_url( home_url( '/category/prestasi/' ) ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua prestasi', 'ugm-faculty' ); ?>">&#8594;</a>
+			<a class="section-arrow-link" href="<?php echo esc_url( $achievement_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua prestasi', 'ugm-faculty' ); ?>">&#8594;</a>
 		</section>
 
 		<section class="home-section section-faculty" aria-labelledby="section-faculty-title">

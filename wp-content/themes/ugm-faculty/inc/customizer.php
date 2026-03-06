@@ -10,6 +10,174 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Sanitize image field from Customizer.
+ *
+ * Accepts either attachment ID or image URL.
+ *
+ * @param mixed $value Raw value from Customizer.
+ * @return int|string
+ */
+function ugm_sanitize_image_value( $value ) {
+	if ( is_numeric( $value ) ) {
+		return absint( $value );
+	}
+
+	return esc_url_raw( (string) $value );
+}
+
+/**
+ * Sanitize positive integer with minimum value 1.
+ *
+ * @param mixed $value Raw value from Customizer.
+ * @return int
+ */
+function ugm_sanitize_positive_int( $value ) {
+	$value = absint( $value );
+	return max( 1, $value );
+}
+
+/**
+ * Sanitize latest news count for landing page layout.
+ *
+ * @param mixed $value Raw value from Customizer.
+ * @return int
+ */
+function ugm_sanitize_latest_news_count( $value ) {
+	$value = absint( $value );
+	if ( $value < 1 ) {
+		return 1;
+	}
+
+	return min( 6, $value );
+}
+
+/**
+ * Sanitize latest news source mode.
+ *
+ * @param mixed $value Raw value from Customizer.
+ * @return string
+ */
+function ugm_sanitize_latest_news_mode( $value ) {
+	$value = sanitize_key( (string) $value );
+	return in_array( $value, array( 'auto', 'manual' ), true ) ? $value : 'auto';
+}
+
+/**
+ * Simple note control for Customizer instructions.
+ */
+if ( class_exists( 'WP_Customize_Control' ) && ! class_exists( 'UGM_Customize_Note_Control' ) ) {
+	class UGM_Customize_Note_Control extends WP_Customize_Control {
+		/**
+		 * Render control content.
+		 */
+		public function render_content() {
+			if ( ! empty( $this->label ) ) {
+				?>
+				<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
+				<?php
+			}
+
+			if ( ! empty( $this->description ) ) {
+				?>
+				<p class="description customize-control-description"><?php echo wp_kses_post( $this->description ); ?></p>
+				<?php
+			}
+		}
+	}
+}
+
+/**
+ * Category dropdown control for Customizer.
+ */
+if ( class_exists( 'WP_Customize_Control' ) && ! class_exists( 'UGM_Customize_Dropdown_Categories_Control' ) ) {
+	class UGM_Customize_Dropdown_Categories_Control extends WP_Customize_Control {
+		/**
+		 * Control type.
+		 *
+		 * @var string
+		 */
+		public $type = 'dropdown-categories';
+
+		/**
+		 * Render control content.
+		 */
+		public function render_content() {
+			$categories = get_categories(
+				array(
+					'hide_empty' => false,
+				)
+			);
+			?>
+			<label>
+				<?php if ( ! empty( $this->label ) ) : ?>
+					<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
+				<?php endif; ?>
+				<?php if ( ! empty( $this->description ) ) : ?>
+					<span class="description customize-control-description"><?php echo esc_html( $this->description ); ?></span>
+				<?php endif; ?>
+				<select <?php $this->link(); ?>>
+					<option value="0"><?php esc_html_e( 'Semua Kategori', 'ugm-faculty' ); ?></option>
+					<?php foreach ( $categories as $category ) : ?>
+						<option value="<?php echo esc_attr( $category->term_id ); ?>" <?php selected( (int) $this->value(), (int) $category->term_id ); ?>>
+							<?php echo esc_html( $category->name ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+			</label>
+			<?php
+		}
+	}
+}
+
+/**
+ * Post dropdown control for Customizer.
+ */
+if ( class_exists( 'WP_Customize_Control' ) && ! class_exists( 'UGM_Customize_Dropdown_Posts_Control' ) ) {
+	class UGM_Customize_Dropdown_Posts_Control extends WP_Customize_Control {
+		/**
+		 * Control type.
+		 *
+		 * @var string
+		 */
+		public $type = 'dropdown-posts';
+
+		/**
+		 * Render control content.
+		 */
+		public function render_content() {
+			$posts = get_posts(
+				array(
+					'post_type'           => 'post',
+					'posts_per_page'      => 200,
+					'post_status'         => 'publish',
+					'orderby'             => 'date',
+					'order'               => 'DESC',
+					'ignore_sticky_posts' => true,
+				)
+			);
+			?>
+			<label>
+				<?php if ( ! empty( $this->label ) ) : ?>
+					<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
+				<?php endif; ?>
+				<?php if ( ! empty( $this->description ) ) : ?>
+					<span class="description customize-control-description"><?php echo esc_html( $this->description ); ?></span>
+				<?php endif; ?>
+				<select <?php $this->link(); ?>>
+					<option value="0"><?php esc_html_e( 'Pilih Postingan', 'ugm-faculty' ); ?></option>
+					<?php foreach ( $posts as $post_item ) : ?>
+						<option value="<?php echo esc_attr( $post_item->ID ); ?>" <?php selected( (int) $this->value(), (int) $post_item->ID ); ?>>
+							<?php echo esc_html( $post_item->post_title ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+			</label>
+			<?php
+		}
+	}
+}
+
+/**
  * Add customizer settings and controls.
  *
  * @param WP_Customize_Manager $wp_customize Theme Customizer object.
@@ -64,11 +232,11 @@ function ugm_customize_register( $wp_customize ) {
 		)
 	);
 
-	// Front Page Hero Section.
+	// Landing Page UGM Section.
 	$wp_customize->add_section(
 		'ugm_hero_section',
 		array(
-			'title'    => __( 'Front Page Hero', 'ugm-faculty' ),
+			'title'    => __( 'Landing Page UGM', 'ugm-faculty' ),
 			'priority' => 36,
 		)
 	);
@@ -77,7 +245,7 @@ function ugm_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'ugm_hero_background_image',
 		array(
-			'sanitize_callback' => 'absint',
+			'sanitize_callback' => 'ugm_sanitize_image_value',
 		)
 	);
 
@@ -137,14 +305,537 @@ function ugm_customize_register( $wp_customize ) {
 		)
 	);
 
+	// Landing page latest news section.
+	$wp_customize->add_section(
+		'ugm_latest_news_section',
+		array(
+			'title'    => __( 'Berita Terbaru (Landing Page)', 'ugm-faculty' ),
+			'priority' => 38,
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_latest_news_help',
+		array(
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		new UGM_Customize_Note_Control(
+			$wp_customize,
+			'ugm_latest_news_help',
+			array(
+				'label'       => __( 'Panduan Kelola Berita', 'ugm-faculty' ),
+				'description' => wp_kses_post(
+					sprintf(
+						/* translators: 1: posts list URL, 2: add new post URL, 3: categories URL */
+						__( 'Konten berita diambil dari menu Postingan WordPress.<br><a href="%1$s" target="_blank" rel="noopener">Lihat semua postingan</a> | <a href="%2$s" target="_blank" rel="noopener">Tambah berita baru</a> | <a href="%3$s" target="_blank" rel="noopener">Kelola kategori berita</a>', 'ugm-faculty' ),
+						esc_url( admin_url( 'edit.php' ) ),
+						esc_url( admin_url( 'post-new.php' ) ),
+						esc_url( admin_url( 'edit-tags.php?taxonomy=category' ) )
+					)
+				),
+				'section'     => 'ugm_latest_news_section',
+			)
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_latest_news_mode',
+		array(
+			'default'           => 'auto',
+			'sanitize_callback' => 'ugm_sanitize_latest_news_mode',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_latest_news_mode',
+		array(
+			'label'   => __( 'Sumber Berita', 'ugm-faculty' ),
+			'section' => 'ugm_latest_news_section',
+			'type'    => 'radio',
+			'choices' => array(
+				'auto'   => __( 'Otomatis (terbaru dari semua kategori)', 'ugm-faculty' ),
+				'manual' => __( 'Manual (pilih berita per kartu)', 'ugm-faculty' ),
+			),
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_latest_section_title',
+		array(
+			'default'           => __( 'Berita Terbaru', 'ugm-faculty' ),
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_latest_section_title',
+		array(
+			'label'   => __( 'Judul Bagian Berita', 'ugm-faculty' ),
+			'section' => 'ugm_latest_news_section',
+			'type'    => 'text',
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_latest_news_count',
+		array(
+			'default'           => 3,
+			'sanitize_callback' => 'ugm_sanitize_latest_news_count',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_latest_news_count',
+		array(
+			'label'       => __( 'Jumlah Berita Ditampilkan', 'ugm-faculty' ),
+			'description' => __( 'Rekomendasi: 3 agar layout tetap sesuai desain awal.', 'ugm-faculty' ),
+			'section'     => 'ugm_latest_news_section',
+			'type'        => 'number',
+			'input_attrs' => array(
+				'min' => 1,
+				'max' => 6,
+			),
+		)
+	);
+
+	$manual_news_controls = array(
+		'ugm_latest_news_post_1' => __( 'Berita Utama (Kartu Besar)', 'ugm-faculty' ),
+		'ugm_latest_news_post_2' => __( 'Berita Kedua', 'ugm-faculty' ),
+		'ugm_latest_news_post_3' => __( 'Berita Ketiga', 'ugm-faculty' ),
+	);
+
+	foreach ( $manual_news_controls as $setting_id => $control_label ) {
+		$wp_customize->add_setting(
+			$setting_id,
+			array(
+				'default'           => 0,
+				'sanitize_callback' => 'absint',
+			)
+		);
+
+		$wp_customize->add_control(
+			new UGM_Customize_Dropdown_Posts_Control(
+				$wp_customize,
+				$setting_id,
+				array(
+					'label'           => $control_label,
+					'section'         => 'ugm_latest_news_section',
+					'active_callback' => function () {
+						return 'manual' === get_theme_mod( 'ugm_latest_news_mode', 'auto' );
+					},
+				)
+			)
+		);
+	}
+
+	// Landing page academic news section.
+	$wp_customize->add_section(
+		'ugm_academic_news_section',
+		array(
+			'title'    => __( 'Berita Akademik (Landing Page)', 'ugm-faculty' ),
+			'priority' => 39,
+		)
+	);
+
+	$academic_category    = ugm_get_category_root_by_slugs( array( 'pendidikan' ) );
+	$academic_category_id = $academic_category ? (int) $academic_category->term_id : 0;
+	$academic_posts_url   = $academic_category_id > 0 ? admin_url( 'edit.php?cat=' . $academic_category_id ) : admin_url( 'edit.php' );
+
+	$wp_customize->add_setting(
+		'ugm_academic_news_help',
+		array(
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		new UGM_Customize_Note_Control(
+			$wp_customize,
+			'ugm_academic_news_help',
+			array(
+				'label'       => __( 'Panduan Kelola Berita Akademik', 'ugm-faculty' ),
+				'description' => wp_kses_post(
+					sprintf(
+						/* translators: 1: filtered posts list URL, 2: add new post URL, 3: categories URL */
+						__( 'Section ini hanya menampilkan postingan kategori <strong>pendidikan</strong> beserta subkategorinya.<br><a href="%1$s" target="_blank" rel="noopener">Lihat berita pendidikan</a> | <a href="%2$s" target="_blank" rel="noopener">Tambah berita baru</a> | <a href="%3$s" target="_blank" rel="noopener">Kelola kategori berita</a>', 'ugm-faculty' ),
+						esc_url( $academic_posts_url ),
+						esc_url( admin_url( 'post-new.php' ) ),
+						esc_url( admin_url( 'edit-tags.php?taxonomy=category' ) )
+					)
+				),
+				'section'     => 'ugm_academic_news_section',
+			)
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_academic_news_mode',
+		array(
+			'default'           => 'auto',
+			'sanitize_callback' => 'ugm_sanitize_latest_news_mode',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_academic_news_mode',
+		array(
+			'label'   => __( 'Sumber Berita Akademik', 'ugm-faculty' ),
+			'section' => 'ugm_academic_news_section',
+			'type'    => 'radio',
+			'choices' => array(
+				'auto'   => __( 'Otomatis (terbaru kategori pendidikan + subkategori)', 'ugm-faculty' ),
+				'manual' => __( 'Manual (pilih berita per kartu)', 'ugm-faculty' ),
+			),
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_academic_section_title',
+		array(
+			'default'           => __( 'Berita Akademik', 'ugm-faculty' ),
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_academic_section_title',
+		array(
+			'label'   => __( 'Judul Bagian Berita Akademik', 'ugm-faculty' ),
+			'section' => 'ugm_academic_news_section',
+			'type'    => 'text',
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_academic_news_count',
+		array(
+			'default'           => 2,
+			'sanitize_callback' => 'ugm_sanitize_latest_news_count',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_academic_news_count',
+		array(
+			'label'       => __( 'Jumlah Berita Akademik Ditampilkan', 'ugm-faculty' ),
+			'description' => __( 'Section ini tetap memfilter kategori pendidikan dan subkategori.', 'ugm-faculty' ),
+			'section'     => 'ugm_academic_news_section',
+			'type'        => 'number',
+			'input_attrs' => array(
+				'min' => 1,
+				'max' => 6,
+			),
+		)
+	);
+
+	$manual_academic_controls = array(
+		'ugm_academic_news_post_1' => __( 'Berita Akademik 1', 'ugm-faculty' ),
+		'ugm_academic_news_post_2' => __( 'Berita Akademik 2', 'ugm-faculty' ),
+		'ugm_academic_news_post_3' => __( 'Berita Akademik 3', 'ugm-faculty' ),
+		'ugm_academic_news_post_4' => __( 'Berita Akademik 4', 'ugm-faculty' ),
+		'ugm_academic_news_post_5' => __( 'Berita Akademik 5', 'ugm-faculty' ),
+		'ugm_academic_news_post_6' => __( 'Berita Akademik 6', 'ugm-faculty' ),
+	);
+
+	foreach ( $manual_academic_controls as $setting_id => $control_label ) {
+		$wp_customize->add_setting(
+			$setting_id,
+			array(
+				'default'           => 0,
+				'sanitize_callback' => 'absint',
+			)
+		);
+
+		$wp_customize->add_control(
+			new UGM_Customize_Dropdown_Posts_Control(
+				$wp_customize,
+				$setting_id,
+				array(
+					'label'           => $control_label,
+					'section'         => 'ugm_academic_news_section',
+					'active_callback' => function () {
+						return 'manual' === get_theme_mod( 'ugm_academic_news_mode', 'auto' );
+					},
+				)
+			)
+		);
+	}
+
+	// Landing page profile section.
+	$wp_customize->add_section(
+		'ugm_profile_news_section',
+		array(
+			'title'    => __( 'Profile (Landing Page)', 'ugm-faculty' ),
+			'priority' => 40,
+		)
+	);
+
+	$profile_category    = ugm_get_category_root_by_slugs( array( 'profile', 'profil' ) );
+	$profile_category_id = $profile_category ? (int) $profile_category->term_id : 0;
+	$profile_posts_url   = $profile_category_id > 0 ? admin_url( 'edit.php?cat=' . $profile_category_id ) : admin_url( 'edit.php' );
+
+	$wp_customize->add_setting(
+		'ugm_profile_news_help',
+		array(
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		new UGM_Customize_Note_Control(
+			$wp_customize,
+			'ugm_profile_news_help',
+			array(
+				'label'       => __( 'Panduan Kelola Profile', 'ugm-faculty' ),
+				'description' => wp_kses_post(
+					sprintf(
+						/* translators: 1: filtered posts list URL, 2: add new post URL, 3: categories URL */
+						__( 'Section ini menampilkan postingan kategori <strong>profile</strong>.<br><a href="%1$s" target="_blank" rel="noopener">Lihat konten profile</a> | <a href="%2$s" target="_blank" rel="noopener">Tambah postingan baru</a> | <a href="%3$s" target="_blank" rel="noopener">Kelola kategori</a>', 'ugm-faculty' ),
+						esc_url( $profile_posts_url ),
+						esc_url( admin_url( 'post-new.php' ) ),
+						esc_url( admin_url( 'edit-tags.php?taxonomy=category' ) )
+					)
+				),
+				'section'     => 'ugm_profile_news_section',
+			)
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_profile_news_mode',
+		array(
+			'default'           => 'auto',
+			'sanitize_callback' => 'ugm_sanitize_latest_news_mode',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_profile_news_mode',
+		array(
+			'label'   => __( 'Sumber Konten Profile', 'ugm-faculty' ),
+			'section' => 'ugm_profile_news_section',
+			'type'    => 'radio',
+			'choices' => array(
+				'auto'   => __( 'Otomatis (terbaru kategori profile)', 'ugm-faculty' ),
+				'manual' => __( 'Manual (pilih postingan per kartu)', 'ugm-faculty' ),
+			),
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_profile_section_title',
+		array(
+			'default'           => __( 'Profile', 'ugm-faculty' ),
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_profile_section_title',
+		array(
+			'label'   => __( 'Judul Bagian Profile', 'ugm-faculty' ),
+			'section' => 'ugm_profile_news_section',
+			'type'    => 'text',
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_profile_news_count',
+		array(
+			'default'           => 3,
+			'sanitize_callback' => 'ugm_sanitize_latest_news_count',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_profile_news_count',
+		array(
+			'label'       => __( 'Jumlah Konten Profile Ditampilkan', 'ugm-faculty' ),
+			'description' => __( 'Maksimal 6 konten.', 'ugm-faculty' ),
+			'section'     => 'ugm_profile_news_section',
+			'type'        => 'number',
+			'input_attrs' => array(
+				'min' => 1,
+				'max' => 6,
+			),
+		)
+	);
+
+	$manual_profile_controls = array(
+		'ugm_profile_news_post_1' => __( 'Profile 1', 'ugm-faculty' ),
+		'ugm_profile_news_post_2' => __( 'Profile 2', 'ugm-faculty' ),
+		'ugm_profile_news_post_3' => __( 'Profile 3', 'ugm-faculty' ),
+		'ugm_profile_news_post_4' => __( 'Profile 4', 'ugm-faculty' ),
+		'ugm_profile_news_post_5' => __( 'Profile 5', 'ugm-faculty' ),
+		'ugm_profile_news_post_6' => __( 'Profile 6', 'ugm-faculty' ),
+	);
+
+	foreach ( $manual_profile_controls as $setting_id => $control_label ) {
+		$wp_customize->add_setting(
+			$setting_id,
+			array(
+				'default'           => 0,
+				'sanitize_callback' => 'absint',
+			)
+		);
+
+		$wp_customize->add_control(
+			new UGM_Customize_Dropdown_Posts_Control(
+				$wp_customize,
+				$setting_id,
+				array(
+					'label'           => $control_label,
+					'section'         => 'ugm_profile_news_section',
+					'active_callback' => function () {
+						return 'manual' === get_theme_mod( 'ugm_profile_news_mode', 'auto' );
+					},
+				)
+			)
+		);
+	}
+
+	// Landing page achievement section.
+	$wp_customize->add_section(
+		'ugm_achievement_news_section',
+		array(
+			'title'    => __( 'Prestasi (Landing Page)', 'ugm-faculty' ),
+			'priority' => 41,
+		)
+	);
+
+	$achievement_category    = ugm_get_category_root_by_slugs( array( 'prestasi' ) );
+	$achievement_category_id = $achievement_category ? (int) $achievement_category->term_id : 0;
+	$achievement_posts_url   = $achievement_category_id > 0 ? admin_url( 'edit.php?cat=' . $achievement_category_id ) : admin_url( 'edit.php' );
+
+	$wp_customize->add_setting(
+		'ugm_achievement_news_help',
+		array(
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		new UGM_Customize_Note_Control(
+			$wp_customize,
+			'ugm_achievement_news_help',
+			array(
+				'label'       => __( 'Panduan Kelola Prestasi', 'ugm-faculty' ),
+				'description' => wp_kses_post(
+					sprintf(
+						/* translators: 1: filtered posts list URL, 2: add new post URL, 3: categories URL */
+						__( 'Section ini menampilkan postingan kategori <strong>prestasi</strong> beserta subkategorinya.<br><a href="%1$s" target="_blank" rel="noopener">Lihat konten prestasi</a> | <a href="%2$s" target="_blank" rel="noopener">Tambah postingan baru</a> | <a href="%3$s" target="_blank" rel="noopener">Kelola kategori</a>', 'ugm-faculty' ),
+						esc_url( $achievement_posts_url ),
+						esc_url( admin_url( 'post-new.php' ) ),
+						esc_url( admin_url( 'edit-tags.php?taxonomy=category' ) )
+					)
+				),
+				'section'     => 'ugm_achievement_news_section',
+			)
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_achievement_news_mode',
+		array(
+			'default'           => 'auto',
+			'sanitize_callback' => 'ugm_sanitize_latest_news_mode',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_achievement_news_mode',
+		array(
+			'label'   => __( 'Sumber Konten Prestasi', 'ugm-faculty' ),
+			'section' => 'ugm_achievement_news_section',
+			'type'    => 'radio',
+			'choices' => array(
+				'auto'   => __( 'Otomatis (terbaru kategori prestasi + subkategori)', 'ugm-faculty' ),
+				'manual' => __( 'Manual (pilih postingan per kartu)', 'ugm-faculty' ),
+			),
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_achievement_section_title',
+		array(
+			'default'           => __( 'Prestasi', 'ugm-faculty' ),
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_achievement_section_title',
+		array(
+			'label'   => __( 'Judul Bagian Prestasi', 'ugm-faculty' ),
+			'section' => 'ugm_achievement_news_section',
+			'type'    => 'text',
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_achievement_news_count',
+		array(
+			'default'           => 3,
+			'sanitize_callback' => 'ugm_sanitize_latest_news_count',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_achievement_news_count',
+		array(
+			'label'       => __( 'Jumlah Konten Prestasi Ditampilkan', 'ugm-faculty' ),
+			'description' => __( 'Maksimal 6 konten.', 'ugm-faculty' ),
+			'section'     => 'ugm_achievement_news_section',
+			'type'        => 'number',
+			'input_attrs' => array(
+				'min' => 1,
+				'max' => 6,
+			),
+		)
+	);
+
+	$manual_achievement_controls = array(
+		'ugm_achievement_news_post_1' => __( 'Prestasi 1', 'ugm-faculty' ),
+		'ugm_achievement_news_post_2' => __( 'Prestasi 2', 'ugm-faculty' ),
+		'ugm_achievement_news_post_3' => __( 'Prestasi 3', 'ugm-faculty' ),
+		'ugm_achievement_news_post_4' => __( 'Prestasi 4', 'ugm-faculty' ),
+		'ugm_achievement_news_post_5' => __( 'Prestasi 5', 'ugm-faculty' ),
+		'ugm_achievement_news_post_6' => __( 'Prestasi 6', 'ugm-faculty' ),
+	);
+
+	foreach ( $manual_achievement_controls as $setting_id => $control_label ) {
+		$wp_customize->add_setting(
+			$setting_id,
+			array(
+				'default'           => 0,
+				'sanitize_callback' => 'absint',
+			)
+		);
+
+		$wp_customize->add_control(
+			new UGM_Customize_Dropdown_Posts_Control(
+				$wp_customize,
+				$setting_id,
+				array(
+					'label'           => $control_label,
+					'section'         => 'ugm_achievement_news_section',
+					'active_callback' => function () {
+						return 'manual' === get_theme_mod( 'ugm_achievement_news_mode', 'auto' );
+					},
+				)
+			)
+		);
+	}
+
 	// Number fields for home sections.
 	$number_fields = array(
 		'ugm_featured_post_id'          => __( 'Featured Post ID', 'ugm-faculty' ),
 		'ugm_featured_category_id'      => __( 'Featured Category ID', 'ugm-faculty' ),
-		'ugm_news_category_id'          => __( 'Latest News Category ID', 'ugm-faculty' ),
 		'ugm_announcements_category_id' => __( 'Announcements Category ID', 'ugm-faculty' ),
 		'ugm_events_category_id'        => __( 'Events Category ID', 'ugm-faculty' ),
-		'ugm_latest_news_count'         => __( 'Latest News Count', 'ugm-faculty' ),
 		'ugm_announcements_count'       => __( 'Announcements Count', 'ugm-faculty' ),
 		'ugm_events_count'              => __( 'Events Count', 'ugm-faculty' ),
 	);
@@ -170,7 +861,6 @@ function ugm_customize_register( $wp_customize ) {
 	// Text fields for home sections.
 	$text_fields = array(
 		'ugm_featured_section_title'      => __( 'Featured Section Title', 'ugm-faculty' ),
-		'ugm_latest_section_title'        => __( 'Latest News Section Title', 'ugm-faculty' ),
 		'ugm_announcements_section_title' => __( 'Announcements Section Title', 'ugm-faculty' ),
 		'ugm_events_section_title'        => __( 'Events Section Title', 'ugm-faculty' ),
 		'ugm_categories_section_title'    => __( 'Categories Section Title', 'ugm-faculty' ),

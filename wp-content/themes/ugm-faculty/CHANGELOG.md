@@ -5,6 +5,16 @@ All notable changes to the UGM Faculty Theme will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Reorganized internal code responsibilities:
+  - moved custom route hooks from `inc/theme-setup.php` to `inc/theme-routes.php`
+  - added `inc/front-page-helpers.php` for reusable category tree helpers
+- Updated `functions.php` module loading order to match responsibilities.
+- Refined front-page section query code to use shared helper functions.
+- Rewrote `README.md` to match the actual folder structure and runtime flow.
+
 ## [1.0.0] - 2026-02-20
 
 ### Added

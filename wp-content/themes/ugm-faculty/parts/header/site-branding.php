@@ -11,12 +11,20 @@ $custom_logo_id = (int) get_theme_mod( 'custom_logo' );
 
 $dark_logo_url  = $dark_logo_id ? wp_get_attachment_image_url( $dark_logo_id, 'full' ) : '';
 $light_logo_url = $light_logo_id ? wp_get_attachment_image_url( $light_logo_id, 'full' ) : '';
+$header_asset_logo_path = 'assets/images/header UGM.png';
 
 if ( ! $dark_logo_url && $custom_logo_id ) {
 	$dark_logo_url = wp_get_attachment_image_url( $custom_logo_id, 'full' );
 }
 if ( ! $light_logo_url && $dark_logo_url ) {
 	$light_logo_url = $dark_logo_url;
+}
+
+// Temporary preview: force header logo from local theme asset.
+if ( file_exists( get_theme_file_path( $header_asset_logo_path ) ) ) {
+	$header_asset_logo_url = str_replace( ' ', '%20', get_theme_file_uri( $header_asset_logo_path ) );
+	$dark_logo_url         = $header_asset_logo_url;
+	$light_logo_url        = $header_asset_logo_url;
 }
 ?>
 

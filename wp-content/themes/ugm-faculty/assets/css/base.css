@@ -1,8 +1,10 @@
 ﻿:root {
 	/* Color system */
-	--color-primary-900: #0b1f3a;
-	--color-primary-800: #12325c;
-	--color-primary-700: #1a4378;
+	--color-primary-900: #063253;
+	--color-primary-800: #0a4169;
+	--color-primary-700: #0e4f7f;
+	--color-primary-600: #166096;
+	--color-primary-500: #2e79ad;
 	--color-secondary-600: #a67c00;
 	--color-secondary-500: #b88a00;
 	--color-secondary-400: #d4a017;
@@ -22,7 +24,7 @@
 	--color-heading: var(--color-primary-900);
 	--color-link: var(--color-primary-800);
 	--color-link-hover: var(--color-primary-700);
-	--color-focus-ring: #0f62fe;
+	--color-focus-ring: #0a4169;
 
 	/* Typography system */
 	--font-family-heading: "Montserrat", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
@@ -34,7 +36,7 @@
 	--site-header-height: 4.5rem;
 	--content-max-width: 72rem;
 	--content-reading-width: 48rem;
-	--hero-overlay: rgba(11, 31, 58, 0.58);
+	--hero-overlay: rgba(6, 50, 83, 0.58);
 	--header-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 

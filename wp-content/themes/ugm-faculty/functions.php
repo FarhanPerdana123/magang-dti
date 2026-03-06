@@ -25,6 +25,16 @@ if ( ! defined( 'UGM_THEME_VERSION' ) ) {
 require get_template_directory() . '/inc/theme-setup.php';
 
 /**
+ * Theme custom routes
+ */
+require get_template_directory() . '/inc/theme-routes.php';
+
+/**
+ * Front-page helper utilities
+ */
+require get_template_directory() . '/inc/front-page-helpers.php';
+
+/**
  * Enqueue scripts and styles
  */
 require get_template_directory() . '/inc/enqueue.php';

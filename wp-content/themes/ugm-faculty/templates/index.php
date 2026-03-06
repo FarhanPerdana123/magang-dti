@@ -12,7 +12,12 @@ get_header();
 		<?php if ( have_posts() ) : ?>
 			<?php if ( is_home() && ! is_front_page() ) : ?>
 				<header class="ugm-page__header">
-					<h1 class="ugm-page__title"><?php single_post_title(); ?></h1>
+					<h1 class="ugm-page__title">
+						<?php
+						$latest_title = get_theme_mod( 'ugm_latest_section_title', __( 'Berita Terbaru', 'ugm-faculty' ) );
+						echo esc_html( $latest_title );
+						?>
+					</h1>
 				</header>
 			<?php endif; ?>
 

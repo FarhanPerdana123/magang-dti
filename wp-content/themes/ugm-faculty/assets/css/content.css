@@ -6,7 +6,7 @@
 	--home-muted: #6d7782;
 	--home-surface: #ffffff;
 	--home-placeholder: #e4e7eb;
-	--home-title: #0d2f4f;
+	--home-title: var(--color-primary-900);
 
 	font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 	background: #efefef;
@@ -88,6 +88,8 @@
 .card-title a {
 	color: var(--home-title);
 	text-decoration: none;
+	overflow-wrap: anywhere;
+	word-break: break-word;
 }
 
 .card-title a:hover,
@@ -101,7 +103,7 @@
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.03em;
-	color: #00639c;
+	color: var(--color-primary-800);
 }
 
 .card-excerpt {
@@ -109,12 +111,33 @@
 	font-size: 0.9rem;
 	line-height: 1.45;
 	color: #1f2b38;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+
+.card-excerpt > :first-child {
+	margin-top: 0;
+}
+
+.card-excerpt > :last-child {
+	margin-bottom: 0;
+}
+
+.section-academic .card-excerpt,
+.section-profile .card-excerpt,
+.section-achievement .card-excerpt {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 5;
+	overflow: hidden;
 }
 
 .card-date {
 	margin: 8px 0 0;
 	font-size: 0.78rem;
 	color: var(--home-muted);
+	overflow-wrap: anywhere;
+	word-break: break-word;
 }
 
 /* Berita Terbaru: 1 card besar + 2 card kecil */
@@ -131,6 +154,7 @@
 
 .news-card__content {
 	padding: 12px 14px 14px;
+	min-width: 0;
 }
 
 /* Featured card - berita utama dengan gambar besar */
@@ -157,7 +181,7 @@
 }
 
 .news-card--featured .card-kicker {
-	color: #00639c;
+	color: var(--color-primary-800);
 	margin-bottom: 6px;
 }
 
@@ -166,7 +190,7 @@
 	display: grid;
 	grid-template-columns: 84px minmax(0, 1fr);
 	gap: 12px;
-	align-items: start;
+	align-items: stretch;
 }
 
 .news-card--compact .card-placeholder {
@@ -178,14 +202,16 @@
 	width: 100%;
 	height: 100%;
 	min-height: 88px;
-	background: var(--home-placeholder);
+	background: #ffffff;
 	overflow: hidden;
 }
 
 .news-card--compact .card-image img {
 	width: 100%;
 	height: 100%;
-	object-fit: cover;
+	display: block;
+	object-fit: contain;
+	object-position: center top;
 }
 
 .news-card--compact .card-placeholder__text {
@@ -199,6 +225,7 @@
 
 .news-card--compact .news-card__content {
 	padding: 12px 12px 12px 0;
+	min-width: 0;
 }
 
 .news-card--compact .card-kicker {
@@ -208,7 +235,7 @@
 /* Berita Akademik: stack vertikal dengan gambar di atas */
 .academic-stack {
 	display: grid;
-	grid-template-columns: 1fr;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: var(--home-gap-16);
 }
 
@@ -344,7 +371,7 @@
 }
 
 .faculty-card:nth-child(7n + 1) .faculty-card__image {
-	background: linear-gradient(145deg, #0f4d76, #1c7eb4),
+	background: linear-gradient(145deg, var(--color-primary-800), var(--color-primary-500)),
 		url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23ffffff" opacity="0.1" width="100" height="100"/></svg>');
 }
 
@@ -354,7 +381,7 @@
 }
 
 .faculty-card:nth-child(7n + 3) .faculty-card__image {
-	background: linear-gradient(145deg, #1e5a7d, #2b7eb8),
+	background: linear-gradient(145deg, var(--color-primary-700), var(--color-primary-500)),
 		url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23ffffff" opacity="0.1" width="100" height="100"/></svg>');
 }
 
@@ -396,12 +423,12 @@
 	font-size: 0.9rem;
 	font-weight: 700;
 	color: #fff;
-	background: #0e3f70;
+	background: var(--color-primary-900);
 	border-radius: 0 10px 10px 0;
 	text-transform: uppercase;
 	letter-spacing: 0.02em;
 	line-height: 1.2;
-	box-shadow: 0 6px 14px rgba(5, 35, 65, 0.28);
+	box-shadow: 0 6px 14px rgba(6, 50, 83, 0.28);
 }
 
 .faculty-card__title::before {
@@ -475,7 +502,7 @@
 }
 
 .pagination-dot.active {
-	background: #1e3a5f;
+	background: var(--color-primary-900);
 }
 
 /* Kategori: grid 2 kolom kotak */
@@ -533,7 +560,7 @@
 	display: block;
 	padding: 8px 0;
 	font-size: 0.9rem;
-	color: #12324f;
+	color: var(--color-primary-900);
 	text-decoration: none;
 	border-top: 1px solid #e4e7eb;
 }
@@ -565,7 +592,7 @@
 	font-size: 0.95rem;
 	font-weight: 600;
 	line-height: 1.3;
-	color: #12324f;
+	color: var(--color-primary-900);
 }
 
 /* Majalah Kabar Digital */
@@ -609,7 +636,7 @@
 	font-size: 0.85rem;
 	font-weight: 600;
 	text-align: center;
-	color: #1d3248;
+	color: var(--color-primary-900);
 }
 
 @media (min-width: 480px) {
@@ -645,10 +672,6 @@
 }
 
 @media (min-width: 600px) {
-	.academic-stack {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-
 	.magazine-grid {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
@@ -1029,5 +1052,170 @@
 @media (min-width: 48rem) {
 	.ugm-page__article {
 		padding-top: 2rem;
+	}
+}
+
+/* Category archive */
+.ugm-archive {
+	background: #efefef;
+	color: #111a24;
+}
+
+.ugm-archive__container {
+	width: min(100% - 28px, 860px);
+	margin-inline: auto;
+	padding: 28px 0 36px;
+}
+
+.ugm-archive__breadcrumb {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.4rem;
+	margin: 0 0 22px;
+	font-size: 1rem;
+	color: #2a3542;
+}
+
+.ugm-archive__breadcrumb a {
+	color: var(--color-primary-900);
+	text-decoration: none;
+}
+
+.ugm-archive__breadcrumb a:hover,
+.ugm-archive__breadcrumb a:focus-visible {
+	text-decoration: underline;
+}
+
+.ugm-archive__header {
+	margin-bottom: 26px;
+}
+
+.ugm-archive__title {
+	margin: 0;
+	font-size: clamp(1.9rem, 5vw, 2.5rem);
+	line-height: 1.2;
+	color: var(--color-primary-900);
+}
+
+.ugm-archive__line {
+	display: block;
+	width: 88px;
+	height: 2px;
+	margin-top: 14px;
+	background: #e0b437;
+}
+
+.ugm-archive__list {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 22px;
+}
+
+.ugm-archive-card {
+	background: #fff;
+	border: 1px solid #d6dbe0;
+	overflow: hidden;
+}
+
+.ugm-archive-card__media-link {
+	display: block;
+	text-decoration: none;
+}
+
+.ugm-archive-card__media {
+	aspect-ratio: 16 / 10;
+	background: #dfe5ea;
+	overflow: hidden;
+}
+
+.ugm-archive-card__media img {
+	width: 100%;
+	height: 100%;
+	display: block;
+	object-fit: cover;
+}
+
+.ugm-archive-card__media--placeholder {
+	background: linear-gradient(135deg, #dfe5ea 0%, #cfd8e1 100%);
+}
+
+.ugm-archive-card__body {
+	padding: 16px 16px 18px;
+	min-width: 0;
+}
+
+.ugm-archive-card__kicker {
+	margin: 0 0 8px;
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: #1f3550;
+}
+
+.ugm-archive-card__title {
+	margin: 0 0 10px;
+	font-size: clamp(1.35rem, 3.2vw, 1.95rem);
+	line-height: 1.26;
+}
+
+.ugm-archive-card__title a {
+	color: var(--color-primary-900);
+	text-decoration: none;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+
+.ugm-archive-card__title a:hover,
+.ugm-archive-card__title a:focus-visible {
+	text-decoration: underline;
+}
+
+.ugm-archive-card__date {
+	margin: 0 0 10px;
+	font-size: 0.9rem;
+	color: #5b6672;
+}
+
+.ugm-archive-card__excerpt {
+	font-size: 1rem;
+	line-height: 1.6;
+	color: #1b2430;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+
+.ugm-archive__pagination {
+	margin-top: 26px;
+}
+
+.ugm-archive__pagination .nav-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.ugm-archive__pagination .page-numbers {
+	display: inline-block;
+	padding: 6px 10px;
+	border: 1px solid #c7d0d9;
+	background: #fff;
+	color: #1f2f43;
+	text-decoration: none;
+}
+
+.ugm-archive__pagination .page-numbers.current {
+	border-color: var(--color-primary-900);
+	background: var(--color-primary-900);
+	color: #fff;
+}
+
+@media (min-width: 768px) {
+	.ugm-archive__container {
+		width: min(100% - 56px, 920px);
+		padding-top: 34px;
+	}
+
+	.ugm-archive-card__body {
+		padding: 20px 22px 24px;
 	}
 }
