@@ -1,0 +1,503 @@
+<?php
+
+/**
+ * Model of a link
+ *
+ * @since 1.2.0
+ */
+
+declare(strict_types=1);
+
+namespace Internet_Archive\Wayback_Machine_Link_Fixer\Link;
+
+use DateTime;
+use Internet_Archive\Wayback_Machine_Link_Fixer\Settings\Settings;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Link Model
+ */
+class Link implements \JsonSerializable {
+
+	public const LINK_STATUS_VALID   = 'valid_link';
+	public const LINK_STATUS_INVALID = 'invalid_link';
+	public const PROCESS_NEW         = 'new';
+	public const PROCESS_PENDING     = 'pending';
+	public const PROCESS_DONE        = 'done';
+
+	/**
+	 * The database row id.
+	 *
+	 * @var integer|null
+	 */
+	private $id = null;
+
+	/**
+	 * The links href.
+	 *
+	 * @var string
+	 */
+	private $href;
+
+	/**
+	 * The archived href.
+	 *
+	 * @var string|null
+	 */
+	private $archived_href = null;
+
+	/**
+	 * The redirect href.
+	 *
+	 * @var string|null
+	 */
+	private $redirect_href = null;
+
+	/**
+	 * Denotes if a link is broken and should not checked.
+	 *
+	 * @var boolean
+	 */
+	private $is_broken = false;
+
+	/**
+	 * The checks that have been made to the link.
+	 *
+	 * @var array<array{date: string, http_code: int}>
+	 */
+	private $checks = array();
+
+	/**
+	 * Any messages that have been generated for the link.
+	 *
+	 * @var string
+	 */
+	private $message = '';
+
+	/**
+	 * Is the link allowed to be checked.
+	 *
+	 * @var boolean
+	 */
+	private $is_excluded = false;
+
+	/**
+	 * The process status of the link.
+	 *
+	 * @var string
+	 */
+	private $archive_process = self::PROCESS_NEW;
+
+	/**
+	 * Creates a new instance of the link model.
+	 *
+	 * @param string $href The original href.
+	 */
+	public function __construct( string $href ) {
+		$this->href = $href;
+	}
+
+	/**
+	 * Set the the database row id.
+	 *
+	 * @param integer $id The database row id.
+	 *
+	 * @return self
+	 */
+	public function set_id( int $id ): self {
+		$this->id = $id;
+		return $this;
+	}
+
+	/**
+	 * Get the database row id.
+	 *
+	 * @return integer|null
+	 */
+	public function get_id(): ?int {
+		return $this->id;
+	}
+
+	/**
+	 * Set the archived href.
+	 *
+	 * @param string $archived_href The archived href.
+	 *
+	 * @return self
+	 */
+	public function set_archived_href( string $archived_href ): self {
+		$this->archived_href = $archived_href;
+		return $this;
+	}
+
+	/**
+	 * Gets the redirect href.
+	 *
+	 * @return string|null
+	 */
+	public function get_redirect_href(): ?string {
+		return $this->redirect_href;
+	}
+
+	/**
+	 * Sets the redirect href.
+	 *
+	 * @param string $redirect_href The redirect href.
+	 *
+	 * @return self
+	 */
+	public function set_redirect_href( string $redirect_href ): self {
+		$this->redirect_href = $redirect_href;
+		return $this;
+	}
+
+	/**
+	 * Sets the link as broken.
+	 *
+	 * @return self
+	 */
+	public function set_broken(): self {
+		$this->is_broken = true;
+		return $this;
+	}
+
+	/**
+	 * Sets the link as valid.
+	 *
+	 * @return self
+	 */
+	public function set_valid(): self {
+		$this->is_broken = false;
+		return $this;
+	}
+
+	/**
+	 * Checks if the link is broken.
+	 *
+	 * @return boolean
+	 */
+	public function is_broken(): bool {
+		return $this->is_broken;
+	}
+
+	/**
+	 * Sets a message for the link.
+	 *
+	 * @param string $message The message.
+	 *
+	 * @return self
+	 */
+	public function set_message( string $message ): self {
+		$this->message = esc_html( $message );
+		return $this;
+	}
+
+	/**
+	 * Sets if the link is excluded.
+	 *
+	 * @param boolean $is_excluded If the link is excluded.
+	 *
+	 * @return self
+	 */
+	public function set_excluded( bool $is_excluded = true ): self {
+		$this->is_excluded = $is_excluded;
+		return $this;
+	}
+
+	/**
+	 * Checks if the link is excluded.
+	 *
+	 * @return boolean
+	 */
+	public function is_excluded(): bool {
+		return $this->is_excluded;
+	}
+
+	/**
+	 * Gets the message for the link.
+	 *
+	 * @return string
+	 */
+	public function get_message(): string {
+		return $this->message;
+	}
+
+	/**
+	 * Add a check to the link.
+	 *
+	 * @param integer     $http_code The HTTP code.
+	 * @param string|null $date      The date of the check in Y-m-d H:i:s format.
+	 *
+	 * @return self
+	 */
+	public function add_check( int $http_code, ?string $date = null ): self {
+		$this->checks[] = array(
+			'date'      => $date ?? gmdate( 'Y-m-d H:i:s' ),
+			'http_code' => $http_code,
+		);
+
+		return $this;
+	}
+
+	/**
+	 * Get the href.
+	 *
+	 * @return string
+	 */
+	public function get_href(): string {
+		return $this->href;
+	}
+
+	/**
+	 * Checks if a link has an archived href.o
+	 *
+	 * @return boolean
+	 */
+	public function has_archived_href(): bool {
+		return null !== $this->archived_href && '' !== $this->archived_href;
+	}
+
+	/**
+	 * Get the archived href.
+	 *
+	 * @return string
+	 */
+	public function get_archived_href(): ?string {
+		$archived_href = $this->archived_href;
+
+		if ( null === $archived_href || '' === $archived_href ) {
+			return $archived_href;
+		}
+
+		// If the url starts http(s)://web.archive.org/web/, replace it with http(s)://web-wp.archive.org/web/
+		if ( 0 === strpos( $archived_href, 'https://web.archive.org/web/' ) ) {
+			$archived_href = str_replace( 'https://web.archive.org/web/', 'https://web-wp.archive.org/web/', $archived_href );
+		}
+		if ( 0 === strpos( $archived_href, 'http://web.archive.org/web/' ) ) {
+			$archived_href = str_replace( 'http://web.archive.org/web/', 'http://web-wp.archive.org/web/', $archived_href );
+		}
+
+		// If the setting to cast to https is enabled, cast the start of the url to https.
+		if ( Settings::should_cast_archived_to_https() ) {
+			// Replace http with https at the start of the url.
+			$archived_href = preg_replace( '#^http://web-wp\.archive\.org/#i', 'https://web-wp.archive.org/', $archived_href );
+		}
+
+		return $archived_href;
+	}
+
+
+	/**
+	 * Get the checks.
+	 *
+	 * @return array<array{date: string, http_code: int}>
+	 */
+	public function get_checks(): array {
+		return $this->checks;
+	}
+
+	/**
+	 * Get the last check.
+	 *
+	 * @return array{date: string, http_code: int}
+	 */
+	public function get_last_check(): ?array {
+		// If we have no checks, return null.
+		if ( empty( $this->checks ) ) {
+			return null;
+		}
+
+		return end( $this->checks );
+	}
+
+	/**
+	 * Checks if the link has the following HTTP code.
+	 *
+	 * @param integer $http_code The HTTP code.
+	 *
+	 * @return boolean
+	 */
+	public function has_http_code( int $http_code ): bool {
+		foreach ( $this->checks as $check ) {
+			if ( $check['http_code'] === $http_code ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks if a link is valid.
+	 *
+	 * @return boolean
+	 */
+	public function is_valid(): bool {
+		$failed_count = Settings::get_failed_count();
+
+		// Get the last checks based on the failed count.
+		$last_checks = array_slice( $this->checks, - $failed_count );
+		// If we do not have any checks, then it is valid.
+		if ( empty( $last_checks ) ) {
+			$this->is_broken = false;
+			return true;
+		}
+
+		// If we have less checks than the failed count, then it is valid.
+		if ( count( $last_checks ) < $failed_count ) {
+			$this->is_broken = false;
+			return true;
+		}
+
+		// Verify the last checks.
+		$valid = array_filter(
+			$last_checks,
+			function ( $check ) {
+
+				// Check if the link has a valid status code.
+				$is_valid = in_array( absint( $check['http_code'] ), Settings::get_valid_http_status_codes(), true );
+
+				// Allow additional checks
+				return apply_filters( 'iawmlf_is_valid_check', $is_valid, $check, $this );
+			}
+		);
+
+		// If the link is, set its flag.
+		$this->is_broken = empty( $valid );
+
+		// If we have any valid checks, then it is valid
+		return ! empty( $valid );
+	}
+
+	/**
+	 * Get the process status of the link.
+	 *
+	 * @return string
+	 */
+	public function get_archive_process(): string {
+		return $this->archive_process;
+	}
+
+	/**
+	 * Sets the archive process status.
+	 *
+	 * @param string $status The status to set.
+	 *
+	 * @return self
+	 */
+	public function set_archive_process( string $status ): self {
+		$allowed_statuses = array(
+			self::PROCESS_NEW,
+			self::PROCESS_PENDING,
+			self::PROCESS_DONE,
+		);
+
+		if ( ! in_array( $status, $allowed_statuses, true ) ) {
+			$this->archive_process = self::PROCESS_NEW;
+			return $this;
+		}
+
+		$this->archive_process = $status;
+		return $this;
+	}
+
+	/**
+	 * Mark the link as pending.
+	 *
+	 * @return self
+	 */
+	public function set_pending(): self {
+		$this->archive_process = self::PROCESS_PENDING;
+		return $this;
+	}
+
+	/**
+	 * Mark the link as done.
+	 *
+	 * @return self
+	 */
+	public function set_done(): self {
+		$this->archive_process = self::PROCESS_DONE;
+		return $this;
+	}
+
+	/**
+	 * Mark the link as new.
+	 *
+	 * @return self
+	 */
+	public function set_new(): self {
+		$this->archive_process = self::PROCESS_NEW;
+		return $this;
+	}
+
+	/**
+	 * Checks of a link has been processed.
+	 *
+	 * @return boolean
+	 */
+	public function is_processed(): bool {
+		return self::PROCESS_DONE === $this->archive_process;
+	}
+
+	/**
+	 * Unpack from JSON
+	 *
+	 * @param string $json The JSON string.
+	 *
+	 * @return self
+	 */
+	public static function from_json( string $json ): self {
+		$data = json_decode( $json, true );
+
+		$link = new self( $data['href'] ?? '' );
+
+		// If contains archived href, set it.
+		if ( isset( $data['archived_href'] ) ) {
+			$link->set_archived_href( $data['archived_href'] ?? '' );
+		}
+
+		// If contains redirect href, set it.
+		if ( isset( $data['redirect_href'] ) ) {
+			$link->set_redirect_href( $data['redirect_href'] ?? '' );
+		}
+
+		// Set the id.
+		if ( isset( $data['id'] ) ) {
+			$link->set_id( absint( $data['id'] ) );
+		}
+
+		foreach ( $data['checks'] as $check ) {
+			$link->add_check(
+				iawmlf_escape_http_status_code( $check['http_code'] ),
+				esc_attr( $check['date'] )
+			);
+		}
+
+		// Set the process.
+		$link->set_archive_process( $data['archive_process'] ?? self::PROCESS_NEW );
+
+		return $link;
+	}
+
+	/**
+	 * Format for JSON
+	 *
+	 * @implements JsonSerializable
+	 *
+	 * @return array
+	 */
+	public function jsonSerialize(): array {
+		return array(
+			'id'            => $this->id,
+			'href'          => $this->href,
+			'archived_href' => $this->get_archived_href(),
+			'redirect_href' => $this->redirect_href,
+			'checks'        => $this->checks,
+			'broken'        => $this->is_broken,
+			'last_checked'  => $this->get_last_check(),
+			'process'       => $this->archive_process,
+		);
+	}
+}

@@ -1,0 +1,533 @@
+# Copyright (C) 2025 ashrafuzzaman93
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Block Responsive - Make Editor Blocks Responsive Easily 1.0.4\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/block-responsive\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-12-06T07:38:12+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: block-responsive\n"
+
+#. Plugin Name of the plugin
+#: block-responsive.php
+msgid "Block Responsive - Make Editor Blocks Responsive Easily"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: block-responsive.php
+msgid "http://wordpress.org/plugins/block-responsive/"
+msgstr ""
+
+#. Description of the plugin
+#: block-responsive.php
+msgid "A plugin that provides responsive options for Gutenberg blocks, allowing you to control visibility and styles based on screen size."
+msgstr ""
+
+#. Author of the plugin
+#: block-responsive.php
+msgid "ashrafuzzaman93"
+msgstr ""
+
+#. Author URI of the plugin
+#: block-responsive.php
+msgid "https://ashrafuzzaman.com/"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/DisplayControls.js:11
+msgid "Hide on mobile"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/DisplayControls.js:16
+msgid "Hide on tablet"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/DisplayControls.js:21
+msgid "Hide on desktop"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/DisplayControls.js:90
+msgid "Display Options"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/PositionAndOverflowControls.js:10
+msgid "Position Offset"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:81
+msgid "Direction"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:90
+msgid "Row"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:95
+msgid "Column"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:100
+msgid "Row reverse"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:105
+msgid "Column reverse"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:110
+msgid "Horizontal"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:119
+msgid "Align items left"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:124
+msgid "Align items center"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:129
+msgid "Align items right"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:134
+#: src/controls/AlignmentControls.js:163
+msgid "Space between"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:139
+msgid "Vertical"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:148
+msgid "Align items top"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:153
+msgid "Align items middle"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:158
+msgid "Align items bottom"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:168
+msgid "Text"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:177
+msgid "Left"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:182
+msgid "Center"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:187
+msgid "Right"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:192
+msgid "Justify"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/AlignmentControls.js:200
+#: src/controls/BackgroundImageControls.js:217
+#: src/controls/BorderAndShadowControls.js:219
+#: src/controls/ColorsControls.js:326
+#: src/controls/DimensionsControls.js:234
+#: src/controls/PositionAndOverflowControls.js:239
+#: src/controls/TypographyControls.js:248
+msgid "Reset All"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/ColorsControls.js:53
+#: src/controls/ColorsControls.js:122
+msgid "Color"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BorderAndShadowControls.js:77
+#: src/controls/ColorsControls.js:68
+#: src/controls/ColorsControls.js:133
+#: src/controls/ColorsControls.js:172
+#: src/controls/ColorsControls.js:256
+#: src/controls/ColorsControls.js:291
+msgid "Theme"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/ColorsControls.js:108
+msgid "Background"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/ColorsControls.js:157
+msgid "Gradient"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/ColorsControls.js:229
+msgid "Link"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/ColorsControls.js:242
+#: src/controls/PositionAndOverflowControls.js:58
+#: src/controls/PositionAndOverflowControls.js:133
+#: src/controls/PositionAndOverflowControls.js:173
+#: src/controls/PositionAndOverflowControls.js:213
+#: src/controls/TypographyControls.js:82
+msgid "Default"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/ColorsControls.js:280
+msgid "Hover"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/DimensionsControls.js:65
+msgid "Padding"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/DimensionsControls.js:72
+msgid "Margin"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/DimensionsControls.js:80
+msgid "Block Spacing"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/DimensionsControls.js:94
+msgid "Width"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/DimensionsControls.js:103
+#: src/controls/DimensionsControls.js:176
+msgid "Fixed"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/DimensionsControls.js:121
+#: src/controls/DimensionsControls.js:194
+msgid "Min"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/DimensionsControls.js:139
+#: src/controls/DimensionsControls.js:212
+msgid "Max"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/DimensionsControls.js:167
+msgid "Height"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/TypographyControls.js:71
+msgid "Font"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/TypographyControls.js:72
+msgid "Not supported in classic themes."
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/TypographyControls.js:150
+msgid "Letter spacing"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/TypographyControls.js:169
+msgid "Decoration"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/TypographyControls.js:187
+#: src/controls/TypographyControls.js:224
+msgid "None"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/TypographyControls.js:192
+msgid "Underline"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/TypographyControls.js:197
+msgid "Strikethrough"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/TypographyControls.js:206
+msgid "Letter case"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/TypographyControls.js:229
+msgid "Uppercase"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/TypographyControls.js:234
+msgid "Lowercase"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/TypographyControls.js:239
+msgid "Capitalize"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BorderAndShadowControls.js:70
+msgid "Border"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BorderAndShadowControls.js:95
+msgid "Border Radius"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BorderAndShadowControls.js:133
+msgid "Drop Shadow"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BorderAndShadowControls.js:160
+msgid "Outset"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BorderAndShadowControls.js:164
+msgid "Inset"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BorderAndShadowControls.js:179
+msgid "X Position"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BorderAndShadowControls.js:187
+msgid "Y Position"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BorderAndShadowControls.js:195
+msgid "Blur"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BorderAndShadowControls.js:204
+msgid "Spread"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BackgroundImageControls.js:98
+msgid "Change Background Image"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BackgroundImageControls.js:102
+msgid "Add Background Image"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BackgroundImageControls.js:122
+msgid "Fixed background"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BackgroundImageControls.js:137
+msgid "Size"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BackgroundImageControls.js:146
+msgid "Cover"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BackgroundImageControls.js:150
+msgid "Contain"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BackgroundImageControls.js:154
+msgid "Tile"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BackgroundImageControls.js:181
+#: src/controls/PositionAndOverflowControls.js:149
+#: src/controls/PositionAndOverflowControls.js:189
+#: src/controls/PositionAndOverflowControls.js:229
+msgid "Auto"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/BackgroundImageControls.js:187
+msgid "Repeat"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/PositionAndOverflowControls.js:44
+msgid "Position"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/PositionAndOverflowControls.js:97
+msgid "Z-Index"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/PositionAndOverflowControls.js:118
+msgid "Overflow"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/PositionAndOverflowControls.js:137
+#: src/controls/PositionAndOverflowControls.js:177
+#: src/controls/PositionAndOverflowControls.js:217
+msgid "Hidden"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/PositionAndOverflowControls.js:141
+#: src/controls/PositionAndOverflowControls.js:181
+#: src/controls/PositionAndOverflowControls.js:221
+msgid "Visible"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/PositionAndOverflowControls.js:145
+#: src/controls/PositionAndOverflowControls.js:185
+#: src/controls/PositionAndOverflowControls.js:225
+msgid "Scroll"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/PositionAndOverflowControls.js:158
+msgid "Overflow X"
+msgstr ""
+
+#: build/index.js:1
+#: src/controls/PositionAndOverflowControls.js:198
+msgid "Overflow Y"
+msgstr ""
+
+#: build/index.js:1
+#: src/components/ResponsiveWrapper.js:116
+msgid "Desktop"
+msgstr ""
+
+#: build/index.js:1
+#: src/components/ResponsiveWrapper.js:124
+msgid "Tablet"
+msgstr ""
+
+#: build/index.js:1
+#: src/components/ResponsiveWrapper.js:132
+msgid "Mobile"
+msgstr ""
+
+#. translators: %s is the control section name (e.g., "Colors", "Typography")
+#: build/index.js:2
+#: src/components/ResponsiveWrapper.js:177
+#, js-format
+msgid "Collapse %s Settings"
+msgstr ""
+
+#: build/index.js:2
+#: src/components/FeedbackNotice.js:47
+msgid "Dismiss"
+msgstr ""
+
+#: build/index.js:2
+#: src/components/FeedbackNotice.js:53
+msgid "Have feedback, suggestions, or feature ideas?"
+msgstr ""
+
+#: build/index.js:2
+#: src/components/FeedbackNotice.js:60
+msgid "Feel free to share your thoughts with me — I'd love to hear from you at "
+msgstr ""
+
+#: build/index.js:2
+#: src/index.js:176
+msgid "Responsive Settings"
+msgstr ""
+
+#: build/index.js:2
+#: src/index.js:218
+msgid "Alignment"
+msgstr ""
+
+#: build/index.js:2
+#: src/index.js:224
+msgid "Colors"
+msgstr ""
+
+#: build/index.js:2
+#: src/index.js:230
+msgid "Background Image"
+msgstr ""
+
+#: build/index.js:2
+#: src/index.js:236
+msgid "Typography"
+msgstr ""
+
+#: build/index.js:2
+#: src/index.js:242
+msgid "Dimensions"
+msgstr ""
+
+#: build/index.js:2
+#: src/index.js:248
+msgid "Border & Shadow"
+msgstr ""
+
+#: build/index.js:2
+#: src/index.js:254
+msgid "Position & Overflow"
+msgstr ""

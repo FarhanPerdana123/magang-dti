@@ -48,3 +48,35 @@ function ugm_get_category_tree_ids( $root_id ) {
 
 	return array_values( array_unique( array_filter( $term_ids ) ) );
 }
+
+/**
+ * Get uploaded PDF URL for magazine post.
+ *
+ * Accepts meta value as attachment ID or direct URL.
+ *
+ * @param int $post_id Post ID.
+ * @return string
+ */
+function ugm_get_magazine_pdf_url( $post_id ) {
+	$post_id = absint( $post_id );
+	if ( $post_id < 1 ) {
+		return '';
+	}
+
+	$pdf_value = get_post_meta( $post_id, '_ugm_majalah_pdf', true );
+	if ( '' === $pdf_value || null === $pdf_value ) {
+		// Backward compatibility for previous key.
+		$pdf_value = get_post_meta( $post_id, '_ugm_magazine_pdf', true );
+	}
+
+	if ( '' === $pdf_value || null === $pdf_value ) {
+		return '';
+	}
+
+	if ( is_numeric( $pdf_value ) && (int) $pdf_value > 0 ) {
+		$url = wp_get_attachment_url( (int) $pdf_value );
+		return $url ? esc_url_raw( $url ) : '';
+	}
+
+	return esc_url_raw( (string) $pdf_value );
+}

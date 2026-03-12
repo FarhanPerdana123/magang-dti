@@ -447,60 +447,98 @@ get_header();
 		</section>
 
 		<section class="home-section section-faculty" aria-labelledby="section-faculty-title">
-			<header class="section-header section-header--center">
-				<h2 id="section-faculty-title" class="section-title"><?php esc_html_e( 'Fakultas', 'ugm-faculty' ); ?></h2>
+			<header class="section-header">
+				<h2 id="section-faculty-title" class="section-title">
+					<?php echo esc_html( get_theme_mod( 'ugm_faculty_section_title', __( 'Fakultas', 'ugm-faculty' ) ) ); ?>
+				</h2>
+				<span class="section-line" aria-hidden="true"></span>
 			</header>
 
 			<?php
-			$faculty_list = array(
-				'Fakultas Biologi',
-				'Fakultas Ekonomika & Bisnis',
-				'Fakultas Farmasi',
-				'Fakultas Kedokteran',
-				'Fakultas Teknik',
-				'Fakultas Hukum',
-				'Fakultas Ilmu Sosial dan Politik',
+			$default_faculty_items = array(
+				1 => 'Fakultas Biologi',
+				2 => 'Fakultas Ekonomika & Bisnis',
+				3 => 'Fakultas Farmasi',
+				4 => 'Fakultas Kedokteran',
+				5 => 'Fakultas Teknik',
+				6 => 'Fakultas Hukum',
+				7 => 'Fakultas Ilmu Sosial dan Politik',
 			);
+			$faculty_count = max( 1, min( 20, absint( get_theme_mod( 'ugm_faculty_item_count', 7 ) ) ) );
+			$faculty_list  = array();
+
+			for ( $faculty_index = 1; $faculty_index <= $faculty_count; $faculty_index++ ) {
+				$default_faculty_name = isset( $default_faculty_items[ $faculty_index ] )
+					? $default_faculty_items[ $faculty_index ]
+					: sprintf(
+						/* translators: %d: faculty item number */
+						__( 'Fakultas %d', 'ugm-faculty' ),
+						$faculty_index
+					);
+				$faculty_name_setting = trim( (string) get_theme_mod( 'ugm_faculty_item_' . $faculty_index . '_name', $default_faculty_name ) );
+				if ( '' === $faculty_name_setting ) {
+					continue;
+				}
+
+				$faculty_image_value = get_theme_mod( 'ugm_faculty_item_' . $faculty_index . '_image', '' );
+				$faculty_image_url   = '';
+
+				if ( is_numeric( $faculty_image_value ) && (int) $faculty_image_value > 0 ) {
+					$faculty_image_url = wp_get_attachment_image_url( (int) $faculty_image_value, 'large' );
+				} elseif ( is_string( $faculty_image_value ) ) {
+					$faculty_image_url = esc_url_raw( $faculty_image_value );
+				}
+
+				$faculty_list[] = array(
+					'name'      => $faculty_name_setting,
+					'image_url' => $faculty_image_url,
+				);
+			}
+
 			$items_per_page = 3;
 			$total_pages    = ceil( count( $faculty_list ) / $items_per_page );
 			?>
-			<div class="faculty-slider-wrapper">
-				<button class="faculty-nav faculty-nav--prev" aria-label="Previous page">&#8249;</button>
-				<button class="faculty-nav faculty-nav--next" aria-label="Next page">&#8250;</button>
-				
-				<div class="faculty-slider" role="list">
-					<?php
-					$page_index = 0;
-					foreach ( $faculty_list as $index => $faculty_name ) :
-						// Start new page every 3 items
-						if ( 0 === $index % $items_per_page ) :
-							if ( $index > 0 ) :
-								echo '</div>'; // Close previous page
+			<?php if ( ! empty( $faculty_list ) ) : ?>
+				<div class="faculty-slider-wrapper">
+					<button class="faculty-nav faculty-nav--prev" aria-label="<?php esc_attr_e( 'Previous page', 'ugm-faculty' ); ?>">&#8249;</button>
+					<button class="faculty-nav faculty-nav--next" aria-label="<?php esc_attr_e( 'Next page', 'ugm-faculty' ); ?>">&#8250;</button>
+					
+					<div class="faculty-slider" role="list">
+						<?php
+						$page_index = 0;
+						foreach ( $faculty_list as $index => $faculty_item ) :
+							// Start new page every 3 items.
+							if ( 0 === $index % $items_per_page ) :
+								if ( $index > 0 ) :
+									echo '</div>'; // Close previous page.
+								endif;
+								?>
+								<div class="faculty-page" data-page="<?php echo esc_attr( $page_index ); ?>">
+								<?php
+								$page_index++;
 							endif;
 							?>
-							<div class="faculty-page" data-page="<?php echo esc_attr( $page_index ); ?>">
+							<article class="faculty-card" role="listitem">
+								<div class="faculty-card__image" aria-hidden="true"<?php if ( $faculty_item['image_url'] ) : ?> style="background-image: url('<?php echo esc_url( $faculty_item['image_url'] ); ?>');"<?php endif; ?>></div>
+								<div class="faculty-card__overlay">
+									<h3 class="faculty-card__title"><?php echo esc_html( $faculty_item['name'] ); ?></h3>
+								</div>
+							</article>
 							<?php
-							$page_index++;
-						endif;
+						endforeach;
+						echo '</div>'; // Close last page.
 						?>
-						<article class="faculty-card" role="listitem">
-							<div class="faculty-card__image" aria-hidden="true"></div>
-							<div class="faculty-card__overlay">
-								<h3 class="faculty-card__title"><?php echo esc_html( $faculty_name ); ?></h3>
-							</div>
-						</article>
-						<?php
-					endforeach;
-					echo '</div>'; // Close last page
-					?>
+					</div>
+					
+					<div class="faculty-pagination" aria-hidden="true">
+						<?php for ( $i = 0; $i < $total_pages; $i++ ) : ?>
+							<span class="pagination-dot <?php echo 0 === $i ? 'active' : ''; ?>" data-page="<?php echo esc_attr( $i ); ?>"></span>
+						<?php endfor; ?>
+					</div>
 				</div>
-				
-				<div class="faculty-pagination" aria-hidden="true">
-					<?php for ( $i = 0; $i < $total_pages; $i++ ) : ?>
-						<span class="pagination-dot <?php echo 0 === $i ? 'active' : ''; ?>" data-page="<?php echo esc_attr( $i ); ?>"></span>
-					<?php endfor; ?>
-				</div>
-			</div>
+			<?php else : ?>
+				<p class="section-empty"><?php esc_html_e( 'Belum ada data fakultas.', 'ugm-faculty' ); ?></p>
+			<?php endif; ?>
 		</section>
 
 		<section class="home-section section-category" aria-labelledby="section-category-title">
@@ -510,17 +548,18 @@ get_header();
 			</header>
 
 			<?php
-			$category_terms = get_categories(
+			$top_level_category_terms = get_categories(
 				array(
 					'hide_empty' => true,
+					'parent'     => 0,
 					'orderby'    => 'name',
 					'order'      => 'ASC',
-					'number'     => 6,
 				)
 			);
+			$category_terms = array_slice( $top_level_category_terms, 0, 6 );
 			?>
 
-			<?php if ( ! empty( $category_terms ) ) : ?>
+			<?php if ( ! empty( $top_level_category_terms ) ) : ?>
 				<details class="category-mobile-list">
 					<summary class="category-mobile-list__trigger">
 						<span class="category-mobile-list__label"><?php esc_html_e( 'Kategori Lists', 'ugm-faculty' ); ?></span>
@@ -531,11 +570,82 @@ get_header();
 						</span>
 					</summary>
 					<ul class="category-mobile-list__menu">
-						<?php foreach ( $category_terms as $category_term ) : ?>
-							<li>
-								<a href="<?php echo esc_url( get_category_link( $category_term->term_id ) ); ?>">
-									<?php echo esc_html( $category_term->name ); ?>
-								</a>
+						<?php foreach ( $top_level_category_terms as $category_term ) : ?>
+							<?php
+							$descendant_terms = get_terms(
+								array(
+									'taxonomy'   => 'category',
+									'hide_empty' => true,
+									'child_of'   => (int) $category_term->term_id,
+									'orderby'    => 'name',
+									'order'      => 'ASC',
+								)
+							);
+							if ( is_wp_error( $descendant_terms ) ) {
+								$descendant_terms = array();
+							}
+
+							$parent_total_count = (int) $category_term->count;
+							if ( ! empty( $descendant_terms ) ) {
+								foreach ( $descendant_terms as $descendant_term ) {
+									$parent_total_count += (int) $descendant_term->count;
+								}
+							}
+							?>
+							<li class="category-mobile-group">
+								<?php if ( ! empty( $descendant_terms ) ) : ?>
+									<details class="category-mobile-group__details">
+										<summary class="category-mobile-group__summary">
+											<span class="category-mobile-group__meta">
+												<span class="category-mobile-list__name"><?php echo esc_html( $category_term->name ); ?></span>
+												<span class="category-mobile-list__count">
+													<?php
+													printf(
+														/* translators: %s: category post count */
+														esc_html__( '%s Artikel Total', 'ugm-faculty' ),
+														esc_html( number_format_i18n( $parent_total_count ) )
+													);
+													?>
+												</span>
+											</span>
+											<span class="category-mobile-group__chevron" aria-hidden="true"></span>
+										</summary>
+
+										<ul class="category-mobile-group__children">
+											<?php foreach ( $descendant_terms as $descendant_term ) : ?>
+												<li>
+													<a href="<?php echo esc_url( get_category_link( $descendant_term->term_id ) ); ?>">
+														<span class="category-mobile-list__name"><?php echo esc_html( $descendant_term->name ); ?></span>
+														<span class="category-mobile-list__count">
+															<?php
+															printf(
+																/* translators: %s: category post count */
+																esc_html__( '%s Artikel', 'ugm-faculty' ),
+																esc_html( number_format_i18n( (int) $descendant_term->count ) )
+															);
+															?>
+														</span>
+													</a>
+												</li>
+											<?php endforeach; ?>
+										</ul>
+									</details>
+								<?php else : ?>
+									<a class="category-mobile-group__link" href="<?php echo esc_url( get_category_link( $category_term->term_id ) ); ?>">
+										<span class="category-mobile-group__meta">
+											<span class="category-mobile-list__name"><?php echo esc_html( $category_term->name ); ?></span>
+											<span class="category-mobile-list__count">
+												<?php
+												printf(
+													/* translators: %s: category post count */
+													esc_html__( '%s Artikel Total', 'ugm-faculty' ),
+													esc_html( number_format_i18n( (int) $category_term->count ) )
+												);
+												?>
+											</span>
+										</span>
+									</a>
+								<?php endif; ?>
 							</li>
 						<?php endforeach; ?>
 					</ul>
@@ -553,51 +663,7 @@ get_header();
 			<?php endif; ?>
 		</section>
 
-		<section class="home-section section-magazine" aria-labelledby="section-magazine-title">
-			<header class="section-header section-header--accent">
-				<h2 id="section-magazine-title" class="section-title"><?php esc_html_e( 'Majalah Kabar Digital', 'ugm-faculty' ); ?></h2>
-				<span class="section-line" aria-hidden="true"></span>
-			</header>
-
-			<?php
-			// 4 konten majalah terbaru berdasarkan tanggal publish/upload terbaru.
-			$magazine_query = new WP_Query(
-				array(
-					'post_type'           => 'post',
-					'posts_per_page'      => 4,
-					'category_name'       => 'majalah-kabar-digital,majalah-kabar,kabar-ugm',
-					'ignore_sticky_posts' => true,
-					'post_status'         => 'publish',
-					'orderby'             => 'date',
-					'order'               => 'DESC',
-					'no_found_rows'       => true,
-				)
-			);
-			?>
-
-			<?php if ( $magazine_query->have_posts() ) : ?>
-				<div class="magazine-grid">
-					<?php while ( $magazine_query->have_posts() ) : $magazine_query->the_post(); ?>
-						<article <?php post_class( 'magazine-card' ); ?>>
-							<a class="magazine-card__link" href="<?php the_permalink(); ?>" aria-label="<?php the_title_attribute(); ?>">
-								<?php if ( has_post_thumbnail() ) : ?>
-									<div class="magazine-card__thumb">
-										<?php the_post_thumbnail( 'medium_large' ); ?>
-									</div>
-								<?php else : ?>
-									<div class="magazine-card__thumb magazine-card__thumb--placeholder">
-										<span><?php esc_html_e( 'Majalah Terbaru', 'ugm-faculty' ); ?></span>
-									</div>
-								<?php endif; ?>
-							</a>
-						</article>
-					<?php endwhile; ?>
-				</div>
-				<?php wp_reset_postdata(); ?>
-			<?php else : ?>
-				<p class="section-empty"><?php esc_html_e( 'Belum ada majalah kabar.', 'ugm-faculty' ); ?></p>
-			<?php endif; ?>
-		</section>
+		<?php get_template_part( 'template-parts/section-majalah' ); ?>
 	</div>
 </main>
 <?php

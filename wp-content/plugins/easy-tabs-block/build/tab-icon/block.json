@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "easy-tabs-block/tab-icon",
+  "version": "1.0.8",
+  "title": "Tab Icon",
+  "icon": "marker",
+  "description": "A block for displaying an icon for a tab.",
+  "ancestor": [
+    "easy-tabs-block/tabs"
+  ],
+  "supports": {
+    "anchor": false,
+    "html": false,
+    "ariaLabel": true,
+    "spacing": {
+      "margin": true,
+      "__experimentalDefaultControls": {
+        "margin": true
+      }
+    }
+  },
+  "textdomain": "easy-tabs-block",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}

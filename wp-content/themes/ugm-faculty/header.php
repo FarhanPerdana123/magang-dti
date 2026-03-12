@@ -23,7 +23,8 @@ $cs_link   = '' !== $cs_digits ? 'https://wa.me/' . $cs_digits : '';
 $cs_target = '_blank';
 $cs_rel    = 'noopener noreferrer';
 $is_latest_news_route = '1' === get_query_var( 'ugm_latest_news' );
-$is_front_landing     = is_front_page() && ! $is_latest_news_route;
+$is_magazine_news_route = '1' === get_query_var( 'ugm_magazine_news' );
+$is_front_landing       = is_front_page() && ! $is_latest_news_route && ! $is_magazine_news_route;
 
 if ( '' === $cs_link && '' !== $faculty_phone ) {
 	$cs_link   = 'tel:' . preg_replace( '/[^0-9+]/', '', $faculty_phone );

@@ -17,6 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function ugm_register_query_vars( $vars ) {
 	$vars[] = 'ugm_latest_news';
+	$vars[] = 'ugm_magazine_news';
 	return $vars;
 }
 add_filter( 'query_vars', 'ugm_register_query_vars' );
@@ -45,3 +46,28 @@ function ugm_route_latest_news_template( $template ) {
 	return $template;
 }
 add_filter( 'template_include', 'ugm_route_latest_news_template' );
+
+/**
+ * Route digital magazine listing without requiring Reading settings.
+ *
+ * @param string $template Current template path.
+ * @return string
+ */
+function ugm_route_magazine_news_template( $template ) {
+	if ( is_admin() ) {
+		return $template;
+	}
+
+	if ( '1' !== get_query_var( 'ugm_magazine_news' ) ) {
+		return $template;
+	}
+
+	$magazine_template = get_theme_file_path( 'templates/magazine-news.php' );
+
+	if ( file_exists( $magazine_template ) ) {
+		return $magazine_template;
+	}
+
+	return $template;
+}
+add_filter( 'template_include', 'ugm_route_magazine_news_template' );

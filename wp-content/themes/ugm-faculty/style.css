@@ -12,3 +12,87 @@ Text Domain: ugm-faculty
 */
 
 /* Main stylesheet manifest. Styles are loaded from assets/css/*.css via inc/enqueue.php. */
+
+/* Majalah Kabar Digital */
+.section-majalah-digital .section-line {
+	background: #d4a017;
+}
+
+.majalah-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.majalah-card {
+	margin: 0;
+}
+
+.majalah-card__link {
+	position: relative;
+	display: block;
+	overflow: hidden;
+	border-radius: 8px;
+	box-shadow: 0 2px 8px rgba(16, 25, 34, 0.12);
+	text-decoration: none;
+}
+
+.majalah-card__media {
+	aspect-ratio: 3 / 4;
+	background: #dfe5ea;
+	overflow: hidden;
+}
+
+.majalah-card__media img {
+	width: 100%;
+	height: 100%;
+	display: block;
+	object-fit: cover;
+	transform: scale(1);
+	transition: transform 0.25s ease;
+}
+
+.majalah-card__placeholder {
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(135deg, #dfe5ea 0%, #cfd8e1 100%);
+}
+
+.majalah-card__title {
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+	margin: 0;
+	padding: 10px 12px;
+	font-size: 0.95rem;
+	line-height: 1.35;
+	font-weight: 600;
+	color: #fff;
+	background: linear-gradient(180deg, rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0) 100%);
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+
+.majalah-card__link:hover .majalah-card__media img,
+.majalah-card__link:focus-visible .majalah-card__media img {
+	transform: scale(1.05);
+}
+
+.majalah-archive-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 18px;
+}
+
+@media (min-width: 768px) {
+	.majalah-archive-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (min-width: 1024px) {
+	.majalah-archive-grid {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}

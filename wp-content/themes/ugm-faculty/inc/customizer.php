@@ -63,6 +63,36 @@ function ugm_sanitize_latest_news_mode( $value ) {
 }
 
 /**
+ * Sanitize faculty item count for landing page slider.
+ *
+ * @param mixed $value Raw value from Customizer.
+ * @return int
+ */
+function ugm_sanitize_faculty_item_count( $value ) {
+	$value = absint( $value );
+	if ( $value < 1 ) {
+		return 1;
+	}
+
+	return min( 20, $value );
+}
+
+/**
+ * Sanitize digital magazine item count for landing page.
+ *
+ * @param mixed $value Raw value from Customizer.
+ * @return int
+ */
+function ugm_sanitize_magazine_item_count( $value ) {
+	$value = absint( $value );
+	if ( $value < 1 ) {
+		return 1;
+	}
+
+	return min( 12, $value );
+}
+
+/**
  * Simple note control for Customizer instructions.
  */
 if ( class_exists( 'WP_Customize_Control' ) && ! class_exists( 'UGM_Customize_Note_Control' ) ) {
@@ -885,12 +915,221 @@ function ugm_customize_register( $wp_customize ) {
 		);
 	}
 
+	// Landing page digital magazine section.
+	$wp_customize->add_section(
+		'ugm_magazine_section',
+		array(
+			'title'    => __( 'Majalah Kabar Digital (Landing Page)', 'ugm-faculty' ),
+			'priority' => 44,
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_magazine_help',
+		array(
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		new UGM_Customize_Note_Control(
+			$wp_customize,
+			'ugm_magazine_help',
+			array(
+				'label'       => __( 'Panduan Kelola Majalah Digital', 'ugm-faculty' ),
+				'description' => wp_kses_post(
+					sprintf(
+						/* translators: 1: majalah list URL, 2: add new majalah URL */
+						__( 'Konten majalah dikelola lewat CPT <strong>Majalah Digital</strong>.<br><a href="%1$s" target="_blank" rel="noopener">Lihat semua majalah</a> | <a href="%2$s" target="_blank" rel="noopener">Tambah majalah baru</a><br><br>Di Customizer ini hanya untuk pengaturan tampilan section landing.', 'ugm-faculty' ),
+						esc_url( admin_url( 'edit.php?post_type=majalah' ) ),
+						esc_url( admin_url( 'post-new.php?post_type=majalah' ) )
+					)
+				),
+				'section'     => 'ugm_magazine_section',
+			)
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_magazine_section_title',
+		array(
+			'default'           => __( 'Majalah Kabar Digital', 'ugm-faculty' ),
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_magazine_section_title',
+		array(
+			'label'   => __( 'Judul Section Majalah', 'ugm-faculty' ),
+			'section' => 'ugm_magazine_section',
+			'type'    => 'text',
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_magazine_item_count',
+		array(
+			'default'           => 4,
+			'sanitize_callback' => 'ugm_sanitize_magazine_item_count',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_magazine_item_count',
+		array(
+			'label'       => __( 'Jumlah Majalah Ditampilkan', 'ugm-faculty' ),
+			'description' => __( 'Jumlah majalah terbaru yang tampil otomatis di landing page (1-12).', 'ugm-faculty' ),
+			'section'     => 'ugm_magazine_section',
+			'type'        => 'number',
+			'input_attrs' => array(
+				'min' => 1,
+				'max' => 12,
+			),
+		)
+	);
+
+	// Landing page faculty slider section.
+	$wp_customize->add_section(
+		'ugm_faculty_slider_section',
+		array(
+			'title'    => __( 'Fakultas (Landing Page)', 'ugm-faculty' ),
+			'priority' => 45,
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_faculty_slider_help',
+		array(
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		new UGM_Customize_Note_Control(
+			$wp_customize,
+			'ugm_faculty_slider_help',
+			array(
+				'label'       => __( 'Panduan Kelola Section Fakultas', 'ugm-faculty' ),
+				'description' => __( 'Tambah jumlah kartu lalu isi nama dan gambar tiap fakultas. Jika gambar kosong, tema akan memakai latar bawaan.', 'ugm-faculty' ),
+				'section'     => 'ugm_faculty_slider_section',
+			)
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_faculty_section_title',
+		array(
+			'default'           => __( 'Fakultas', 'ugm-faculty' ),
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_faculty_section_title',
+		array(
+			'label'   => __( 'Judul Section Fakultas', 'ugm-faculty' ),
+			'section' => 'ugm_faculty_slider_section',
+			'type'    => 'text',
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_faculty_item_count',
+		array(
+			'default'           => 7,
+			'sanitize_callback' => 'ugm_sanitize_faculty_item_count',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_faculty_item_count',
+		array(
+			'label'       => __( 'Jumlah Kartu Fakultas', 'ugm-faculty' ),
+			'description' => __( 'Atur jumlah kartu fakultas yang ditampilkan (1-20).', 'ugm-faculty' ),
+			'section'     => 'ugm_faculty_slider_section',
+			'type'        => 'number',
+			'input_attrs' => array(
+				'min' => 1,
+				'max' => 20,
+			),
+		)
+	);
+
+	$default_faculty_items = array(
+		1 => 'Fakultas Biologi',
+		2 => 'Fakultas Ekonomika & Bisnis',
+		3 => 'Fakultas Farmasi',
+		4 => 'Fakultas Kedokteran',
+		5 => 'Fakultas Teknik',
+		6 => 'Fakultas Hukum',
+		7 => 'Fakultas Ilmu Sosial dan Politik',
+	);
+
+	$max_faculty_items = 20;
+
+	for ( $faculty_index = 1; $faculty_index <= $max_faculty_items; $faculty_index++ ) {
+		$default_faculty_name = isset( $default_faculty_items[ $faculty_index ] )
+			? $default_faculty_items[ $faculty_index ]
+			: sprintf(
+				/* translators: %d: faculty item number */
+				__( 'Fakultas %d', 'ugm-faculty' ),
+				$faculty_index
+			);
+		$name_setting_id  = 'ugm_faculty_item_' . $faculty_index . '_name';
+		$image_setting_id = 'ugm_faculty_item_' . $faculty_index . '_image';
+
+		$wp_customize->add_setting(
+			$name_setting_id,
+			array(
+				'default'           => $default_faculty_name,
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
+
+		$wp_customize->add_control(
+			$name_setting_id,
+			array(
+				/* translators: %d: faculty item number */
+				'label'           => sprintf( __( 'Nama Fakultas %d', 'ugm-faculty' ), $faculty_index ),
+				'section'         => 'ugm_faculty_slider_section',
+				'type'            => 'text',
+				'active_callback' => function () use ( $faculty_index ) {
+					return (int) get_theme_mod( 'ugm_faculty_item_count', 7 ) >= $faculty_index;
+				},
+			)
+		);
+
+		$wp_customize->add_setting(
+			$image_setting_id,
+			array(
+				'default'           => '',
+				'sanitize_callback' => 'ugm_sanitize_image_value',
+			)
+		);
+
+		$wp_customize->add_control(
+			new WP_Customize_Image_Control(
+				$wp_customize,
+				$image_setting_id,
+				array(
+					/* translators: %d: faculty item number */
+					'label'           => sprintf( __( 'Gambar Fakultas %d', 'ugm-faculty' ), $faculty_index ),
+					'section'         => 'ugm_faculty_slider_section',
+					'active_callback' => function () use ( $faculty_index ) {
+						return (int) get_theme_mod( 'ugm_faculty_item_count', 7 ) >= $faculty_index;
+					},
+				)
+			)
+		);
+	}
+
 	// UGM Footer Section.
 	$wp_customize->add_section(
 		'ugm_footer_section',
 		array(
 			'title'    => __( 'Footer Settings', 'ugm-faculty' ),
-			'priority' => 45,
+			'priority' => 46,
 		)
 	);
 

@@ -35,6 +35,11 @@ require get_template_directory() . '/inc/theme-routes.php';
 require get_template_directory() . '/inc/front-page-helpers.php';
 
 /**
+ * Majalah Digital post type + PDF meta box
+ */
+require get_template_directory() . '/inc/magazine-meta.php';
+
+/**
  * Enqueue scripts and styles
  */
 require get_template_directory() . '/inc/enqueue.php';

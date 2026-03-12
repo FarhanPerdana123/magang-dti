@@ -1,0 +1,176 @@
+<?php
+
+/**
+ * Action scheduler event for adding a post on the site to the queue.
+ *
+ * @since 1.2.0
+ */
+
+declare(strict_types=1);
+
+namespace Internet_Archive\Wayback_Machine_Link_Fixer\Event;
+
+use Exception;
+use Throwable;
+use Internet_Archive\Wayback_Machine_Link_Fixer\Settings\Settings;
+use Internet_Archive\Wayback_Machine_Link_Fixer\Wayback_Machine\Wayback_Machine_Service;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Process Local Post Event class.
+ */
+class Process_Local_Post_Event {
+
+	/**
+	 * The event handle.
+	 */
+	public const HANDLE = 'iawmlf_process_local_post';
+
+	/**
+	 * The wayback machine service.
+	 *
+	 * @var Wayback_Machine_Service
+	 */
+	private $wayback_machine;
+
+	/**
+	 * Lazy setup of class
+	 * This is run at call time, to reduce load on every page load.
+	 *
+	 * @return void
+	 */
+	public function setup(): void {
+		$this->wayback_machine = new Wayback_Machine_Service();
+	}
+
+	/**
+	 * Add to action scheduler.
+	 *
+	 * @param integer $post_id The post ID.
+	 *
+	 * @return void
+	 */
+	public static function add_to_queue( int $post_id ): void {
+		self::add_to_queue_with_delay( $post_id, 0 );
+	}
+
+	/**
+	 * Adds to the queue with a delay.
+	 *
+	 * @param integer $post_id The post ID.
+	 * @param integer $delay   The delay in seconds.
+	 *
+	 * @return void
+	 */
+	public static function add_to_queue_with_delay( int $post_id, int $delay = 1 * \HOUR_IN_SECONDS ): void {
+		// Ensure there are no duplicate events in the queue for this post ID.
+		self::ensure_single_event( $post_id );
+
+		$time_to_run = time() + $delay;
+		as_schedule_single_action(
+			$time_to_run,
+			self::HANDLE,
+			array(
+				'post_id' => $post_id,
+			)
+		);
+	}
+
+	/**
+	 * Handle the event.
+	 *
+	 * @param integer $post_id The post ID.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception If service is offline or post is not found.
+	 * @throws Exception If the post is not found.
+	 * @throws Exception If the permalink is not found.
+	 * @throws Exception If the snapshot creation fails.
+	 */
+	public function __invoke( int $post_id ): void {
+
+		$this->setup();
+		// If Wayback Link Fixer is offline, add the event to the queue delayed.
+		if ( ! $this->wayback_machine->is_online()['snapshot'] ) {
+			self::add_to_queue_with_delay( $post_id );
+			throw new Exception( esc_html( 'Service is offline, trying again in 1 hour.' ) );
+		}
+
+		// Get the post.
+		$post = get_post( $post_id );
+
+		// If the post is not found, throw an exception.
+		if ( ! $post ) {
+			throw new Exception( esc_html( "Post not found for id:{$post_id}" ) );
+		}
+
+		// Get the permalink.
+		$permalink = get_permalink( $post );
+
+		// If the permalink is not found, throw an exception.
+		if ( ! $permalink ) {
+			throw new Exception( esc_html( "Permalink not found for post id:{$post_id}" ) );
+		}
+
+		// Create a snapshot.
+		try {
+			$this->wayback_machine->create_snapshot( $permalink );
+		} catch ( Throwable $th ) {
+			throw new Exception( esc_html( "Failed to create snapshot for post id #{$post_id} : {$th->getMessage()}" ) );
+		}
+
+		// Add the last updated meta key.
+		update_post_meta( $post_id, Settings::OWN_LINK_LAST_PROCESSED, time() );
+
+		// Ensure there are no duplicate events in the queue for this post ID.
+		self::ensure_single_event( $post_id );
+	}
+
+	/**
+	 * Ensure that any duplicated events are removed from the queue, and that there is only ever one event per post ID in the queue.
+	 *
+	 * @since 1.3.5
+	 *
+	 * @param integer $post_id The post ID.
+	 *
+	 * @return void
+	 */
+	private static function ensure_single_event( int $post_id ): void {
+		try {
+			// Add the bulk cancel action to prevent interference with other events.
+			add_action( 'action_scheduler_canceled_action', array( self::class, 'handle_hard_delete' ) );
+
+			// Unschedule any existing events for this post ID.
+			as_unschedule_all_actions( self::HANDLE, array( 'post_id' => $post_id ) );
+		} finally {
+			// Remove the bulk cancel action to prevent interference with other events.
+			remove_action( 'action_scheduler_canceled_action', array( self::class, 'handle_hard_delete' ) );
+		}
+	}
+
+	/**
+	 * Handle hard delete of events.
+	 *
+	 * @param integer $action_id The action ID.
+	 *
+	 * @return void
+	 */
+	public static function handle_hard_delete( int $action_id ): void {
+		// Bail if not set.
+		if ( ! class_exists( 'ActionScheduler' ) ) {
+			return;
+		}
+
+		// Get the action.
+		$store  = \ActionScheduler::store();
+		$action = $store->fetch_action( $action_id );
+
+		// If we have the right action.
+		if ( self::HANDLE === $action->get_hook() ) {
+			// Delete the action.
+			$store->delete_action( $action_id );
+		}
+	}
+}

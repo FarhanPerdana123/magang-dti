@@ -1,0 +1,84 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "easy-tabs-block/tabs",
+  "version": "1.0.8",
+  "title": "Tabs",
+  "category": "widgets",
+  "allowedBlocks": [
+    "core/group",
+    "core/columns",
+    "easy-tabs-block/tab-buttons",
+    "easy-tabs-block/tab-contents"
+  ],
+  "description": "Simplify information presentation with tabs—efficiently organize content for a seamless and user-friendly experience.",
+  "keywords": [
+    "wordpress tabs",
+    "responsive tabs",
+    "tabs",
+    "block",
+    "gutenberg tabs"
+  ],
+  "supports": {
+    "align": [
+      "wide",
+      "full"
+    ],
+    "anchor": true,
+    "html": false,
+    "ariaLabel": true,
+    "background": {
+      "backgroundImage": true,
+      "backgroundSize": true,
+      "__experimentalDefaultControls": {
+        "backgroundImage": true
+      }
+    },
+    "color": {
+      "gradients": true,
+      "link": false,
+      "text": false,
+      "__experimentalDefaultControls": {
+        "background": true
+      }
+    },
+    "shadow": true,
+    "spacing": {
+      "margin": true,
+      "padding": true,
+      "__experimentalDefaultControls": {
+        "padding": false,
+        "margin": false
+      }
+    },
+    "dimensions": {
+      "minHeight": true,
+      "__experimentalDefaultControls": {
+        "minHeight": false
+      }
+    },
+    "__experimentalBorder": {
+      "color": true,
+      "radius": true,
+      "style": true,
+      "width": true,
+      "__experimentalDefaultControls": {
+        "color": false,
+        "radius": false,
+        "style": false,
+        "width": false
+      }
+    },
+    "position": {
+      "sticky": true
+    },
+    "layout": {
+      "allowSizingOnChildren": true
+    }
+  },
+  "textdomain": "easy-tabs-block",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js"
+}

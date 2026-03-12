@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<ruleset name="Custom WordPress Standards">
+    <description>WordPress coding standards with filename rule excluded</description>
+
+    <arg value="sp"/>
+    <arg name="basepath" value="./"/>
+    <arg name="colors"/>
+    <arg name="extensions" value="php"/>
+    <arg name="parallel" value="12"/>
+
+    <!-- Use WordPress-Extra ruleset which includes all WordPress rules -->
+    <rule ref="WordPress-Extra"/>
+    <rule ref="WordPress"/>
+
+    <!-- Exclude the filename sniff -->
+    <rule ref="WordPress.Files.FileName">
+        <exclude-pattern>*</exclude-pattern>
+    </rule>
+
+    <!-- Set the text domain -->
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain">
+                <element value="block-responsive"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- Set the minimum PHP version -->
+    <config name="minimum_supported_wp_version" value="5.0"/>
+    <config name="testVersion" value="7.4-"/>
+
+    <!-- Check all PHP files -->
+    <file>.</file>
+
+    <!-- Exclude vendor and node_modules directories -->
+    <exclude-pattern type="relative">^/\.git/*</exclude-pattern>
+    <exclude-pattern type="relative">^/\.githooks/*</exclude-pattern>
+    <exclude-pattern type="relative">^/\.make/*</exclude-pattern>
+    <exclude-pattern type="relative">*\.asset\.php$</exclude-pattern>
+    <exclude-pattern type="relative">^/assets/*</exclude-pattern>
+    <exclude-pattern type="relative">^/vendor/*</exclude-pattern>
+    <exclude-pattern type="relative">^/dependencies/*</exclude-pattern>
+    <exclude-pattern type="relative">^/src/*</exclude-pattern>
+    <exclude-pattern type="relative">^/lib/*</exclude-pattern>
+    <exclude-pattern type="relative">^/dist/*</exclude-pattern>
+    <exclude-pattern type="relative">^/build/*</exclude-pattern>
+    <exclude-pattern type="relative">^/node_modules/*</exclude-pattern>
+    <exclude-pattern type="relative">^/tests/*</exclude-pattern>
+    <exclude-pattern type="relative">*\.twig$</exclude-pattern>
+    <exclude-pattern type="relative">*\.css$</exclude-pattern>
+    <exclude-pattern type="relative">*\.scss$</exclude-pattern>
+    <exclude-pattern type="relative">^/languages/*</exclude-pattern>
+</ruleset>
