@@ -130,3 +130,9 @@ body:not(.home):not(.front-page) .site-content {
 	padding-top: var(--site-header-height);
 }
 
+/* Front-page query routes (e.g. ?ugm_magazine_news=1) also have no hero. */
+body.ugm-front-route-no-hero .site-content {
+	padding-top: var(--site-header-height);
+	background: #efefef;
+}
+

@@ -12,11 +12,48 @@
 	margin-inline: auto;
 }
 
+.ugm-footer__social {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	list-style: none;
+	margin: 0 0 10px;
+	padding: 0;
+}
+
+.ugm-footer__social-item {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ugm-footer__social-link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+}
+
+.ugm-footer__social-icon {
+	width: 18px;
+	height: 18px;
+	display: block;
+	object-fit: contain;
+}
+
 .ugm-footer__brand {
 	display: flex;
 	align-items: center;
 	gap: 9px;
 	margin-bottom: 10px;
+}
+
+.ugm-footer__brand-image {
+	display: block;
+	width: min(100%, 210px);
+	height: auto;
 }
 
 .ugm-footer__brand-mark {
@@ -110,7 +147,7 @@
 
 .ugm-footer__banner {
 	margin-inline: -12px;
-	height: 78px;
+	height: 72px;
 	overflow: hidden;
 	border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
@@ -167,6 +204,20 @@
 @media (min-width: 768px) {
 	.ugm-footer__container {
 		width: min(100% - 56px, 760px);
+	}
+
+	.ugm-footer__social {
+		justify-content: flex-start;
+		gap: 14px;
+	}
+
+	.ugm-footer__social-icon {
+		width: 24px;
+		height: 24px;
+	}
+
+	.ugm-footer__brand-image {
+		width: min(100%, 260px);
 	}
 
 	.ugm-footer__heading {

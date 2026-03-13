@@ -16,6 +16,47 @@ $institutional_info = trim( (string) get_theme_mod( 'ugm_institutional_info', 'U
 $accreditation_info = trim( (string) get_theme_mod( 'ugm_accreditation_info', '' ) );
 $footer_banner_id   = absint( get_theme_mod( 'ugm_footer_banner_image', 0 ) );
 $footer_banner_url  = $footer_banner_id ? wp_get_attachment_image_url( $footer_banner_id, 'full' ) : '';
+$footer_brand_path  = get_theme_file_path( 'assets/images/Footer.png' );
+$footer_brand_url   = file_exists( $footer_brand_path ) ? get_theme_file_uri( 'assets/images/Footer.png' ) : '';
+$default_banner_path = get_theme_file_path( 'assets/images/Image Footer.png' );
+$default_banner_url  = file_exists( $default_banner_path ) ? get_theme_file_uri( 'assets/images/Image Footer.png' ) : '';
+
+if ( '' === $footer_banner_url && '' !== $default_banner_url ) {
+	$footer_banner_url = $default_banner_url;
+}
+
+$footer_social_icons = array(
+	array(
+		'label' => __( 'Instagram', 'ugm-faculty' ),
+		'file'  => 'Component Instagram.png',
+		'url'   => 'https://www.instagram.com/',
+	),
+	array(
+		'label' => __( 'YouTube', 'ugm-faculty' ),
+		'file'  => 'Component YouTube.png',
+		'url'   => 'https://www.youtube.com/',
+	),
+	array(
+		'label' => __( 'Facebook', 'ugm-faculty' ),
+		'file'  => 'Component Facebook.png',
+		'url'   => 'https://www.facebook.com/',
+	),
+	array(
+		'label' => __( 'X', 'ugm-faculty' ),
+		'file'  => 'Component Twitter.png',
+		'url'   => 'https://x.com/',
+	),
+	array(
+		'label' => __( 'LinkedIn', 'ugm-faculty' ),
+		'file'  => 'Component LinkedIn.png',
+		'url'   => 'https://www.linkedin.com/',
+	),
+	array(
+		'label' => __( 'TikTok', 'ugm-faculty' ),
+		'file'  => 'Component TikTok.png',
+		'url'   => 'https://www.tiktok.com/',
+	),
+);
 
 if ( '' === $faculty_name ) {
 	$faculty_name = get_bloginfo( 'name' );
@@ -28,15 +69,47 @@ $has_contact_info = ( '' !== $faculty_email || '' !== $faculty_phone || '' !== $
 	<footer id="colophon" class="site-footer ugm-footer" aria-labelledby="footer-title">
 		<div class="ugm-footer__container">
 			<h2 id="footer-title" class="screen-reader-text"><?php esc_html_e( 'Footer Information', 'ugm-faculty' ); ?></h2>
+			<ul class="ugm-footer__social" aria-label="<?php esc_attr_e( 'Social media', 'ugm-faculty' ); ?>">
+				<?php foreach ( $footer_social_icons as $social_icon ) : ?>
+					<?php
+					$icon_path = get_theme_file_path( 'assets/images/' . $social_icon['file'] );
+					if ( ! file_exists( $icon_path ) ) {
+						continue;
+					}
+					?>
+					<li class="ugm-footer__social-item">
+						<a
+							class="ugm-footer__social-link"
+							href="<?php echo esc_url( $social_icon['url'] ); ?>"
+							target="_blank"
+							rel="noopener noreferrer"
+							aria-label="<?php echo esc_attr( $social_icon['label'] ); ?>"
+						>
+							<img
+								class="ugm-footer__social-icon"
+								src="<?php echo esc_url( get_theme_file_uri( 'assets/images/' . $social_icon['file'] ) ); ?>"
+								alt=""
+								loading="lazy"
+								decoding="async"
+							>
+						</a>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+
 			<div class="ugm-footer__brand">
-				<div class="ugm-footer__brand-mark" aria-hidden="true">
-					<?php if ( function_exists( 'has_custom_logo' ) && has_custom_logo() ) : ?>
-						<?php echo wp_kses_post( get_custom_logo() ); ?>
-					<?php else : ?>
-						<span class="ugm-footer__mark-placeholder">UGM</span>
-					<?php endif; ?>
-				</div>
-				<h3 class="ugm-footer__heading"><?php echo esc_html( $faculty_name ); ?></h3>
+				<?php if ( '' !== $footer_brand_url ) : ?>
+					<img class="ugm-footer__brand-image" src="<?php echo esc_url( $footer_brand_url ); ?>" alt="<?php echo esc_attr( $faculty_name ); ?>" loading="lazy" decoding="async">
+				<?php else : ?>
+					<div class="ugm-footer__brand-mark" aria-hidden="true">
+						<?php if ( function_exists( 'has_custom_logo' ) && has_custom_logo() ) : ?>
+							<?php echo wp_kses_post( get_custom_logo() ); ?>
+						<?php else : ?>
+							<span class="ugm-footer__mark-placeholder">UGM</span>
+						<?php endif; ?>
+					</div>
+					<h3 class="ugm-footer__heading"><?php echo esc_html( $faculty_name ); ?></h3>
+				<?php endif; ?>
 			</div>
 
 			<?php if ( $faculty_address ) : ?>

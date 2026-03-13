@@ -70,8 +70,8 @@ function ugm_sanitize_latest_news_mode( $value ) {
  */
 function ugm_sanitize_faculty_item_count( $value ) {
 	$value = absint( $value );
-	if ( $value < 1 ) {
-		return 1;
+	if ( $value < 0 ) {
+		return 0;
 	}
 
 	return min( 20, $value );
@@ -1037,7 +1037,7 @@ function ugm_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'ugm_faculty_item_count',
 		array(
-			'default'           => 7,
+			'default'           => 0,
 			'sanitize_callback' => 'ugm_sanitize_faculty_item_count',
 		)
 	);
@@ -1046,43 +1046,26 @@ function ugm_customize_register( $wp_customize ) {
 		'ugm_faculty_item_count',
 		array(
 			'label'       => __( 'Jumlah Kartu Fakultas', 'ugm-faculty' ),
-			'description' => __( 'Atur jumlah kartu fakultas yang ditampilkan (1-20).', 'ugm-faculty' ),
+			'description' => __( 'Atur jumlah kartu fakultas yang ditampilkan (0-20).', 'ugm-faculty' ),
 			'section'     => 'ugm_faculty_slider_section',
 			'type'        => 'number',
 			'input_attrs' => array(
-				'min' => 1,
+				'min' => 0,
 				'max' => 20,
 			),
 		)
 	);
 
-	$default_faculty_items = array(
-		1 => 'Fakultas Biologi',
-		2 => 'Fakultas Ekonomika & Bisnis',
-		3 => 'Fakultas Farmasi',
-		4 => 'Fakultas Kedokteran',
-		5 => 'Fakultas Teknik',
-		6 => 'Fakultas Hukum',
-		7 => 'Fakultas Ilmu Sosial dan Politik',
-	);
-
 	$max_faculty_items = 20;
 
 	for ( $faculty_index = 1; $faculty_index <= $max_faculty_items; $faculty_index++ ) {
-		$default_faculty_name = isset( $default_faculty_items[ $faculty_index ] )
-			? $default_faculty_items[ $faculty_index ]
-			: sprintf(
-				/* translators: %d: faculty item number */
-				__( 'Fakultas %d', 'ugm-faculty' ),
-				$faculty_index
-			);
 		$name_setting_id  = 'ugm_faculty_item_' . $faculty_index . '_name';
 		$image_setting_id = 'ugm_faculty_item_' . $faculty_index . '_image';
 
 		$wp_customize->add_setting(
 			$name_setting_id,
 			array(
-				'default'           => $default_faculty_name,
+				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 			)
 		);
@@ -1095,7 +1078,7 @@ function ugm_customize_register( $wp_customize ) {
 				'section'         => 'ugm_faculty_slider_section',
 				'type'            => 'text',
 				'active_callback' => function () use ( $faculty_index ) {
-					return (int) get_theme_mod( 'ugm_faculty_item_count', 7 ) >= $faculty_index;
+					return (int) get_theme_mod( 'ugm_faculty_item_count', 0 ) >= $faculty_index;
 				},
 			)
 		);
@@ -1117,7 +1100,7 @@ function ugm_customize_register( $wp_customize ) {
 					'label'           => sprintf( __( 'Gambar Fakultas %d', 'ugm-faculty' ), $faculty_index ),
 					'section'         => 'ugm_faculty_slider_section',
 					'active_callback' => function () use ( $faculty_index ) {
-						return (int) get_theme_mod( 'ugm_faculty_item_count', 7 ) >= $faculty_index;
+						return (int) get_theme_mod( 'ugm_faculty_item_count', 0 ) >= $faculty_index;
 					},
 				)
 			)

@@ -6,6 +6,18 @@
  */
 
 get_header();
+
+$majalah_query = new WP_Query(
+	array(
+		'post_type'           => 'majalah',
+		'posts_per_page'      => -1,
+		'orderby'             => 'date',
+		'order'               => 'DESC',
+		'post_status'         => 'publish',
+		'ignore_sticky_posts' => true,
+		'no_found_rows'       => true,
+	)
+);
 ?>
 
 <main id="primary" class="site-main ugm-archive majalah-archive">
@@ -21,9 +33,9 @@ get_header();
 			<span class="ugm-archive__line" aria-hidden="true"></span>
 		</header>
 
-		<?php if ( have_posts() ) : ?>
+		<?php if ( $majalah_query->have_posts() ) : ?>
 			<div class="majalah-archive-grid">
-				<?php while ( have_posts() ) : the_post(); ?>
+				<?php while ( $majalah_query->have_posts() ) : $majalah_query->the_post(); ?>
 					<?php
 					$magazine_pdf_url = ugm_get_magazine_pdf_url( get_the_ID() );
 					$magazine_link    = '' !== $magazine_pdf_url ? $magazine_pdf_url : get_permalink();
@@ -44,22 +56,7 @@ get_header();
 				<?php endwhile; ?>
 			</div>
 
-			<nav class="ugm-archive__pagination" aria-label="<?php esc_attr_e( 'Navigasi halaman', 'ugm-faculty' ); ?>">
-				<?php
-				echo wp_kses_post(
-					paginate_links(
-						array(
-							'current'   => max( 1, get_query_var( 'paged' ) ),
-							'total'     => max( 1, (int) $wp_query->max_num_pages ),
-							'mid_size'  => 1,
-							'prev_text' => __( 'Sebelumnya', 'ugm-faculty' ),
-							'next_text' => __( 'Selanjutnya', 'ugm-faculty' ),
-							'type'      => 'list',
-						)
-					)
-				);
-				?>
-			</nav>
+			<?php wp_reset_postdata(); ?>
 		<?php else : ?>
 			<p class="section-empty"><?php esc_html_e( 'Belum ada majalah.', 'ugm-faculty' ); ?></p>
 		<?php endif; ?>

@@ -25,6 +25,7 @@ $cs_rel    = 'noopener noreferrer';
 $is_latest_news_route = '1' === get_query_var( 'ugm_latest_news' );
 $is_magazine_news_route = '1' === get_query_var( 'ugm_magazine_news' );
 $is_front_landing       = is_front_page() && ! $is_latest_news_route && ! $is_magazine_news_route;
+$front_route_no_hero    = is_front_page() && ! $is_front_landing;
 
 if ( '' === $cs_link && '' !== $faculty_phone ) {
 	$cs_link   = 'tel:' . preg_replace( '/[^0-9+]/', '', $faculty_phone );
@@ -40,7 +41,7 @@ if ( '' === $cs_link && '' !== $faculty_phone ) {
 	<?php wp_head(); ?>
 </head>
 
-<body <?php body_class(); ?>>
+<body <?php body_class( $front_route_no_hero ? 'ugm-front-route-no-hero' : '' ); ?>>
 <?php wp_body_open(); ?>
 
 <div id="page" class="site">
@@ -84,6 +85,8 @@ if ( '' === $cs_link && '' !== $faculty_phone ) {
 		</a>
 	<?php endif; ?>
 
-	<?php get_template_part( 'parts/content/hero' ); ?>
+	<?php if ( $is_front_landing ) : ?>
+		<?php get_template_part( 'parts/content/hero' ); ?>
+	<?php endif; ?>
 
 	<div id="content" class="site-content">

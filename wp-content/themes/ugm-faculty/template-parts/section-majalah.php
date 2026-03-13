@@ -10,12 +10,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $majalah_title        = get_theme_mod( 'ugm_magazine_section_title', __( 'Majalah Kabar Digital', 'ugm-faculty' ) );
-$majalah_archive_link = get_post_type_archive_link( 'majalah' );
+$majalah_archive_link = add_query_arg( 'ugm_magazine_news', '1', home_url( '/' ) );
 $majalah_count        = max( 1, min( 12, absint( get_theme_mod( 'ugm_magazine_item_count', 4 ) ) ) );
-
-if ( ! $majalah_archive_link ) {
-	$majalah_archive_link = home_url( '/majalah/' );
-}
 
 $majalah_query = new WP_Query(
 	array(

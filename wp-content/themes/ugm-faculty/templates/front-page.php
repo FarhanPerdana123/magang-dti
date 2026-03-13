@@ -455,27 +455,11 @@ get_header();
 			</header>
 
 			<?php
-			$default_faculty_items = array(
-				1 => 'Fakultas Biologi',
-				2 => 'Fakultas Ekonomika & Bisnis',
-				3 => 'Fakultas Farmasi',
-				4 => 'Fakultas Kedokteran',
-				5 => 'Fakultas Teknik',
-				6 => 'Fakultas Hukum',
-				7 => 'Fakultas Ilmu Sosial dan Politik',
-			);
-			$faculty_count = max( 1, min( 20, absint( get_theme_mod( 'ugm_faculty_item_count', 7 ) ) ) );
+			$faculty_count = max( 0, min( 20, absint( get_theme_mod( 'ugm_faculty_item_count', 0 ) ) ) );
 			$faculty_list  = array();
 
 			for ( $faculty_index = 1; $faculty_index <= $faculty_count; $faculty_index++ ) {
-				$default_faculty_name = isset( $default_faculty_items[ $faculty_index ] )
-					? $default_faculty_items[ $faculty_index ]
-					: sprintf(
-						/* translators: %d: faculty item number */
-						__( 'Fakultas %d', 'ugm-faculty' ),
-						$faculty_index
-					);
-				$faculty_name_setting = trim( (string) get_theme_mod( 'ugm_faculty_item_' . $faculty_index . '_name', $default_faculty_name ) );
+				$faculty_name_setting = trim( (string) get_theme_mod( 'ugm_faculty_item_' . $faculty_index . '_name', '' ) );
 				if ( '' === $faculty_name_setting ) {
 					continue;
 				}

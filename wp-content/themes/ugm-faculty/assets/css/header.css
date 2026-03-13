@@ -218,6 +218,7 @@
 	transform: translateX(-8px);
 	transition: transform 0.4s ease, opacity 0.3s ease;
 	border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+	position: relative;
 }
 
 .primary-navigation.active .primary-menu__list > li,
@@ -243,11 +244,68 @@
 	line-height: 1.35;
 }
 
-.primary-menu__list > li > a::after {
-	content: "\203A";
-	font-size: 1.25rem;
-	font-weight: 300;
-	opacity: 0.82;
+.menu-dropdown-toggle {
+	position: absolute;
+	top: 0.35rem;
+	right: 0.6rem;
+	width: 2rem;
+	height: 2rem;
+	border: 0;
+	background: transparent;
+	color: var(--color-neutral-0);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+}
+
+.menu-dropdown-toggle span {
+	display: inline-block;
+	width: 0.5rem;
+	height: 0.5rem;
+	border-right: 2px solid currentColor;
+	border-bottom: 2px solid currentColor;
+	transform: rotate(45deg);
+	transition: transform 0.2s ease;
+}
+
+.primary-menu__list > li.is-open > .menu-dropdown-toggle span {
+	transform: rotate(225deg);
+}
+
+.primary-menu__list .sub-menu {
+	list-style: none;
+	margin: 0;
+	padding: 0 0 0.5rem;
+}
+
+.primary-menu__list .sub-menu li {
+	border-top: 0;
+}
+
+.primary-menu__list li.menu-item-has-children {
+	position: relative;
+}
+
+.primary-menu__list .sub-menu a {
+	padding: 0.45rem 1rem 0.45rem 1.6rem;
+	font-size: 0.98rem;
+	font-weight: 500;
+	line-height: 1.35;
+}
+
+.primary-menu__list .sub-menu .sub-menu a {
+	padding-left: 2.3rem;
+	font-size: 0.92rem;
+}
+
+.primary-menu__list li.menu-item-has-children.is-open > a {
+	color: var(--color-secondary-400);
+}
+
+.primary-menu__list > li.menu-item-has-children > a::after,
+.primary-menu__list > li.page_item_has_children > a::after {
+	content: "";
 }
 
 .primary-menu__list > .current-menu-item > a,
@@ -605,8 +663,14 @@
 		line-height: 1.3;
 	}
 
-	.primary-menu__list > li > a::after {
-		font-size: 1.05rem;
+	.primary-menu__list .sub-menu a {
+		padding-left: 1.35rem;
+		font-size: 0.88rem;
+	}
+
+	.primary-menu__list .sub-menu .sub-menu a {
+		padding-left: 2rem;
+		font-size: 0.84rem;
 	}
 
 	.menu-backdrop {
@@ -775,6 +839,11 @@
 		pointer-events: auto;
 		transition: none;
 		justify-self: center;
+	}
+
+	.menu-dropdown-toggle,
+	.primary-menu__list .sub-menu {
+		display: none !important;
 	}
 
 	.primary-navigation ul,
