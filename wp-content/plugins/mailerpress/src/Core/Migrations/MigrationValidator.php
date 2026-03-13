@@ -127,7 +127,7 @@ class MigrationValidator
         $versionProperty->setAccessible(true);
         $expectedVersion = $versionProperty->getValue($manager);
 
-        if ($expectedVersion && $expectedVersion !== '1.5.1') {
+        if ($expectedVersion && $expectedVersion !== '1.5.2') {
             $versionOptionName = 'custom_table_' . sanitize_key(str_replace($wpdb->prefix, '', $tableName)) . '_version';
             $actualVersion = get_option($versionOptionName);
 

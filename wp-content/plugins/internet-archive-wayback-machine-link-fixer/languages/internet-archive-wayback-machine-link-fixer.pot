@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-3.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Internet Archive Wayback Machine Link Fixer 1.3.5\n"
+"Project-Id-Version: Internet Archive Wayback Machine Link Fixer 1.3.6\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/internet-archive-wayback-machine-link-fixer\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-12T13:31:44+00:00\n"
+"POT-Creation-Date: 2026-03-11T15:12:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: internet-archive-wayback-machine-link-fixer\n"
@@ -26,6 +26,7 @@ msgstr ""
 
 #. Author of the plugin
 #: internet-archive-wayback-machine-link-fixer.php
+#: src/Dashboard/Settings_Page.php:209
 msgid "Internet Archive"
 msgstr ""
 
@@ -35,16 +36,21 @@ msgid "https://archive.org"
 msgstr ""
 
 #: src/Action/Link_Latest_Snapshot_Action.php:65
+#: src/Action/Link_New_Snapshot_Action.php:83
+#: src/Action/Validate_Link_Action.php:76
 msgid "Link not found."
 msgstr ""
 
 #: src/Action/Link_Latest_Snapshot_Action.php:75
 #: src/Action/Link_New_Snapshot_Action.php:95
+#: src/Action/Validate_Link_Action.php:68
 msgid "Service is offline."
 msgstr ""
 
 #: src/Action/Link_Latest_Snapshot_Action.php:85
-msgid "Link is already an archived link."
+#: src/Action/Link_New_Snapshot_Action.php:104
+#: src/Action/Validate_Link_Action.php:85
+msgid "This URL is already an archived link."
 msgstr ""
 
 #: src/Action/Link_Latest_Snapshot_Action.php:97
@@ -56,30 +62,16 @@ msgid "Archive URL is the same."
 msgstr ""
 
 #: src/Action/Link_Latest_Snapshot_Action.php:126
-msgid "Link updated."
-msgstr ""
-
-#: src/Action/Link_New_Snapshot_Action.php:83
-#: src/Action/Validate_Link_Action.php:76
-msgid "Link not found"
-msgstr ""
-
-#: src/Action/Link_New_Snapshot_Action.php:104
-#: src/Action/Validate_Link_Action.php:85
-msgid "Link is an archive link already"
+msgid "Archived URL updated."
 msgstr ""
 
 #: src/Action/Link_New_Snapshot_Action.php:117
 #: src/Action/Validate_Link_Action.php:98
-msgid "Exceeded snapshot limit"
+msgid "Exceeded snapshot limit."
 msgstr ""
 
 #: src/Action/Link_New_Snapshot_Action.php:134
 msgid "Snapshot created, Link will be processed soon"
-msgstr ""
-
-#: src/Action/Validate_Link_Action.php:68
-msgid "Service is offline"
 msgstr ""
 
 #: src/Action/Validate_Link_Action.php:115
@@ -92,256 +84,321 @@ msgid "Wayback Link Fixer"
 msgstr ""
 
 #: src/Dashboard/Dashboard_Page.php:146
-#: src/Dashboard/Settings_Page.php:484
+#: src/Dashboard/Settings_Page.php:557
 msgid "Link Fixer"
 msgstr ""
 
 #: src/Dashboard/Dashboard_Page.php:166
-#: templates/admin/dashboard/widget.php:153
+#: templates/admin/dashboard/widget.php:155
 msgid "Dashboard"
 msgstr ""
 
 #: src/Dashboard/Report_Page.php:93
-#: src/Dashboard/Report_Page.php:277
+#: src/Dashboard/Report_Page.php:293
 msgid "Wayback Link Fixer - Links"
 msgstr ""
 
 #: src/Dashboard/Report_Page.php:94
-#: src/Dashboard/Report_Page.php:201
-#: src/WP_Post/WP_Post_Table_Controller.php:118
+#: src/Dashboard/Report_Page.php:217
+#: src/WP_Post/WP_Post_Table_Controller.php:119
 msgid "Links"
 msgstr ""
 
-#: src/Dashboard/Report_Page.php:159
+#: src/Dashboard/Report_Page.php:152
+msgid "Are you sure you want to exclude this link? It will no longer be shown in the list, it will no longer be checked, and will not be fixed if broken."
+msgstr ""
+
+#: src/Dashboard/Report_Page.php:153
+msgid "Are you sure you want to include this link? It will be checked and fixed if broken."
+msgstr ""
+
+#: src/Dashboard/Report_Page.php:175
 msgid "API Offline, options disabled"
 msgstr ""
 
-#: src/Dashboard/Report_Page.php:213
+#: src/Dashboard/Report_Page.php:229
 msgid "Bulk Actions"
 msgstr ""
 
-#: src/Dashboard/Report_Page.php:220
+#: src/Dashboard/Report_Page.php:236
 msgid "Table Columns"
 msgstr ""
 
 #. translators: %1$s is the post title, %2$s is the link to view all links.
-#: src/Dashboard/Report_Page.php:293
+#: src/Dashboard/Report_Page.php:309
 #, php-format
 msgid "Showing links for %1$s <a href=\"%2$s\">(Show all links)</a>"
 msgstr ""
 
-#: src/Dashboard/Report_Page.php:310
+#: src/Dashboard/Report_Page.php:326
 msgid "Search"
 msgstr ""
 
-#: src/Dashboard/Report_Page.php:335
+#: src/Dashboard/Report_Page.php:351
 msgid "The link does not exist."
 msgstr ""
 
-#: src/Dashboard/Report_Page.php:347
+#: src/Dashboard/Report_Page.php:363
 msgid "The link is not valid."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:92
-msgid "Wayback Link Fixer Settings"
+#: src/Dashboard/Report_Page.php:371
+msgid "Link updated successfully."
 msgstr ""
 
 #: src/Dashboard/Settings_Page.php:93
-#: templates/admin/dashboard/widget.php:158
+msgid "Wayback Link Fixer Settings"
+msgstr ""
+
+#: src/Dashboard/Settings_Page.php:94
+#: templates/admin/dashboard/widget.php:160
 msgid "Advanced Settings"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:176
+#: src/Dashboard/Settings_Page.php:193
 msgid "Rerun The Setup Wizard"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:183
+#: src/Dashboard/Settings_Page.php:200
 msgid "Wayback Link Fixer - Advanced Settings"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:191
+#: src/Dashboard/Settings_Page.php:210
+msgid "This plugin is powered by the Internet Archive. If you find the plugin useful, please chip in! Your support will help us build the web we deserve."
+msgstr ""
+
+#: src/Dashboard/Settings_Page.php:212
+msgid "Donate"
+msgstr ""
+
+#: src/Dashboard/Settings_Page.php:213
+msgid "Dismiss"
+msgstr ""
+
+#: src/Dashboard/Settings_Page.php:222
+#: templates/admin/reports/link-details.php:258
 msgid "Save Changes"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:458
+#: src/Dashboard/Settings_Page.php:527
 msgid "Plugin Settings"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:469
+#: src/Dashboard/Settings_Page.php:538
 msgid "Archive.org API"
 msgstr ""
 
-#. Translators: %s is the link to the Internet account setup.
-#: src/Dashboard/Settings_Page.php:476
-#, php-format
-msgid "To get your API key and secret, please visit the <a href='%s' target='_blank'>Internet Archive</a> and create a new 'S3 access key' (this is a type of credential used by Archive.org)."
+#: src/Dashboard/Settings_Page.php:543
+msgid "To increase your daily snapshot limit from 4,000 to 30,000, you can enter your free Archive.org API credentials. Visit"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:486
-#: src/Dashboard/Settings_Page.php:714
+#: src/Dashboard/Settings_Page.php:545
+msgid "archive.org/account/s3.php to generate your Access Key and Secret Key."
+msgstr ""
+
+#: src/Dashboard/Settings_Page.php:559
+#: src/Dashboard/Settings_Page.php:805
 msgid "Enable the Link Fixer to scan links in your selected post types. It will find or create archived versions on the Internet Archive to ensure links remain accessible if they break."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:497
+#: src/Dashboard/Settings_Page.php:570
 #: templates/admin/dashboard/widget.php:104
 msgid "Auto Archiver"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:500
+#: src/Dashboard/Settings_Page.php:573
 msgid "Keep your content securely archived with the Auto Archiver. Each time you update a post, a fresh copy is saved to the Wayback Machine. Ensure your work remains accessible and preserved over time."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:502
+#: src/Dashboard/Settings_Page.php:575
 msgid "Non-production environment detected - auto archiving is disabled to prevent staging and development sites from being archived."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:514
+#: src/Dashboard/Settings_Page.php:587
 msgid "Enable Link Fixer"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:522
+#: src/Dashboard/Settings_Page.php:595
 msgid "Post Types"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:531
+#: src/Dashboard/Settings_Page.php:604
 msgid "Wipe Data on Uninstall"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:539
+#: src/Dashboard/Settings_Page.php:612
 msgid "Existing Posts"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:548
+#: src/Dashboard/Settings_Page.php:621
 msgid "Fixer Option"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:557
+#: src/Dashboard/Settings_Page.php:630
 msgid "Link Exclusions"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:566
+#: src/Dashboard/Settings_Page.php:639
+#: src/Dashboard/Settings_Page.php:734
+msgid "Post Exclusions"
+msgstr ""
+
+#: src/Dashboard/Settings_Page.php:648
 msgid "Check Frequency"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:575
+#: src/Dashboard/Settings_Page.php:657
 msgid "Failure Threshold"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:584
+#: src/Dashboard/Settings_Page.php:666
 msgid "Cast Archived Links to HTTPS"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:595
-#: src/Dashboard/Settings_Page.php:1047
+#: src/Dashboard/Settings_Page.php:677
+#: src/Dashboard/Settings_Page.php:1384
 msgid "Archive.org Access Key"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:606
-#: src/Dashboard/Settings_Page.php:1023
+#: src/Dashboard/Settings_Page.php:688
+#: src/Dashboard/Settings_Page.php:1360
 msgid "Archive.org Secret Key"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:617
+#: src/Dashboard/Settings_Page.php:699
 msgid "Auto Archive Posts"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:625
+#: src/Dashboard/Settings_Page.php:707
 msgid "Routinely Archive"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:634
+#: src/Dashboard/Settings_Page.php:716
 msgid "Routine Interval"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:643
+#: src/Dashboard/Settings_Page.php:725
 msgid "Allowed Post Types"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:665
+#: src/Dashboard/Settings_Page.php:756
 msgid "The Archive.org API keys are invalid. Please check your settings."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:666
+#: src/Dashboard/Settings_Page.php:757
 msgid "API credentials will be verified when you save the settings."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:746
+#: src/Dashboard/Settings_Page.php:837
 msgid "Please choose which post types will have their content checked and links added to the Wayback Machine."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:776
+#: src/Dashboard/Settings_Page.php:867
 msgid "Please choose which post types will be automatically archived to the Wayback Machine when they are published."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:795
+#: src/Dashboard/Settings_Page.php:886
 msgid "If checked, this will remove all local data when the plugin is uninstalled. Leave unchecked if you plan to reinstall this plugin."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:818
+#: src/Dashboard/Settings_Page.php:909
 msgid "When enabled, all posts of the allowed types will be scanned, and their links will be archived in the Wayback Machine."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:821
+#: src/Dashboard/Settings_Page.php:912
 msgid "This runs in the background and may take hours or days, depending on post and link count."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:839
+#: src/Dashboard/Settings_Page.php:930
 msgid "Enter a list of URLs (or parts of URLs) to exclude from link processing. You can use an asterisk (<code>*</code>) as a wildcard. For example, <code>https://example.com/some-path/*</code> would exclude anything after '/some-path/', and <code>*twitter.com*</code> would exclude any URL containing 'twitter.com'."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:854
+#: src/Dashboard/Settings_Page.php:945
 msgid "Add a new exclusion (https://x.com*)"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:857
+#: src/Dashboard/Settings_Page.php:948
 msgid "Add"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:862
+#: src/Dashboard/Settings_Page.php:953
 msgid "No exclusions found."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:915
-msgid "How often to recheck each link for validity. Avoid checking too often, as temporary outages or maintenance can cause false “broken” results. The default is 7 days."
+#: src/Dashboard/Settings_Page.php:998
+msgid "Search for posts to exclude from link processing. Excluded posts will not have their links scanned or archived."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:939
-msgid "Number of consecutive failed checks before a link is marked as broken. Occasional single failures are normal, so use a value high enough to confirm genuine link loss. The default is 5."
+#: src/Dashboard/Settings_Page.php:1006
+#: src/Dashboard/Settings_Page.php:1129
+msgid "Search by post title, slug, or ID..."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:962
-msgid "Force HTTPS"
+#: src/Dashboard/Settings_Page.php:1016
+#: src/Dashboard/Settings_Page.php:1139
+msgid "No post exclusions found."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:965
-msgid "Enabling this will convert all archived urls from http to https."
+#: src/Dashboard/Settings_Page.php:1024
+#: src/Dashboard/Settings_Page.php:1147
+#: templates/admin/reports/link-details.php:185
+msgid "Post"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:1000
+#: src/Dashboard/Settings_Page.php:1028
+#: src/Dashboard/Settings_Page.php:1151
+msgid "Unknown Post"
+msgstr ""
+
+#: src/Dashboard/Settings_Page.php:1086
+#: src/Dashboard/Settings_Page.php:1106
+#: src/Dashboard/Settings_Page.php:1209
+#: src/Dashboard/Settings_Page.php:1229
+#: src/Dashboard/Settings_Page.php:1337
 msgid "Remove"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:1067
+#: src/Dashboard/Settings_Page.php:1121
+msgid "Search for posts to exclude from auto archiving. Excluded posts will not be submitted to the Wayback Machine when created or updated."
+msgstr ""
+
+#: src/Dashboard/Settings_Page.php:1252
+msgid "How often to recheck each link for validity. Avoid checking too often, as temporary outages or maintenance can cause false “broken” results. The default is 7 days."
+msgstr ""
+
+#: src/Dashboard/Settings_Page.php:1276
+msgid "Number of consecutive failed checks before a link is marked as broken. Occasional single failures are normal, so use a value high enough to confirm genuine link loss. The default is 5."
+msgstr ""
+
+#: src/Dashboard/Settings_Page.php:1299
+msgid "Force HTTPS"
+msgstr ""
+
+#: src/Dashboard/Settings_Page.php:1302
+msgid "Enabling this will convert all archived urls from http to https."
+msgstr ""
+
+#: src/Dashboard/Settings_Page.php:1404
 msgid "Redirect broken links to snapshots on the Wayback Machine"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:1070
+#: src/Dashboard/Settings_Page.php:1407
 msgid "Do not redirect broken links"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:1074
+#: src/Dashboard/Settings_Page.php:1411
 msgid "Choose how to handle broken links."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:1096
+#: src/Dashboard/Settings_Page.php:1433
 msgid "When active, your own content will be automatically archived on the Wayback Machine each time you publish or update it."
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:1119
+#: src/Dashboard/Settings_Page.php:1456
 msgid "Regularly archive your posts on the Wayback Machine"
 msgstr ""
 
-#: src/Dashboard/Settings_Page.php:1144
+#: src/Dashboard/Settings_Page.php:1481
 msgid "Interval in days for regular archiving."
 msgstr ""
 
@@ -401,7 +458,7 @@ msgstr ""
 #. translators: %s is the link url.
 #: src/Report/Report_Table.php:356
 #, php-format
-msgid "It was not possible to check %s"
+msgid "Could not check the status of %s."
 msgstr ""
 
 #. translators: %s is the link url.
@@ -425,31 +482,31 @@ msgstr ""
 #. translators: %s is the link url.
 #: src/Report/Report_Table.php:438
 #, php-format
-msgid "No archived link found for %s"
+msgid "No archived version found for %s."
 msgstr ""
 
 #. translators: %s is the link url.
 #: src/Report/Report_Table.php:451
 #, php-format
-msgid "It was not possible to update %s, the latest archive link is the same"
+msgid "Could not update %s: the archived URL is already the latest."
 msgstr ""
 
 #. translators: %s is the link url.
 #: src/Report/Report_Table.php:463
 #, php-format
-msgid "Link %s updated successfully"
+msgid "Archived URL for %s updated successfully."
 msgstr ""
 
-#. translators: %s is the link url.
+#. translators: 1: the link URL, 2: error message.
 #: src/Report/Report_Table.php:508
 #, php-format
-msgid "Link %1$s could not have a new snapshot created: %2$s"
+msgid "Could not create a new snapshot for %1$s: %2$s"
 msgstr ""
 
 #. translators: %s is the link url.
 #: src/Report/Report_Table.php:521
 #, php-format
-msgid "Link %s added to the queue and a new snapshot will be created and added as the archived url in the coming minutes.."
+msgid "Link %s added to the queue and a new snapshot will be created and added as the archived URL in the coming minutes."
 msgstr ""
 
 #. translators: %s is the icon for error, %d is the number of links that could not be found.
@@ -542,11 +599,11 @@ msgid "Show with or without archived link"
 msgstr ""
 
 #: src/Report/Report_Table.php:811
-msgid "Show links with archived link"
+msgid "Show links with archived version"
 msgstr ""
 
 #: src/Report/Report_Table.php:812
-msgid "Show links without archived link"
+msgid "Show links without archived version"
 msgstr ""
 
 #: src/Report/Report_Table.php:826
@@ -569,99 +626,101 @@ msgstr ""
 msgid "Filter"
 msgstr ""
 
-#: src/Report/Report_Table.php:978
+#: src/Report/Report_Table.php:1001
 #: templates/admin/links-table/help-tab-bulk-actions.php:12
 msgid "Update to latest snapshot"
 msgstr ""
 
-#: src/Report/Report_Table.php:979
+#: src/Report/Report_Table.php:1002
 #: templates/admin/links-table/help-tab-bulk-actions.php:15
 msgid "Create new snapshot"
 msgstr ""
 
-#: src/Report/Report_Table.php:980
+#: src/Report/Report_Table.php:1003
 #: templates/admin/links-table/help-tab-bulk-actions.php:18
 msgid "Check link status"
 msgstr ""
 
-#: src/Report/Report_Table.php:981
+#: src/Report/Report_Table.php:1004
 msgid "Verify link allows checking"
 msgstr ""
 
-#: src/Report/Report_Table.php:1089
+#: src/Report/Report_Table.php:1112
+#: src/Util/Link_Summary_Factory.php:66
 #: templates/admin/links-table/help-tab-columns.php:23
-msgid "Link is excluded from being archived."
+msgid "The link is excluded from being archived."
 msgstr ""
 
-#: src/Report/Report_Table.php:1096
+#: src/Report/Report_Table.php:1119
 #: templates/admin/links-table/help-tab-columns.php:19
 msgid "Has a valid archive snapshot"
 msgstr ""
 
-#: src/Report/Report_Table.php:1101
+#: src/Report/Report_Table.php:1124
 #: templates/admin/links-table/help-tab-columns.php:20
 msgid "New link, not yet processed"
 msgstr ""
 
-#: src/Report/Report_Table.php:1103
+#: src/Report/Report_Table.php:1126
 #: templates/admin/links-table/help-tab-columns.php:21
 msgid "Processing in progress"
 msgstr ""
 
-#: src/Report/Report_Table.php:1105
+#: src/Report/Report_Table.php:1128
 #: templates/admin/links-table/help-tab-columns.php:22
 msgid "No archive available"
 msgstr ""
 
-#: src/Report/Report_Table.php:1112
+#: src/Report/Report_Table.php:1135
 msgid "Link has not been checked yet"
 msgstr ""
 
-#: src/Report/Report_Table.php:1116
+#: src/Report/Report_Table.php:1139
 #: templates/admin/links-table/help-tab-columns.php:39
 msgid "Link is active"
 msgstr ""
 
-#: src/Report/Report_Table.php:1117
+#: src/Report/Report_Table.php:1140
 #: templates/admin/links-table/help-tab-columns.php:41
 msgid "Link is broken"
 msgstr ""
 
-#: src/Report/Report_Table.php:1119
+#: src/Report/Report_Table.php:1142
 #: templates/admin/links-table/help-tab-columns.php:40
 msgid "Link status pending verification"
 msgstr ""
 
-#: src/Report/Report_Table.php:1128
+#: src/Report/Report_Table.php:1151
 msgid "Link is excluded from checks"
 msgstr ""
 
-#: src/Report/Report_Table.php:1129
+#: src/Report/Report_Table.php:1152
 msgid "Link is not excluded from checks"
 msgstr ""
 
-#: src/Report/Report_Table.php:1187
+#: src/Report/Report_Table.php:1210
 msgid "N/a"
 msgstr ""
 
-#: src/Report/Report_Table.php:1199
-#: src/Report/Report_Table.php:1209
+#: src/Report/Report_Table.php:1222
+#: src/Report/Report_Table.php:1232
 #: templates/admin/dashboard/link-list.php:63
 msgid "No HTTP Code"
 msgstr ""
 
-#. translators: %1$s is the last check date, %2$s is the last check http code.
-#: src/Report/Report_Table.php:1203
+#. translators: %1$s: last check date (e.g. "5 Jan 2025"), %2$s: HTTP status code (e.g. "404 status").
+#. translators: %1$s: last check date (e.g. "5 Jan 2025"), %2$s: HTTP status code (e.g. "404 status")
+#: src/Report/Report_Table.php:1226
 #: templates/admin/dashboard/link-list.php:68
 #, php-format
 msgid "%1$s with %2$s"
 msgstr ""
 
-#: src/Report/Report_Table.php:1206
+#: src/Report/Report_Table.php:1229
 msgid "Missing date"
 msgstr ""
 
-#: src/Report/Report_Table.php:1221
+#: src/Report/Report_Table.php:1244
 msgid "No links have been created yet."
 msgstr ""
 
@@ -669,16 +728,12 @@ msgstr ""
 msgid "The link is still being processed to find or create an archive snapshot. Please check back later."
 msgstr ""
 
-#: src/Util/Link_Summary_Factory.php:66
-msgid "The link is excluded from being archived."
-msgstr ""
-
 #: src/Util/Link_Summary_Factory.php:70
 msgid "The link is archived on archive.org. No check history yet."
 msgstr ""
 
 #: src/Util/Link_Summary_Factory.php:75
-msgid "The link is archived on archive.org and still working."
+msgid "This link has an archived version on archive.org, and the original URL is still accessible."
 msgstr ""
 
 #. translators: The number of failed checks.
@@ -687,27 +742,50 @@ msgstr ""
 msgid "This link is redirecting to the archived version, after %d failed checks."
 msgstr ""
 
-#. translators: 1: The number of failed checks. 2: The number of remaining checks before redirect. 3: Plural S if needed.
-#: src/Util/Link_Summary_Factory.php:89
+#. translators: 1: The number of consecutive failed checks (e.g. "3 consecutive checks"). 2: The number of remaining failed checks before redirect (e.g. "2 more failed checks").
+#: src/Util/Link_Summary_Factory.php:91
 #, php-format
-msgid "The link is archived on archive.org but currently not working. It has failed %1$d previous consecutive check%3$s, %2$d more and it will redirect to the archived version."
+msgid "The link is archived on archive.org but currently not working on the live site. It has failed %1$s, and after %2$s it will redirect to the archived version."
 msgstr ""
 
-#: src/Util/Link_Summary_Factory.php:103
+#. translators: %d: The number of consecutive failed checks.
+#: src/Util/Link_Summary_Factory.php:94
+#: src/Util/Link_Summary_Factory.php:120
+#, php-format
+msgid "%d consecutive check"
+msgid_plural "%d consecutive checks"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: The number of remaining failed checks before redirect.
+#: src/Util/Link_Summary_Factory.php:99
+#, php-format
+msgid "%d more failed check"
+msgid_plural "%d more failed checks"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Util/Link_Summary_Factory.php:112
 msgid "The link is not archived on archive.org but is currently working."
 msgstr ""
 
-#. translators: 1: The number of failed checks. 2: The plural S if needed.
-#: src/Util/Link_Summary_Factory.php:108
+#. translators: %s: The number of consecutive failed checks (e.g. "3 consecutive checks").
+#: src/Util/Link_Summary_Factory.php:117
 #, php-format
-msgid "The link is not archived on archive.org and currently not working. It has failed %1$d previous consecutive check%2$s."
+msgid "The link is not archived on archive.org and currently not working on the live site. It has failed %s."
 msgstr ""
 
-#: src/Util/Link_Summary_Factory.php:178
+#. translators: 1: The user login, 2: The date.
+#: src/Util/Link_Summary_Factory.php:188
+#, php-format
+msgid "User Requested To Exclude (%1$s on %2$s)"
+msgstr ""
+
+#: src/Util/Link_Summary_Factory.php:204
 msgid "Error encountered while processing the link, will retry shortly."
 msgstr ""
 
-#: src/Util/Link_Summary_Factory.php:186
+#: src/Util/Link_Summary_Factory.php:212
 msgid "Error encountered while processing the link, no more retries will be made."
 msgstr ""
 
@@ -729,14 +807,18 @@ msgstr ""
 msgid "The service is offline.%s"
 msgstr ""
 
-#: src/WP_Post/WP_Post_Table_Controller.php:155
+#: src/WP_Post/WP_Post_Table_Controller.php:142
+msgid "Excluded post"
+msgstr ""
+
+#: src/WP_Post/WP_Post_Table_Controller.php:166
 msgid "No links found"
 msgstr ""
 
-#. translators: %2$s is the url to view the links in a report, %2$s is the number of broken links, %3$s is the total number of links.
-#: src/WP_Post/WP_Post_Table_Controller.php:162
+#. translators: 1: number of broken links, 2: total number of links
+#: src/WP_Post/WP_Post_Table_Controller.php:176
 #, php-format
-msgid "<a href=\"%1$s\"><strong>%2$s</strong> broken out of <strong>%3$s</strong></a>"
+msgid "%1$s broken out of %2$s"
 msgstr ""
 
 #: templates/admin/dashboard/link-list.php:61
@@ -758,7 +840,7 @@ msgid "View Full Report"
 msgstr ""
 
 #: templates/admin/dashboard/link-list.php:101
-#: templates/admin/reports/link-details.php:95
+#: templates/admin/reports/link-details.php:119
 msgid "Current Status"
 msgstr ""
 
@@ -773,12 +855,12 @@ msgstr ""
 
 #: templates/admin/dashboard/link-list.php:131
 #: templates/admin/reports/link-details.php:50
-msgid "NEW - This link has been queued and will be processed by the Internet Archive as soon as possible"
+msgid "NEW - This link has been queued and will be processed by the Internet Archive as soon as possible."
 msgstr ""
 
 #: templates/admin/dashboard/link-list.php:133
 #: templates/admin/reports/link-details.php:52
-msgid "PENDING – Queued for submission to the Internet Archive. Processing time varies based on queue size."
+msgid "PENDING - Queued for submission to the Internet Archive. Processing time varies based on queue size."
 msgstr ""
 
 #: templates/admin/dashboard/link-list.php:136
@@ -787,7 +869,7 @@ msgstr ""
 
 #: templates/admin/dashboard/link-list.php:138
 #: templates/admin/reports/link-details.php:61
-msgid "NO ARCHIVE - Unable to create or find a snapshot. This can happen if the URL is blocked by robots.txt, requires authentication, or is no longer accessible"
+msgid "NO ARCHIVE - Unable to create or find a snapshot. This can happen if the URL is blocked by robots.txt, requires authentication, or is no longer accessible."
 msgstr ""
 
 #: templates/admin/dashboard/link-list.php:149
@@ -807,7 +889,7 @@ msgstr[1] ""
 msgid "(No title)"
 msgstr ""
 
-#. translators: %d: number of additional posts
+#. translators: %d: number of additional posts containing this link beyond the first 12 shown
 #: templates/admin/dashboard/link-list.php:182
 #, php-format
 msgid "... and %d more"
@@ -883,23 +965,24 @@ msgstr ""
 msgid "Total Links"
 msgstr ""
 
-#: templates/admin/dashboard/page.php:145
+#. translators: "Links Saved" refers to broken links that are now being redirected to their archived versions on archive.org
+#: templates/admin/dashboard/page.php:148
 msgid "Links Saved"
 msgstr ""
 
-#: templates/admin/dashboard/page.php:153
+#: templates/admin/dashboard/page.php:158
 msgid "Archived Successfully"
 msgstr ""
 
-#: templates/admin/dashboard/page.php:159
+#: templates/admin/dashboard/page.php:164
 msgid "Ineligible for redirect"
 msgstr ""
 
-#: templates/admin/dashboard/page.php:165
+#: templates/admin/dashboard/page.php:170
 msgid "Checks in progress"
 msgstr ""
 
-#: templates/admin/dashboard/page.php:171
+#: templates/admin/dashboard/page.php:176
 msgid "Total Broken Links"
 msgstr ""
 
@@ -957,20 +1040,20 @@ msgstr ""
 msgid "Links are checked every %1$d days and marked as broken after %2$d consecutive failures"
 msgstr ""
 
-#. translators: 1: opening link tag, 2: closing link tag
-#: templates/admin/dashboard/widget.php:137
+#. translators: %s: URL to the settings page
+#: templates/admin/dashboard/widget.php:138
 #, php-format
-msgid "Links are not being checked. %1$sEnable Link Processing%2$s to turn this back on."
+msgid "Links are not being checked. <a href=\"%s\">Enable Link Processing</a> to turn this back on."
 msgstr ""
 
 #. translators: %d: number of links
-#: templates/admin/dashboard/widget.php:165
+#: templates/admin/dashboard/widget.php:167
 #, php-format
 msgid "View Links (%d)"
 msgstr ""
 
 #: templates/admin/links-table/help-tab-bulk-actions.php:13
-msgid "When this option is selected, the link will have its archive updated to the latest snapshot available from the Internet Archive."
+msgid "When this option is selected, the archived URL will be updated to the latest snapshot from the Internet Archive."
 msgstr ""
 
 #: templates/admin/links-table/help-tab-bulk-actions.php:16
@@ -1043,78 +1126,90 @@ msgstr ""
 msgid "This link is excluded from processing (e.g., by robots.txt or your exclusion settings)."
 msgstr ""
 
-#: templates/admin/reports/link-details.php:88
-msgid "Link Checks"
+#: templates/admin/reports/link-details.php:89
+msgid "Link Exclusion"
+msgstr ""
+
+#: templates/admin/reports/link-details.php:93
+msgid "This link is currently excluded. It will not be checked for broken status, fixed automatically, or have snapshots created by the Internet Archive."
+msgstr ""
+
+#: templates/admin/reports/link-details.php:95
+msgid "Excluding this link will stop it from being checked for broken status, fixed automatically, or having snapshots created by the Internet Archive."
 msgstr ""
 
 #: templates/admin/reports/link-details.php:104
+msgid "Exclude this link"
+msgstr ""
+
+#: templates/admin/reports/link-details.php:112
+msgid "Link Checks"
+msgstr ""
+
+#: templates/admin/reports/link-details.php:128
 msgid "Date"
 msgstr ""
 
-#: templates/admin/reports/link-details.php:105
-#: templates/admin/reports/link-details.php:163
+#: templates/admin/reports/link-details.php:129
+#: templates/admin/reports/link-details.php:187
 msgid "Status"
 msgstr ""
 
-#: templates/admin/reports/link-details.php:111
+#: templates/admin/reports/link-details.php:135
 msgid "No check history for this link yet."
 msgstr ""
 
-#: templates/admin/reports/link-details.php:119
+#: templates/admin/reports/link-details.php:143
 msgid "Show Older Checks"
 msgstr ""
 
-#: templates/admin/reports/link-details.php:141
+#: templates/admin/reports/link-details.php:165
 msgid "Error"
 msgstr ""
 
-#: templates/admin/reports/link-details.php:152
+#: templates/admin/reports/link-details.php:176
 msgid "Found In"
 msgstr ""
 
-#: templates/admin/reports/link-details.php:156
+#: templates/admin/reports/link-details.php:180
 msgid "This link has not been found in any posts yet."
 msgstr ""
 
-#: templates/admin/reports/link-details.php:161
-msgid "Post"
-msgstr ""
-
-#: templates/admin/reports/link-details.php:162
+#: templates/admin/reports/link-details.php:186
 msgid "Post Type"
 msgstr ""
 
-#: templates/admin/reports/link-details.php:164
+#: templates/admin/reports/link-details.php:188
 msgid "Actions"
 msgstr ""
 
 #. Translators: %1$s is the post ID, %2$s is the post type label (e.g., "Post", "Page").
-#: templates/admin/reports/link-details.php:176
+#: templates/admin/reports/link-details.php:200
 #, php-format
 msgid "Untitled %2$s (ID: %1$d)"
 msgstr ""
 
-#: templates/admin/reports/link-details.php:205
+#: templates/admin/reports/link-details.php:229
 msgid "Published"
 msgstr ""
 
-#: templates/admin/reports/link-details.php:207
+#: templates/admin/reports/link-details.php:231
 msgid "Draft"
 msgstr ""
 
-#: templates/admin/reports/link-details.php:209
+#: templates/admin/reports/link-details.php:233
 msgid "Pending"
 msgstr ""
 
-#: templates/admin/reports/link-details.php:211
+#: templates/admin/reports/link-details.php:235
 msgid "Scheduled"
 msgstr ""
 
-#: templates/admin/reports/link-details.php:218
+#: templates/admin/reports/link-details.php:242
 msgid "Edit"
 msgstr ""
 
-#: templates/admin/reports/link-details.php:222
+#: templates/admin/reports/link-details.php:246
 msgid "View"
 msgstr ""
 

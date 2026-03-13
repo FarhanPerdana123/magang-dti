@@ -37,8 +37,9 @@ class TableManager
         // - Version hasn't changed AND
         // - Not in development mode
         // This optimizes performance in production while allowing easy local testing
-        if (!$versionChanged && !$isDevelopment) {
-            // Version unchanged and not in development mode - skip migration check
+        // In dev mode, only run migration checks in admin context (not on frontend)
+        if (!$versionChanged && (!$isDevelopment || !is_admin())) {
+            // Version unchanged - skip migration check
             // But still add default data
             add_action('init', [$this, 'addDefaultData'], 20);
             return;
@@ -115,6 +116,10 @@ class TableManager
 
     private function addDefaultList(): void
     {
+        if (get_option('mailerpress_default_list_added')) {
+            return;
+        }
+
         global $wpdb;
 
         $table_name = Tables::get(Tables::MAILERPRESS_LIST);
@@ -165,6 +170,8 @@ class TableManager
                 }
             }
         }
+
+        add_option('mailerpress_default_list_added', true);
     }
 
     private function addDefaultCategories(): void

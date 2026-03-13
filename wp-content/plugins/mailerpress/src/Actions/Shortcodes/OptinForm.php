@@ -137,7 +137,12 @@ class OptinForm
         }
 
         // Read global double opt-in setting
-        $signupConfirmation = mailerpress_get_signup_confirmation_option();
+        $signupConfirmation = get_option('mailerpress_signup_confirmation', null);
+        if (is_string($signupConfirmation)) {
+            $signupConfirmation = json_decode($signupConfirmation, true);
+        } elseif (!is_array($signupConfirmation)) {
+            $signupConfirmation = null;
+        }
         $doubleOptinEnabled = !empty($signupConfirmation) && true === ($signupConfirmation['enableSignupConfirmation'] ?? false);
 
         // Generate unique IDs for fields

@@ -12,6 +12,8 @@ class CustomFields
 {
     protected $table;
 
+    private static ?array $cache = null;
+
     public function __construct()
     {
         global $wpdb;
@@ -25,12 +27,17 @@ class CustomFields
      */
     public function all(): array
     {
+        if (self::$cache !== null) {
+            return self::$cache;
+        }
+
         global $wpdb;
 
         // Check if table exists before querying
         $tableExists = $wpdb->get_var("SHOW TABLES LIKE '{$this->table}'") === $this->table;
         if (!$tableExists) {
-            return []; // Table doesn't exist yet, return empty array
+            self::$cache = [];
+            return [];
         }
 
         $results = $wpdb->get_results(
@@ -40,6 +47,7 @@ class CustomFields
         );
 
         if (!$results) {
+            self::$cache = [];
             return [];
         }
 
@@ -52,6 +60,7 @@ class CustomFields
             }
         }
 
+        self::$cache = $results;
         return $results;
     }
 

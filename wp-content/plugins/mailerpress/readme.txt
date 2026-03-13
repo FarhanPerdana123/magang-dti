@@ -5,7 +5,7 @@ Donate link: https://mailerpress.com/
 Tags: newsletter, emailing, email marketing, mjml, automation
 Requires at least: 6.5
 Tested up to: 6.9
-Stable tag: 1.5.1
+Stable tag: 1.5.2
 Requires PHP: 8.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -156,6 +156,11 @@ For Pro users: support by mail from their customer account.
 15. Outgoing webhooks
 
 == Changelog ==
+= 1.5.2 =
+* IMPROVEMENT: Reduced unnecessary database queries on page load.
+* FIX: Segment search returning no results in the Review & Send modal.
+* FIX: Resolved a fatal error that could occur when rendering opt-in forms in certain environments after the 1.5.1 update.
+
 = 1.5.1 =
 * FIX: Campaign scheduled date now uses WordPress locale formatting (correct date order and translation of "at").
 * FIX: Preserved spacing before punctuation (e.g. " !") in email button text.

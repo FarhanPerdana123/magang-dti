@@ -27,6 +27,11 @@ class CustomTrigger
     public const TRIGGER_KEY = 'custom_trigger';
 
     /**
+     * Whether dynamic hooks have already been registered in this request
+     */
+    private static bool $dynamicHooksRegistered = false;
+
+    /**
      * Register the custom trigger
      * 
      * @param mixed $manager The trigger manager instance
@@ -108,11 +113,13 @@ class CustomTrigger
 
         // Re-register hooks when workflow is updated
         add_action('mailerpress_workflow_updated', function () use ($manager) {
+            self::$dynamicHooksRegistered = false;
             self::registerDynamicHooks($manager);
         });
 
         // Re-register hooks when workflow status changes
         add_action('mailerpress_workflow_status_changed', function () use ($manager) {
+            self::$dynamicHooksRegistered = false;
             self::registerDynamicHooks($manager);
         });
     }
@@ -127,24 +134,36 @@ class CustomTrigger
      */
     public static function registerDynamicHooks($manager): void
     {
+        // Prevent duplicate registration within the same request
+        if (self::$dynamicHooksRegistered) {
+            return;
+        }
+        self::$dynamicHooksRegistered = true;
+
         global $wpdb;
 
         // Get all enabled automations with custom_trigger
         $automationsTable = $wpdb->prefix . 'mailerpress_automations';
         $stepsTable = $wpdb->prefix . 'mailerpress_automations_steps';
 
-        // Check if tables exist before querying
-        $automationsExists = $wpdb->get_var("SHOW TABLES LIKE '{$automationsTable}'") === $automationsTable;
-        $stepsExists = $wpdb->get_var("SHOW TABLES LIKE '{$stepsTable}'") === $stepsTable;
-
-        if (!$automationsExists || !$stepsExists) {
-            return; // Tables don't exist yet, skip registration
+        // Use a single query to check both tables exist instead of 2 SHOW TABLES
+        $tableCheck = $wpdb->get_col(
+            $wpdb->prepare(
+                "SHOW TABLES LIKE %s",
+                $wpdb->esc_like($automationsTable)
+            )
+        );
+        if (empty($tableCheck)) {
+            return;
         }
-
-        // Check if the 'id' column exists in automations table
-        $columns = $wpdb->get_col("SHOW COLUMNS FROM {$automationsTable}", 0);
-        if (!in_array('id', $columns, true)) {
-            return; // Column 'id' doesn't exist yet, skip registration
+        $tableCheck = $wpdb->get_col(
+            $wpdb->prepare(
+                "SHOW TABLES LIKE %s",
+                $wpdb->esc_like($stepsTable)
+            )
+        );
+        if (empty($tableCheck)) {
+            return;
         }
 
         $automations = $wpdb->get_results(

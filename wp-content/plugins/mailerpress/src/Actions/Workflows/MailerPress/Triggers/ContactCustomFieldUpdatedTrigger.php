@@ -47,20 +47,22 @@ class ContactCustomFieldUpdatedTrigger
      */
     public static function register($manager): void
     {
-        // Get dynamic custom fields for settings
-        $customFieldsModel = new CustomFields();
-        $customFields = $customFieldsModel->all();
+        // Only load custom field options in admin/REST context (not needed on frontend)
         $fieldOptions = [
             [
                 'value' => '',
                 'label' => __('Any custom field', 'mailerpress'),
             ],
         ];
-        foreach ($customFields as $field) {
-            $fieldOptions[] = [
-                'value' => $field->field_key,
-                'label' => $field->label ?? $field->field_key,
-            ];
+        if (is_admin() || wp_is_json_request()) {
+            $customFieldsModel = new CustomFields();
+            $customFields = $customFieldsModel->all();
+            foreach ($customFields as $field) {
+                $fieldOptions[] = [
+                    'value' => $field->field_key,
+                    'label' => $field->label ?? $field->field_key,
+                ];
+            }
         }
 
         $definition = [

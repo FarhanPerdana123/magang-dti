@@ -153,7 +153,8 @@ class WP_Post_Controller {
 			throw new Exception( 'Invalid post id' );
 		}
 
-		$can_add = apply_filters( 'iawmlf_own_content_allow_post', true, $post );
+		$is_excluded = in_array( $post_id, Settings::get_auto_archiver_excluded_posts(), true );
+		$can_add     = apply_filters( 'iawmlf_own_content_allow_post', ! $is_excluded, $post );
 
 		if ( $can_add ) {
 			Process_Local_Post_Event::add_to_queue_with_delay( $post_id );
@@ -168,6 +169,11 @@ class WP_Post_Controller {
 	 * @return void
 	 */
 	public function process_links_in_content( int $post_id ): void {
+		// Bail if the post is in the excluded posts list.
+		if ( in_array( $post_id, Settings::get_link_fixer_excluded_posts(), true ) ) {
+			return;
+		}
+
 		// Create an instance of the processor.
 		$post_processor = new Post_Processor( $post_id );
 		$links          = $post_processor->process();
@@ -214,6 +220,11 @@ class WP_Post_Controller {
 
 		// Get the post id.
 		$post_id = get_the_ID();
+
+		// Bail if the post is in the excluded posts list.
+		if ( is_numeric( $post_id ) && in_array( (int) $post_id, Settings::get_link_fixer_excluded_posts(), true ) ) {
+			return;
+		}
 
 		// Get the links.
 		$links = is_numeric( $post_id ) && get_post_status( $post_id )
@@ -280,6 +291,11 @@ class WP_Post_Controller {
 			return $block_content;
 		}
 
+		// Bail if the post is in the excluded posts list.
+		if ( in_array( (int) $post_id, Settings::get_link_fixer_excluded_posts(), true ) ) {
+			return $block_content;
+		}
+
 		// Add the post id to the array.
 		$posts[] = $post_id;
 
@@ -290,9 +306,9 @@ class WP_Post_Controller {
 		}
 
 		// Compile the data.
-		$links = $this->link_repository->get_links_for_post( $post_id );
+		$links = $this->link_repository->get_links_for_post( $post_id, true );
 
-		if ( empty( $links ) ) {
+		if ( $links->is_empty() ) {
 			return $block_content;
 		}
 
