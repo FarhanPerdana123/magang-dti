@@ -262,6 +262,59 @@ function ugm_customize_register( $wp_customize ) {
 		)
 	);
 
+	// Branding Text Lines.
+	$wp_customize->add_setting(
+		'ugm_branding_line_1',
+		array(
+			'default'           => 'UNIVERSITAS',
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_branding_line_1',
+		array(
+			'label'       => __( 'Branding Text Line 1', 'ugm-faculty' ),
+			'description' => __( 'Maksimal 3 baris. Kosongkan baris yang tidak dipakai.', 'ugm-faculty' ),
+			'section'     => 'ugm_branding',
+			'type'        => 'text',
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_branding_line_2',
+		array(
+			'default'           => 'GADJAH MADA',
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_branding_line_2',
+		array(
+			'label'   => __( 'Branding Text Line 2', 'ugm-faculty' ),
+			'section' => 'ugm_branding',
+			'type'    => 'text',
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_branding_line_3',
+		array(
+			'default'           => '',
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_branding_line_3',
+		array(
+			'label'   => __( 'Branding Text Line 3', 'ugm-faculty' ),
+			'section' => 'ugm_branding',
+			'type'    => 'text',
+		)
+	);
+
 	// Landing Page UGM Section.
 	$wp_customize->add_section(
 		'ugm_hero_section',

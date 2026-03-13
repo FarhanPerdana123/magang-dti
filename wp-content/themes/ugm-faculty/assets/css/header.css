@@ -66,6 +66,7 @@
 	display: inline-flex;
 	align-items: center;
 	text-decoration: none;
+	gap: 0.65rem;
 }
 
 .brand-logo {
@@ -95,6 +96,28 @@
 .brand-text {
 	color: var(--color-neutral-0);
 	font-weight: 700;
+}
+
+.brand-text-stack {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.15rem;
+	min-width: 0;
+}
+
+.brand-text-line {
+	display: block;
+	font-family: var(--font-family-brand);
+	font-size: 0.85rem;
+	font-weight: 400;
+	line-height: 1.1;
+	color: var(--color-neutral-0);
+	letter-spacing: 0.02em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 16rem;
 }
 
 .menu-toggle {
@@ -739,6 +762,16 @@
 		text-overflow: ellipsis;
 	}
 
+	.brand-text-stack {
+		gap: 0.1rem;
+		min-width: 0;
+	}
+
+	.brand-text-line {
+		font-size: 0.68rem;
+		max-width: 100%;
+	}
+
 	.site-header__actions {
 		gap: 0.06rem;
 		margin-left: auto;
@@ -774,6 +807,10 @@
 
 	.brand-logo {
 		height: clamp(1.6rem, 6.6vw, 2rem);
+	}
+
+	.brand-text-line {
+		font-size: 0.6rem;
 	}
 
 	.primary-navigation a {
