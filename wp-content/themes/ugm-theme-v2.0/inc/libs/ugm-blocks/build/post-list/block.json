@@ -1,0 +1,82 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "ugm-blocks/post-list",
+  "version": "0.1.0",
+  "title": "Posts List",
+  "category": "ugm",
+  "description": "List of posts",
+  "attributes": {
+    "id": {
+      "type": "string"
+    },
+    "layout": {
+      "type": "string",
+      "default": "list"
+    },
+    "columnCount": {
+      "type": "string",
+      "default": 3
+    },
+    "queryId": {
+      "type": "number"
+    },
+    "show": {
+      "type": "object",
+      "default": {
+        "thumbnail": true,
+        "date": true,
+        "excerpt": true
+      }
+    },
+    "showAll": {
+      "type": "object",
+      "default": {
+        "active": false,
+        "url": "",
+        "text": "Show More"
+      }
+    },
+    "query": {
+      "type": "object",
+      "default": {
+        "perPage": 3,
+        "pages": 0,
+        "offset": 0,
+        "postType": "post",
+        "order": "desc",
+        "orderBy": "date",
+        "author": "",
+        "search": "",
+        "exclude": [],
+        "sticky": "",
+        "inherit": true,
+        "taxQuery": null,
+        "parents": []
+      }
+    },
+    "style": {
+      "type": "object",
+      "default": {
+        "spacing": {
+          "margin": {
+            "bottom": "30px"
+          }
+        }
+      }
+    }
+  },
+  "supports": {
+    "html": false,
+    "spacing": {
+      "margin": [
+        "top",
+        "bottom"
+      ]
+    }
+  },
+  "textdomain": "ugm-theme",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}

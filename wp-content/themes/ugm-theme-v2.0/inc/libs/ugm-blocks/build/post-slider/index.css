@@ -1,0 +1,26 @@
+/*!****************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[3].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[3].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[3].use[3]!./src/post-slider/editor.scss ***!
+  \****************************************************************************************************************************************************************************************************************************************************/
+.ugm-blocks-block-post-slider article.post .post-content {
+  position: relative;
+}
+.ugm-blocks-block-post-slider article.post .post-content .slick-dots {
+  padding: 0;
+  list-style-type: none;
+  position: absolute;
+  bottom: 20px;
+  margin: 0;
+}
+.ugm-blocks-block-post-slider article.post .post-content .slick-dots li {
+  display: inline-block;
+  margin-right: 15px;
+}
+.ugm-blocks-block-post-slider.image-right article.post .post-content .slick-dots {
+  right: 0;
+}
+.ugm-blocks-block-post-slider.image-right article.post .post-content .slick-dots li {
+  margin-left: 15px;
+  margin-right: 0;
+}
+
+/*# sourceMappingURL=index.css.map*/

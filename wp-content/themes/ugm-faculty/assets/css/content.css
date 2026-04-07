@@ -23,6 +23,53 @@
 	margin-bottom: 24px;
 }
 
+/* Scroll reveal animation */
+.js .scroll-reveal {
+	--reveal-offset: 24px;
+	--reveal-scale: 1;
+
+	opacity: 0;
+	transform: translate3d(0, var(--reveal-offset), 0) scale(var(--reveal-scale));
+	transition: opacity 0.6s ease, transform 0.6s ease;
+	transition-delay: var(--reveal-delay, 0ms);
+	will-change: opacity, transform;
+}
+
+.js .scroll-reveal[data-reveal="up"] {
+	transform: translate3d(0, var(--reveal-offset), 0) scale(var(--reveal-scale));
+}
+
+.js .scroll-reveal[data-reveal="down"] {
+	transform: translate3d(0, calc(-1 * var(--reveal-offset)), 0) scale(var(--reveal-scale));
+}
+
+.js .scroll-reveal[data-reveal="left"] {
+	transform: translate3d(calc(-1 * var(--reveal-offset)), 0, 0) scale(var(--reveal-scale));
+}
+
+.js .scroll-reveal[data-reveal="right"] {
+	transform: translate3d(var(--reveal-offset), 0, 0) scale(var(--reveal-scale));
+}
+
+.js .scroll-reveal[data-reveal="zoom"] {
+	--reveal-offset: 0px;
+	--reveal-scale: 0.96;
+	transform: translate3d(0, 0, 0) scale(var(--reveal-scale));
+}
+
+.js .scroll-reveal.is-visible {
+	opacity: 1;
+	transform: translate3d(0, 0, 0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.js .scroll-reveal {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
+}
+
 .section-header {
 	display: flex;
 	align-items: center;

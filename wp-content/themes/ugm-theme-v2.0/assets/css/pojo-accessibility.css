@@ -1,0 +1,1500 @@
+/*! pojo-accessibility - v2.0.3 - 28-05-2018 */
+#pojo-a11y-toolbar {
+  position: fixed;
+  font-size: 16px !important;
+  line-height: 1.4;
+  z-index: 9999; }
+
+#pojo-a11y-toolbar.pojo-a11y-toolbar-right {
+  right: -180px;
+  -webkit-transition: right 750ms cubic-bezier(0.23, 1, 0.32, 1);
+  -moz-transition: right 750ms cubic-bezier(0.23, 1, 0.32, 1);
+  -o-transition: right 750ms cubic-bezier(0.23, 1, 0.32, 1);
+  transition: right 750ms cubic-bezier(0.23, 1, 0.32, 1); }
+
+#pojo-a11y-toolbar.pojo-a11y-toolbar-right.pojo-a11y-toolbar-open {
+  right: 0; }
+
+#pojo-a11y-toolbar.pojo-a11y-toolbar-right .pojo-a11y-toolbar-toggle {
+  right: 180px; }
+
+#pojo-a11y-toolbar.pojo-a11y-toolbar-left {
+  left: -180px;
+  -webkit-transition: left 750ms cubic-bezier(0.23, 1, 0.32, 1);
+  -moz-transition: left 750ms cubic-bezier(0.23, 1, 0.32, 1);
+  -o-transition: left 750ms cubic-bezier(0.23, 1, 0.32, 1);
+  transition: left 750ms cubic-bezier(0.23, 1, 0.32, 1); }
+
+#pojo-a11y-toolbar.pojo-a11y-toolbar-left.pojo-a11y-toolbar-open {
+  left: 0; }
+
+#pojo-a11y-toolbar.pojo-a11y-toolbar-left .pojo-a11y-toolbar-toggle {
+  left: 180px; }
+
+#pojo-a11y-toolbar.pojo-a11y-toolbar-open .pojo-a11y-toolbar-toggle, #pojo-a11y-toolbar.pojo-a11y-toolbar-open .pojo-a11y-toolbar-overlay {
+  -webkit-box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2); }
+
+#pojo-a11y-toolbar .pojo-a11y-toolbar-toggle {
+  position: absolute; }
+
+#pojo-a11y-toolbar .pojo-a11y-toolbar-toggle a {
+  display: inline-block;
+  font-size: 200%;
+  line-height: 0;
+  padding: 10px;
+  -webkit-box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1); }
+
+#pojo-a11y-toolbar .pojo-a11y-toolbar-toggle a:hover, #pojo-a11y-toolbar .pojo-a11y-toolbar-toggle a:focus {
+  -webkit-box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2); }
+
+#pojo-a11y-toolbar .pojo-a11y-toolbar-overlay {
+  border: 1px solid;
+  font-size: 100%;
+  width: 180px; }
+
+#pojo-a11y-toolbar .pojo-a11y-toolbar-overlay p.pojo-a11y-toolbar-title {
+  display: block;
+  line-height: 2;
+  font-weight: bold;
+  padding: 10px 15px 0;
+  margin: 0; }
+
+#pojo-a11y-toolbar .pojo-a11y-toolbar-overlay ul.pojo-a11y-toolbar-items {
+  list-style: none;
+  margin: 0;
+  padding: 10px 0; }
+
+#pojo-a11y-toolbar .pojo-a11y-toolbar-overlay ul.pojo-a11y-toolbar-items.pojo-a11y-links {
+  border-top: 1px solid; }
+
+#pojo-a11y-toolbar .pojo-a11y-toolbar-overlay ul.pojo-a11y-toolbar-items li.pojo-a11y-toolbar-item a {
+  display: block;
+  padding: 10px 15px;
+  font-size: 80%;
+  line-height: 1; }
+
+#pojo-a11y-toolbar .pojo-a11y-toolbar-overlay ul.pojo-a11y-toolbar-items li.pojo-a11y-toolbar-item a.active {
+  font-weight: bold; }
+
+#pojo-a11y-toolbar .pojo-a11y-toolbar-overlay ul.pojo-a11y-toolbar-items li.pojo-a11y-toolbar-item a svg {
+  padding-right: 6px;
+  display: inline-block;
+  width: 1.5em;
+  font-style: normal;
+  font-weight: normal;
+  font-size: inherit;
+  line-height: 1;
+  text-align: center;
+  text-rendering: auto;
+  vertical-align: middle; }
+
+#pojo-a11y-toolbar .pojo-a11y-toolbar-overlay ul.pojo-a11y-toolbar-items li.pojo-a11y-toolbar-item a .pojo-a11y-toolbar-text {
+  vertical-align: middle; }
+
+body.rtl #pojo-a11y-toolbar .pojo-a11y-toolbar-overlay ul.pojo-a11y-toolbar-items li.pojo-a11y-toolbar-item a svg {
+  padding-left: 6px;
+  padding-right: 0; }
+
+@media (max-width: 767px) {
+  #pojo-a11y-toolbar .pojo-a11y-toolbar-overlay p.pojo-a11y-toolbar-title {
+    padding: 7px 12px 0; }
+  #pojo-a11y-toolbar .pojo-a11y-toolbar-overlay ul.pojo-a11y-toolbar-items {
+    padding: 7px 0; }
+  #pojo-a11y-toolbar .pojo-a11y-toolbar-overlay ul.pojo-a11y-toolbar-items li.pojo-a11y-toolbar-item a {
+    display: block;
+    padding: 7px 12px; } }
+
+body.pojo-a11y-grayscale {
+  filter: grayscale(100%);
+  -webkit-filter: grayscale(100%);
+  -webkit-filter: grayscale(1);
+  -moz-filter: grayscale(100%);
+  -ms-filter: grayscale(100%);
+  -o-filter: grayscale(100%);
+  filter: gray; }
+
+body.pojo-a11y-high-contrast .placebo {
+  line-height: normal; }
+
+body.pojo-a11y-high-contrast * {
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important; }
+
+body.pojo-a11y-high-contrast a, body.pojo-a11y-high-contrast abbr, body.pojo-a11y-high-contrast acronym, body.pojo-a11y-high-contrast address, body.pojo-a11y-high-contrast article, body.pojo-a11y-high-contrast aside, body.pojo-a11y-high-contrast b, body.pojo-a11y-high-contrast basefont, body.pojo-a11y-high-contrast bdi, body.pojo-a11y-high-contrast big, body.pojo-a11y-high-contrast blink, body.pojo-a11y-high-contrast blockquote, body.pojo-a11y-high-contrast body, body.pojo-a11y-high-contrast button, body.pojo-a11y-high-contrast canvas, body.pojo-a11y-high-contrast caption, body.pojo-a11y-high-contrast center, body.pojo-a11y-high-contrast cite, body.pojo-a11y-high-contrast code, body.pojo-a11y-high-contrast col, body.pojo-a11y-high-contrast colgroup, body.pojo-a11y-high-contrast command, body.pojo-a11y-high-contrast dd, body.pojo-a11y-high-contrast del, body.pojo-a11y-high-contrast details, body.pojo-a11y-high-contrast dfn, body.pojo-a11y-high-contrast dir, body.pojo-a11y-high-contrast div, body.pojo-a11y-high-contrast dl, body.pojo-a11y-high-contrast dt, body.pojo-a11y-high-contrast em, body.pojo-a11y-high-contrast embed, body.pojo-a11y-high-contrast fieldset, body.pojo-a11y-high-contrast figcaption, body.pojo-a11y-high-contrast figure, body.pojo-a11y-high-contrast font, body.pojo-a11y-high-contrast footer, body.pojo-a11y-high-contrast form, body.pojo-a11y-high-contrast h1, body.pojo-a11y-high-contrast h1 a, body.pojo-a11y-high-contrast h1 a b, body.pojo-a11y-high-contrast h1 abbr, body.pojo-a11y-high-contrast h1 b, body.pojo-a11y-high-contrast h1 center, body.pojo-a11y-high-contrast h1 em, body.pojo-a11y-high-contrast h1 i, body.pojo-a11y-high-contrast h1 span, body.pojo-a11y-high-contrast h1 strong, body.pojo-a11y-high-contrast h2, body.pojo-a11y-high-contrast h2 a, body.pojo-a11y-high-contrast h2 a b, body.pojo-a11y-high-contrast h2 abbr, body.pojo-a11y-high-contrast h2 b, body.pojo-a11y-high-contrast h2 center, body.pojo-a11y-high-contrast h2 em, body.pojo-a11y-high-contrast h2 i, body.pojo-a11y-high-contrast h2 span, body.pojo-a11y-high-contrast h2 strong, body.pojo-a11y-high-contrast h3, body.pojo-a11y-high-contrast h3 a, body.pojo-a11y-high-contrast h3 a b, body.pojo-a11y-high-contrast h3 abbr, body.pojo-a11y-high-contrast h3 b, body.pojo-a11y-high-contrast h3 center, body.pojo-a11y-high-contrast h3 em, body.pojo-a11y-high-contrast h3 i, body.pojo-a11y-high-contrast h3 span, body.pojo-a11y-high-contrast h3 strong, body.pojo-a11y-high-contrast h4, body.pojo-a11y-high-contrast h4 a, body.pojo-a11y-high-contrast h4 a b, body.pojo-a11y-high-contrast h4 abbr, body.pojo-a11y-high-contrast h4 b, body.pojo-a11y-high-contrast h4 center, body.pojo-a11y-high-contrast h4 em, body.pojo-a11y-high-contrast h4 i, body.pojo-a11y-high-contrast h4 span, body.pojo-a11y-high-contrast h4 strong, body.pojo-a11y-high-contrast h5, body.pojo-a11y-high-contrast h5 a, body.pojo-a11y-high-contrast h5 a b, body.pojo-a11y-high-contrast h5 abbr, body.pojo-a11y-high-contrast h5 b, body.pojo-a11y-high-contrast h5 center, body.pojo-a11y-high-contrast h5 em, body.pojo-a11y-high-contrast h5 i, body.pojo-a11y-high-contrast h5 span, body.pojo-a11y-high-contrast h5 strong, body.pojo-a11y-high-contrast h6, body.pojo-a11y-high-contrast h6 a, body.pojo-a11y-high-contrast h6 a b, body.pojo-a11y-high-contrast h6 abbr, body.pojo-a11y-high-contrast h6 b, body.pojo-a11y-high-contrast h6 center, body.pojo-a11y-high-contrast h6 em, body.pojo-a11y-high-contrast h6 i, body.pojo-a11y-high-contrast h6 span, body.pojo-a11y-high-contrast h6 strong, body.pojo-a11y-high-contrast header, body.pojo-a11y-high-contrast hgroup, body.pojo-a11y-high-contrast html, body.pojo-a11y-high-contrast i, body.pojo-a11y-high-contrast iframe, body.pojo-a11y-high-contrast img, body.pojo-a11y-high-contrast input, body.pojo-a11y-high-contrast ins, body.pojo-a11y-high-contrast kbd, body.pojo-a11y-high-contrast label, body.pojo-a11y-high-contrast legend, body.pojo-a11y-high-contrast li, body.pojo-a11y-high-contrast listing, body.pojo-a11y-high-contrast main, body.pojo-a11y-high-contrast mark, body.pojo-a11y-high-contrast marquee, body.pojo-a11y-high-contrast menu, body.pojo-a11y-high-contrast meter, body.pojo-a11y-high-contrast multicol, body.pojo-a11y-high-contrast nav, body.pojo-a11y-high-contrast nobr, body.pojo-a11y-high-contrast object, body.pojo-a11y-high-contrast ol, body.pojo-a11y-high-contrast option, body.pojo-a11y-high-contrast output, body.pojo-a11y-high-contrast p, body.pojo-a11y-high-contrast plaintext, body.pojo-a11y-high-contrast pre, body.pojo-a11y-high-contrast progress, body.pojo-a11y-high-contrast q, body.pojo-a11y-high-contrast rb, body.pojo-a11y-high-contrast rp, body.pojo-a11y-high-contrast rt, body.pojo-a11y-high-contrast ruby, body.pojo-a11y-high-contrast s, body.pojo-a11y-high-contrast samp, body.pojo-a11y-high-contrast section, body.pojo-a11y-high-contrast select, body.pojo-a11y-high-contrast small, body.pojo-a11y-high-contrast span, body.pojo-a11y-high-contrast strike, body.pojo-a11y-high-contrast strong, body.pojo-a11y-high-contrast sub, body.pojo-a11y-high-contrast summary, body.pojo-a11y-high-contrast sup, body.pojo-a11y-high-contrast svg, body.pojo-a11y-high-contrast table, body.pojo-a11y-high-contrast tbody, body.pojo-a11y-high-contrast td, body.pojo-a11y-high-contrast text, body.pojo-a11y-high-contrast textarea, body.pojo-a11y-high-contrast th, body.pojo-a11y-high-contrast thead, body.pojo-a11y-high-contrast time, body.pojo-a11y-high-contrast tr, body.pojo-a11y-high-contrast tt, body.pojo-a11y-high-contrast u, body.pojo-a11y-high-contrast ul, body.pojo-a11y-high-contrast var, body.pojo-a11y-high-contrast video, body.pojo-a11y-high-contrast xmp {
+  -moz-appearance: none !important;
+  -moz-user-select: text !important;
+  -webkit-user-select: text !important;
+  background-image: none !important;
+  text-shadow: none !important;
+  user-select: text !important; }
+
+body.pojo-a11y-high-contrast a, body.pojo-a11y-high-contrast abbr, body.pojo-a11y-high-contrast acronym, body.pojo-a11y-high-contrast address, body.pojo-a11y-high-contrast article, body.pojo-a11y-high-contrast aside, body.pojo-a11y-high-contrast b, body.pojo-a11y-high-contrast basefont, body.pojo-a11y-high-contrast bdi, body.pojo-a11y-high-contrast big, body.pojo-a11y-high-contrast blink, body.pojo-a11y-high-contrast blockquote, body.pojo-a11y-high-contrast body, body.pojo-a11y-high-contrast canvas, body.pojo-a11y-high-contrast caption, body.pojo-a11y-high-contrast center, body.pojo-a11y-high-contrast cite, body.pojo-a11y-high-contrast code, body.pojo-a11y-high-contrast col, body.pojo-a11y-high-contrast colgroup, body.pojo-a11y-high-contrast command, body.pojo-a11y-high-contrast dd, body.pojo-a11y-high-contrast del, body.pojo-a11y-high-contrast details, body.pojo-a11y-high-contrast dfn, body.pojo-a11y-high-contrast dir, body.pojo-a11y-high-contrast div, body.pojo-a11y-high-contrast dl, body.pojo-a11y-high-contrast dt, body.pojo-a11y-high-contrast em, body.pojo-a11y-high-contrast embed, body.pojo-a11y-high-contrast fieldset, body.pojo-a11y-high-contrast figcaption, body.pojo-a11y-high-contrast figure, body.pojo-a11y-high-contrast font, body.pojo-a11y-high-contrast footer, body.pojo-a11y-high-contrast form, body.pojo-a11y-high-contrast h1, body.pojo-a11y-high-contrast h1 a, body.pojo-a11y-high-contrast h1 a b, body.pojo-a11y-high-contrast h1 abbr, body.pojo-a11y-high-contrast h1 b, body.pojo-a11y-high-contrast h1 center, body.pojo-a11y-high-contrast h1 em, body.pojo-a11y-high-contrast h1 i, body.pojo-a11y-high-contrast h1 span, body.pojo-a11y-high-contrast h1 strong, body.pojo-a11y-high-contrast h2, body.pojo-a11y-high-contrast h2 a, body.pojo-a11y-high-contrast h2 a b, body.pojo-a11y-high-contrast h2 abbr, body.pojo-a11y-high-contrast h2 b, body.pojo-a11y-high-contrast h2 center, body.pojo-a11y-high-contrast h2 em, body.pojo-a11y-high-contrast h2 i, body.pojo-a11y-high-contrast h2 span, body.pojo-a11y-high-contrast h2 strong, body.pojo-a11y-high-contrast h3, body.pojo-a11y-high-contrast h3 a, body.pojo-a11y-high-contrast h3 a b, body.pojo-a11y-high-contrast h3 abbr, body.pojo-a11y-high-contrast h3 b, body.pojo-a11y-high-contrast h3 center, body.pojo-a11y-high-contrast h3 em, body.pojo-a11y-high-contrast h3 i, body.pojo-a11y-high-contrast h3 span, body.pojo-a11y-high-contrast h3 strong, body.pojo-a11y-high-contrast h4, body.pojo-a11y-high-contrast h4 a, body.pojo-a11y-high-contrast h4 a b, body.pojo-a11y-high-contrast h4 abbr, body.pojo-a11y-high-contrast h4 b, body.pojo-a11y-high-contrast h4 center, body.pojo-a11y-high-contrast h4 em, body.pojo-a11y-high-contrast h4 i, body.pojo-a11y-high-contrast h4 span, body.pojo-a11y-high-contrast h4 strong, body.pojo-a11y-high-contrast h5, body.pojo-a11y-high-contrast h5 a, body.pojo-a11y-high-contrast h5 a b, body.pojo-a11y-high-contrast h5 abbr, body.pojo-a11y-high-contrast h5 b, body.pojo-a11y-high-contrast h5 center, body.pojo-a11y-high-contrast h5 em, body.pojo-a11y-high-contrast h5 i, body.pojo-a11y-high-contrast h5 span, body.pojo-a11y-high-contrast h5 strong, body.pojo-a11y-high-contrast h6, body.pojo-a11y-high-contrast h6 a, body.pojo-a11y-high-contrast h6 a b, body.pojo-a11y-high-contrast h6 abbr, body.pojo-a11y-high-contrast h6 b, body.pojo-a11y-high-contrast h6 center, body.pojo-a11y-high-contrast h6 em, body.pojo-a11y-high-contrast h6 i, body.pojo-a11y-high-contrast h6 span, body.pojo-a11y-high-contrast h6 strong, body.pojo-a11y-high-contrast header, body.pojo-a11y-high-contrast hgroup, body.pojo-a11y-high-contrast html, body.pojo-a11y-high-contrast i, body.pojo-a11y-high-contrast iframe, body.pojo-a11y-high-contrast input, body.pojo-a11y-high-contrast ins, body.pojo-a11y-high-contrast kbd, body.pojo-a11y-high-contrast label, body.pojo-a11y-high-contrast legend, body.pojo-a11y-high-contrast li, body.pojo-a11y-high-contrast listing, body.pojo-a11y-high-contrast main, body.pojo-a11y-high-contrast mark, body.pojo-a11y-high-contrast marquee, body.pojo-a11y-high-contrast menu, body.pojo-a11y-high-contrast meter, body.pojo-a11y-high-contrast multicol, body.pojo-a11y-high-contrast nav:not(#pojo-a11y-toolbar), body.pojo-a11y-high-contrast nobr, body.pojo-a11y-high-contrast object, body.pojo-a11y-high-contrast ol, body.pojo-a11y-high-contrast option, body.pojo-a11y-high-contrast output, body.pojo-a11y-high-contrast p, body.pojo-a11y-high-contrast plaintext, body.pojo-a11y-high-contrast pre, body.pojo-a11y-high-contrast progress, body.pojo-a11y-high-contrast q, body.pojo-a11y-high-contrast rb, body.pojo-a11y-high-contrast rp, body.pojo-a11y-high-contrast rt, body.pojo-a11y-high-contrast ruby, body.pojo-a11y-high-contrast s, body.pojo-a11y-high-contrast samp, body.pojo-a11y-high-contrast section, body.pojo-a11y-high-contrast small, body.pojo-a11y-high-contrast span, body.pojo-a11y-high-contrast strike, body.pojo-a11y-high-contrast strong, body.pojo-a11y-high-contrast sub, body.pojo-a11y-high-contrast summary, body.pojo-a11y-high-contrast sup, body.pojo-a11y-high-contrast svg, body.pojo-a11y-high-contrast table, body.pojo-a11y-high-contrast tbody, body.pojo-a11y-high-contrast td, body.pojo-a11y-high-contrast text, body.pojo-a11y-high-contrast textarea, body.pojo-a11y-high-contrast th, body.pojo-a11y-high-contrast thead, body.pojo-a11y-high-contrast time, body.pojo-a11y-high-contrast tr, body.pojo-a11y-high-contrast tt, body.pojo-a11y-high-contrast u, body.pojo-a11y-high-contrast ul, body.pojo-a11y-high-contrast var, body.pojo-a11y-high-contrast video, body.pojo-a11y-high-contrast xmp {
+  background: black !important;
+  background-color: black !important; }
+
+body.pojo-a11y-high-contrast a, body.pojo-a11y-high-contrast article, body.pojo-a11y-high-contrast aside, body.pojo-a11y-high-contrast basefont, body.pojo-a11y-high-contrast bdi, body.pojo-a11y-high-contrast big, body.pojo-a11y-high-contrast blink, body.pojo-a11y-high-contrast blockquote, body.pojo-a11y-high-contrast body, body.pojo-a11y-high-contrast button, body.pojo-a11y-high-contrast canvas, body.pojo-a11y-high-contrast caption, body.pojo-a11y-high-contrast center, body.pojo-a11y-high-contrast code, body.pojo-a11y-high-contrast col, body.pojo-a11y-high-contrast colgroup, body.pojo-a11y-high-contrast command, body.pojo-a11y-high-contrast dd, body.pojo-a11y-high-contrast del, body.pojo-a11y-high-contrast details, body.pojo-a11y-high-contrast dir, body.pojo-a11y-high-contrast div, body.pojo-a11y-high-contrast dl, body.pojo-a11y-high-contrast dt, body.pojo-a11y-high-contrast embed, body.pojo-a11y-high-contrast fieldset, body.pojo-a11y-high-contrast figcaption, body.pojo-a11y-high-contrast figure, body.pojo-a11y-high-contrast font, body.pojo-a11y-high-contrast footer, body.pojo-a11y-high-contrast form, body.pojo-a11y-high-contrast header, body.pojo-a11y-high-contrast hgroup, body.pojo-a11y-high-contrast html, body.pojo-a11y-high-contrast iframe, body.pojo-a11y-high-contrast img, body.pojo-a11y-high-contrast input, body.pojo-a11y-high-contrast ins, body.pojo-a11y-high-contrast kbd, body.pojo-a11y-high-contrast label, body.pojo-a11y-high-contrast legend, body.pojo-a11y-high-contrast li, body.pojo-a11y-high-contrast listing, body.pojo-a11y-high-contrast main, body.pojo-a11y-high-contrast mark, body.pojo-a11y-high-contrast marquee, body.pojo-a11y-high-contrast menu, body.pojo-a11y-high-contrast meter, body.pojo-a11y-high-contrast multicol, body.pojo-a11y-high-contrast nav, body.pojo-a11y-high-contrast nobr, body.pojo-a11y-high-contrast object, body.pojo-a11y-high-contrast ol, body.pojo-a11y-high-contrast option, body.pojo-a11y-high-contrast output, body.pojo-a11y-high-contrast p, body.pojo-a11y-high-contrast plaintext, body.pojo-a11y-high-contrast pre, body.pojo-a11y-high-contrast progress, body.pojo-a11y-high-contrast q, body.pojo-a11y-high-contrast rb, body.pojo-a11y-high-contrast rp, body.pojo-a11y-high-contrast rt, body.pojo-a11y-high-contrast ruby, body.pojo-a11y-high-contrast s, body.pojo-a11y-high-contrast samp, body.pojo-a11y-high-contrast section, body.pojo-a11y-high-contrast select, body.pojo-a11y-high-contrast small, body.pojo-a11y-high-contrast span, body.pojo-a11y-high-contrast strike, body.pojo-a11y-high-contrast sub, body.pojo-a11y-high-contrast summary, body.pojo-a11y-high-contrast sup, body.pojo-a11y-high-contrast svg, body.pojo-a11y-high-contrast table, body.pojo-a11y-high-contrast tbody, body.pojo-a11y-high-contrast td, body.pojo-a11y-high-contrast text, body.pojo-a11y-high-contrast textarea, body.pojo-a11y-high-contrast th, body.pojo-a11y-high-contrast thead, body.pojo-a11y-high-contrast time, body.pojo-a11y-high-contrast tr, body.pojo-a11y-high-contrast tt, body.pojo-a11y-high-contrast ul, body.pojo-a11y-high-contrast var, body.pojo-a11y-high-contrast video, body.pojo-a11y-high-contrast xmp {
+  color: white !important; }
+
+body.pojo-a11y-high-contrast abbr, body.pojo-a11y-high-contrast acronym, body.pojo-a11y-high-contrast b, body.pojo-a11y-high-contrast b span, body.pojo-a11y-high-contrast h1 b, body.pojo-a11y-high-contrast h1 strong, body.pojo-a11y-high-contrast h2 b, body.pojo-a11y-high-contrast h2 strong, body.pojo-a11y-high-contrast h3 b, body.pojo-a11y-high-contrast h3 strong, body.pojo-a11y-high-contrast h4 b, body.pojo-a11y-high-contrast h4 strong, body.pojo-a11y-high-contrast h5 b, body.pojo-a11y-high-contrast h5 strong, body.pojo-a11y-high-contrast h6 b, body.pojo-a11y-high-contrast h6 strong, body.pojo-a11y-high-contrast strong, body.pojo-a11y-high-contrast strong span {
+  color: yellow !important; }
+
+body.pojo-a11y-high-contrast address, body.pojo-a11y-high-contrast address span, body.pojo-a11y-high-contrast cite, body.pojo-a11y-high-contrast cite span, body.pojo-a11y-high-contrast dfn, body.pojo-a11y-high-contrast dfn span, body.pojo-a11y-high-contrast em, body.pojo-a11y-high-contrast em span, body.pojo-a11y-high-contrast h1 em, body.pojo-a11y-high-contrast h1 i, body.pojo-a11y-high-contrast h2 em, body.pojo-a11y-high-contrast h2 i, body.pojo-a11y-high-contrast h3 em, body.pojo-a11y-high-contrast h3 i, body.pojo-a11y-high-contrast h4 em, body.pojo-a11y-high-contrast h4 i, body.pojo-a11y-high-contrast h5 em, body.pojo-a11y-high-contrast h5 i, body.pojo-a11y-high-contrast h6 em, body.pojo-a11y-high-contrast h6 i, body.pojo-a11y-high-contrast i, body.pojo-a11y-high-contrast i span, body.pojo-a11y-high-contrast u, body.pojo-a11y-high-contrast u span {
+  color: #FFFF80 !important; }
+
+body.pojo-a11y-high-contrast dt {
+  border-top: thin solid grey !important; }
+
+body.pojo-a11y-high-contrast h1, body.pojo-a11y-high-contrast h1 a, body.pojo-a11y-high-contrast h1 a b, body.pojo-a11y-high-contrast h1 abbr, body.pojo-a11y-high-contrast h1 center, body.pojo-a11y-high-contrast h1 span, body.pojo-a11y-high-contrast h2, body.pojo-a11y-high-contrast h2 a, body.pojo-a11y-high-contrast h2 a b, body.pojo-a11y-high-contrast h2 abbr, body.pojo-a11y-high-contrast h2 center, body.pojo-a11y-high-contrast h2 span, body.pojo-a11y-high-contrast h3, body.pojo-a11y-high-contrast h3 a, body.pojo-a11y-high-contrast h3 a b, body.pojo-a11y-high-contrast h3 abbr, body.pojo-a11y-high-contrast h3 center, body.pojo-a11y-high-contrast h3 span, body.pojo-a11y-high-contrast h4, body.pojo-a11y-high-contrast h4 a, body.pojo-a11y-high-contrast h4 a b, body.pojo-a11y-high-contrast h4 abbr, body.pojo-a11y-high-contrast h4 center, body.pojo-a11y-high-contrast h4 span, body.pojo-a11y-high-contrast h5, body.pojo-a11y-high-contrast h5 a, body.pojo-a11y-high-contrast h5 a b, body.pojo-a11y-high-contrast h5 abbr, body.pojo-a11y-high-contrast h5 center, body.pojo-a11y-high-contrast h5 span, body.pojo-a11y-high-contrast h6, body.pojo-a11y-high-contrast h6 a, body.pojo-a11y-high-contrast h6 a b, body.pojo-a11y-high-contrast h6 abbr, body.pojo-a11y-high-contrast h6 center, body.pojo-a11y-high-contrast h6 span {
+  color: #40C090 !important; }
+
+body.pojo-a11y-high-contrast img {
+  background: #808080 !important;
+  background-color: #808080 !important; }
+
+body.pojo-a11y-high-contrast abbr, body.pojo-a11y-high-contrast acronym {
+  border-bottom: 1px dotted !important; }
+
+body.pojo-a11y-high-contrast :focus {
+  outline: thin dotted !important; }
+
+body.pojo-a11y-high-contrast a.button, body.pojo-a11y-high-contrast a.button abbr, body.pojo-a11y-high-contrast a.button acronym, body.pojo-a11y-high-contrast a.button b, body.pojo-a11y-high-contrast a.button basefont, body.pojo-a11y-high-contrast a.button big, body.pojo-a11y-high-contrast a.button br, body.pojo-a11y-high-contrast a.button code, body.pojo-a11y-high-contrast a.button div, body.pojo-a11y-high-contrast a.button em, body.pojo-a11y-high-contrast a.button font, body.pojo-a11y-high-contrast a.button h1, body.pojo-a11y-high-contrast a.button h2, body.pojo-a11y-high-contrast a.button h3, body.pojo-a11y-high-contrast a.button h4, body.pojo-a11y-high-contrast a.button h5, body.pojo-a11y-high-contrast a.button h6, body.pojo-a11y-high-contrast a.button i, body.pojo-a11y-high-contrast a.button kbd, body.pojo-a11y-high-contrast a.button rb, body.pojo-a11y-high-contrast a.button rp, body.pojo-a11y-high-contrast a.button rt, body.pojo-a11y-high-contrast a.button ruby, body.pojo-a11y-high-contrast a.button samp, body.pojo-a11y-high-contrast a.button small, body.pojo-a11y-high-contrast a.button span, body.pojo-a11y-high-contrast a.button strong, body.pojo-a11y-high-contrast a.button tt, body.pojo-a11y-high-contrast a.button u, body.pojo-a11y-high-contrast a.button var, body.pojo-a11y-high-contrast a:link, body.pojo-a11y-high-contrast a:link abbr, body.pojo-a11y-high-contrast a:link acronym, body.pojo-a11y-high-contrast a:link b, body.pojo-a11y-high-contrast a:link basefont, body.pojo-a11y-high-contrast a:link big, body.pojo-a11y-high-contrast a:link br, body.pojo-a11y-high-contrast a:link code, body.pojo-a11y-high-contrast a:link div, body.pojo-a11y-high-contrast a:link em, body.pojo-a11y-high-contrast a:link font, body.pojo-a11y-high-contrast a:link h1, body.pojo-a11y-high-contrast a:link h2, body.pojo-a11y-high-contrast a:link h3, body.pojo-a11y-high-contrast a:link h4, body.pojo-a11y-high-contrast a:link h5, body.pojo-a11y-high-contrast a:link h6, body.pojo-a11y-high-contrast a:link i, body.pojo-a11y-high-contrast a:link kbd, body.pojo-a11y-high-contrast a:link rb, body.pojo-a11y-high-contrast a:link rp, body.pojo-a11y-high-contrast a:link rt, body.pojo-a11y-high-contrast a:link ruby, body.pojo-a11y-high-contrast a:link samp, body.pojo-a11y-high-contrast a:link small, body.pojo-a11y-high-contrast a:link span, body.pojo-a11y-high-contrast a:link strong, body.pojo-a11y-high-contrast a:link tt, body.pojo-a11y-high-contrast a:link u, body.pojo-a11y-high-contrast a:link var, body.pojo-a11y-high-contrast div#secondaryNav div#documentNavigation ul.navigationTabs li.tabItem {
+  color: #0080FF !important; }
+
+body.pojo-a11y-high-contrast button, body.pojo-a11y-high-contrast input, body.pojo-a11y-high-contrast textarea, body.pojo-a11y-high-contrast select, body.pojo-a11y-high-contrast table, body.pojo-a11y-high-contrast td, body.pojo-a11y-high-contrast th, body.pojo-a11y-high-contrast tr, body.pojo-a11y-high-contrast tt {
+  border: 1px solid #ffffff !important; }
+
+body.pojo-a11y-high-contrast button {
+  background: #600040 !important;
+  background-color: #600040 !important; }
+
+body.pojo-a11y-high-contrast select {
+  -webkit-appearance: listbox !important;
+  background: #600060 !important;
+  background-color: #600060 !important; }
+
+body.pojo-a11y-high-contrast a:visited, body.pojo-a11y-high-contrast a:visited abbr, body.pojo-a11y-high-contrast a:visited acronym, body.pojo-a11y-high-contrast a:visited b, body.pojo-a11y-high-contrast a:visited basefont, body.pojo-a11y-high-contrast a:visited big, body.pojo-a11y-high-contrast a:visited br, body.pojo-a11y-high-contrast a:visited code, body.pojo-a11y-high-contrast a:visited div, body.pojo-a11y-high-contrast a:visited em, body.pojo-a11y-high-contrast a:visited font, body.pojo-a11y-high-contrast a:visited h1, body.pojo-a11y-high-contrast a:visited h2, body.pojo-a11y-high-contrast a:visited h3, body.pojo-a11y-high-contrast a:visited h4, body.pojo-a11y-high-contrast a:visited h5, body.pojo-a11y-high-contrast a:visited h6, body.pojo-a11y-high-contrast a:visited i, body.pojo-a11y-high-contrast a:visited kbd, body.pojo-a11y-high-contrast a:visited rb, body.pojo-a11y-high-contrast a:visited rp, body.pojo-a11y-high-contrast a:visited rt, body.pojo-a11y-high-contrast a:visited ruby, body.pojo-a11y-high-contrast a:visited samp, body.pojo-a11y-high-contrast a:visited small, body.pojo-a11y-high-contrast a:visited span, body.pojo-a11y-high-contrast a:visited strong, body.pojo-a11y-high-contrast a:visited tt, body.pojo-a11y-high-contrast a:visited u, body.pojo-a11y-high-contrast a:visited var, body.pojo-a11y-high-contrast div#secondaryNav div#documentNavigation ul.navigationTabs li.tabItem.active {
+  color: #00FFFF !important; }
+
+body.pojo-a11y-high-contrast ::selection, body.pojo-a11y-high-contrast ::-moz-selection {
+  background: #4080c0 !important;
+  background-color: #4080c0 !important; }
+
+body.pojo-a11y-high-contrast a.button:hover, body.pojo-a11y-high-contrast a.button:hover abbr, body.pojo-a11y-high-contrast a.button:hover acronym, body.pojo-a11y-high-contrast a.button:hover b, body.pojo-a11y-high-contrast a.button:hover basefont, body.pojo-a11y-high-contrast a.button:hover big, body.pojo-a11y-high-contrast a.button:hover br, body.pojo-a11y-high-contrast a.button:hover code, body.pojo-a11y-high-contrast a.button:hover div, body.pojo-a11y-high-contrast a.button:hover em, body.pojo-a11y-high-contrast a.button:hover font, body.pojo-a11y-high-contrast a.button:hover h1, body.pojo-a11y-high-contrast a.button:hover h2, body.pojo-a11y-high-contrast a.button:hover h3, body.pojo-a11y-high-contrast a.button:hover h4, body.pojo-a11y-high-contrast a.button:hover h5, body.pojo-a11y-high-contrast a.button:hover h6, body.pojo-a11y-high-contrast a.button:hover i, body.pojo-a11y-high-contrast a.button:hover kbd, body.pojo-a11y-high-contrast a.button:hover rb, body.pojo-a11y-high-contrast a.button:hover rp, body.pojo-a11y-high-contrast a.button:hover rt, body.pojo-a11y-high-contrast a.button:hover ruby, body.pojo-a11y-high-contrast a.button:hover samp, body.pojo-a11y-high-contrast a.button:hover small, body.pojo-a11y-high-contrast a.button:hover span, body.pojo-a11y-high-contrast a.button:hover strong, body.pojo-a11y-high-contrast a.button:hover tt, body.pojo-a11y-high-contrast a.button:hover u, body.pojo-a11y-high-contrast a.button:hover var, body.pojo-a11y-high-contrast a:link:hover, body.pojo-a11y-high-contrast a:link:hover abbr, body.pojo-a11y-high-contrast a:link:hover acronym, body.pojo-a11y-high-contrast a:link:hover b, body.pojo-a11y-high-contrast a:link:hover basefont, body.pojo-a11y-high-contrast a:link:hover big, body.pojo-a11y-high-contrast a:link:hover br, body.pojo-a11y-high-contrast a:link:hover code, body.pojo-a11y-high-contrast a:link:hover div, body.pojo-a11y-high-contrast a:link:hover em, body.pojo-a11y-high-contrast a:link:hover font, body.pojo-a11y-high-contrast a:link:hover h1, body.pojo-a11y-high-contrast a:link:hover h2, body.pojo-a11y-high-contrast a:link:hover h3, body.pojo-a11y-high-contrast a:link:hover h4, body.pojo-a11y-high-contrast a:link:hover h5, body.pojo-a11y-high-contrast a:link:hover h6, body.pojo-a11y-high-contrast a:link:hover i, body.pojo-a11y-high-contrast a:link:hover kbd, body.pojo-a11y-high-contrast a:link:hover rb, body.pojo-a11y-high-contrast a:link:hover rp, body.pojo-a11y-high-contrast a:link:hover rt, body.pojo-a11y-high-contrast a:link:hover ruby, body.pojo-a11y-high-contrast a:link:hover samp, body.pojo-a11y-high-contrast a:link:hover small, body.pojo-a11y-high-contrast a:link:hover span, body.pojo-a11y-high-contrast a:link:hover strong, body.pojo-a11y-high-contrast a:link:hover tt, body.pojo-a11y-high-contrast a:link:hover u, body.pojo-a11y-high-contrast a:link:hover var, body.pojo-a11y-high-contrast a:visited:hover, body.pojo-a11y-high-contrast a:visited:hover abbr, body.pojo-a11y-high-contrast a:visited:hover acronym, body.pojo-a11y-high-contrast a:visited:hover b, body.pojo-a11y-high-contrast a:visited:hover basefont, body.pojo-a11y-high-contrast a:visited:hover big, body.pojo-a11y-high-contrast a:visited:hover br, body.pojo-a11y-high-contrast a:visited:hover code, body.pojo-a11y-high-contrast a:visited:hover div, body.pojo-a11y-high-contrast a:visited:hover em, body.pojo-a11y-high-contrast a:visited:hover font, body.pojo-a11y-high-contrast a:visited:hover h1, body.pojo-a11y-high-contrast a:visited:hover h2, body.pojo-a11y-high-contrast a:visited:hover h3, body.pojo-a11y-high-contrast a:visited:hover h4, body.pojo-a11y-high-contrast a:visited:hover h5, body.pojo-a11y-high-contrast a:visited:hover h6, body.pojo-a11y-high-contrast a:visited:hover i, body.pojo-a11y-high-contrast a:visited:hover kbd, body.pojo-a11y-high-contrast a:visited:hover rb, body.pojo-a11y-high-contrast a:visited:hover rp, body.pojo-a11y-high-contrast a:visited:hover rt, body.pojo-a11y-high-contrast a:visited:hover ruby, body.pojo-a11y-high-contrast a:visited:hover samp, body.pojo-a11y-high-contrast a:visited:hover small, body.pojo-a11y-high-contrast a:visited:hover span, body.pojo-a11y-high-contrast a:visited:hover strong, body.pojo-a11y-high-contrast a:visited:hover tt, body.pojo-a11y-high-contrast a:visited:hover u, body.pojo-a11y-high-contrast a:visited:hover var {
+  background: #400000 !important;
+  background-color: #400000 !important; }
+
+body.pojo-a11y-high-contrast body > input#site + div#wrapper span.mk, body.pojo-a11y-high-contrast body > input#site + div#wrapper span.mk b, body.pojo-a11y-high-contrast input[type=reset] {
+  background: #400060 !important;
+  background-color: #400060 !important; }
+
+body.pojo-a11y-high-contrast div[role="button"], body.pojo-a11y-high-contrast input[type=button], body.pojo-a11y-high-contrast input[type=submit] {
+  background: #600040 !important;
+  background-color: #600040 !important; }
+
+body.pojo-a11y-high-contrast input[type=search] {
+  -webkit-appearance: textfield !important; }
+
+body.pojo-a11y-high-contrast html button[disabled], body.pojo-a11y-high-contrast html input[disabled], body.pojo-a11y-high-contrast html select[disabled], body.pojo-a11y-high-contrast html textarea[disabled] {
+  background: #404040 !important;
+  background-color: #404040 !important; }
+
+body.pojo-a11y-high-contrast .menu li a span.label {
+  text-transform: none !important; }
+
+body.pojo-a11y-high-contrast .menu li a span.label, body.pojo-a11y-high-contrast div.jwplayer span.jwcontrolbar, body.pojo-a11y-high-contrast div.jwplayer span.jwcontrols {
+  display: inline !important; }
+
+body.pojo-a11y-high-contrast a:link.new, body.pojo-a11y-high-contrast a:link.new i, body.pojo-a11y-high-contrast a:link.new b, body.pojo-a11y-high-contrast span.Apple-style-span {
+  color: #FFFF40 !important; }
+
+body.pojo-a11y-high-contrast body.mediawiki img.tex {
+  background: white !important;
+  background-color: white !important;
+  border: white solid 3px !important; }
+
+body.pojo-a11y-high-contrast text > tspan:first-letter, body.pojo-a11y-high-contrast text > tspan:first-line {
+  background: inherit !important;
+  background-color: inherit !important;
+  color: inherit !important; }
+
+body.pojo-a11y-high-contrast div.sbtc div.sbsb_a li.sbsb_d div, body.pojo-a11y-high-contrast table.gssb_c tr.gssb_i a, body.pojo-a11y-high-contrast table.gssb_c tr.gssb_i b, body.pojo-a11y-high-contrast table.gssb_c tr.gssb_i span, body.pojo-a11y-high-contrast table.gssb_c tr.gssb_i td {
+  background: #003050 !important;
+  background-color: #003050 !important; }
+
+body.pojo-a11y-high-contrast img[width="18"][height="18"] {
+  height: 18px !important;
+  width: 18px !important; }
+
+body.pojo-a11y-high-contrast a > span.iconHelp:empty:after {
+  content: "Help" !important; }
+
+body.pojo-a11y-high-contrast div#gmap, body.pojo-a11y-high-contrast div#gmap * {
+  background: initial !important; }
+
+body.pojo-a11y-negative-contrast, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) {
+  background: #000 !important;
+  color: #ffffff !important; }
+
+body.pojo-a11y-negative-contrast a, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) a, body.pojo-a11y-negative-contrast b, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) b, body.pojo-a11y-negative-contrast blockquote, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) blockquote, body.pojo-a11y-negative-contrast button, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) button, body.pojo-a11y-negative-contrast canvas, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) canvas, body.pojo-a11y-negative-contrast caption, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) caption, body.pojo-a11y-negative-contrast center, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) center, body.pojo-a11y-negative-contrast cite, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) cite, body.pojo-a11y-negative-contrast code, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) code, body.pojo-a11y-negative-contrast col, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) col, body.pojo-a11y-negative-contrast colgroup, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) colgroup, body.pojo-a11y-negative-contrast dd, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) dd, body.pojo-a11y-negative-contrast details, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) details, body.pojo-a11y-negative-contrast dfn, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) dfn, body.pojo-a11y-negative-contrast dir, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) dir, body.pojo-a11y-negative-contrast div, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) div, body.pojo-a11y-negative-contrast dl, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) dl, body.pojo-a11y-negative-contrast dt, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) dt, body.pojo-a11y-negative-contrast em, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) em, body.pojo-a11y-negative-contrast embed, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) embed, body.pojo-a11y-negative-contrast fieldset, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) fieldset, body.pojo-a11y-negative-contrast figcaption, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) figcaption, body.pojo-a11y-negative-contrast figure, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) figure, body.pojo-a11y-negative-contrast font, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) font, body.pojo-a11y-negative-contrast footer, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) footer, body.pojo-a11y-negative-contrast form, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) form, body.pojo-a11y-negative-contrast header, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) header, body.pojo-a11y-negative-contrast i, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) i, body.pojo-a11y-negative-contrast iframe, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) iframe, body.pojo-a11y-negative-contrast img, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) img, body.pojo-a11y-negative-contrast input, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) input, body.pojo-a11y-negative-contrast kbd, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) kbd, body.pojo-a11y-negative-contrast label, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) label, body.pojo-a11y-negative-contrast legend, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) legend, body.pojo-a11y-negative-contrast li, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) li, body.pojo-a11y-negative-contrast mark, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) mark, body.pojo-a11y-negative-contrast menu, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) menu, body.pojo-a11y-negative-contrast meter, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) meter, body.pojo-a11y-negative-contrast nav, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) nav, body.pojo-a11y-negative-contrast nobr, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) nobr, body.pojo-a11y-negative-contrast object, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) object, body.pojo-a11y-negative-contrast ol, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) ol, body.pojo-a11y-negative-contrast option, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) option, body.pojo-a11y-negative-contrast pre, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) pre, body.pojo-a11y-negative-contrast progress, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) progress, body.pojo-a11y-negative-contrast q, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) q, body.pojo-a11y-negative-contrast s, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) s, body.pojo-a11y-negative-contrast section, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) section, body.pojo-a11y-negative-contrast select, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) select, body.pojo-a11y-negative-contrast small, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) small, body.pojo-a11y-negative-contrast span, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) span, body.pojo-a11y-negative-contrast strike, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) strike, body.pojo-a11y-negative-contrast strong, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) strong, body.pojo-a11y-negative-contrast sub, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) sub, body.pojo-a11y-negative-contrast summary, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) summary, body.pojo-a11y-negative-contrast sup, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) sup, body.pojo-a11y-negative-contrast table, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) table, body.pojo-a11y-negative-contrast td, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) td, body.pojo-a11y-negative-contrast textarea, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) textarea, body.pojo-a11y-negative-contrast th, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) th, body.pojo-a11y-negative-contrast time, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) time, body.pojo-a11y-negative-contrast tr, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) tr, body.pojo-a11y-negative-contrast tt, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) tt, body.pojo-a11y-negative-contrast u, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) u, body.pojo-a11y-negative-contrast ul, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) ul, body.pojo-a11y-negative-contrast var, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) var, body.pojo-a11y-negative-contrast a span, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) a span, body.pojo-a11y-negative-contrast strong, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) strong {
+  color: yellow !important; }
+
+body.pojo-a11y-negative-contrast button, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) button, body.pojo-a11y-negative-contrast input, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) input, body.pojo-a11y-negative-contrast textarea, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) textarea, body.pojo-a11y-negative-contrast select, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) select, body.pojo-a11y-negative-contrast table, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) table, body.pojo-a11y-negative-contrast td, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) td, body.pojo-a11y-negative-contrast th, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) th, body.pojo-a11y-negative-contrast tr, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) tr, body.pojo-a11y-negative-contrast tt, body.pojo-a11y-negative-contrast *:not(#pojo-a11y-toolbar) tt {
+  border: 1px solid #ffffff !important; }
+
+body.pojo-a11y-negative-contrast div#gmap, body.pojo-a11y-negative-contrast div#gmap * {
+  background: initial !important; }
+
+body.pojo-a11y-light-background, body.pojo-a11y-light-background *:not(#pojo-a11y-toolbar):not(.pojo-a11y-toolbar-link) {
+  background: #fff !important;
+  color: #000 !important; }
+
+body.pojo-a11y-light-background div#gmap, body.pojo-a11y-light-background div#gmap * {
+  background: initial !important; }
+
+body.pojo-a11y-resize-font-200, body.pojo-a11y-resize-font-200 p:not(.pojo-a11y-toolbar-title), body.pojo-a11y-resize-font-200 li:not(.pojo-a11y-toolbar-item), body.pojo-a11y-resize-font-200 label, body.pojo-a11y-resize-font-200 input, body.pojo-a11y-resize-font-200 select, body.pojo-a11y-resize-font-200 textarea, body.pojo-a11y-resize-font-200 legend, body.pojo-a11y-resize-font-200 code, body.pojo-a11y-resize-font-200 pre, body.pojo-a11y-resize-font-200 dd, body.pojo-a11y-resize-font-200 dt, body.pojo-a11y-resize-font-200 span, body.pojo-a11y-resize-font-200 blockquote {
+  font-size: 200% !important; }
+
+body.pojo-a11y-resize-font-200 h1, body.pojo-a11y-resize-font-200 h2, body.pojo-a11y-resize-font-200 h3, body.pojo-a11y-resize-font-200 h4, body.pojo-a11y-resize-font-200 h5, body.pojo-a11y-resize-font-200 h6, body.pojo-a11y-resize-font-200 h1 span, body.pojo-a11y-resize-font-200 h2 span, body.pojo-a11y-resize-font-200 h3 span, body.pojo-a11y-resize-font-200 h4 span, body.pojo-a11y-resize-font-200 h5 span, body.pojo-a11y-resize-font-200 h6 span {
+  font-size: 266% !important; }
+
+body.pojo-a11y-resize-font-190, body.pojo-a11y-resize-font-190 p:not(.pojo-a11y-toolbar-title), body.pojo-a11y-resize-font-190 li:not(.pojo-a11y-toolbar-item), body.pojo-a11y-resize-font-190 label, body.pojo-a11y-resize-font-190 input, body.pojo-a11y-resize-font-190 select, body.pojo-a11y-resize-font-190 textarea, body.pojo-a11y-resize-font-190 legend, body.pojo-a11y-resize-font-190 code, body.pojo-a11y-resize-font-190 pre, body.pojo-a11y-resize-font-190 dd, body.pojo-a11y-resize-font-190 dt, body.pojo-a11y-resize-font-190 span, body.pojo-a11y-resize-font-190 blockquote {
+  font-size: 190% !important; }
+
+body.pojo-a11y-resize-font-190 h1, body.pojo-a11y-resize-font-190 h2, body.pojo-a11y-resize-font-190 h3, body.pojo-a11y-resize-font-190 h4, body.pojo-a11y-resize-font-190 h5, body.pojo-a11y-resize-font-190 h6, body.pojo-a11y-resize-font-190 h1 span, body.pojo-a11y-resize-font-190 h2 span, body.pojo-a11y-resize-font-190 h3 span, body.pojo-a11y-resize-font-190 h4 span, body.pojo-a11y-resize-font-190 h5 span, body.pojo-a11y-resize-font-190 h6 span {
+  font-size: 252.70000000000002% !important; }
+
+body.pojo-a11y-resize-font-180, body.pojo-a11y-resize-font-180 p:not(.pojo-a11y-toolbar-title), body.pojo-a11y-resize-font-180 li:not(.pojo-a11y-toolbar-item), body.pojo-a11y-resize-font-180 label, body.pojo-a11y-resize-font-180 input, body.pojo-a11y-resize-font-180 select, body.pojo-a11y-resize-font-180 textarea, body.pojo-a11y-resize-font-180 legend, body.pojo-a11y-resize-font-180 code, body.pojo-a11y-resize-font-180 pre, body.pojo-a11y-resize-font-180 dd, body.pojo-a11y-resize-font-180 dt, body.pojo-a11y-resize-font-180 span, body.pojo-a11y-resize-font-180 blockquote {
+  font-size: 180% !important; }
+
+body.pojo-a11y-resize-font-180 h1, body.pojo-a11y-resize-font-180 h2, body.pojo-a11y-resize-font-180 h3, body.pojo-a11y-resize-font-180 h4, body.pojo-a11y-resize-font-180 h5, body.pojo-a11y-resize-font-180 h6, body.pojo-a11y-resize-font-180 h1 span, body.pojo-a11y-resize-font-180 h2 span, body.pojo-a11y-resize-font-180 h3 span, body.pojo-a11y-resize-font-180 h4 span, body.pojo-a11y-resize-font-180 h5 span, body.pojo-a11y-resize-font-180 h6 span {
+  font-size: 239.4% !important; }
+
+body.pojo-a11y-resize-font-170, body.pojo-a11y-resize-font-170 p:not(.pojo-a11y-toolbar-title), body.pojo-a11y-resize-font-170 li:not(.pojo-a11y-toolbar-item), body.pojo-a11y-resize-font-170 label, body.pojo-a11y-resize-font-170 input, body.pojo-a11y-resize-font-170 select, body.pojo-a11y-resize-font-170 textarea, body.pojo-a11y-resize-font-170 legend, body.pojo-a11y-resize-font-170 code, body.pojo-a11y-resize-font-170 pre, body.pojo-a11y-resize-font-170 dd, body.pojo-a11y-resize-font-170 dt, body.pojo-a11y-resize-font-170 span, body.pojo-a11y-resize-font-170 blockquote {
+  font-size: 170% !important; }
+
+body.pojo-a11y-resize-font-170 h1, body.pojo-a11y-resize-font-170 h2, body.pojo-a11y-resize-font-170 h3, body.pojo-a11y-resize-font-170 h4, body.pojo-a11y-resize-font-170 h5, body.pojo-a11y-resize-font-170 h6, body.pojo-a11y-resize-font-170 h1 span, body.pojo-a11y-resize-font-170 h2 span, body.pojo-a11y-resize-font-170 h3 span, body.pojo-a11y-resize-font-170 h4 span, body.pojo-a11y-resize-font-170 h5 span, body.pojo-a11y-resize-font-170 h6 span {
+  font-size: 226.10000000000002% !important; }
+
+body.pojo-a11y-resize-font-160, body.pojo-a11y-resize-font-160 p:not(.pojo-a11y-toolbar-title), body.pojo-a11y-resize-font-160 li:not(.pojo-a11y-toolbar-item), body.pojo-a11y-resize-font-160 label, body.pojo-a11y-resize-font-160 input, body.pojo-a11y-resize-font-160 select, body.pojo-a11y-resize-font-160 textarea, body.pojo-a11y-resize-font-160 legend, body.pojo-a11y-resize-font-160 code, body.pojo-a11y-resize-font-160 pre, body.pojo-a11y-resize-font-160 dd, body.pojo-a11y-resize-font-160 dt, body.pojo-a11y-resize-font-160 span, body.pojo-a11y-resize-font-160 blockquote {
+  font-size: 160% !important; }
+
+body.pojo-a11y-resize-font-160 h1, body.pojo-a11y-resize-font-160 h2, body.pojo-a11y-resize-font-160 h3, body.pojo-a11y-resize-font-160 h4, body.pojo-a11y-resize-font-160 h5, body.pojo-a11y-resize-font-160 h6, body.pojo-a11y-resize-font-160 h1 span, body.pojo-a11y-resize-font-160 h2 span, body.pojo-a11y-resize-font-160 h3 span, body.pojo-a11y-resize-font-160 h4 span, body.pojo-a11y-resize-font-160 h5 span, body.pojo-a11y-resize-font-160 h6 span {
+  font-size: 212.8% !important; }
+
+body.pojo-a11y-resize-font-150, body.pojo-a11y-resize-font-150 p:not(.pojo-a11y-toolbar-title), body.pojo-a11y-resize-font-150 li:not(.pojo-a11y-toolbar-item), body.pojo-a11y-resize-font-150 label, body.pojo-a11y-resize-font-150 input, body.pojo-a11y-resize-font-150 select, body.pojo-a11y-resize-font-150 textarea, body.pojo-a11y-resize-font-150 legend, body.pojo-a11y-resize-font-150 code, body.pojo-a11y-resize-font-150 pre, body.pojo-a11y-resize-font-150 dd, body.pojo-a11y-resize-font-150 dt, body.pojo-a11y-resize-font-150 span, body.pojo-a11y-resize-font-150 blockquote {
+  font-size: 150% !important; }
+
+body.pojo-a11y-resize-font-150 h1, body.pojo-a11y-resize-font-150 h2, body.pojo-a11y-resize-font-150 h3, body.pojo-a11y-resize-font-150 h4, body.pojo-a11y-resize-font-150 h5, body.pojo-a11y-resize-font-150 h6, body.pojo-a11y-resize-font-150 h1 span, body.pojo-a11y-resize-font-150 h2 span, body.pojo-a11y-resize-font-150 h3 span, body.pojo-a11y-resize-font-150 h4 span, body.pojo-a11y-resize-font-150 h5 span, body.pojo-a11y-resize-font-150 h6 span {
+  font-size: 199.5% !important; }
+
+body.pojo-a11y-resize-font-140, body.pojo-a11y-resize-font-140 p:not(.pojo-a11y-toolbar-title), body.pojo-a11y-resize-font-140 li:not(.pojo-a11y-toolbar-item), body.pojo-a11y-resize-font-140 label, body.pojo-a11y-resize-font-140 input, body.pojo-a11y-resize-font-140 select, body.pojo-a11y-resize-font-140 textarea, body.pojo-a11y-resize-font-140 legend, body.pojo-a11y-resize-font-140 code, body.pojo-a11y-resize-font-140 pre, body.pojo-a11y-resize-font-140 dd, body.pojo-a11y-resize-font-140 dt, body.pojo-a11y-resize-font-140 span, body.pojo-a11y-resize-font-140 blockquote {
+  font-size: 140% !important; }
+
+body.pojo-a11y-resize-font-140 h1, body.pojo-a11y-resize-font-140 h2, body.pojo-a11y-resize-font-140 h3, body.pojo-a11y-resize-font-140 h4, body.pojo-a11y-resize-font-140 h5, body.pojo-a11y-resize-font-140 h6, body.pojo-a11y-resize-font-140 h1 span, body.pojo-a11y-resize-font-140 h2 span, body.pojo-a11y-resize-font-140 h3 span, body.pojo-a11y-resize-font-140 h4 span, body.pojo-a11y-resize-font-140 h5 span, body.pojo-a11y-resize-font-140 h6 span {
+  font-size: 186.20000000000002% !important; }
+
+body.pojo-a11y-resize-font-130, body.pojo-a11y-resize-font-130 p:not(.pojo-a11y-toolbar-title), body.pojo-a11y-resize-font-130 li:not(.pojo-a11y-toolbar-item), body.pojo-a11y-resize-font-130 label, body.pojo-a11y-resize-font-130 input, body.pojo-a11y-resize-font-130 select, body.pojo-a11y-resize-font-130 textarea, body.pojo-a11y-resize-font-130 legend, body.pojo-a11y-resize-font-130 code, body.pojo-a11y-resize-font-130 pre, body.pojo-a11y-resize-font-130 dd, body.pojo-a11y-resize-font-130 dt, body.pojo-a11y-resize-font-130 span, body.pojo-a11y-resize-font-130 blockquote {
+  font-size: 130% !important; }
+
+body.pojo-a11y-resize-font-130 h1, body.pojo-a11y-resize-font-130 h2, body.pojo-a11y-resize-font-130 h3, body.pojo-a11y-resize-font-130 h4, body.pojo-a11y-resize-font-130 h5, body.pojo-a11y-resize-font-130 h6, body.pojo-a11y-resize-font-130 h1 span, body.pojo-a11y-resize-font-130 h2 span, body.pojo-a11y-resize-font-130 h3 span, body.pojo-a11y-resize-font-130 h4 span, body.pojo-a11y-resize-font-130 h5 span, body.pojo-a11y-resize-font-130 h6 span {
+  font-size: 172.9% !important; }
+
+body.pojo-a11y-resize-font-120, body.pojo-a11y-resize-font-120 p:not(.pojo-a11y-toolbar-title), body.pojo-a11y-resize-font-120 li:not(.pojo-a11y-toolbar-item), body.pojo-a11y-resize-font-120 label, body.pojo-a11y-resize-font-120 input, body.pojo-a11y-resize-font-120 select, body.pojo-a11y-resize-font-120 textarea, body.pojo-a11y-resize-font-120 legend, body.pojo-a11y-resize-font-120 code, body.pojo-a11y-resize-font-120 pre, body.pojo-a11y-resize-font-120 dd, body.pojo-a11y-resize-font-120 dt, body.pojo-a11y-resize-font-120 span, body.pojo-a11y-resize-font-120 blockquote {
+  font-size: 120% !important; }
+
+body.pojo-a11y-resize-font-120 h1, body.pojo-a11y-resize-font-120 h2, body.pojo-a11y-resize-font-120 h3, body.pojo-a11y-resize-font-120 h4, body.pojo-a11y-resize-font-120 h5, body.pojo-a11y-resize-font-120 h6, body.pojo-a11y-resize-font-120 h1 span, body.pojo-a11y-resize-font-120 h2 span, body.pojo-a11y-resize-font-120 h3 span, body.pojo-a11y-resize-font-120 h4 span, body.pojo-a11y-resize-font-120 h5 span, body.pojo-a11y-resize-font-120 h6 span {
+  font-size: 159.60000000000002% !important; }
+
+body.pojo-a11y-links-underline a, body.pojo-a11y-links-underline a * {
+  text-decoration: underline !important; }
+
+body.pojo-a11y-readable-font, body.pojo-a11y-readable-font *:not(i):not(span) {
+  font-family: Verdana,Arial,Helvetica,sans-serif !important; }
+
+.pojo-skip-link {
+  position: absolute;
+  top: -1000em; }
+
+.pojo-skip-link:focus {
+  left: 50px;
+  top: 50px;
+  height: auto;
+  width: 200px;
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  padding: 15px 23px 14px;
+  background-color: #F1F1F1;
+  color: #21759B;
+  z-index: 100000;
+  line-height: normal;
+  text-decoration: none;
+  box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.6); }
+
+body.rtl .pojo-skip-link:focus {
+  right: 50px;
+  left: auto; }
+
+*, ::before, ::after {
+  box-sizing: border-box; }
+
+.pojo-a11y-visible-phone {
+  display: none !important; }
+
+.pojo-a11y-visible-tablet {
+  display: none !important; }
+
+.pojo-a11y-hidden-desktop {
+  display: none !important; }
+
+.pojo-a11y-visible-desktop {
+  display: inherit !important; }
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .pojo-a11y-hidden-desktop {
+    display: inherit !important; }
+  .pojo-a11y-visible-desktop {
+    display: none !important; }
+  .pojo-a11y-visible-tablet {
+    display: inherit !important; }
+  .pojo-a11y-hidden-tablet {
+    display: none !important; } }
+
+@media (max-width: 767px) {
+  .pojo-a11y-hidden-desktop {
+    display: inherit !important; }
+  .pojo-a11y-visible-desktop {
+    display: none !important; }
+  .pojo-a11y-visible-phone {
+    display: inherit !important; }
+  .pojo-a11y-hidden-phone {
+    display: none !important; } }
+
+.pojo-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0; }
+
+.tag-line-left {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.43;
+  letter-spacing: 0.25px;
+  color: #141729 !important; }
+  .tag-line-left::before {
+    content: "";
+    width: 40px;
+    height: 1px;
+    background-color: #141729; }
+  @media (max-width: 1023px) {
+    .tag-line-left {
+      font-size: 10px;
+      letter-spacing: 0.4px;
+      color: var(--wp--preset--color--ugm-primary-bg) !important; }
+      .tag-line-left::before {
+        width: 12px; } }
+
+.titleRightLine {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%; }
+  .titleRightLine h3 {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 1.3;
+    color: #141729;
+    max-width: 425px;
+    width: auto; }
+  .titleRightLine::after {
+    flex: 1 1 auto;
+    content: "";
+    display: block;
+    width: auto;
+    height: 2px;
+    background-color: var(--wp--preset--color--ugm-secondary);
+    z-index: 0; }
+  @media (max-width: 1024px) {
+    .titleRightLine h3 {
+      font-size: 24px !important;
+      color: #141729 !important; } }
+
+.title__top-withAction {
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center; }
+  .title__top-withAction > * {
+    height: 100%; }
+  .title__top-withAction .title__top-action {
+    text-align: right; }
+    .title__top-withAction .title__top-action .btn, .title__top-withAction .title__top-action .single-page .contact-form input[type*="submit"], .single-page .contact-form .title__top-withAction .title__top-action input[type*="submit"] {
+      margin-top: 0px;
+      background-color: transparent;
+      color: var(--wp--preset--color--ugm-primary-bg);
+      padding: 0px 0px 11px;
+      border: 0px;
+      border-bottom: 1px solid var(--wp--preset--color--ugm-primary-bg);
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600; }
+      .title__top-withAction .title__top-action .btn svg, .title__top-withAction .title__top-action .single-page .contact-form input[type*="submit"] svg, .single-page .contact-form .title__top-withAction .title__top-action input[type*="submit"] svg {
+        width: 16px;
+        height: 16px;
+        fill: var(--wp--preset--color--ugm-primary-bg); }
+        .title__top-withAction .title__top-action .btn svg line, .title__top-withAction .title__top-action .single-page .contact-form input[type*="submit"] svg line, .single-page .contact-form .title__top-withAction .title__top-action input[type*="submit"] svg line, .title__top-withAction .title__top-action .btn svg polyline, .title__top-withAction .title__top-action .single-page .contact-form input[type*="submit"] svg polyline, .single-page .contact-form .title__top-withAction .title__top-action input[type*="submit"] svg polyline {
+          stroke: var(--wp--preset--color--ugm-primary-bg); }
+      .title__top-withAction .title__top-action .btn.btn-outline, .title__top-withAction .title__top-action .single-page .contact-form input.btn-outline[type*="submit"], .single-page .contact-form .title__top-withAction .title__top-action input.btn-outline[type*="submit"] {
+        padding: 5px 20px;
+        border: 1px solid var(--wp--preset--color--ugm-primary-bg); }
+        .title__top-withAction .title__top-action .btn.btn-outline:hover, .title__top-withAction .title__top-action .single-page .contact-form input.btn-outline:hover[type*="submit"], .single-page .contact-form .title__top-withAction .title__top-action input.btn-outline:hover[type*="submit"] {
+          background-color: var(--wp--preset--color--ugm-primary-bg); }
+          .title__top-withAction .title__top-action .btn.btn-outline:hover svg, .title__top-withAction .title__top-action .single-page .contact-form input.btn-outline:hover[type*="submit"] svg, .single-page .contact-form .title__top-withAction .title__top-action input.btn-outline:hover[type*="submit"] svg {
+            fill: #FFFFFF; }
+            .title__top-withAction .title__top-action .btn.btn-outline:hover svg line, .title__top-withAction .title__top-action .single-page .contact-form input.btn-outline:hover[type*="submit"] svg line, .single-page .contact-form .title__top-withAction .title__top-action input.btn-outline:hover[type*="submit"] svg line, .title__top-withAction .title__top-action .btn.btn-outline:hover svg polyline, .title__top-withAction .title__top-action .single-page .contact-form input.btn-outline:hover[type*="submit"] svg polyline, .single-page .contact-form .title__top-withAction .title__top-action input.btn-outline:hover[type*="submit"] svg polyline, .title__top-withAction .title__top-action .btn.btn-outline:hover svg path, .title__top-withAction .title__top-action .single-page .contact-form input.btn-outline:hover[type*="submit"] svg path, .single-page .contact-form .title__top-withAction .title__top-action input.btn-outline:hover[type*="submit"] svg path {
+              stroke: #FFFFFF; }
+  @media (max-width: 1023px) {
+    .title__top-withAction {
+      display: block;
+      margin-bottom: 24px; }
+      .title__top-withAction .title__top-action {
+        display: none; } }
+
+.cardNewsRelease {
+  position: relative;
+  width: 100%;
+  height: auto;
+  box-shadow: inset 0 0 0 1px #C3CED9;
+  background-color: #FFFFFF; }
+  .cardNewsRelease__media {
+    width: 100%;
+    height: 240px; }
+    .cardNewsRelease__media a {
+      width: 100%;
+      height: 100%; }
+      .cardNewsRelease__media a img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center; }
+  .cardNewsRelease__content {
+    padding: 24px 24px 0 24px; }
+    .cardNewsRelease__content-title h3 {
+      margin-top: 8px;
+      margin-bottom: 8px;
+      font-size: 24px;
+      line-height: 1.4;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical; }
+      .cardNewsRelease__content-title h3 a {
+        text-decoration: none; }
+        .cardNewsRelease__content-title h3 a:hover {
+          text-decoration: underline; }
+    .cardNewsRelease__content-description {
+      margin-bottom: 12px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #C3CED9; }
+      .cardNewsRelease__content-description p {
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 1.6;
+        letter-spacing: 0.5px;
+        color: #141729;
+        margin: 0;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical; }
+  .cardNewsRelease__footer {
+    padding: 0px 24px 12px 24px; }
+    .cardNewsRelease__footer ul {
+      padding-left: 0px;
+      margin-bottom: 0px;
+      margin-block-end: 0px; }
+      .cardNewsRelease__footer ul li {
+        list-style: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: #7A8A99; }
+        .cardNewsRelease__footer ul li svg {
+          margin-bottom: 2px; }
+          .cardNewsRelease__footer ul li svg path {
+            fill: #7A8A99; }
+        .cardNewsRelease__footer ul li:not(:last-child) {
+          margin-right: 16px; }
+  @media (max-width: 1023px) {
+    .cardNewsRelease {
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: 116px auto;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1); }
+      .cardNewsRelease .cardNewsRelease__media {
+        grid-row-start: 1;
+        grid-row-end: 3;
+        width: 100%;
+        height: 100%; }
+      .cardNewsRelease .cardNewsRelease__content {
+        padding: 8px 12px 0 12px; }
+        .cardNewsRelease .cardNewsRelease__content-title h3 {
+          margin-top: 4px;
+          margin-bottom: 0px;
+          font-size: 16px;
+          line-height: 1.25;
+          font-weight: 600; }
+          .cardNewsRelease .cardNewsRelease__content-title h3 a {
+            color: #2B3947; }
+        .cardNewsRelease .cardNewsRelease__content-description {
+          display: none; }
+      .cardNewsRelease .cardNewsRelease__footer {
+        padding: 0px 11px 0px 11px; }
+        .cardNewsRelease .cardNewsRelease__footer ul {
+          padding-left: 0px;
+          margin-bottom: 0px;
+          margin-block-end: 0px;
+          line-height: 1; }
+          .cardNewsRelease .cardNewsRelease__footer ul li {
+            list-style: none;
+            display: inline-flex;
+            align-items: center;
+            line-height: 1;
+            gap: 4px;
+            font-size: 10px; }
+            .cardNewsRelease .cardNewsRelease__footer ul li svg {
+              margin-bottom: 2px; }
+            .cardNewsRelease .cardNewsRelease__footer ul li:not(:last-child) {
+              margin-right: 4px; } }
+
+.cardProgramPendidikan {
+  position: relative;
+  padding: 32px;
+  box-shadow: inset 0 0 0 1px #C3CED9;
+  margin-bottom: 30px;
+  height: 100%; }
+  .cardProgramPendidikan__media svg {
+    width: auto;
+    height: 50px;
+    fill: var(--wp--preset--color--ugm-primary-bg); }
+    .cardProgramPendidikan__media svg line, .cardProgramPendidikan__media svg polyline {
+      stroke: var(--wp--preset--color--ugm-primary-bg); }
+  .cardProgramPendidikan__content {
+    margin-bottom: 24px; }
+    .cardProgramPendidikan__content-title h3 {
+      margin-top: 24px;
+      margin-bottom: 12px;
+      font-size: 24px;
+      line-height: 1.4;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical; }
+      .cardProgramPendidikan__content-title h3 a {
+        text-decoration: none; }
+        .cardProgramPendidikan__content-title h3 a:hover {
+          text-decoration: underline; }
+    .cardProgramPendidikan__content-description p {
+      font-weight: 400;
+      font-size: 18px;
+      line-height: 1.6;
+      letter-spacing: 0.25px;
+      color: #141729;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 5;
+      -webkit-box-orient: vertical; }
+  @media (max-width: 1024px) {
+    .cardProgramPendidikan {
+      padding: 20px; } }
+  @media (max-width: 1023px) {
+    .cardProgramPendidikan__content {
+      margin-bottom: 24px; }
+      .cardProgramPendidikan__content-title h3 {
+        font-size: 20px;
+        line-height: 1.2;
+        letter-spacing: 0.24px;
+        margin-top: 15px; }
+        .cardProgramPendidikan__content-title h3 a {
+          text-decoration: none; }
+          .cardProgramPendidikan__content-title h3 a:hover {
+            text-decoration: underline; }
+      .cardProgramPendidikan__content-description p {
+        font-size: 14px;
+        line-height: 1.6; }
+    .cardProgramPendidikan__action .btn.btn-special_underline, .cardProgramPendidikan__action .single-page .contact-form input.btn-special_underline[type*="submit"], .single-page .contact-form .cardProgramPendidikan__action input.btn-special_underline[type*="submit"] {
+      font-size: 14px;
+      letter-spacing: 1.25px; } }
+
+.cardNewAgenda {
+  position: relative;
+  box-shadow: inset 0 0 0 1px #C3CED9;
+  margin-bottom: 32px; }
+  .cardNewAgenda__dateLeft {
+    position: absolute;
+    background-color: var(--wp--preset--color--ugm-primary-bg);
+    width: 80px;
+    height: 89px;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: #FFFFFF; }
+    .cardNewAgenda__dateLeft-date {
+      font-weight: 700;
+      font-size: 28px;
+      line-height: 40px;
+      text-align: center;
+      letter-spacing: 0.15px; }
+  .cardNewAgenda__content {
+    padding: 24px 24px 24px 104px; }
+    .cardNewAgenda__content-dateRange {
+      display: flex; }
+      .cardNewAgenda__content-dateRange > * {
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 1.5;
+        letter-spacing: 0.5px;
+        color: var(--wp--preset--color--ugm-primary-bg);
+        display: flex;
+        align-items: center;
+        gap: 5px; }
+        .cardNewAgenda__content-dateRange > *:not(:last-child) {
+          padding-right: 32px;
+          position: relative; }
+          .cardNewAgenda__content-dateRange > *:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            width: 24px;
+            height: 1px;
+            right: 4px;
+            top: 50%;
+            background-color: var(--wp--preset--color--ugm-primary-bg); }
+    .cardNewAgenda__content-title h3 {
+      margin-top: 12px;
+      margin-bottom: 12px;
+      font-size: 21px !important;
+      line-height: 1.4;
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 1.4;
+      letter-spacing: 0.5px; }
+      .cardNewAgenda__content-title h3 a {
+        text-decoration: none;
+        color: #141729 !important; }
+        .cardNewAgenda__content-title h3 a:hover {
+          text-decoration: underline; }
+    .cardNewAgenda__content-address {
+      display: flex;
+      align-items: center;
+      gap: 5px; }
+  @media (max-width: 1024px) {
+    .cardNewAgenda__dateLeft {
+      width: 80px;
+      height: 76px; }
+      .cardNewAgenda__dateLeft-date {
+        font-size: 24px;
+        line-height: 1.3; }
+      .cardNewAgenda__dateLeft-month {
+        font-size: 14px;
+        line-height: 1.43;
+        letter-spacing: 0.25px; }
+    .cardNewAgenda__content {
+      padding: 100px 20px 20px 20px; }
+      .cardNewAgenda__content-dateRange {
+        display: flex; }
+        .cardNewAgenda__content-dateRange > * {
+          font-size: 14px; }
+      .cardNewAgenda__content-title h3 {
+        margin-top: 12px;
+        margin-bottom: 12px;
+        font-weight: 700;
+        font-size: 18px !important;
+        line-height: 1.33; }
+      .cardNewAgenda__content-address {
+        font-size: 14px; } }
+
+.news-release {
+  background-color: #FAFAFA; }
+  .news-release .section-title.revamp > * span {
+    background-color: #FAFAFA !important; }
+  .news-release__wrap > *:last-child .cardNewsRelease {
+    margin-bottom: 0px; }
+  .news-release__mobileAction {
+    margin-top: 20px;
+    display: none; }
+  @media (min-width: 1023px) {
+    .news-release__wrap {
+      display: flex; }
+      .news-release__wrap > * {
+        align-items: stretch; } }
+  @media (max-width: 1023px) {
+    .news-release__mobileAction {
+      display: block; }
+      .news-release__mobileAction .btn, .news-release__mobileAction .single-page .contact-form input[type*="submit"], .single-page .contact-form .news-release__mobileAction input[type*="submit"] {
+        background-color: transparent;
+        display: flex;
+        justify-content: space-between;
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 18px;
+        letter-spacing: 1.25px;
+        text-transform: uppercase;
+        color: var(--wp--preset--color--ugm-primary-bg); } }
+
+@media (max-width: 768px) {
+  .btn-special_underline {
+    padding: 6px 2px;
+    border: 0px;
+    border-bottom: 1px solid var(--wp--preset--color--ugm-primary-bg); }
+    .btn-special_underline svg line, .btn-special_underline svg polyline {
+      stroke: var(--wp--preset--color--ugm-primary-bg) !important; }
+    .btn-special_underline:hover, .btn-special_underline:active {
+      color: var(--wp--preset--color--ugm-primary-bg) !important;
+      border: 0px !important;
+      border-bottom: 1px solid var(--wp--preset--color--ugm-primary-bg) !important;
+      background-color: transparent !important;
+      outline: 0;
+      background-image: none;
+      outline-color: transparent; }
+      .btn-special_underline:hover svg line, .btn-special_underline:hover svg polyline, .btn-special_underline:active svg line, .btn-special_underline:active svg polyline {
+        stroke: var(--wp--preset--color--ugm-primary-bg) !important; } }
+
+.aboutLeftRev,
+.aboutRightRev {
+  padding-top: 0px;
+  padding-bottom: 100px;
+  overflow-x: hidden; }
+  .aboutLeftRev.big-space,
+  .aboutRightRev.big-space {
+    padding-bottom: 140px; }
+  .aboutLeftRev__wrap,
+  .aboutRightRev__wrap {
+    display: flex;
+    align-items: center; }
+  .aboutLeftRev__content,
+  .aboutRightRev__content {
+    padding-right: 64px;
+    padding-top: 32px;
+    padding-bottom: 32px; }
+    .aboutLeftRev__content-title, .aboutLeftRev__content-description,
+    .aboutRightRev__content-title,
+    .aboutRightRev__content-description {
+      margin-bottom: 20px; }
+    .aboutLeftRev__content-title h3,
+    .aboutRightRev__content-title h3 {
+      color: var(--wp--preset--color--ugm-primary-bg); }
+    .aboutLeftRev__content-lists ul,
+    .aboutRightRev__content-lists ul {
+      padding-left: 18px;
+      margin-bottom: 20px; }
+      .aboutLeftRev__content-lists ul li,
+      .aboutRightRev__content-lists ul li {
+        line-height: 2; }
+        .aboutLeftRev__content-lists ul li a,
+        .aboutRightRev__content-lists ul li a {
+          font-weight: 600;
+          font-size: 18px;
+          letter-spacing: 0.5px;
+          text-decoration: none;
+          color: var(--wp--preset--color--ugm-primary-bg); }
+    .aboutLeftRev__content-listsv2,
+    .aboutRightRev__content-listsv2 {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap; }
+      .aboutLeftRev__content-listsv2 .aboutList,
+      .aboutRightRev__content-listsv2 .aboutList {
+        flex: 0 0 calc(33.33% - 16px); }
+        .aboutLeftRev__content-listsv2 .aboutList__media,
+        .aboutRightRev__content-listsv2 .aboutList__media {
+          margin-bottom: 11px; }
+          .aboutLeftRev__content-listsv2 .aboutList__media svg,
+          .aboutRightRev__content-listsv2 .aboutList__media svg {
+            width: 50px;
+            height: 50px; }
+        .aboutLeftRev__content-listsv2 .aboutList__title,
+        .aboutRightRev__content-listsv2 .aboutList__title {
+          font-weight: 700;
+          font-size: 24px;
+          line-height: 1.33;
+          letter-spacing: 0.1px;
+          color: #1A2D42;
+          margin-bottom: 4px; }
+        .aboutLeftRev__content-listsv2 .aboutList__category,
+        .aboutRightRev__content-listsv2 .aboutList__category {
+          font-weight: 400;
+          font-size: 16px;
+          line-height: 1.5;
+          letter-spacing: 0.5px;
+          color: #7A8A99; }
+  .aboutLeftRev__media,
+  .aboutRightRev__media {
+    position: relative; }
+    .aboutLeftRev__media img,
+    .aboutRightRev__media img {
+      width: calc(100% + 150px);
+      max-width: calc(50vw - 15px);
+      height: auto; }
+    .aboutLeftRev__media-thumb,
+    .aboutRightRev__media-thumb {
+      position: absolute;
+      bottom: -80px;
+      left: -60px; }
+      .aboutLeftRev__media-thumb img,
+      .aboutRightRev__media-thumb img {
+        width: 100%;
+        max-width: 376px;
+        height: auto;
+        border: 20px solid #FFF; }
+  @media (max-width: 1024px) {
+    .aboutLeftRev__wrap,
+    .aboutRightRev__wrap {
+      display: flex;
+      align-items: flex-start; }
+    .aboutLeftRev__content,
+    .aboutRightRev__content {
+      padding-right: 32px; }
+      .aboutLeftRev__content-title,
+      .aboutRightRev__content-title {
+        margin-bottom: 12px; }
+      .aboutLeftRev__content-lists ul li a,
+      .aboutRightRev__content-lists ul li a {
+        font-size: 18px; }
+    .aboutLeftRev__media,
+    .aboutRightRev__media {
+      position: relative;
+      width: 360px; }
+      .aboutLeftRev__media img,
+      .aboutRightRev__media img {
+        width: calc(100%); }
+      .aboutLeftRev__media-thumb,
+      .aboutRightRev__media-thumb {
+        position: relative;
+        bottom: 0px;
+        left: 0px; }
+        .aboutLeftRev__media-thumb img,
+        .aboutRightRev__media-thumb img {
+          margin-top: 32px;
+          border: 0px solid #FFF; } }
+  @media (max-width: 768px) {
+    .aboutLeftRev,
+    .aboutRightRev {
+      padding-top: 0px;
+      padding-bottom: 20px; }
+      .aboutLeftRev.big-space,
+      .aboutRightRev.big-space {
+        padding-bottom: 20px; }
+      .aboutLeftRev__wrap,
+      .aboutRightRev__wrap {
+        flex-direction: column-reverse;
+        align-items: center; }
+      .aboutLeftRev__content,
+      .aboutRightRev__content {
+        padding-right: 0px;
+        margin-bottom: 0px;
+        padding-top: 0px;
+        padding-bottom: 0px; }
+        .aboutLeftRev__content-listsv2 .aboutList,
+        .aboutRightRev__content-listsv2 .aboutList {
+          flex: 0 0 100%;
+          display: flex;
+          gap: 20px; }
+          .aboutLeftRev__content-listsv2 .aboutList__title,
+          .aboutRightRev__content-listsv2 .aboutList__title {
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: 0.24px; }
+          .aboutLeftRev__content-listsv2 .aboutList__media,
+          .aboutRightRev__content-listsv2 .aboutList__media {
+            margin-bottom: 0px; }
+            .aboutLeftRev__content-listsv2 .aboutList__media svg,
+            .aboutRightRev__content-listsv2 .aboutList__media svg {
+              width: 45px;
+              height: 45px; }
+      .aboutLeftRev__media,
+      .aboutRightRev__media {
+        margin-bottom: 32px;
+        margin-left: -15px;
+        margin-right: -15px; }
+        .aboutLeftRev__media img,
+        .aboutRightRev__media img {
+          width: 100%;
+          max-width: 100%;
+          height: auto; }
+        .aboutLeftRev__media-thumb,
+        .aboutRightRev__media-thumb {
+          display: none;
+          position: absolute;
+          bottom: -59px;
+          left: auto;
+          right: 12px; }
+          .aboutLeftRev__media-thumb img,
+          .aboutRightRev__media-thumb img {
+            width: 100%;
+            max-width: 158px;
+            height: auto;
+            border: 5px solid #FFF; } }
+
+.aboutRightRev {
+  background-color: #FAFAFA;
+  padding-bottom: 140px; }
+  .aboutRightRev__wrap {
+    flex-direction: row-reverse; }
+  .aboutRightRev__content {
+    padding-left: 64px;
+    padding-right: 0px; }
+  .aboutRightRev__media {
+    position: relative;
+    display: flex;
+    justify-content: end; }
+    .aboutRightRev__media img {
+      width: calc(100% + 150px);
+      max-width: calc(50vw - 15px);
+      height: auto; }
+    .aboutRightRev__media-thumb {
+      position: absolute;
+      left: auto;
+      bottom: -80px;
+      right: -60px; }
+      .aboutRightRev__media-thumb img {
+        width: 100%;
+        max-width: 376px;
+        height: auto;
+        border: 20px solid #FAFAFA; }
+  @media (max-width: 1024px) {
+    .aboutRightRev__content {
+      padding-left: 32px; }
+    .aboutRightRev__media {
+      position: relative;
+      left: 0;
+      display: block; }
+      .aboutRightRev__media img {
+        width: calc(100%); }
+      .aboutRightRev__media-thumb {
+        position: relative;
+        bottom: 0px;
+        left: 0px; }
+        .aboutRightRev__media-thumb img {
+          margin-top: 32px;
+          border: 0px solid #FFF; } }
+  @media (max-width: 768px) {
+    .aboutRightRev {
+      padding-bottom: 20px; }
+      .aboutRightRev__content {
+        padding-left: 0px; }
+      .aboutRightRev__wrap {
+        flex-direction: column-reverse;
+        align-items: center; }
+      .aboutRightRev__media {
+        margin-bottom: 32px; }
+        .aboutRightRev__media img {
+          width: 100%;
+          max-width: 100%;
+          height: auto; }
+        .aboutRightRev__media-thumb {
+          position: absolute;
+          bottom: -59px;
+          left: 12px;
+          right: auto; }
+          .aboutRightRev__media-thumb img {
+            width: 100%;
+            max-width: 158px;
+            height: auto;
+            border: 5px solid #FFF; } }
+
+.boxAbout {
+  padding: 0px;
+  max-width: 1440px;
+  margin: 0 auto;
+  left: 0;
+  right: 0; }
+  .boxAbout__items {
+    display: grid;
+    grid-template-columns: 1fr 1fr; }
+  .boxAbout__item:first-child {
+    grid-row-start: 1;
+    grid-row-end: 3; }
+  .boxAbout__item:nth-child(2) .itemAboutSpecial {
+    flex-direction: row-reverse; }
+    .boxAbout__item:nth-child(2) .itemAboutSpecial .itemAbout__content {
+      background-color: var(--wp--preset--color--ugm-primary-bg); }
+  @media (max-width: 1023px) {
+    .boxAbout__items {
+      grid-template-columns: 1fr; }
+    .boxAbout__item:first-child {
+      grid-row-start: 1;
+      grid-row-end: 1; }
+    .boxAbout__item:nth-child(2) .itemAboutSpecial {
+      flex-direction: row-reverse; }
+    .boxAbout__item:nth-child(3) .itemAboutSpecial {
+      flex-direction: row; } }
+
+.newAgenda .newAgenda-mobile-slider .item {
+  margin: 0 15px 30px; }
+
+.newAgenda .newAgenda-mobile-slider .slick-dots li {
+  margin: 0px; }
+  .newAgenda .newAgenda-mobile-slider .slick-dots li button {
+    width: 8px;
+    height: 8px;
+    background-color: rgba(8, 61, 98, 0.2); }
+  .newAgenda .newAgenda-mobile-slider .slick-dots li.slick-active button {
+    background-color: var(--wp--preset--color--ugm-primary-bg);
+    width: 8px !important;
+    height: 8px !important;
+    padding: 0px !important; }
+
+.newAgenda__wrap > *:nth-last-child(-n+2) .cardNewAgenda {
+  margin-bottom: 0px; }
+
+.program-pendidikan__wrap > *:nth-last-child(-n+2) .cardProgramPendidikan {
+  margin-bottom: 0px; }
+
+.program-pendidikan__wrapFlex {
+  display: flex;
+  gap: 20px;
+  margin-left: -20px;
+  margin-right: -20px; }
+  .program-pendidikan__wrapFlex > * {
+    padding-left: 0px;
+    padding-right: 0px; }
+
+@media (max-width: 768px) {
+  .program-pendidikan .cardProgramPendidikan {
+    margin-bottom: 0px;
+    padding: 16px; }
+    .program-pendidikan .cardProgramPendidikan__media {
+      height: 36px; }
+      .program-pendidikan .cardProgramPendidikan__media svg {
+        width: 36px;
+        height: 36px; }
+    .program-pendidikan .cardProgramPendidikan__content {
+      margin-bottom: 0px; }
+      .program-pendidikan .cardProgramPendidikan__content-title {
+        width: 73%; }
+        .program-pendidikan .cardProgramPendidikan__content-title h3 {
+          font-size: 16px;
+          margin-top: 12px;
+          margin-bottom: 20px; }
+      .program-pendidikan .cardProgramPendidikan__content-description {
+        display: none; }
+    .program-pendidikan .cardProgramPendidikan__action .btn.btn-special_underline, .program-pendidikan .cardProgramPendidikan__action .single-page .contact-form input.btn-special_underline[type*="submit"], .single-page .contact-form .program-pendidikan .cardProgramPendidikan__action input.btn-special_underline[type*="submit"] {
+      font-size: 12px;
+      letter-spacing: 0px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between; } }
+
+.itemAbout {
+  width: 100%;
+  height: 100%;
+  position: relative; }
+  .itemAbout__media {
+    position: relative; }
+    .itemAbout__media:before {
+      display: block;
+      content: "";
+      width: 100%;
+      padding-top: 100%; }
+    .itemAbout__media > .inner {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      overflow: hidden; }
+      .itemAbout__media > .inner > img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; }
+      .itemAbout__media > .inner .text {
+        width: 100%;
+        height: 100%;
+        text-overflow: ellipsis;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column; }
+  .itemAbout__content {
+    display: flex;
+    align-items: flex-start;
+    padding: 32px;
+    flex-direction: column;
+    justify-content: flex-end;
+    background-color: #1A2D42;
+    color: #FFF; }
+    .itemAbout__content-title h3 {
+      font-weight: 600;
+      font-size: 24px;
+      line-height: 1.33;
+      letter-spacing: 0.1px;
+      color: #FFFFFF;
+      margin-top: 0px;
+      margin-bottom: 8px; }
+    .itemAbout__content-description p {
+      font-weight: 400;
+      font-size: 18px;
+      line-height: 1.6;
+      letter-spacing: 0px;
+      color: #FFFFFF;
+      margin: 0 0 40px 0;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical; }
+    .itemAbout__content-action .btn-outline {
+      background-color: transparent;
+      border-color: #FFF;
+      color: #FFF;
+      transition: all .2s; }
+      .itemAbout__content-action .btn-outline svg line, .itemAbout__content-action .btn-outline svg polyline {
+        stroke: #FFF; }
+      .itemAbout__content-action .btn-outline:hover {
+        border-color: var(--wp--preset--color--ugm-secondary);
+        background-color: var(--wp--preset--color--ugm-secondary);
+        transition: all .2s; }
+      @media (max-width: 1023px) {
+        .itemAbout__content-action .btn-outline.btn-special_underline {
+          border-color: #FFFFFF;
+          color: #FFFFFF; }
+          .itemAbout__content-action .btn-outline.btn-special_underline svg line, .itemAbout__content-action .btn-outline.btn-special_underline svg polyline {
+            stroke: #FFFFFF !important; }
+          .itemAbout__content-action .btn-outline.btn-special_underline:hover {
+            color: var(--wp--preset--color--ugm-secondary) !important;
+            border-color: var(--wp--preset--color--ugm-secondary) !important; }
+            .itemAbout__content-action .btn-outline.btn-special_underline:hover svg line, .itemAbout__content-action .btn-outline.btn-special_underline:hover svg polyline {
+              stroke: var(--wp--preset--color--ugm-secondary) !important; } }
+  .itemAboutAbsolute .itemAbout__content {
+    position: absolute;
+    z-index: 9;
+    bottom: 0;
+    left: 0;
+    width: 50%;
+    height: 50%; }
+  .itemAboutSpecial {
+    display: flex; }
+    .itemAboutSpecial .itemAbout__media, .itemAboutSpecial .itemAbout__content {
+      flex: 0 0 50%; }
+    .itemAboutSpecial .itemAbout__content-description p {
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical; }
+  @media (max-width: 1199px) {
+    .itemAbout .itemAbout__content {
+      padding: 20px; }
+      .itemAbout .itemAbout__content-description p {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical; } }
+  @media (max-width: 1023px) {
+    .itemAbout .itemAbout__content-title h3 {
+      font-size: 18px;
+      font-weight: 700; }
+    .itemAbout .itemAbout__content-description p {
+      font-size: 14px;
+      line-height: 1.4;
+      -webkit-line-clamp: initial;
+      margin: 0 0 25px 0; }
+    .itemAbout .itemAbout__content-action .btn-outline {
+      font-size: 12px;
+      letter-spacing: 0.4px; }
+    .itemAbout .itemAbout__content-specialSpace {
+      min-height: 226px;
+      justify-content: space-between;
+      gap: 20px; }
+      .itemAbout .itemAbout__content-specialSpace .itemAbout__content-description p {
+        margin: 0; }
+    .itemAbout .itemAbout__content-wrap {
+      display: flex;
+      justify-content: space-between;
+      flex-direction: column; }
+    .itemAboutAbsolute .itemAbout__media {
+      width: 100%;
+      height: auto; }
+    .itemAboutAbsolute .itemAbout__content {
+      position: relative;
+      z-index: 9;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: auto;
+      background-color: #1a2d42; }
+      .itemAboutAbsolute .itemAbout__content-title h3 {
+        font-size: 20px; }
+      .itemAboutAbsolute .itemAbout__content-description p {
+        font-size: 14px;
+        line-height: 1.4; }
+      .itemAboutAbsolute .itemAbout__content-action .btn-outline {
+        font-size: 14px;
+        letter-spacing: 1.25px; } }
+
+@keyframes opacity {
+  from {
+    opacity: 0; }
+  to {
+    opacity: 1; } }
+
+.helpCenter, .accessibility {
+  position: fixed;
+  right: 30px;
+  bottom: 30px;
+  z-index: 9999;
+  text-align: right; }
+  .helpCenter__content, .accessibility__content {
+    opacity: 0;
+    position: relative;
+    height: auto;
+    overflow: hidden;
+    transition: all .5s;
+    right: 0;
+    width: 0px;
+    height: 0px;
+    transition: opacity .5s; }
+    .helpCenter__content.open, .accessibility__content.open {
+      padding: 20px;
+      opacity: 1;
+      width: 300px;
+      max-width: calc(100vw - 30px);
+      height: auto;
+      transition: opacity .5s;
+      padding: 30px; }
+    .helpCenter__content-title, .accessibility__content-title {
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 120%;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--wp--preset--color--ugm-primary);
+      margin-bottom: 12px;
+      text-align: center; }
+    .helpCenter__content::after, .accessibility__content::after {
+      content: "";
+      position: absolute;
+      width: calc(100% - 30px);
+      height: calc(100% - 40px);
+      box-shadow: 0px 0px 16px rgba(51, 51, 51, 0.2);
+      background-color: #FFFFFF;
+      top: 15px;
+      left: 15px;
+      z-index: -1; }
+    .helpCenter__content ul, .accessibility__content ul {
+      padding-left: 0;
+      margin-bottom: 0; }
+      .helpCenter__content ul li, .accessibility__content ul li {
+        list-style: none; }
+        .helpCenter__content ul li a, .accessibility__content ul li a {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 30px;
+          text-decoration: none;
+          color: var(--wp--preset--color--ugm-primary);
+          padding: 5px 0; }
+          .helpCenter__content ul li a span, .helpCenter__content ul li a svg path, .accessibility__content ul li a span, .accessibility__content ul li a svg path {
+            transition: 0.2 all; }
+          .helpCenter__content ul li a:hover span, .accessibility__content ul li a:hover span {
+            transition: 0.2 all;
+            box-shadow: inset 0 -2px 0 0 var(--wp--preset--color--ugm-secondary); }
+          .helpCenter__content ul li a:hover svg path, .accessibility__content ul li a:hover svg path {
+            transition: 0.2 all;
+            fill: var(--wp--preset--color--ugm-secondary); }
+  .helpCenter__action, .accessibility__action {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+    display: inline-flex;
+    align-items: center;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 140%;
+    padding: 9px 21px;
+    justify-content: center;
+    color: var(--wp--preset--color--ugm-primary-bg);
+    background-color: var(--wp--preset--color--ugm-secondary); }
+    .helpCenter__action-content, .accessibility__action-content {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      display: none; }
+      .helpCenter__action-content svg, .accessibility__action-content svg {
+        width: 25px;
+        height: 25px; }
+      .helpCenter__action-content.bukaPanel, .accessibility__action-content.bukaPanel {
+        display: flex; }
+    .helpCenter__action:hover, .accessibility__action:hover {
+      cursor: pointer; }
+  @media (max-width: 768px) {
+    .helpCenter, .accessibility {
+      right: 10px;
+      bottom: 10px; }
+      .helpCenter__action, .accessibility__action {
+        width: 50px;
+        height: 50px; }
+        .helpCenter__action-content svg, .accessibility__action-content svg {
+          width: 20px;
+          height: 20px; } }
+
+.accessibility {
+  right: auto;
+  left: 30px; }
+  .accessibility__action {
+    color: #FFFFFF;
+    background-color: var(--wp--preset--color--ugm-primary-bg); }
+    .accessibility__action-content.bukaPanel {
+      display: flex; }
+  @media (max-width: 768px) {
+    .accessibility {
+      right: auto;
+      left: 10px;
+      bottom: 10px; }
+      .accessibility__action {
+        width: 50px;
+        height: 50px; }
+        .accessibility__action-content svg {
+          width: 20px;
+          height: 20px; } }
+
+.program-slider .item {
+  margin-right: 20px;
+  margin-bottom: 0px; }
+
+.acceptCookies {
+  background-color: #149fc0;
+  display: flex;
+  position: fixed;
+  margin: 0 auto;
+  left: 0;
+  right: 0;
+  bottom: 0%;
+  z-index: 999999;
+  padding: 12px 0;
+  animation-name: bottomAnima;
+  animation-duration: 1s; }
+  .acceptCookies__wrap {
+    color: #FFFFFF; }
+  .acceptCookies__title {
+    font-size: 16px;
+    letter-spacing: 0.25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px; }
+  .acceptCookies.open {
+    bottom: -50%;
+    transition: all 2s; }
+  @media (min-width: 1023px) {
+    .acceptCookies__wrap {
+      display: flex;
+      align-items: center; } }
+  @media (max-width: 1023px) {
+    .acceptCookies__wrap {
+      display: flex;
+      align-items: flex-start; } }
+
+@keyframes bottomAnima {
+  from {
+    bottom: -50%; }
+  to {
+    bottom: 0%; } }
+
+.medsos-revamp {
+  margin-top: 24px; }
+  .medsos-revamp ul.social {
+    padding-left: 0px;
+    margin-bottom: 0px; }
+    .medsos-revamp ul.social li {
+      list-style: none;
+      display: inline-flex; }
+      .medsos-revamp ul.social li:not(:last-child) {
+        margin-right: 8px; }
+
+.faculty-table table.table tr td:first-child, .faculty-table .single-post .post-content table tr td:first-child, .single-post .post-content .faculty-table table tr td:first-child {
+  font-weight: bold; }
+
+.dropdown-menu {
+  display: none;
+  top: 55px; }
+  .dropdown-menu.active {
+    display: block; }
+
+#pojo-a11y-toolbar {
+  top: auto !important;
+  bottom: 135px;
+  left: -300px !important;
+  box-shadow: 0px 0px 16px rgba(51, 51, 51, 0.2);
+  border-color: #fff;
+  border: 0px; }
+  #pojo-a11y-toolbar.pojo-a11y-toolbar-open {
+    top: auto !important;
+    left: 30px !important; }
+  #pojo-a11y-toolbar .pojo-a11y-toolbar-toggle {
+    display: none; }
+  #pojo-a11y-toolbar .pojo-a11y-toolbar-overlay {
+    width: 252px !important;
+    border: 0px;
+    background-color: #FFF; }
+    #pojo-a11y-toolbar .pojo-a11y-toolbar-overlay .pojo-a11y-toolbar-inner .pojo-a11y-toolbar-title {
+      text-align: center;
+      text-transform: uppercase;
+      color: var(--wp--preset--color--ugm-primary); }
+    #pojo-a11y-toolbar .pojo-a11y-toolbar-overlay .pojo-a11y-toolbar-inner .pojo-a11y-toolbar-items li.pojo-a11y-toolbar-item a {
+      display: block;
+      padding: 10px 15px;
+      font-size: 18px;
+      line-height: 1;
+      color: var(--wp--preset--color--ugm-primary-bg);
+      text-decoration: none !important;
+      display: flex;
+      justify-content: space-between;
+      flex-direction: row-reverse; }
+      #pojo-a11y-toolbar .pojo-a11y-toolbar-overlay .pojo-a11y-toolbar-inner .pojo-a11y-toolbar-items li.pojo-a11y-toolbar-item a.active {
+        background-color: var(--wp--preset--color--ugm-secondary); }
+        #pojo-a11y-toolbar .pojo-a11y-toolbar-overlay .pojo-a11y-toolbar-inner .pojo-a11y-toolbar-items li.pojo-a11y-toolbar-item a.active svg path {
+          fill: #FFF; }
+        #pojo-a11y-toolbar .pojo-a11y-toolbar-overlay .pojo-a11y-toolbar-inner .pojo-a11y-toolbar-items li.pojo-a11y-toolbar-item a.active:hover svg path {
+          fill: #02111b; }
+      #pojo-a11y-toolbar .pojo-a11y-toolbar-overlay .pojo-a11y-toolbar-inner .pojo-a11y-toolbar-items li.pojo-a11y-toolbar-item a span {
+        background-color: transparent; }
+      #pojo-a11y-toolbar .pojo-a11y-toolbar-overlay .pojo-a11y-toolbar-inner .pojo-a11y-toolbar-items li.pojo-a11y-toolbar-item a svg {
+        text-align: center;
+        padding-right: 0px;
+        width: 18px; }
+      #pojo-a11y-toolbar .pojo-a11y-toolbar-overlay .pojo-a11y-toolbar-inner .pojo-a11y-toolbar-items li.pojo-a11y-toolbar-item a:hover span:last-child {
+        box-shadow: inset 0 -2px 0 0 var(--wp--preset--color--ugm-secondary);
+        color: #02111b; }
+      #pojo-a11y-toolbar .pojo-a11y-toolbar-overlay .pojo-a11y-toolbar-inner .pojo-a11y-toolbar-items li.pojo-a11y-toolbar-item a:hover span svg path {
+        fill: var(--wp--preset--color--ugm-secondary); }
+    #pojo-a11y-toolbar .pojo-a11y-toolbar-overlay .pojo-a11y-toolbar-inner .pojo-a11y-toolbar-items.pojo-a11y-links {
+      border-color: #c8c8c8; }
+
+[class*="pojo-a11y-resize-font-"] .pojo-a11y-toolbar-overlay p, [class*="pojo-a11y-resize-font-"] .pojo-a11y-toolbar-overlay a {
+  font-size: 100% !important; }
+
+[class*="pojo-a11y-resize-font-"] .pojo-a11y-toolbar-overlay span {
+  font-size: 18px !important; }
+
+[class*="pojo-a11y-resize-font-"] #header .navbar-brand span {
+  font-size: 16px !important; }

@@ -1,0 +1,122 @@
+/*!*****************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[3].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[3].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[3].use[3]!./src/section-title/style.scss ***!
+  \*****************************************************************************************************************************************************************************************************************************************************/
+.ugm-blocks-block-heading.style-1 {
+  border-bottom: 1px solid #e6e6e6;
+}
+.ugm-blocks-block-heading.style-1 h1, .ugm-blocks-block-heading.style-1 h2, .ugm-blocks-block-heading.style-1 h3, .ugm-blocks-block-heading.style-1 h4, .ugm-blocks-block-heading.style-1 h5, .ugm-blocks-block-heading.style-1 h6 {
+  display: inline-block;
+  margin: 0 !important;
+  color: var(--wp--preset--color--ugm-primary-bg);
+  border-bottom: 3px solid var(--wp--preset--color--ugm-secondary);
+  padding-bottom: 11px;
+}
+.ugm-blocks-block-heading.style-1.align-left {
+  text-align: left;
+}
+.ugm-blocks-block-heading.style-1.align-center {
+  text-align: center;
+}
+.ugm-blocks-block-heading.style-1.align-right {
+  text-align: right;
+}
+.ugm-blocks-block-heading.style-2 {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+.ugm-blocks-block-heading.style-2 h1, .ugm-blocks-block-heading.style-2 h2, .ugm-blocks-block-heading.style-2 h3, .ugm-blocks-block-heading.style-2 h4, .ugm-blocks-block-heading.style-2 h5, .ugm-blocks-block-heading.style-2 h6 {
+  display: block;
+  margin: 0 !important;
+  white-space: nowrap;
+  color: var(--wp--preset--color--ugm-primary-bg);
+  position: relative;
+  padding-left: 29px;
+}
+.ugm-blocks-block-heading.style-2 h1:before, .ugm-blocks-block-heading.style-2 h2:before, .ugm-blocks-block-heading.style-2 h3:before, .ugm-blocks-block-heading.style-2 h4:before, .ugm-blocks-block-heading.style-2 h5:before, .ugm-blocks-block-heading.style-2 h6:before {
+  position: absolute;
+  content: "";
+  display: block;
+  width: 14px;
+  height: 14px;
+  background: var(--wp--preset--color--ugm-primary-bg);
+  left: 0;
+  top: 50%;
+  margin-top: -18px;
+}
+.ugm-blocks-block-heading.style-2 h1:after, .ugm-blocks-block-heading.style-2 h2:after, .ugm-blocks-block-heading.style-2 h3:after, .ugm-blocks-block-heading.style-2 h4:after, .ugm-blocks-block-heading.style-2 h5:after, .ugm-blocks-block-heading.style-2 h6:after {
+  position: absolute;
+  content: "";
+  display: block;
+  width: 14px;
+  height: 14px;
+  background: var(--wp--preset--color--ugm-secondary);
+  left: 0;
+  bottom: 50%;
+  margin-bottom: -18px;
+}
+.ugm-blocks-block-heading.style-2 .line-before,
+.ugm-blocks-block-heading.style-2 .line-after {
+  width: 100%;
+  height: 1px;
+  background: #e6e6e6;
+}
+.ugm-blocks-block-heading.style-2.align-left {
+  text-align: left;
+}
+.ugm-blocks-block-heading.style-2.align-left .line-before {
+  display: none;
+}
+.ugm-blocks-block-heading.style-2.align-center {
+  text-align: center;
+}
+.ugm-blocks-block-heading.style-2.align-right {
+  text-align: right;
+}
+.ugm-blocks-block-heading.style-2.align-right h1, .ugm-blocks-block-heading.style-2.align-right h2, .ugm-blocks-block-heading.style-2.align-right h3, .ugm-blocks-block-heading.style-2.align-right h4, .ugm-blocks-block-heading.style-2.align-right h5, .ugm-blocks-block-heading.style-2.align-right h6 {
+  padding-left: 0;
+  padding-right: 29px;
+}
+.ugm-blocks-block-heading.style-2.align-right h1:before, .ugm-blocks-block-heading.style-2.align-right h1:after, .ugm-blocks-block-heading.style-2.align-right h2:before, .ugm-blocks-block-heading.style-2.align-right h2:after, .ugm-blocks-block-heading.style-2.align-right h3:before, .ugm-blocks-block-heading.style-2.align-right h3:after, .ugm-blocks-block-heading.style-2.align-right h4:before, .ugm-blocks-block-heading.style-2.align-right h4:after, .ugm-blocks-block-heading.style-2.align-right h5:before, .ugm-blocks-block-heading.style-2.align-right h5:after, .ugm-blocks-block-heading.style-2.align-right h6:before, .ugm-blocks-block-heading.style-2.align-right h6:after {
+  right: 0;
+  left: auto;
+}
+.ugm-blocks-block-heading.style-2.align-right .line-after {
+  display: none;
+}
+.ugm-blocks-block-heading.style-3 h1, .ugm-blocks-block-heading.style-3 h2, .ugm-blocks-block-heading.style-3 h3, .ugm-blocks-block-heading.style-3 h4, .ugm-blocks-block-heading.style-3 h5, .ugm-blocks-block-heading.style-3 h6 {
+  display: inline-block;
+  margin: 0 !important;
+  color: var(--wp--preset--color--ugm-primary-bg);
+  position: relative;
+  padding-bottom: 20px;
+}
+.ugm-blocks-block-heading.style-3 h1:before, .ugm-blocks-block-heading.style-3 h2:before, .ugm-blocks-block-heading.style-3 h3:before, .ugm-blocks-block-heading.style-3 h4:before, .ugm-blocks-block-heading.style-3 h5:before, .ugm-blocks-block-heading.style-3 h6:before {
+  position: absolute;
+  content: "";
+  display: block;
+  width: 80px;
+  height: 3px;
+  background: var(--wp--preset--color--ugm-secondary);
+  left: -40px;
+  bottom: 0;
+}
+.ugm-blocks-block-heading.style-3.align-left {
+  text-align: left;
+}
+.ugm-blocks-block-heading.style-3.align-center {
+  text-align: center;
+}
+.ugm-blocks-block-heading.style-3.align-center h1:before, .ugm-blocks-block-heading.style-3.align-center h2:before, .ugm-blocks-block-heading.style-3.align-center h3:before, .ugm-blocks-block-heading.style-3.align-center h4:before, .ugm-blocks-block-heading.style-3.align-center h5:before, .ugm-blocks-block-heading.style-3.align-center h6:before {
+  left: 50%;
+  margin-left: -40px;
+}
+.ugm-blocks-block-heading.style-3.align-right {
+  text-align: right;
+}
+.ugm-blocks-block-heading.style-3.align-right h1:before, .ugm-blocks-block-heading.style-3.align-right h2:before, .ugm-blocks-block-heading.style-3.align-right h3:before, .ugm-blocks-block-heading.style-3.align-right h4:before, .ugm-blocks-block-heading.style-3.align-right h5:before, .ugm-blocks-block-heading.style-3.align-right h6:before {
+  left: auto;
+  right: -40px;
+}
+
+/*# sourceMappingURL=style-index.css.map*/

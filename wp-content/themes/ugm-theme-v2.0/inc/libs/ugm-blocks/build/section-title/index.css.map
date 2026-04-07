@@ -1,0 +1,1 @@
+{"version":3,"file":"section-title/index.css","mappings":";;;AACC;EACC;AAAF;AACE;;EAEC;AACH,C","sources":["webpack://ugm-blocks/./src/section-title/editor.scss"],"sourcesContent":[".ugm-blocks-block-heading {\n\t&.style-2 {\n\t\tdisplay: block;\n\t\t.line-before,\n\t\t.line-after {\n\t\t\tdisplay: none;\n\t\t}\n\t}\n}"],"names":[],"sourceRoot":""}

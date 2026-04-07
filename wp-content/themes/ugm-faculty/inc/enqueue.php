@@ -56,6 +56,18 @@ function ugm_enqueue_assets() {
 		true
 	);
 
+	// Enqueue scroll reveal script.
+	$scroll_reveal_path = get_template_directory() . '/assets/js/scroll-reveal.js';
+	$scroll_reveal_ver  = file_exists( $scroll_reveal_path ) ? (string) filemtime( $scroll_reveal_path ) : UGM_THEME_VERSION;
+
+	wp_enqueue_script(
+		'ugm-scroll-reveal',
+		get_template_directory_uri() . '/assets/js/scroll-reveal.js',
+		array(),
+		$scroll_reveal_ver,
+		true
+	);
+
 	// Enqueue faculty slider script.
 	$faculty_slider_path = get_template_directory() . '/assets/js/faculty-slider.js';
 	$faculty_slider_ver  = file_exists( $faculty_slider_path ) ? (string) filemtime( $faculty_slider_path ) : UGM_THEME_VERSION;

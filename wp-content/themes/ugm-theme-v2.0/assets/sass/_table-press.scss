@@ -1,0 +1,341 @@
+/**
+ * TablePress Default SCSS
+ *
+ * Attention: Do not modify this file directly, but use the "Custom CSS" textarea
+ * on the "Plugin Options" screen of TablePress.
+ *
+ * @package TablePress
+ * @subpackage Frontend CSS
+ * @author Tobias Bäthge, Allan Jardine
+ * @since 1.0.0
+ */
+
+
+/* Table description */
+.tablepress-table-description {
+	clear: both;
+	display: block;
+}
+
+.tablepress {
+	border-collapse: collapse;
+	border-spacing: 0;
+	width: 100%;
+	margin-bottom: 1em;
+	border: none;
+	th,
+	td {
+		padding: 8px;
+		border: none;
+		background: none;
+		text-align: left;
+		float: none !important;
+		border-color: $gray-lighter !important;
+	}
+	tbody td {
+		vertical-align: top;
+	}
+
+	/* Horizontal borders */
+	tbody td,
+	tfoot th {
+		border-top: none;
+	}
+	tbody tr:first-child td {
+		border-top: 0;
+	}
+	thead th {
+		border-bottom: none;
+	}
+
+	/* Row background colors */
+	thead th,
+	tfoot th {
+		background-color: var(--wp--preset--color--ugm-primary-bg);
+		font-weight: bold;
+		vertical-align: middle;
+	}
+	.odd td {
+		background-color: lighten($gray-lighter, 6%);
+	}
+	.even td {
+		background-color: #fff;
+	}
+	.row-hover tr:hover td {
+		background-color: lighten($gray-lighter, 3%);
+	}
+}
+
+/* Reset image layout in tables */
+.tablepress img {
+	margin: 0;
+	padding: 0;
+	border: none;
+	max-width: none;
+}
+
+/* Table wrapper */
+.dataTables_wrapper {
+	clear: both;
+	margin-bottom: 1em;
+	.tablepress {
+		clear: both;
+		margin: 0 !important;
+	}
+}
+
+/* Length Change menu */
+.dataTables_length {
+	float: left;
+	white-space: nowrap;
+	select {
+		@extend .form-control;
+		padding: $padding-base-vertical $padding-base-horizontal !important;
+		height: 36px !important;
+	}
+	label {margin-bottom: 15px !important;}
+}
+
+/* Filter/Search */
+.dataTables_filter {
+	float: right;
+	white-space: nowrap;
+	input {
+		@extend .form-control;
+		padding: $padding-base-vertical $padding-base-horizontal !important;
+		height: 36px !important;
+		padding-right: 30px !important;
+	}
+	label {
+		margin-bottom: 15px !important;
+		position: relative;
+		font-size: 0;
+		&:after {
+			content: "\f002" !important;
+			font-family: $font-family-fontawesome !important;
+			font-size: $font-size-small !important;
+			line-height: 20px !important;
+			color: $gray-light;
+			position: absolute;
+			top: 50%;
+			right: 15px;
+			margin-top: -10px;
+		}
+	}
+}
+
+/* Table information */
+.dataTables_info {
+	clear: both;
+	float: left;
+	margin: 15px 0 0;
+}
+
+/* Pagination */
+.dataTables_paginate {
+	float: right;
+	margin: 15px 0 0;
+	a {
+		color: $text-color !important;
+		display: inline-block;
+		outline: none;
+		position: relative;
+		text-decoration: none !important;
+		text-decoration: none\0/IE; /* Hack for IE8, IE9, and IE10pp4, as those have trouble with text-decoration in :after pseudo-elements */
+		margin: 0 15px;
+		&:first-child {
+			margin-left: 0;
+		}
+		&:last-child {
+			margin-right: 0;
+		}
+	}
+}
+@media (max-width: $screen-sm-max) {
+	.dataTables_wrapper {
+		overflow-x: auto;
+		padding-bottom: 20px;
+		th, td {min-width: 150px;}
+	}
+	.dataTables_info,
+	.dataTables_paginate,
+	.dataTables_length,
+	.dataTables_filter {
+		float: none;
+	}
+	.dataTables_info,
+	.dataTables_paginate {text-align: center;}
+}
+.paginate_button{
+	&:hover {
+		cursor: pointer;
+		text-decoration: none;
+	}
+	&.disabled {
+		color: #999 !important;
+		text-decoration: none;
+		cursor: default;
+	}
+	&.current {
+		font-weight: bold;
+		text-decoration: none;
+		cursor: default;
+	}
+}
+/* Two button pagination - previous/next */
+.dataTables_paginate.paging_simple {
+	padding: 0 25px;
+}
+.paging_simple {
+	.paginate_button {text-decoration: none;}
+	.paginate_button.previous:before,
+	.paginate_button.next:after {
+		text-align: left;
+		font-family: $font-family-fontawesome !important;
+		font-size: 14px;
+		-webkit-font-smoothing: antialiased;
+		content: "\f104" !important;
+		position: absolute;
+		top: 0;
+		right: auto;
+		bottom: 0;
+		left: -25px;
+		margin: auto;
+		height: 20px;
+		width: 20px;
+		line-height: 19px;
+		text-align: center;
+		color: #fff;
+		background-color: var(--wp--preset--color--ugm-tertiary) !important;
+		border-radius: 9999px;
+		-webkit-border-radius: 9999px;
+		-moz-border-radius: 9999px;
+		text-shadow: none !important;
+		-webkit-text-shadow: none !important;
+		-moz-text-shadow: none !important;
+	}
+	.paginate_button.next:after {
+		content: "\f105" !important;
+		left: auto;
+		right: -25px;
+	}
+	.paginate_button:hover{
+		&:before,
+		&:after {
+			background-color: $text-color !important;
+		}
+	}
+	.paginate_button {
+		&:before,
+		&:after {
+			color: #fff;
+		}
+		&:hover:before,
+		&:hover:after {
+			color: $gray-light;
+		}
+		&.disabled:before,
+		&.disabled:after {
+			color: #fff !important;
+			background-color: $gray-light !important;
+		}
+	}
+}
+
+/* Processing indicator */
+.dataTables_processing {
+	display: none; /* always hidden, we don't use it */
+}
+
+/* Scrolling */
+.dataTables_scroll {
+	clear: both;
+}
+.dataTables_scrollBody {
+	-webkit-overflow-scrolling: touch;
+}
+
+/* Sorting */
+.tablepress {
+	.sorting,
+	.sorting_asc,
+	.sorting_desc {
+		position: relative;
+		padding-right: 30px !important; /* more right padding for sort arrows */
+		cursor: pointer;
+		outline: none;
+		border-bottom: none !important;
+	}
+	.sorting:after,
+	.sorting_asc:after,
+	.sorting_desc:after {
+		font-family: $font-family-fontawesome !important;
+		font-weight: normal;
+		font-size: 14px;
+		-webkit-font-smoothing: antialiased;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: auto;
+		right: 15px;
+		margin: auto;
+		height: 14px;
+		line-height: 1;
+	}
+	.sorting:after {
+		top: 2px;
+		content: "\f0dc" !important;
+	}
+	.sorting_asc:after {
+		content: "\f0de" !important;
+		padding: 0 0 2px;
+		top: 9px;
+	}
+	.sorting_desc:after {
+		content: "\f0dd" !important;
+		top: -5px;
+	}
+	.sorting:hover,
+	.sorting_asc,
+	.sorting_desc {
+		background-color: var(--wp--preset--color--ugm-tertiary) !important;
+		color: #FFF;
+	}
+}
+
+/* Hide the sorting arrows in the extra table that is added for scrolling */
+.dataTables_scrollBody .tablepress thead th:after {
+	content: "";
+}
+
+/* Self clearing */
+.dataTables_wrapper {
+	&:after {
+		content: "";
+		display: block;
+		clear: both;
+		visibility: hidden;
+		line-height: 0;
+		height: 0;
+	}
+	label input,
+	label select {
+		display: inline;
+		margin: 2px;
+		width: auto;
+	}
+}
+
+.dataTables_paginate.paging_simple .paginate_button.next:after, 
+.dataTables_paginate.paging_simple .paginate_button.previous:before{
+	display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.dataTables_paginate.paging_simple .paginate_button.previous:before{
+	left: -20px;
+}
+.dataTables_paginate.paging_simple .paginate_button.next:after{
+	left: unset;
+	right: -20px;
+}

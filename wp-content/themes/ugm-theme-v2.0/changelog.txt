@@ -1,0 +1,89 @@
+===============================
+||    UGM Theme Changelog    ||
+===============================
+
+[v1.0.0] - 10/11/2016
+- Rilis
+
+[v1.0.1] - 14/11/2016
+- Update
+    * Compatibility untuk PHP 5.3
+    * Bug Fix
+
+[v1.0.2] - 21/11/2016
+- Update
+    * Menambahkan nama kategori dan tags pada post
+
+[v1.0.3] - 13/12/2016
+- Update
+    * Opsi "View All" pada Page Builder komponen Post List
+    * Theme Options dwibahasa (header & footer)
+    * Integrasi Polylang pada beberapa halaman yang membutuhkan translasi
+- Bug Fix
+    * Menu pilihan bahasa menampilkan teks aneh ketika dihover
+    * Active state pada menu model disamping logo tidak muncul
+    * Muncul fungsi yang 'undefined'
+    * Hasil pencarian hanya menampilkan pos dengan post type 'post'
+
+[v1.0.4] - 23/12/2016
+- Update
+    * Post type baru: File
+    * 3 style Post Slider baru (Page Builder)
+    * Protected post pada event, gallery dan file
+    * Default image pada post list
+- Bug Fix
+    * Page builder tidak menampilkan gambar
+    * Advanced query di page builder dengan custom taxonomy
+    * Breadcrumb pada custom post type
+    * Polylang error
+    * Parent menu dapat diklik
+
+[v1.0.5] - 06/01/2017
+- Update
+    * Komponen baru page builder: RSS Feed
+    * Taxonomy baru: Kategori Event
+    * Support Featured Image pada post type file
+    * Page Builder Event: Urutkan berdasarkan tanggal event & event terdekat
+    * Arsip Event diurutkan berdasarkan tanggal event
+- Bug Fix
+    * Page builder: Post Slider dengan custom taxonomy
+    * Page builder: Post List multi post per row pada style Tanpa Gambar
+    * Page builder: Update style
+    * Memperlebar section copyright
+    * Breadcrumb dengan paginasi
+    * Breadcrumb dengan custom post type
+    * Posisi breadcrumb pada halaman direktori
+    * Tampilan widget di footer
+
+[v1.0.6] - 19/01/2017
+- Update 
+    * Menambah kelas css baner-ugm-rapi untuk membuat banner rapi dan responsive
+- Bug Fix
+    * Translasi bahasa untuk widget
+    * Menghilangkan ikon komen dibawah title jika komen tidak ada
+[v1.0.7] - 17/02/2017
+- Update 
+    * Opsi auto slide selama pada post slider 7 detik 
+    * Hilangkan tgl di post list slider
+- Bug Fix
+    * Fix css Kolom search 
+    * Fix css slider
+[v1.0.8] - 07/03/2017
+- Update 
+    * Hilangkan tgl publish di archive event dan single 
+    * Hilangkan image di archive file
+    * Memunculkan event kategori di dashboard 
+- Bug Fix
+    * Tampilan & ux menu mobile
+    * Layout mobile padding
+    * Lebar image di halaman archive post 
+
+[v1.0.9] - 04/07/2017
+-update 
+    * Auto update untuk minor saja  
+    * Optimize render font via js 
+    * Enable gzip compressor dengan menambah code di htacces
+    * Hilangkansangar slider menu component di page builder 
+-bug fix 
+    * Menambah translate Indonesia di admin menu 
+

@@ -1,0 +1,9 @@
+.ugm-blocks-block-heading {
+	&.style-2 {
+		display: block;
+		.line-before,
+		.line-after {
+			display: none;
+		}
+	}
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "ugm-blocks/section-title",
+  "version": "0.1.0",
+  "title": "Section Title",
+  "category": "ugm",
+  "description": "Section title",
+  "attributes": {
+    "id": {
+      "type": "string"
+    },
+    "align": {
+      "type": "string",
+      "default": "left"
+    },
+    "content": {
+      "type": "string",
+      "default": "Title"
+    },
+    "level": {
+      "type": "number",
+      "default": 2
+    },
+    "headingStyle": {
+      "type": "number",
+      "default": 1
+    },
+    "style": {
+      "type": "object",
+      "default": {
+        "spacing": {
+          "margin": {
+            "bottom": "20px"
+          }
+        }
+      }
+    }
+  },
+  "supports": {
+    "html": false,
+    "spacing": {
+      "margin": [
+        "top",
+        "bottom"
+      ]
+    },
+    "alignWide": false
+  },
+  "textdomain": "ugm-theme",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}

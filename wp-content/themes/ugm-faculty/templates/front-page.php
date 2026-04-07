@@ -11,7 +11,7 @@ get_header();
 <main id="primary" class="site-main ugm-home">
 	<div class="home-content">
 		<section class="home-section section-news" aria-labelledby="section-news-title">
-			<header class="section-header">
+			<header class="section-header scroll-reveal">
 				<h2 id="section-news-title" class="section-title">
 					<?php echo esc_html( get_theme_mod( 'ugm_latest_section_title', __( 'Berita Terbaru', 'ugm-faculty' ) ) ); ?>
 				</h2>
@@ -84,7 +84,7 @@ get_header();
 							}
 						}
 						?>
-						<article <?php post_class( 1 === $news_index ? 'news-card news-card--featured' : 'news-card news-card--compact' ); ?>>
+						<article <?php post_class( 1 === $news_index ? 'news-card news-card--featured scroll-reveal' : 'news-card news-card--compact scroll-reveal' ); ?>>
 							<?php if ( has_post_thumbnail() ) : ?>
 								<div class="card-image">
 									<?php the_post_thumbnail( 1 === $news_index ? 'large' : 'thumbnail' ); ?>
@@ -106,14 +106,14 @@ get_header();
 				</div>
 				<?php wp_reset_postdata(); ?>
 			<?php else : ?>
-				<p class="section-empty"><?php esc_html_e( 'Belum ada berita terbaru.', 'ugm-faculty' ); ?></p>
+				<p class="section-empty scroll-reveal"><?php esc_html_e( 'Belum ada berita terbaru.', 'ugm-faculty' ); ?></p>
 			<?php endif; ?>
 
-			<a class="section-arrow-link" href="<?php echo esc_url( $latest_news_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua berita terbaru', 'ugm-faculty' ); ?>">&#8594;</a>
+			<a class="section-arrow-link scroll-reveal" href="<?php echo esc_url( $latest_news_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua berita terbaru', 'ugm-faculty' ); ?>">&#8594;</a>
 		</section>
 
 		<section class="home-section section-academic" aria-labelledby="section-academic-title">
-			<header class="section-header">
+			<header class="section-header scroll-reveal">
 				<h2 id="section-academic-title" class="section-title">
 					<?php echo esc_html( get_theme_mod( 'ugm_academic_section_title', __( 'Berita Akademik', 'ugm-faculty' ) ) ); ?>
 				</h2>
@@ -186,7 +186,7 @@ get_header();
 			<?php if ( $academic_query->have_posts() ) : ?>
 				<div class="academic-stack">
 					<?php while ( $academic_query->have_posts() ) : $academic_query->the_post(); ?>
-						<article <?php post_class( 'academic-card' ); ?>>
+						<article <?php post_class( 'academic-card scroll-reveal' ); ?>>
 							<?php if ( has_post_thumbnail() ) : ?>
 								<div class="card-image">
 									<?php the_post_thumbnail( 'medium' ); ?>
@@ -206,14 +206,14 @@ get_header();
 				</div>
 				<?php wp_reset_postdata(); ?>
 			<?php else : ?>
-				<p class="section-empty"><?php esc_html_e( 'Belum ada berita akademik.', 'ugm-faculty' ); ?></p>
+				<p class="section-empty scroll-reveal"><?php esc_html_e( 'Belum ada berita akademik.', 'ugm-faculty' ); ?></p>
 			<?php endif; ?>
 
-			<a class="section-arrow-link" href="<?php echo esc_url( $academic_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua berita akademik', 'ugm-faculty' ); ?>">&#8594;</a>
+			<a class="section-arrow-link scroll-reveal" href="<?php echo esc_url( $academic_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua berita akademik', 'ugm-faculty' ); ?>">&#8594;</a>
 		</section>
 
 		<section class="home-section section-profile" aria-labelledby="section-profile-title">
-			<header class="section-header">
+			<header class="section-header scroll-reveal">
 				<h2 id="section-profile-title" class="section-title">
 					<?php echo esc_html( get_theme_mod( 'ugm_profile_section_title', __( 'Profile', 'ugm-faculty' ) ) ); ?>
 				</h2>
@@ -293,7 +293,7 @@ get_header();
 						$categories     = get_the_category();
 						$category_label = ! empty( $categories ) ? $categories[0]->name : __( 'Kepakaran', 'ugm-faculty' );
 						?>
-						<article <?php post_class( 'list-card' ); ?>>
+						<article <?php post_class( 'list-card scroll-reveal' ); ?>>
 							<?php if ( has_post_thumbnail() ) : ?>
 								<div class="list-card__thumb">
 									<?php the_post_thumbnail( 'thumbnail' ); ?>
@@ -312,14 +312,14 @@ get_header();
 				</div>
 				<?php wp_reset_postdata(); ?>
 			<?php else : ?>
-				<p class="section-empty"><?php esc_html_e( 'Belum ada konten profile.', 'ugm-faculty' ); ?></p>
+				<p class="section-empty scroll-reveal"><?php esc_html_e( 'Belum ada konten profile.', 'ugm-faculty' ); ?></p>
 			<?php endif; ?>
 
-			<a class="section-arrow-link" href="<?php echo esc_url( $profile_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua profile', 'ugm-faculty' ); ?>">&#8594;</a>
+			<a class="section-arrow-link scroll-reveal" href="<?php echo esc_url( $profile_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua profile', 'ugm-faculty' ); ?>">&#8594;</a>
 		</section>
 
 		<section class="home-section section-achievement" aria-labelledby="section-achievement-title">
-			<header class="section-header">
+			<header class="section-header scroll-reveal">
 				<h2 id="section-achievement-title" class="section-title">
 					<?php echo esc_html( get_theme_mod( 'ugm_achievement_section_title', __( 'Prestasi', 'ugm-faculty' ) ) ); ?>
 				</h2>
@@ -421,7 +421,7 @@ get_header();
 							}
 						}
 						?>
-						<article <?php post_class( 'list-card list-card--reverse' ); ?>>
+						<article <?php post_class( 'list-card list-card--reverse scroll-reveal' ); ?>>
 							<div class="list-card__content">
 								<p class="card-kicker"><?php echo esc_html( $category_label ); ?></p>
 								<h3 class="card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
@@ -440,14 +440,14 @@ get_header();
 				</div>
 				<?php wp_reset_postdata(); ?>
 			<?php else : ?>
-				<p class="section-empty"><?php esc_html_e( 'Belum ada konten prestasi.', 'ugm-faculty' ); ?></p>
+				<p class="section-empty scroll-reveal"><?php esc_html_e( 'Belum ada konten prestasi.', 'ugm-faculty' ); ?></p>
 			<?php endif; ?>
 
-			<a class="section-arrow-link" href="<?php echo esc_url( $achievement_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua prestasi', 'ugm-faculty' ); ?>">&#8594;</a>
+			<a class="section-arrow-link scroll-reveal" href="<?php echo esc_url( $achievement_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua prestasi', 'ugm-faculty' ); ?>">&#8594;</a>
 		</section>
 
 		<section class="home-section section-faculty" aria-labelledby="section-faculty-title">
-			<header class="section-header">
+			<header class="section-header scroll-reveal">
 				<h2 id="section-faculty-title" class="section-title">
 					<?php echo esc_html( get_theme_mod( 'ugm_faculty_section_title', __( 'Fakultas', 'ugm-faculty' ) ) ); ?>
 				</h2>
@@ -484,8 +484,8 @@ get_header();
 			?>
 			<?php if ( ! empty( $faculty_list ) ) : ?>
 				<div class="faculty-slider-wrapper">
-					<button class="faculty-nav faculty-nav--prev" aria-label="<?php esc_attr_e( 'Previous page', 'ugm-faculty' ); ?>">&#8249;</button>
-					<button class="faculty-nav faculty-nav--next" aria-label="<?php esc_attr_e( 'Next page', 'ugm-faculty' ); ?>">&#8250;</button>
+					<button class="faculty-nav faculty-nav--prev scroll-reveal" aria-label="<?php esc_attr_e( 'Previous page', 'ugm-faculty' ); ?>">&#8249;</button>
+					<button class="faculty-nav faculty-nav--next scroll-reveal" aria-label="<?php esc_attr_e( 'Next page', 'ugm-faculty' ); ?>">&#8250;</button>
 					
 					<div class="faculty-slider" role="list">
 						<?php
@@ -502,7 +502,7 @@ get_header();
 								$page_index++;
 							endif;
 							?>
-							<article class="faculty-card" role="listitem">
+							<article class="faculty-card scroll-reveal" role="listitem">
 								<div class="faculty-card__image" aria-hidden="true"<?php if ( $faculty_item['image_url'] ) : ?> style="background-image: url('<?php echo esc_url( $faculty_item['image_url'] ); ?>');"<?php endif; ?>></div>
 								<div class="faculty-card__overlay">
 									<h3 class="faculty-card__title"><?php echo esc_html( $faculty_item['name'] ); ?></h3>
@@ -514,19 +514,19 @@ get_header();
 						?>
 					</div>
 					
-					<div class="faculty-pagination" aria-hidden="true">
+					<div class="faculty-pagination scroll-reveal" aria-hidden="true">
 						<?php for ( $i = 0; $i < $total_pages; $i++ ) : ?>
 							<span class="pagination-dot <?php echo 0 === $i ? 'active' : ''; ?>" data-page="<?php echo esc_attr( $i ); ?>"></span>
 						<?php endfor; ?>
 					</div>
 				</div>
 			<?php else : ?>
-				<p class="section-empty"><?php esc_html_e( 'Belum ada data fakultas.', 'ugm-faculty' ); ?></p>
+				<p class="section-empty scroll-reveal"><?php esc_html_e( 'Belum ada data fakultas.', 'ugm-faculty' ); ?></p>
 			<?php endif; ?>
 		</section>
 
 		<section class="home-section section-category" aria-labelledby="section-category-title">
-			<header class="section-header">
+			<header class="section-header scroll-reveal">
 				<h2 id="section-category-title" class="section-title"><?php esc_html_e( 'Kategori', 'ugm-faculty' ); ?></h2>
 				<span class="section-line" aria-hidden="true"></span>
 			</header>
@@ -544,7 +544,7 @@ get_header();
 			?>
 
 			<?php if ( ! empty( $top_level_category_terms ) ) : ?>
-				<details class="category-mobile-list">
+				<details class="category-mobile-list scroll-reveal">
 					<summary class="category-mobile-list__trigger">
 						<span class="category-mobile-list__label"><?php esc_html_e( 'Kategori Lists', 'ugm-faculty' ); ?></span>
 						<span class="category-mobile-list__icon" aria-hidden="true">
@@ -637,13 +637,13 @@ get_header();
 
 				<div class="category-grid">
 					<?php foreach ( $category_terms as $category_term ) : ?>
-						<a class="category-card" href="<?php echo esc_url( get_category_link( $category_term->term_id ) ); ?>">
+						<a class="category-card scroll-reveal" href="<?php echo esc_url( get_category_link( $category_term->term_id ) ); ?>">
 							<span class="category-card__label"><?php echo esc_html( $category_term->name ); ?></span>
 						</a>
 					<?php endforeach; ?>
 				</div>
 			<?php else : ?>
-				<p class="section-empty"><?php esc_html_e( 'Belum ada kategori.', 'ugm-faculty' ); ?></p>
+				<p class="section-empty scroll-reveal"><?php esc_html_e( 'Belum ada kategori.', 'ugm-faculty' ); ?></p>
 			<?php endif; ?>
 		</section>
 

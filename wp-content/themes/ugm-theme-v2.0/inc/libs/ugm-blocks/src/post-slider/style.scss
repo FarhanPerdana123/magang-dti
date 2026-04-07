@@ -1,0 +1,160 @@
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+.ugm-blocks-block-post-slider {
+	article.post {
+		display: flex;
+		gap: 40px;
+		padding-bottom: 0;
+		margin-bottom: 0;
+		border-bottom: 0;
+		&:first-child {
+			display: flex;
+		}
+		.post-img {
+			flex-basis: 50%;
+			padding: 0;
+			width: 50%;
+			a {
+				display: block;
+				height: 370px;
+				img {
+					height: 370px;
+					object-fit: cover;
+					display: block;
+					margin: 0;
+				}
+			}
+		}
+		.post-content {
+			flex-basis: 50%;
+			padding: 40px;
+			padding-left: 0;
+			.btn-more {
+				float: none;
+			}
+		}
+		.post-title {
+			margin-bottom: 8px;
+			h3 {
+				margin: 0;
+				font-size: 24px;
+				font-weight: 700;
+				line-height: 1.3;
+				letter-spacing: 0.1px;
+				a {
+					color: inherit;
+					text-decoration: none;
+					outline: 0;
+				}
+			}
+		}
+		.entry-content {
+			margin-bottom: 20px;
+			p {
+				margin: 0;
+				font-size: 14px;
+				line-height: 1.7142857143;
+			}
+		}
+		.btn-more {
+			padding: 0;
+			text-decoration: none;
+			&::after {
+				color: inherit;
+			}
+		}
+
+		@media (max-width:768px) {
+			display: block;
+			.post-img {
+				margin: 0;
+				width: 100%;
+				a {
+					height: auto;
+					position: relative;
+					width: 100%;
+					padding-bottom: 66.67%;
+					img {
+						position: absolute;
+						display: block;
+						width: 100% !important;
+						height: 100%;
+					}
+				}
+			}
+			.post-content {
+				padding: 20px;
+			}
+			.post-title {
+				h3 {
+					font-size: 16px;
+				}
+			}
+			.entry-content,
+			.btn-more {
+				display: none;
+			}
+		}
+	}
+	&.image-right {
+		article.post {
+			flex-direction: row-reverse;
+			.post-content {
+				padding-left: 60px;
+				padding-right: 0;
+				@media (max-width:768px) {
+					padding: 20px;
+				}
+			}
+		}
+		.slick-dots {
+			left: auto;
+			right: 50%;
+			margin-right: 40px;
+		}
+	}
+
+	&.image-left {
+		article.post {
+			.post-content {
+				padding-left: 0;
+				padding-right: 60px;
+				@media (max-width:768px) {
+					padding: 20px;
+				}
+			}
+		}
+		.slick-dots {
+			margin-left: 40px !important;
+		}
+	}
+
+	&:not(.slick-slider){
+		overflow: hidden;
+		height: 370px;
+	}
+
+	.slick-prev, .slick-next{
+		&:before{
+			color: var(--wp--preset--color--ugm-secondary);
+		}
+	}
+	.slick-prev {
+		left: 20px;
+		opacity: 1;
+		transition: all .2s;
+	}
+	.slick-next {
+		right: 20px;
+		opacity: 1;
+		transition: all .2s;
+	}
+
+	@media (max-width: 768px) {
+		padding-bottom: 15px;
+	}
+}

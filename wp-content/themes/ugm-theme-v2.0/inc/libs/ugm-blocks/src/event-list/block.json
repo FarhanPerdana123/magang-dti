@@ -1,0 +1,54 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "ugm-blocks/event-list",
+	"version": "0.1.0",
+	"title": "Event List",
+	"category": "ugm",
+	"description": "Event list",
+	"attributes": {
+		"id": {
+			"type": "string"
+		},
+		"layout": {
+			"type": "string",
+			"default": "list"
+		},
+		"postCount": {
+			"type": "string",
+			"default": 3
+		},
+		"columnCount": {
+			"type": "string",
+			"default": 3
+		},
+		"showAll": {
+			"type": "object",
+			"default": {
+				"active": false,
+				"url": "",
+				"text": "Show More"
+			}
+		},
+		"style": {
+			"type": "object",
+			"default": {
+				"spacing": {
+					"margin": {
+						"bottom": "30px"
+					}
+				}
+			}
+		}
+	},
+	"supports": {
+		"html": false,
+		"spacing": {
+			"margin": ["top","bottom"]
+		}
+	},
+	"textdomain": "ugm-theme",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css"
+}

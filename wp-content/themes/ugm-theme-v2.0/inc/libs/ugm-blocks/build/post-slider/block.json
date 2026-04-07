@@ -1,0 +1,91 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "ugm-blocks/post-slider",
+  "version": "0.1.0",
+  "title": "Post Slider",
+  "category": "ugm",
+  "description": "Slider of posts",
+  "attributes": {
+    "id": {
+      "type": "string"
+    },
+    "style": {
+      "type": "object",
+      "default": {
+        "color": {
+          "background": "ugm-primary-bg",
+          "text": "white",
+          "link": "ugm-secondary"
+        },
+        "spacing": {
+          "margin": {
+            "bottom": "30px"
+          }
+        }
+      }
+    },
+    "backgroundColor": {
+      "type": "string",
+      "default": "ugm-primary-bg"
+    },
+    "textColor": {
+      "type": "string",
+      "default": "white"
+    },
+    "linkColor": {
+      "type": "string",
+      "default": "ugm-secondary"
+    },
+    "spacing": {
+      "type": "object"
+    },
+    "queryId": {
+      "type": "number"
+    },
+    "imagePosition": {
+      "type": "string",
+      "default": "left"
+    },
+    "query": {
+      "type": "object",
+      "default": {
+        "perPage": 5,
+        "pages": 0,
+        "offset": 0,
+        "postType": "post",
+        "order": "desc",
+        "orderBy": "date",
+        "author": "",
+        "search": "",
+        "exclude": [],
+        "sticky": "",
+        "inherit": true,
+        "taxQuery": null,
+        "parents": []
+      }
+    }
+  },
+  "supports": {
+    "html": false,
+    "color": {
+      "gradients": true,
+      "link": true,
+      "__experimentalDefaultControls": {
+        "background": true,
+        "text": true,
+        "link": true
+      }
+    },
+    "spacing": {
+      "margin": [
+        "top",
+        "bottom"
+      ]
+    }
+  },
+  "textdomain": "ugm-theme",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}
