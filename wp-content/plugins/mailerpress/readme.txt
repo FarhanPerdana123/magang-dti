@@ -5,7 +5,7 @@ Donate link: https://mailerpress.com/
 Tags: newsletter, emailing, email marketing, mjml, automation
 Requires at least: 6.5
 Tested up to: 6.9
-Stable tag: 1.5.2
+Stable tag: 1.5.3
 Requires PHP: 8.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -156,6 +156,10 @@ For Pro users: support by mail from their customer account.
 15. Outgoing webhooks
 
 == Changelog ==
+= 1.5.3 =
+* FIX: Resolved an issue where campaigns could fail and be marked as error when sending to segmented contacts.
+* FIX: Bug in the pagination of the modal used to display contacts belonging to a created segment, where some contacts were not shown correctly.
+
 = 1.5.2 =
 * IMPROVEMENT: Reduced unnecessary database queries on page load.
 * FIX: Segment search returning no results in the Review & Send modal.

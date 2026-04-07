@@ -480,15 +480,16 @@ class ContactEmailChunk
         );
 
         if ($batch) {
-            // Update batch status to failed
+            // Update batch status to failed with error message
             $wpdb->update(
                 $batchTable,
                 [
                     'status' => 'failed',
+                    'error_message' => $error_message,
                     'updated_at' => current_time('mysql'),
                 ],
                 ['id' => $batch_id],
-                ['%s', '%s'],
+                ['%s', '%s', '%s'],
                 ['%d']
             );
 

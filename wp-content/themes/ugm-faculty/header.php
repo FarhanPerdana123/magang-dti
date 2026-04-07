@@ -26,6 +26,60 @@ $is_latest_news_route = '1' === get_query_var( 'ugm_latest_news' );
 $is_magazine_news_route = '1' === get_query_var( 'ugm_magazine_news' );
 $is_front_landing       = is_front_page() && ! $is_latest_news_route && ! $is_magazine_news_route;
 $front_route_no_hero    = is_front_page() && ! $is_front_landing;
+$header_social_icons    = array(
+	array(
+		'label' => __( 'Instagram', 'ugm-faculty' ),
+		'file'  => 'Component Instagram.png',
+		'url'   => 'https://www.instagram.com/',
+	),
+	array(
+		'label' => __( 'YouTube', 'ugm-faculty' ),
+		'file'  => 'Component YouTube.png',
+		'url'   => 'https://www.youtube.com/',
+	),
+	array(
+		'label' => __( 'Facebook', 'ugm-faculty' ),
+		'file'  => 'Component Facebook.png',
+		'url'   => 'https://www.facebook.com/',
+	),
+	array(
+		'label' => __( 'X', 'ugm-faculty' ),
+		'file'  => 'Component Twitter.png',
+		'url'   => 'https://x.com/',
+	),
+	array(
+		'label' => __( 'LinkedIn', 'ugm-faculty' ),
+		'file'  => 'Component LinkedIn.png',
+		'url'   => 'https://www.linkedin.com/',
+	),
+	array(
+		'label' => __( 'TikTok', 'ugm-faculty' ),
+		'file'  => 'Component TikTok.png',
+		'url'   => 'https://www.tiktok.com/',
+	),
+);
+$header_quick_links     = array(
+	array(
+		'label' => __( 'Email', 'ugm-faculty' ),
+		'url'   => 'mailto:info@ugm.ac.id',
+	),
+	array(
+		'label' => __( 'Perpustakaan', 'ugm-faculty' ),
+		'url'   => home_url( '/perpustakaan/' ),
+	),
+	array(
+		'label' => __( 'Mahasiswa', 'ugm-faculty' ),
+		'url'   => home_url( '/mahasiswa/' ),
+	),
+	array(
+		'label' => __( 'Staff', 'ugm-faculty' ),
+		'url'   => home_url( '/staff/' ),
+	),
+	array(
+		'label' => __( 'Alumni', 'ugm-faculty' ),
+		'url'   => home_url( '/alumni/' ),
+	),
+);
 
 if ( '' === $cs_link && '' !== $faculty_phone ) {
 	$cs_link   = 'tel:' . preg_replace( '/[^0-9+]/', '', $faculty_phone );
@@ -55,12 +109,78 @@ if ( '' === $cs_link && '' !== $faculty_phone ) {
 
 			<?php get_template_part( 'parts/header/site-branding' ); ?>
 
-			<?php get_template_part( 'parts/header/navigation' ); ?>
+			<div class="site-header__meta">
+				<div class="site-header__meta-top">
+					<ul class="site-header__social" aria-label="<?php esc_attr_e( 'Social media', 'ugm-faculty' ); ?>">
+						<?php foreach ( $header_social_icons as $social_icon ) : ?>
+							<?php
+							$icon_path = get_theme_file_path( 'assets/images/' . $social_icon['file'] );
+							if ( ! file_exists( $icon_path ) ) {
+								continue;
+							}
+							?>
+							<li class="site-header__social-item">
+								<a
+									class="site-header__social-link"
+									href="<?php echo esc_url( $social_icon['url'] ); ?>"
+									target="_blank"
+									rel="noopener noreferrer"
+									aria-label="<?php echo esc_attr( $social_icon['label'] ); ?>"
+								>
+									<img
+										class="site-header__social-icon"
+										src="<?php echo esc_url( get_theme_file_uri( 'assets/images/' . $social_icon['file'] ) ); ?>"
+										alt=""
+										loading="lazy"
+										decoding="async"
+									>
+								</a>
+							</li>
+						<?php endforeach; ?>
+					</ul>
 
-			<div class="site-header__actions">
-				<?php get_template_part( 'parts/header/language-switcher' ); ?>
-				<?php get_template_part( 'parts/header/search' ); ?>
+					<div class="site-header__actions">
+						<?php get_template_part( 'parts/header/language-switcher' ); ?>
+						<?php get_template_part( 'parts/header/search' ); ?>
+					</div>
+				</div>
+
+				<nav class="site-header__quick-links" aria-label="<?php esc_attr_e( 'Quick links', 'ugm-faculty' ); ?>">
+					<?php
+					$desktop_quick_links_location = '';
+
+					// Desktop quick-links follow "Menu Atas" (Mobile Quick Links) by default.
+					if ( has_nav_menu( 'mobile-quick-links' ) ) {
+						$desktop_quick_links_location = 'mobile-quick-links';
+					} elseif ( has_nav_menu( 'header-quick-links' ) ) {
+						$desktop_quick_links_location = 'header-quick-links';
+					}
+
+					if ( '' !== $desktop_quick_links_location ) {
+						wp_nav_menu(
+							array(
+								'theme_location' => $desktop_quick_links_location,
+								'menu_id'        => 'header-quick-links',
+								'menu_class'     => 'site-header__quick-links-list',
+								'container'      => false,
+								'fallback_cb'    => false,
+								'depth'          => 1,
+							)
+						);
+					} else {
+						?>
+						<ul class="site-header__quick-links-list">
+							<?php foreach ( $header_quick_links as $quick_link ) : ?>
+								<li><a href="<?php echo esc_url( $quick_link['url'] ); ?>"><?php echo esc_html( $quick_link['label'] ); ?></a></li>
+							<?php endforeach; ?>
+						</ul>
+						<?php
+					}
+					?>
+				</nav>
 			</div>
+
+			<?php get_template_part( 'parts/header/navigation' ); ?>
 
 			<div id="header-search-form" class="header-search__panel" hidden>
 				<button class="header-search__close" type="button" aria-label="<?php esc_attr_e( 'Close search', 'ugm-faculty' ); ?>">&times;</button>

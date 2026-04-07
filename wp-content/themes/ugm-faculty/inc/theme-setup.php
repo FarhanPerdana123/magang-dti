@@ -51,6 +51,7 @@ function ugm_theme_setup() {
 	register_nav_menus(
 		array(
 			'menu-1'             => esc_html__( 'Primary', 'ugm-faculty' ),
+			'header-quick-links' => esc_html__( 'Header Quick Links', 'ugm-faculty' ),
 			'footer-quick-links' => esc_html__( 'Footer Quick Links', 'ugm-faculty' ),
 			'mobile-quick-links' => esc_html__( 'Mobile Quick Links', 'ugm-faculty' ),
 		)

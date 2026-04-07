@@ -1,13 +1,45 @@
-<!-- wp:group {"layout":{"type":"constrained"}} -->
-<div class="wp-block-group">
-	<!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"bottom":"var:preset|spacing|40"}}},"layout":{"type":"flex","justifyContent":"space-between"}} -->
-	<div class="wp-block-group alignwide" style="padding-bottom:var(--wp--preset--spacing--40)">
-		<!-- wp:site-title {"level":0} /-->
-		<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"left"}} -->
-		<div class="wp-block-group">
-			<!-- wp:navigation {"layout":{"type":"flex","setCascadingProperties":true,"justifyContent":"right"}} /-->
+<!-- wp:group {"align":"full","className":"ugm-header","layout":{"type":"constrained"}} -->
+<div class="wp-block-group alignfull ugm-header">
+	<!-- wp:group {"align":"wide","className":"ugm-header__top","layout":{"type":"flex","justifyContent":"space-between","verticalAlignment":"top","flexWrap":"wrap"}} -->
+	<div class="wp-block-group alignwide ugm-header__top">
+		<!-- wp:group {"className":"ugm-header__brand","layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"center"}} -->
+		<div class="wp-block-group ugm-header__brand">
+			<!-- wp:site-logo {"width":48} /-->
+			<!-- wp:site-title {"level":0,"className":"ugm-header__site-title"} /-->
 		</div>
 		<!-- /wp:group -->
+
+		<!-- wp:group {"className":"ugm-header__utility","layout":{"type":"constrained"}} -->
+		<div class="wp-block-group ugm-header__utility">
+			<!-- wp:group {"className":"ugm-header__utility-icons","layout":{"type":"flex","justifyContent":"right","verticalAlignment":"center"}} -->
+			<div class="wp-block-group ugm-header__utility-icons">
+				<!-- wp:social-links {"iconColor":"base","iconColorValue":"#ffffff","size":"has-small-icon-size","className":"is-style-logos-only ugm-header__social","layout":{"type":"flex","justifyContent":"right"}} -->
+				<ul class="wp-block-social-links has-small-icon-size has-icon-color is-style-logos-only ugm-header__social">
+					<!-- wp:social-link {"url":"#","service":"youtube"} /-->
+					<!-- wp:social-link {"url":"#","service":"facebook"} /-->
+					<!-- wp:social-link {"url":"#","service":"x"} /-->
+					<!-- wp:social-link {"url":"#","service":"linkedin"} /-->
+					<!-- wp:social-link {"url":"#","service":"tiktok"} /-->
+				</ul>
+				<!-- /wp:social-links -->
+
+				<!-- wp:paragraph {"className":"ugm-header__language-tools"} -->
+				<p class="ugm-header__language-tools"><a href="#">ID</a> / <a href="#">EN</a> <a href="#">Search</a></p>
+				<!-- /wp:paragraph -->
+			</div>
+			<!-- /wp:group -->
+
+			<!-- wp:paragraph {"className":"ugm-header__quick-links"} -->
+			<p class="ugm-header__quick-links"><a href="#">Email</a> <a href="#">Perpustakaan</a> <a href="#">Mahasiswa</a> <a href="#">Staff</a> <a href="#">Alumni</a></p>
+			<!-- /wp:paragraph -->
+		</div>
+		<!-- /wp:group -->
+	</div>
+	<!-- /wp:group -->
+
+	<!-- wp:group {"align":"wide","className":"ugm-header__menu-row","layout":{"type":"flex","justifyContent":"center"}} -->
+	<div class="wp-block-group alignwide ugm-header__menu-row">
+		<!-- wp:navigation {"overlayMenu":"mobile","className":"ugm-header__main-nav","layout":{"type":"flex","setCascadingProperties":true,"justifyContent":"center"}} /-->
 	</div>
 	<!-- /wp:group -->
 </div>

@@ -335,6 +335,19 @@ class SendEmailJob extends BaseJob
             $countSuccess = 0;
             $countError = count($data['to']);
             $jobException = $e;
+
+            // Store the error message in the batch for debugging
+            if (!empty($data['batch_id'])) {
+                global $wpdb;
+                $batchTable = Tables::get(Tables::MAILERPRESS_EMAIL_BATCHES);
+                $wpdb->update(
+                    $batchTable,
+                    ['error_message' => $e->getMessage()],
+                    ['id' => (int) $data['batch_id']],
+                    ['%s'],
+                    ['%d']
+                );
+            }
         } finally {
             if (
                 \array_key_exists('webhook_url', $data)

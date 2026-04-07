@@ -127,6 +127,10 @@ class Component extends Document {
 	}
 
 	private function update_post_field( string $field, $value ): bool {
+		if ( is_string( $value ) ) {
+			// NOTE: escape the json to support non-UTF-8 characters
+			$value = wp_slash( $value );
+		}
 		$result = wp_update_post( [
 			'ID' => $this->post->ID,
 			$field => $value,
@@ -139,5 +143,9 @@ class Component extends Document {
 		}
 
 		return $success;
+	}
+
+	public function print_elements_without_cache( array $elements_data ) {
+		$this->do_print_elements( $elements_data );
 	}
 }

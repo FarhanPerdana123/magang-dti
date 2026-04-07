@@ -23,15 +23,25 @@ if ( is_numeric( $hero_bg_value ) && (int) $hero_bg_value > 0 ) {
 if ( file_exists( get_theme_file_path( $hero_asset_bg_path ) ) ) {
 	$hero_bg_url = str_replace( ' ', '%20', get_theme_file_uri( $hero_asset_bg_path ) );
 }
-$hero_title  = get_theme_mod( 'ugm_hero_headline', get_bloginfo( 'name' ) );
-$hero_desc   = get_theme_mod( 'ugm_hero_description', get_bloginfo( 'description' ) );
+$default_hero_title = "UNIVERSITAS\nGADJAH MADA";
+$default_hero_desc  = 'Sebagai universitas nasional pertama di Indonesia, UGM telah menjadi pusat pendidikan, penelitian, dan pengabdian masyarakat sejak berdiri tahun 1949, melahirkan ribuan alumni yang berkiprah di berbagai bidang untuk bangsa dan dunia.';
+$hero_title         = trim( (string) get_theme_mod( 'ugm_hero_headline', $default_hero_title ) );
+$hero_desc          = trim( (string) get_theme_mod( 'ugm_hero_description', $default_hero_desc ) );
+
+if ( '' === $hero_title ) {
+	$hero_title = $default_hero_title;
+}
+
+if ( '' === $hero_desc ) {
+	$hero_desc = $default_hero_desc;
+}
 ?>
 
 <section class="hero" <?php echo $hero_bg_url ? 'style="background-image: url(' . esc_url( $hero_bg_url ) . ');"' : ''; ?> aria-labelledby="hero-title">
 	<div class="hero__overlay" aria-hidden="true"></div>
 	<div class="hero__content">
 		<?php if ( $hero_title ) : ?>
-			<h1 id="hero-title" class="hero__title"><?php echo esc_html( $hero_title ); ?></h1>
+			<h1 id="hero-title" class="hero__title"><?php echo wp_kses_post( nl2br( esc_html( $hero_title ), false ) ); ?></h1>
 		<?php endif; ?>
 		<?php if ( $hero_desc ) : ?>
 			<p class="hero__description"><?php echo esc_html( $hero_desc ); ?></p>

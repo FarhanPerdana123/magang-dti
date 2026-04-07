@@ -36,7 +36,7 @@ class Campaigns
         // Get batch info to check for errors
         $batch = $wpdb->get_row(
             $wpdb->prepare(
-                "SELECT sent_emails, error_emails, total_emails FROM {$batchTable} WHERE id = %d",
+                "SELECT sent_emails, error_emails, total_emails, error_message FROM {$batchTable} WHERE id = %d",
                 (int) $batch_id
             ),
             \ARRAY_A
@@ -44,17 +44,33 @@ class Campaigns
 
         // Determine final campaign status based on batch errors
         $finalStatus = $status;
-        
+
         if ($status === 'sent' && $batch) {
             $error_emails = (int) ($batch['error_emails'] ?? 0);
             $sent_emails = (int) ($batch['sent_emails'] ?? 0);
             $total_emails = (int) ($batch['total_emails'] ?? 0);
-            
+
             // If there are errors, mark campaign as 'error' if all emails failed, or keep as 'sent' if partially sent
             if ($error_emails > 0 && $total_emails > 0) {
                 // If all emails failed, mark as 'error'
                 if ($error_emails === $total_emails && $sent_emails === 0) {
                     $finalStatus = 'error';
+
+                    // Store error summary in batch if not already set
+                    if (empty($batch['error_message'])) {
+                        $wpdb->update(
+                            $batchTable,
+                            [
+                                'error_message' => sprintf(
+                                    __('All %d emails failed to send. Check the batch log files in wp-content/mailerpress-logs/ for details.', 'mailerpress'),
+                                    $total_emails
+                                ),
+                            ],
+                            ['id' => (int) $batch_id],
+                            ['%s'],
+                            ['%d']
+                        );
+                    }
                 }
                 // If some emails succeeded and some failed, keep as 'sent' but log the errors
                 // The errors are already logged in mailerpress_email_logs table

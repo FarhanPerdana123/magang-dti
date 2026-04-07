@@ -40,7 +40,12 @@ define(
 );
 
 // Load the rest of the bootstrap functions.
-require_once IAWMLF_PATH . '/functions-bootstrap.php';
+$iawmlf_bootstrap_file = IAWMLF_PATH . '/functions-bootstrap.php';
+if ( ! is_file( $iawmlf_bootstrap_file ) ) {
+	// Prevent hard fatal when the plugin package is incomplete.
+	return;
+}
+require_once $iawmlf_bootstrap_file;
 
 // Declare compatibility with WC features.
 add_action(

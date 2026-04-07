@@ -347,7 +347,7 @@ function ugm_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'ugm_hero_headline',
 		array(
-			'default'           => get_bloginfo( 'name' ),
+			'default'           => __( 'UNIVERSITAS GADJAH MADA', 'ugm-faculty' ),
 			'sanitize_callback' => 'sanitize_text_field',
 		)
 	);
@@ -365,7 +365,7 @@ function ugm_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'ugm_hero_description',
 		array(
-			'default'           => get_bloginfo( 'description' ),
+			'default'           => __( 'Sebagai universitas nasional pertama di Indonesia, UGM telah menjadi pusat pendidikan, penelitian, dan pengabdian masyarakat sejak berdiri tahun 1949, melahirkan ribuan alumni yang berkiprah di berbagai bidang untuk bangsa dan dunia.', 'ugm-faculty' ),
 			'sanitize_callback' => 'sanitize_textarea_field',
 		)
 	);
@@ -465,7 +465,7 @@ function ugm_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'ugm_latest_news_count',
 		array(
-			'default'           => 3,
+			'default'           => 4,
 			'sanitize_callback' => 'ugm_sanitize_latest_news_count',
 		)
 	);
@@ -474,7 +474,7 @@ function ugm_customize_register( $wp_customize ) {
 		'ugm_latest_news_count',
 		array(
 			'label'       => __( 'Jumlah Berita Ditampilkan', 'ugm-faculty' ),
-			'description' => __( 'Rekomendasi: 3 agar layout tetap sesuai desain awal.', 'ugm-faculty' ),
+			'description' => __( 'Rekomendasi: 4 agar layout desktop menampilkan 1 berita utama + 3 kartu bawah.', 'ugm-faculty' ),
 			'section'     => 'ugm_latest_news_section',
 			'type'        => 'number',
 			'input_attrs' => array(
@@ -488,6 +488,7 @@ function ugm_customize_register( $wp_customize ) {
 		'ugm_latest_news_post_1' => __( 'Berita Utama (Kartu Besar)', 'ugm-faculty' ),
 		'ugm_latest_news_post_2' => __( 'Berita Kedua', 'ugm-faculty' ),
 		'ugm_latest_news_post_3' => __( 'Berita Ketiga', 'ugm-faculty' ),
+		'ugm_latest_news_post_4' => __( 'Berita Keempat', 'ugm-faculty' ),
 	);
 
 	foreach ( $manual_news_controls as $setting_id => $control_label ) {

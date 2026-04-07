@@ -55,6 +55,10 @@
 
 		$fallback_items = array(
 			array(
+				'label' => __( 'Beranda', 'ugm-faculty' ),
+				'url'   => home_url( '/' ),
+			),
+			array(
 				'label' => __( 'Pendaftaran', 'ugm-faculty' ),
 				'url'   => home_url( '/pendaftaran/' ),
 				'children' => array(
@@ -190,8 +194,21 @@
 		?>
 		<ul id="primary-menu" class="primary-menu__list">
 			<?php foreach ( $fallback_items as $fallback_item ) : ?>
-				<?php $has_children = ! empty( $fallback_item['children'] ) && is_array( $fallback_item['children'] ); ?>
-				<li class="<?php echo $has_children ? 'menu-item-has-children' : ''; ?>">
+				<?php
+				$has_children     = ! empty( $fallback_item['children'] ) && is_array( $fallback_item['children'] );
+				$item_classes     = array();
+				$is_fallback_home = is_front_page() && trailingslashit( (string) $fallback_item['url'] ) === trailingslashit( home_url( '/' ) );
+
+				if ( $has_children ) {
+					$item_classes[] = 'menu-item-has-children';
+				}
+
+				if ( $is_fallback_home ) {
+					$item_classes[] = 'current-menu-item';
+					$item_classes[] = 'current_page_item';
+				}
+				?>
+				<li class="<?php echo esc_attr( implode( ' ', $item_classes ) ); ?>">
 					<a href="<?php echo esc_url( $fallback_item['url'] ); ?>"><?php echo esc_html( $fallback_item['label'] ); ?></a>
 					<?php if ( $has_children ) : ?>
 						<button class="menu-dropdown-toggle" type="button" aria-expanded="false" aria-label="<?php echo esc_attr( sprintf( __( 'Tampilkan submenu %s', 'ugm-faculty' ), $fallback_item['label'] ) ); ?>">

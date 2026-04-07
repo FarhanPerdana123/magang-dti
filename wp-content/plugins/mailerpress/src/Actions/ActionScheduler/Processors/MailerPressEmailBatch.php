@@ -168,8 +168,21 @@ class MailerPressEmailBatch
                     if (is_string($meta)) {
                         $meta = json_decode($meta, true);
                     }
+                    if (is_array($meta) && !empty($meta['html'])) {
+                        $htmlContent = $meta['html'];
+                    } elseif (!empty($campaign->post_content)) {
+                        $htmlContent = $campaign->post_content;
+                    }
                 }
-               return;
+
+                if (empty($htmlContent)) {
+                    $this->markBatchAsFailed(
+                        $batch_id,
+                        $post,
+                        __('Email HTML content not found. Please save the campaign before sending.', 'mailerpress')
+                    );
+                    return;
+                }
             }
 
             if (!empty($htmlContent) && containsStartQueryBlock($htmlContent)) {
@@ -440,15 +453,16 @@ class MailerPressEmailBatch
         $batchTable = Tables::get(Tables::MAILERPRESS_EMAIL_BATCHES);
         $campaignTable = Tables::get(Tables::MAILERPRESS_CAMPAIGNS);
 
-        // Update batch status to failed
+        // Update batch status to failed with error message
         $wpdb->update(
             $batchTable,
             [
                 'status' => 'failed',
+                'error_message' => $error_message,
                 'updated_at' => current_time('mysql'),
             ],
             ['id' => $batch_id],
-            ['%s', '%s'],
+            ['%s', '%s', '%s'],
             ['%d']
         );
 
