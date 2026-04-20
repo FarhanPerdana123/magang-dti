@@ -1424,7 +1424,7 @@ class Campaigns
     public function post(\WP_REST_Request $request): \WP_Error|\WP_HTTP_Response|\WP_REST_Response
     {
         global $wpdb;
-        $name = esc_attr($request->get_param('title'));
+        $name = sanitize_text_field($request->get_param('title'));
         $meta = $request->get_param('meta') ?? [];
         $campaign_type = sanitize_text_field($request->get_param('campaign_type'));
         $automation_id = $request->get_param('automation_id');
@@ -1980,7 +1980,7 @@ class Campaigns
         global $wpdb;
 
         $campaign_id = (int)$request->get_param('id');
-        $name = esc_attr($request->get_param('title'));
+        $name = sanitize_text_field($request->get_param('title'));
         $meta = $request->get_param('meta');
 
         // Vérifiez si la campagne existe
@@ -2027,6 +2027,58 @@ class Campaigns
             ],
             200
         );
+    }
+
+    #[Endpoint(
+        'campaign/(?P<id>\d+)/settings',
+        methods: 'PUT',
+        permissionCallback: [Permissions::class, 'canEdit'],
+        args: [
+            'id' => [
+                'required' => true,
+                'validate_callback' => [ArgsValidator::class, 'validateId'],
+            ],
+        ]
+    )]
+    public function updateSettings(\WP_REST_Request $request): \WP_Error|\WP_HTTP_Response|\WP_REST_Response
+    {
+        global $wpdb;
+
+        $campaign_id = (int)$request->get_param('id');
+        $table_name  = Tables::get(Tables::MAILERPRESS_CAMPAIGNS);
+
+        $campaign = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$table_name} WHERE campaign_id = %d",
+            $campaign_id
+        ));
+
+        if (!$campaign) {
+            return new \WP_Error('not_found', __('Campaign not found.', 'mailerpress'), ['status' => 404]);
+        }
+
+        $email_config = $request->get_param('emailConfig');
+
+        $existing_config = !empty($campaign->config)
+            ? (array) json_decode($campaign->config, true)
+            : [];
+
+        $merged_config = array_merge($existing_config, (array) $email_config);
+
+        $data = [
+            'subject'             => !empty($email_config['campaignSubject']) ? sanitize_text_field($email_config['campaignSubject']) : $campaign->subject,
+            'config'              => wp_json_encode($merged_config),
+            'updated_at'          => current_time('mysql'),
+            'editing_user_id'     => null,
+            'editing_started_at'  => null,
+        ];
+
+        $updated = $wpdb->update($table_name, $data, ['campaign_id' => $campaign_id]);
+
+        if (false === $updated) {
+            return new \WP_Error('db_update_error', __('Failed to update campaign settings.', 'mailerpress'), ['status' => 500]);
+        }
+
+        return new \WP_REST_Response(['success' => true, 'campaign_id' => $campaign_id], 200);
     }
 
     #[Endpoint(
@@ -2215,7 +2267,37 @@ class Campaigns
         $config = $request->get_param('config');
         $scheduledAt = $request->get_param('scheduledAt');
 
+        // Fallback to global sender settings if fromName/fromTo are missing in config
+        if (empty($config['fromTo']) || empty($config['fromName'])) {
+            $globalSender = get_option('mailerpress_default_settings');
+            if ($globalSender) {
+                if (is_string($globalSender)) {
+                    $globalSender = json_decode($globalSender, true);
+                }
+                if (is_array($globalSender)) {
+                    if (empty($config['fromTo'])) {
+                        $config['fromTo'] = $globalSender['fromAddress'] ?? '';
+                    }
+                    if (empty($config['fromName'])) {
+                        $config['fromName'] = $globalSender['fromName'] ?? '';
+                    }
+                }
+            }
+        }
+
         $status = ('future' === $sendType) ? 'scheduled' : 'pending';
+
+        // Convert scheduledAt from WP local time to UTC for storage.
+        // This ensures the campaign fires at the correct absolute moment
+        // even if the WP timezone setting is changed after scheduling.
+        $utcScheduledAt = $scheduledAt;
+        if (!empty($scheduledAt)) {
+            $tz = function_exists('wp_timezone') ? wp_timezone() : new \DateTimeZone(wp_timezone_string());
+            $dtForStorage = \DateTime::createFromFormat('Y-m-d H:i:s', $scheduledAt, $tz);
+            if ($dtForStorage) {
+                $utcScheduledAt = gmdate('Y-m-d H:i:s', $dtForStorage->getTimestamp());
+            }
+        }
 
         $wpdb->insert(
             Tables::get(Tables::MAILERPRESS_EMAIL_BATCHES),
@@ -2225,7 +2307,7 @@ class Campaigns
                 'sender_name' => $config['fromName'],
                 'sender_to' => $config['fromTo'],
                 'subject' => $config['subject'],
-                'scheduled_at' => $scheduledAt,
+                'scheduled_at' => $utcScheduledAt,
                 'campaign_id' => $post,
             ]
         );
@@ -2341,6 +2423,24 @@ class Campaigns
         $html = $request->get_param('html');
         $config = $request->get_param('config');
         $scheduledAt = $request->get_param('scheduledAt');
+
+        // Fallback to global sender settings if fromName/fromTo are missing in config
+        if (empty($config['fromTo']) || empty($config['fromName'])) {
+            $globalSender = get_option('mailerpress_default_settings');
+            if ($globalSender) {
+                if (is_string($globalSender)) {
+                    $globalSender = json_decode($globalSender, true);
+                }
+                if (is_array($globalSender)) {
+                    if (empty($config['fromTo'])) {
+                        $config['fromTo'] = $globalSender['fromAddress'] ?? '';
+                    }
+                    if (empty($config['fromName'])) {
+                        $config['fromName'] = $globalSender['fromName'] ?? '';
+                    }
+                }
+            }
+        }
         $recipientTargeting = $request->get_param('recipientTargeting') ?? null;
         $lists = $request->get_param('lists') ?? [];
         $tags = $request->get_param('tags') ?? [];
@@ -2376,7 +2476,18 @@ class Campaigns
         }
 
         // Create batch immediately so it can be displayed in the UI
+        // Convert scheduledAt (WP-timezone naive string) to UTC for consistent storage.
+        // The chunks table also stores scheduled_at in UTC; dateI18n on the frontend
+        // expects UTC and converts to WP timezone for display.
         $status = ('future' === $sendType) ? 'scheduled' : 'pending';
+        $utcScheduledAt = null;
+        if (!empty($scheduledAt)) {
+            $tz = function_exists('wp_timezone') ? wp_timezone() : new \DateTimeZone(wp_timezone_string());
+            $dtForStorage = \DateTime::createFromFormat('Y-m-d H:i:s', $scheduledAt, $tz);
+            if ($dtForStorage) {
+                $utcScheduledAt = gmdate('Y-m-d H:i:s', $dtForStorage->getTimestamp());
+            }
+        }
         $wpdb->insert(
             Tables::get(Tables::MAILERPRESS_EMAIL_BATCHES),
             [
@@ -2385,7 +2496,7 @@ class Campaigns
                 'sender_name' => $config['fromName'] ?? '',
                 'sender_to' => $config['fromTo'] ?? '',
                 'subject' => $subject,
-                'scheduled_at' => $scheduledAt,
+                'scheduled_at' => $utcScheduledAt,
                 'campaign_id' => $post,
             ]
         );
@@ -2426,17 +2537,27 @@ class Campaigns
 
                 if ($dt) {
                     $scheduled_timestamp = $dt->getTimestamp();
-                    // Only use scheduled time if it's in the future
                     if ($scheduled_timestamp > time()) {
                         $scheduled_time = $scheduled_timestamp;
+                    } else {
+                        // Scheduled date is in the past — reject the request
+                        return new \WP_Error(
+                            'mailerpress_scheduled_date_past',
+                            __('The scheduled date is in the past. Please select a future date and time.', 'mailerpress'),
+                            ['status' => 422]
+                        );
                     }
                 }
             } catch (\Exception $e) {
-                // If parsing fails, fallback to default (time() + 5)
                 \MailerPress\Services\Logger::error('Failed to parse scheduledAt', [
                     'message' => $e->getMessage(),
                     'scheduledAt' => $scheduledAt,
                 ]);
+                return new \WP_Error(
+                    'mailerpress_scheduled_date_invalid',
+                    __('Invalid scheduled date format.', 'mailerpress'),
+                    ['status' => 422]
+                );
             }
         }
 
@@ -2447,7 +2568,7 @@ class Campaigns
                 $sendType,
                 $post,
                 $config,
-                $scheduledAt,
+                $utcScheduledAt ?? $scheduledAt, // Pass UTC so timezone changes after scheduling don't affect execution
                 $recipientTargeting,
                 $lists,
                 $tags,
@@ -2650,7 +2771,7 @@ class Campaigns
     {
         $contacts = $request->get_param('contacts');
         $body = $request->get_param('htmlContent');
-        $subject = esc_attr($request->get_param('subject'));
+        $subject = sanitize_text_field($request->get_param('subject'));
 
         // 🔧 Sanitize HTML to remove/replace merge tags for test emails
         // This prevents ESP parsing errors when merge tags like {{variable}} remain in the HTML
@@ -3680,63 +3801,134 @@ class Campaigns
         }
 
         $tmpFile = download_url($thumbnailUrl);
+
+        // If maxresdefault fails for YouTube, fallback to hqdefault
+        if (is_wp_error($tmpFile) && $parsed['type'] === 'youtube') {
+            $fallbackUrl = "https://img.youtube.com/vi/{$parsed['id']}/hqdefault.jpg";
+            $tmpFile = download_url($fallbackUrl);
+        }
+
         if (is_wp_error($tmpFile)) {
             return new \WP_REST_Response(['error' => __('Failed to fetch thumbnail', 'mailerpress')], 400);
         }
 
-        try {
-            $image = new \Imagick($tmpFile);
-            unlink($tmpFile);
+        // Try Imagick first, then GD, then raw copy
+        if (extension_loaded('imagick')) {
+            try {
+                $image = new \Imagick($tmpFile);
+                @unlink($tmpFile);
 
-            $width = $image->getImageWidth();
-            $height = $image->getImageHeight();
+                $width = $image->getImageWidth();
+                $height = $image->getImageHeight();
 
-            // 🔹 Dark overlay for contrast
-            $overlay = new \Imagick();
-            $overlay->newImage($width, $height, new \ImagickPixel('rgba(0,0,0,0.3)'));
-            $overlay->setImageFormat('png');
-            $image->compositeImage($overlay, \Imagick::COMPOSITE_OVER, 0, 0);
-            $overlay->destroy();
+                $overlay = new \Imagick();
+                $overlay->newImage($width, $height, new \ImagickPixel('rgba(0,0,0,0.3)'));
+                $overlay->setImageFormat('png');
+                $image->compositeImage($overlay, \Imagick::COMPOSITE_OVER, 0, 0);
+                $overlay->destroy();
 
-            // 🔹 Draw play button (circle + triangle)
-            $draw = new \ImagickDraw();
-            $draw->setStrokeAntialias(true);
+                $draw = new \ImagickDraw();
+                $draw->setStrokeAntialias(true);
 
-            $centerX = $width / 2;
-            $centerY = $height / 2;
-            $circleRadius = min($width, $height) * 0.08; // 8% of image width
+                $centerX = $width / 2;
+                $centerY = $height / 2;
+                $circleRadius = min($width, $height) * 0.08;
 
-            $draw->setFillColor(new \ImagickPixel('rgba(255,255,255,0.85)'));
-            $draw->circle($centerX, $centerY, $centerX + $circleRadius, $centerY);
+                $draw->setFillColor(new \ImagickPixel('rgba(255,255,255,0.85)'));
+                $draw->circle($centerX, $centerY, $centerX + $circleRadius, $centerY);
 
-            $triangleSize = $circleRadius * 0.8;
-            $triangle = [
-                ['x' => $centerX - $triangleSize / 2, 'y' => $centerY - $triangleSize / 1.8],
-                ['x' => $centerX - $triangleSize / 2, 'y' => $centerY + $triangleSize / 1.8],
-                ['x' => $centerX + $triangleSize / 1.5, 'y' => $centerY]
-            ];
+                $triangleSize = $circleRadius * 0.8;
+                $triangle = [
+                    ['x' => $centerX - $triangleSize / 2, 'y' => $centerY - $triangleSize / 1.8],
+                    ['x' => $centerX - $triangleSize / 2, 'y' => $centerY + $triangleSize / 1.8],
+                    ['x' => $centerX + $triangleSize / 1.5, 'y' => $centerY]
+                ];
 
-            $draw->setFillColor(new \ImagickPixel('black'));
-            $draw->polygon($triangle);
+                $draw->setFillColor(new \ImagickPixel('black'));
+                $draw->polygon($triangle);
 
-            $image->setImageMatte(true);
-            $image->drawImage($draw);
+                $image->setImageMatte(true);
+                $image->drawImage($draw);
 
-            // Save final image
-            $image->setImageFormat('jpeg');
-            $image->setImageCompressionQuality(90);
-            $image->writeImage($outputPath);
-            $image->destroy();
+                $image->setImageFormat('jpeg');
+                $image->setImageCompressionQuality(90);
+                $image->writeImage($outputPath);
+                $image->destroy();
 
+                return new \WP_REST_Response([
+                    'url' => $previewUrl,
+                    'type' => $parsed['type'],
+                    'id' => $parsed['id'],
+                ]);
+            } catch (\Exception $e) {
+                // Imagick failed, fall through to GD
+            }
+        }
+
+        // GD fallback: draw play button overlay
+        if (extension_loaded('gd')) {
+            try {
+                $srcImage = @imagecreatefromjpeg($tmpFile);
+                if (!$srcImage) {
+                    $srcImage = @imagecreatefrompng($tmpFile);
+                }
+                if (!$srcImage) {
+                    $srcImage = @imagecreatefromwebp($tmpFile);
+                }
+
+                if ($srcImage) {
+                    @unlink($tmpFile);
+                    $width = imagesx($srcImage);
+                    $height = imagesy($srcImage);
+
+                    // Dark overlay
+                    $overlayColor = imagecolorallocatealpha($srcImage, 0, 0, 0, 90);
+                    imagefilledrectangle($srcImage, 0, 0, $width, $height, $overlayColor);
+
+                    // Play button circle
+                    $centerX = (int) ($width / 2);
+                    $centerY = (int) ($height / 2);
+                    $circleRadius = (int) (min($width, $height) * 0.08);
+                    $white = imagecolorallocatealpha($srcImage, 255, 255, 255, 19);
+                    imagefilledellipse($srcImage, $centerX, $centerY, $circleRadius * 2, $circleRadius * 2, $white);
+
+                    // Play triangle
+                    $triangleSize = $circleRadius * 0.8;
+                    $black = imagecolorallocate($srcImage, 0, 0, 0);
+                    $points = [
+                        (int) ($centerX - $triangleSize / 2), (int) ($centerY - $triangleSize / 1.8),
+                        (int) ($centerX - $triangleSize / 2), (int) ($centerY + $triangleSize / 1.8),
+                        (int) ($centerX + $triangleSize / 1.5), $centerY,
+                    ];
+                    imagefilledpolygon($srcImage, $points, $black);
+
+                    imagejpeg($srcImage, $outputPath, 90);
+                    imagedestroy($srcImage);
+
+                    return new \WP_REST_Response([
+                        'url' => $previewUrl,
+                        'type' => $parsed['type'],
+                        'id' => $parsed['id'],
+                    ]);
+                }
+            } catch (\Exception $e) {
+                // GD failed, fall through to raw copy
+            }
+        }
+
+        // Ultimate fallback: just copy the thumbnail as-is (no play button overlay)
+        @copy($tmpFile, $outputPath);
+        @unlink($tmpFile);
+
+        if (file_exists($outputPath)) {
             return new \WP_REST_Response([
                 'url' => $previewUrl,
                 'type' => $parsed['type'],
                 'id' => $parsed['id'],
             ]);
-        } catch (\Exception $e) {
-            @unlink($tmpFile);
-            return new \WP_REST_Response(['error' => $e->getMessage()], 500);
         }
+
+        return new \WP_REST_Response(['error' => __('Failed to process thumbnail. Neither Imagick nor GD extension is available.', 'mailerpress')], 500);
     }
 
     private function parseVideoUrl(string $url): ?array

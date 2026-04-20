@@ -1,31 +1,78 @@
-/* Footer */
+/* ─────────────────────────────────────────────────────────────────────────
+   Footer — ugm-faculty
+   Semua konten dikelola via Appearance → Widgets.
+   Mobile: left-aligned, narrow. Desktop (768px+): centered, wide.
+───────────────────────────────────────────────────────────────────────── */
+
+/* ══ BASE ═══════════════════════════════════════════════════════════════ */
+
 .ugm-footer {
 	background: var(--color-primary-900);
-	color: #ffffff;
-	padding: 14px 0 0;
+	color: #fff;
 	font-size: 0.85rem;
-	line-height: 1.4;
+	line-height: 1.5;
 }
 
+.ugm-footer__top {
+	padding: 20px 0 8px;
+}
+
+/* Container: narrow di mobile, centered auto */
 .ugm-footer__container {
-	width: min(100% - 20px, 340px);
-	margin-inline: auto;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 360px;
+	margin-left: auto;
+	margin-right: auto;
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.ugm-footer a {
+	color: #fff;
+	text-decoration: none;
+}
+
+.ugm-footer a:hover,
+.ugm-footer a:focus-visible {
+	text-decoration: underline;
+}
+
+/* Widget title */
+.ugm-footer-widget__title {
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	color: rgba(255, 255, 255, 0.5);
+	margin: 0 0 6px;
+}
+
+/* Reset list styles yg mungkin di-inherit dari base theme */
+.ugm-footer ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+/* ══ SOCIAL MEDIA ════════════════════════════════════════════════════════ */
+
+.ugm-footer__wrap--social {
+	margin-bottom: 12px;
 }
 
 .ugm-footer__social {
 	display: flex;
 	align-items: center;
-	justify-content: center;
 	gap: 10px;
-	list-style: none;
-	margin: 0 0 10px;
-	padding: 0;
+	list-style: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
 }
 
 .ugm-footer__social-item {
 	display: flex;
 	align-items: center;
-	justify-content: center;
 }
 
 .ugm-footer__social-link {
@@ -34,6 +81,12 @@
 	justify-content: center;
 	width: 22px;
 	height: 22px;
+	opacity: 0.9;
+	transition: opacity 0.2s;
+}
+
+.ugm-footer__social-link:hover {
+	opacity: 1;
 }
 
 .ugm-footer__social-icon {
@@ -43,172 +96,190 @@
 	object-fit: contain;
 }
 
-.ugm-footer__brand {
-	display: flex;
-	align-items: center;
-	gap: 9px;
+/* ══ BRAND / LOGO ════════════════════════════════════════════════════════ */
+
+.ugm-footer__wrap--brand {
 	margin-bottom: 10px;
 }
 
-.ugm-footer__brand-image {
+.ugm-footer__brand-img {
 	display: block;
-	width: min(100%, 210px);
+	width: auto;
+	max-width: 220px;
 	height: auto;
 }
 
-.ugm-footer__brand-mark {
-	width: 48px;
-	height: 48px;
-	flex: 0 0 auto;
-	display: grid;
-	place-items: center;
+/* ══ KONTAK & ALAMAT ══════════════════════════════════════════════════════ */
+
+.ugm-footer__wrap--contact {
+	margin-bottom: 12px;
 }
 
-.ugm-footer__brand-mark .custom-logo-link,
-.ugm-footer__brand-mark img {
-	display: block;
-	width: 100%;
-	height: 100%;
-	object-fit: contain;
-}
-
-.ugm-footer__mark-placeholder {
-	display: grid;
-	place-items: center;
-	width: 100%;
-	height: 100%;
-	border: 1px solid rgba(255, 255, 255, 0.6);
-	border-radius: 50%;
-	font-size: 0.75rem;
-	font-weight: 700;
-	letter-spacing: 0.08em;
-}
-
-.ugm-footer__heading {
-	margin: 0;
-	font-size: clamp(1.05rem, 5.8vw, 1.45rem);
-	line-height: 1.1;
-	font-weight: 500;
-	text-transform: none;
-	letter-spacing: 0;
-}
-
-.ugm-footer__text {
-	margin: 0;
-	color: var(--color-neutral-50);
-}
-
-.ugm-footer__text--address {
-	margin-bottom: 10px;
-	font-size: 0.76rem;
-	line-height: 1.32;
-}
-
-.ugm-footer__contact-list {
-	list-style: none;
-	margin: 0 0 12px;
-	padding: 0;
-}
-
-.ugm-footer__contact-list li {
-	margin: 0;
+.ugm-footer-contact__address {
+	display: flex;
+	align-items: flex-start;
+	gap: 5px;
 	font-size: 0.78rem;
-	line-height: 1.3;
+	line-height: 1.4;
+	color: rgba(255, 255, 255, 0.85);
+	margin: 0 0 8px;
 }
 
-.ugm-footer__contact-key {
-	display: inline-block;
-	min-width: 2.1em;
-	font-weight: 600;
+.ugm-footer-contact__pin {
+	flex: 0 0 auto;
+	margin-top: 1px;
 }
 
-.ugm-footer a {
-	color: #ffffff;
-	text-decoration: none;
+.ugm-footer-contact__pin svg {
+	display: block;
 }
 
-.ugm-footer a:hover,
-.ugm-footer a:focus-visible {
-	text-decoration: underline;
+/* Kontak info (<p class="ugm-footer-contact__info">) */
+.ugm-footer-contact__info {
+	font-size: 0.78rem;
+	color: rgba(255, 255, 255, 0.85);
+	margin: 0;
+	line-height: 1.6;
 }
 
-.ugm-footer__highlight {
-	height: 42px;
+/* Fallback jika tetap pakai <ul> */
+.ugm-footer-contact__list {
+	list-style: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.ugm-footer-contact__list li {
+	font-size: 0.78rem;
+	line-height: 1.45;
+	list-style: none !important;
+}
+
+/* ══ NAV BAR (highlight box) ════════════════════════════════════════════ */
+
+.ugm-footer__nav-bar {
+	display: flex;
+	align-items: center;
+	min-height: 42px;
+	padding: 6px 10px;
 	margin-bottom: 12px;
 	background: rgba(130, 170, 206, 0.28);
 	border: 1px solid rgba(187, 210, 232, 0.25);
 }
 
-.ugm-footer__text--accreditation {
-	font-size: 0.78rem;
-	line-height: 1.32;
+.ugm-footer__nav-bar .widget { width: 100%; }
+
+.ugm-footer__nav-bar ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 16px;
+	list-style: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.ugm-footer__nav-bar ul li a {
+	font-size: 0.82rem;
+	color: #fff;
+	opacity: 0.9;
+}
+
+.ugm-footer__nav-bar ul li a:hover { opacity: 1; }
+
+/* ══ AKREDITASI ══════════════════════════════════════════════════════════ */
+
+.ugm-footer__wrap--accreditation { margin-bottom: 10px; }
+
+.ugm-footer__wrap--accreditation p {
+	font-size: 0.76rem;
+	line-height: 1.4;
+	color: rgba(255, 255, 255, 0.75);
+	margin: 0;
+}
+
+/* ══ QUICK LINKS & INSTITUTIONAL ════════════════════════════════════════ */
+
+.ugm-footer__wrap--links,
+.ugm-footer__wrap--institutional {
 	margin-bottom: 10px;
+	font-size: 0.8rem;
 }
 
-.ugm-footer__banner {
-	margin-inline: -12px;
-	height: 72px;
+.ugm-footer__wrap--links a,
+.ugm-footer__wrap--institutional a {
+	color: rgba(255, 255, 255, 0.85);
+}
+
+/* ══ BANNER BAWAH ════════════════════════════════════════════════════════ */
+
+.ugm-footer__wrap--banner {
 	overflow: hidden;
-	border-top: 1px solid rgba(255, 255, 255, 0.15);
+	height: 140px;
+	border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.ugm-footer__banner img {
+.ugm-footer__wrap--banner .widget { height: 100%; }
+
+.ugm-footer__wrap--banner img {
 	display: block;
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+	object-position: center 20%;
 }
 
-.ugm-footer__banner--placeholder {
-	background:
-		radial-gradient(circle at 18% 120%, #88a86d 0, #88a86d 17%, transparent 18%),
-		radial-gradient(circle at 42% 125%, #9cbc7a 0, #9cbc7a 15%, transparent 16%),
-		radial-gradient(circle at 68% 120%, #89ab6a 0, #89ab6a 16%, transparent 17%),
-		linear-gradient(180deg, var(--color-primary-700) 0%, var(--color-primary-800) 58%, var(--color-primary-900) 100%);
+/* ══ BOTTOM BAR ══════════════════════════════════════════════════════════ */
+
+.ugm-footer__wrap--bottom {
+	padding: 8px 0;
+	border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-@media (min-width: 480px) {
-	.ugm-footer__container {
-		width: min(100% - 28px, 420px);
-	}
-
-	.ugm-footer__heading {
-		font-size: clamp(1.15rem, 4.2vw, 1.5rem);
-	}
+.ugm-footer__wrap--bottom p {
+	margin: 0;
+	font-size: 0.74rem;
+	color: rgba(255, 255, 255, 0.55);
 }
 
-@media (max-width: 420px) {
-	.ugm-footer {
-		padding-top: 12px;
-	}
-
-	.ugm-footer__container {
-		width: calc(100% - 14px);
-	}
-
-	.ugm-footer__brand {
-		gap: 8px;
-	}
-
-	.ugm-footer__brand-mark {
-		width: 44px;
-		height: 44px;
-	}
-
-	.ugm-footer__heading {
-		font-size: clamp(0.95rem, 6vw, 1.25rem);
-		line-height: 1.1;
-	}
-}
+/* ══════════════════════════════════════════════════════════════════════════
+   DESKTOP (768px+) — semua konten centered
+══════════════════════════════════════════════════════════════════════════ */
 
 @media (min-width: 768px) {
-	.ugm-footer__container {
-		width: min(100% - 56px, 760px);
+
+	.ugm-footer__top {
+		padding: 32px 0 16px;
 	}
 
+	/* Container: lebar penuh hingga 900px, selalu centered */
+	.ugm-footer__container {
+		max-width: 900px;
+		padding-left: 32px;
+		padding-right: 32px;
+		/* Centering via text-align pada wrapper + margin auto */
+		text-align: center;
+	}
+
+	/* Semua widget sections: centered secara horizontal */
+	.ugm-footer__wrap--social .widget,
+	.ugm-footer__wrap--brand .widget,
+	.ugm-footer__wrap--contact .widget {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	/* Social — centered, icon lebih besar */
+	.ugm-footer__wrap--social { margin-bottom: 20px; }
+
 	.ugm-footer__social {
-		justify-content: flex-start;
-		gap: 14px;
+		justify-content: center;
+		gap: 18px;
+	}
+
+	.ugm-footer__social-link {
+		width: 28px;
+		height: 28px;
 	}
 
 	.ugm-footer__social-icon {
@@ -216,40 +287,59 @@
 		height: 24px;
 	}
 
-	.ugm-footer__brand-image {
-		width: min(100%, 260px);
+	/* Brand — centered via margin auto */
+	.ugm-footer__wrap--brand { margin-bottom: 20px; }
+
+	.ugm-footer__brand-img {
+		max-width: 300px;
+		margin-left: auto;
+		margin-right: auto;
 	}
 
-	.ugm-footer__heading {
-		font-size: 1.55rem;
-		line-height: 1.05;
+	/* Contact — centered */
+	.ugm-footer__wrap--contact { margin-bottom: 20px; }
+
+	.ugm-footer-contact__address {
+		justify-content: center;
+		font-size: 0.9rem;
+		margin-bottom: 10px;
 	}
 
-	.ugm-footer__text--address,
-	.ugm-footer__contact-list li,
-	.ugm-footer__text--accreditation {
-		max-width: 620px;
-		font-size: 0.88rem;
+	.ugm-footer-contact__info {
+		font-size: 0.9rem;
+		text-align: center;
 	}
 
-	.ugm-footer__banner {
-		margin-inline: 0;
-		height: 90px;
+	/* Fallback <ul> kontak: horizontal dengan separator | */
+	.ugm-footer-contact__list {
+		display: flex !important;
+		flex-wrap: wrap;
+		justify-content: center;
 	}
+
+	.ugm-footer-contact__list li { font-size: 0.9rem; }
+
+	.ugm-footer-contact__list li + li::before {
+		content: "\00a0|\00a0";
+		opacity: 0.5;
+	}
+
+	/* Nav bar centered */
+	.ugm-footer__nav-bar { justify-content: center; }
+	.ugm-footer__nav-bar ul { justify-content: center; gap: 4px 28px; }
+	.ugm-footer__nav-bar ul li a { font-size: 0.88rem; }
+
+	/* Akreditasi centered */
+	.ugm-footer__wrap--accreditation p {
+		font-size: 0.82rem;
+		text-align: center;
+	}
+
+	/* Banner lebih tinggi (tampilkan panorama penuh) */
+	.ugm-footer__wrap--banner { height: 200px; }
 }
 
-@media (min-width: 1024px) {
-	.ugm-footer__container {
-		width: min(100% - 64px, 1200px);
-	}
-
-	.ugm-footer__heading {
-		font-size: 1.9rem;
-	}
-
-	.ugm-footer__text--address,
-	.ugm-footer__contact-list li,
-	.ugm-footer__text--accreditation {
-		font-size: 0.92rem;
-	}
+@media (min-width: 1280px) {
+	.ugm-footer__container { max-width: 1040px; }
+	.ugm-footer__wrap--banner { height: 240px; }
 }

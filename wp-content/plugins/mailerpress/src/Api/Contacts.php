@@ -625,9 +625,33 @@ class Contacts
         $order = in_array($order_param, $allowed_order, true) ? $order_param : 'DESC';
         $orderBy = sprintf('c.%s %s', esc_sql($orderby), esc_sql($order));
 
-        // Fetch contacts
+        $hasJoins = !empty($listIds) || !empty($tagIds);
+
+        // Run COUNT query first — use COUNT(*) when no JOINs (faster than COUNT(DISTINCT))
+        $countSelect = $hasJoins ? 'COUNT(DISTINCT c.contact_id)' : 'COUNT(*)';
+        $total_count = (int) $wpdb->get_var($wpdb->prepare("
+        SELECT {$countSelect}
+        FROM {$contact_table} c
+        {$joins}
+        WHERE {$where}
+    ", $params));
+
+        $total_pages = ceil($total_count / $per_page);
+
+        // Early return if no results
+        if ($total_count === 0) {
+            return new \WP_REST_Response([
+                'posts' => [],
+                'pages' => 0,
+                'count' => 0,
+            ], 200);
+        }
+
+        // Fetch contacts — only select needed columns, skip large TEXT fields
+        $selectDistinct = $hasJoins ? 'DISTINCT' : '';
         $contacts = $wpdb->get_results($wpdb->prepare("
-        SELECT c.*, c.contact_id as id
+        SELECT {$selectDistinct} c.contact_id, c.contact_id as id, c.email, c.first_name, c.last_name,
+               c.subscription_status, c.opt_in_source, c.created_at, c.updated_at, c.unsubscribe_token
         FROM {$contact_table} c
         {$joins}
         WHERE {$where}
@@ -640,8 +664,8 @@ class Contacts
         if (empty($contact_ids)) {
             return new \WP_REST_Response([
                 'posts' => [],
-                'pages' => 0,
-                'count' => 0,
+                'pages' => $total_pages,
+                'count' => $total_count,
             ], 200);
         }
 
@@ -679,12 +703,17 @@ class Contacts
             ];
         }
 
-        // Fetch custom field definitions
-        $field_definitions = $wpdb->get_results("SELECT * FROM {$field_definitions_table}");
-        foreach ($field_definitions as $def) {
-            $def->options = is_serialized($def->options)
-                ? unserialize($def->options, ['allowed_classes' => false])
-                : $def->options;
+        // Fetch custom field definitions — cached per request
+        $cache_key = 'mailerpress_field_definitions';
+        $field_definitions = wp_cache_get($cache_key);
+        if ($field_definitions === false) {
+            $field_definitions = $wpdb->get_results("SELECT field_key, label, type, required, options FROM {$field_definitions_table}");
+            foreach ($field_definitions as $def) {
+                $def->options = is_serialized($def->options)
+                    ? unserialize($def->options, ['allowed_classes' => false])
+                    : $def->options;
+            }
+            wp_cache_set($cache_key, $field_definitions);
         }
 
         // Fetch contact custom field values
@@ -718,16 +747,6 @@ class Contacts
                 ];
             }
         }
-
-        // Pagination count
-        $total_count = $wpdb->get_var($wpdb->prepare("
-        SELECT COUNT(DISTINCT c.contact_id)
-        FROM {$contact_table} c
-        {$joins}
-        WHERE {$where}
-    ", $params));
-
-        $total_pages = ceil($total_count / $per_page);
 
         return new \WP_REST_Response([
             'posts' => $contacts,

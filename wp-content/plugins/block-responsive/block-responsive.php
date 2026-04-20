@@ -3,7 +3,7 @@
  * Plugin Name:       Block Responsive - Make Editor Blocks Responsive Easily
  * Plugin URI:        http://wordpress.org/plugins/block-responsive/
  * Description:       A plugin that provides responsive options for Gutenberg blocks, allowing you to control visibility and styles based on screen size.
- * Version:           1.0.4
+ * Version:           1.0.5
  * Requires at least: 6.7
  * Requires PHP:      7.4
  * Author:            ashrafuzzaman93
@@ -24,7 +24,7 @@ use Ashraf93\BlockResponsive\BlockResponsive;
 
 // Define constant for the Plugin file.
 if ( ! defined( 'BLOCKRESPONSIVE_VERSION' ) ) {
-	define( 'BLOCKRESPONSIVE_VERSION', '1.0.4' );
+	define( 'BLOCKRESPONSIVE_VERSION', '1.0.5' );
 }
 
 if ( ! defined( 'BLOCKRESPONSIVE_DIR_PATH' ) ) {

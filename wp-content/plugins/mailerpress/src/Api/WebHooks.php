@@ -516,6 +516,47 @@ class Webhooks
      * @param WP_REST_Request $request
      * @return WP_REST_Response
      */
+    /**
+     * Single endpoint returning all data needed for the outgoing webhooks settings page.
+     * Replaces 4 separate API calls with 1.
+     */
+    #[Endpoint(
+        'webhooks/outgoing-settings',
+        methods: 'GET',
+        permissionCallback: [Permissions::class, 'canView']
+    )]
+    public function getOutgoingSettings(WP_REST_Request $request): WP_REST_Response
+    {
+        if (!$this->isProActive()) {
+            return new WP_REST_Response([
+                'error' => __('Webhooks require MailerPress Pro', 'mailerpress'),
+            ], 403);
+        }
+
+        $events = $this->getManager()->getEventRegistry()->getEventInfo();
+        $configs = $this->getManager()->getAllOutgoingWebhookConfigs();
+        if (!is_array($configs)) {
+            $configs = [];
+        }
+
+        // Mask secrets
+        foreach ($configs as &$config) {
+            if (isset($config['secret']) && !empty($config['secret'])) {
+                $config['secret'] = '***';
+            }
+        }
+
+        $globalSecret = get_option('mailerpress_outgoing_webhook_secret', '');
+        $disableAsync = get_option('mailerpress_webhooks_disable_async', '0');
+
+        return new WP_REST_Response([
+            'events' => $events,
+            'configs' => $configs,
+            'global_secret' => !empty($globalSecret) ? '***' : '',
+            'async_enabled' => !($disableAsync === '1' || $disableAsync === 1 || $disableAsync === true),
+        ], 200);
+    }
+
     #[Endpoint(
         'webhooks/outgoing',
         methods: 'GET',

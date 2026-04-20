@@ -1,4 +1,4 @@
-﻿/* Header / Navbar */
+/* Header / Navbar */
 .site-header {
 	position: relative;
 	top: 0;
@@ -199,18 +199,19 @@
 .primary-navigation {
 	position: fixed;
 	top: 0;
-	left: 0;
-	right: auto;
+	right: 0;
+	left: auto;
 	width: min(30rem, calc(100vw - 3.5rem));
 	height: 100vh;
 	background: var(--color-primary-900);
-	border-right: 2px solid var(--color-primary-800);
+	border-left: 2px solid var(--color-primary-800);
+	border-right: 0;
 	padding-top: var(--site-header-height);
 	display: flex;
 	flex-direction: column;
 	z-index: 999;
 	overflow-y: auto;
-	transform: translateX(-100%);
+	transform: translateX(100%);
 	opacity: 0;
 	visibility: hidden;
 	pointer-events: none;
@@ -245,7 +246,7 @@
 
 .primary-menu__list > li {
 	opacity: 0;
-	transform: translateX(-8px);
+	transform: translateX(8px);
 	transition: transform 0.4s ease, opacity 0.3s ease;
 	border-bottom: 1px solid rgba(255, 255, 255, 0.14);
 	position: relative;
@@ -778,6 +779,8 @@
 		min-width: 2.1rem;
 		min-height: 2.1rem;
 		padding: 0.25rem;
+		order: 3;
+		margin-left: 0.1rem;
 	}
 
 	.menu-toggle__icon,
@@ -789,10 +792,12 @@
 	.site-branding {
 		flex: 1 1 auto;
 		min-width: 0;
+		order: 1;
 	}
 
 	.site-header__meta {
-		margin-left: auto;
+		margin-left: 0;
+		order: 2;
 	}
 
 	.site-header__meta-top {
@@ -920,7 +925,7 @@
 		grid-template-columns: auto minmax(0, 1fr);
 		grid-template-areas:
 			"branding meta"
-			"branding nav";
+			"nav nav";
 		align-items: start;
 		column-gap: 1.5rem;
 		row-gap: 0.32rem;
@@ -931,6 +936,8 @@
 		flex: 0 1 auto;
 		min-width: 0;
 		align-self: center;
+		display: flex;
+		align-items: center;
 	}
 
 	.brand-link {

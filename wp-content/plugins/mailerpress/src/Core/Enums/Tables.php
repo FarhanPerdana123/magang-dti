@@ -98,6 +98,12 @@ class Tables
     }
 
     /**
+     * In-memory cache for table existence checks
+     * @var array<string, bool>
+     */
+    private static array $tableExistsCache = [];
+
+    /**
      * @param mixed $value
      *
      * @return string|void
@@ -111,5 +117,22 @@ class Tables
         }
 
         return '';
+    }
+
+    /**
+     * Check if a table exists with in-memory caching.
+     * Avoids repeated SHOW TABLES LIKE queries within the same request.
+     */
+    public static function exists(string $tableName): bool
+    {
+        if (isset(self::$tableExistsCache[$tableName])) {
+            return self::$tableExistsCache[$tableName];
+        }
+
+        global $wpdb;
+        $result = $wpdb->get_var("SHOW TABLES LIKE '{$tableName}'") === $tableName;
+        self::$tableExistsCache[$tableName] = $result;
+
+        return $result;
     }
 }

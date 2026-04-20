@@ -1,4 +1,4 @@
-﻿/*
+/*
 Theme Name: UGM Faculty Theme
 Theme URI: https://www.ugm.ac.id/
 Author: Farhan Perdana
@@ -96,3 +96,176 @@ Text Domain: ugm-faculty
 		grid-template-columns: repeat(4, minmax(0, 1fr));
 	}
 }
+
+/* ─── Comments ─────────────────────────────────────────────────────────────── */
+
+.ugm-comments__wrapper {
+	max-width: 800px;
+	margin: 2rem auto;
+	padding: 0 1rem;
+}
+
+.ugm-comments__title {
+	font-size: 1.4rem;
+	font-weight: 700;
+	margin-bottom: 1.5rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 2px solid var(--ugm-border, #dfe5ea);
+}
+
+.ugm-comments__closed {
+	color: #6b7280;
+	font-style: italic;
+	margin: 1rem 0;
+}
+
+.ugm-comment-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.ugm-comment-list .comment {
+	padding: 1.25rem 0;
+	border-bottom: 1px solid var(--ugm-border, #dfe5ea);
+}
+
+.ugm-comment-list .comment-meta {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 0.5rem;
+}
+
+.ugm-comment-list .comment-author img {
+	border-radius: 50%;
+}
+
+.ugm-comment-list .comment-author .fn {
+	font-weight: 600;
+}
+
+.ugm-comment-list .comment-metadata {
+	font-size: 0.85rem;
+	color: #6b7280;
+}
+
+.ugm-comment-list .comment-body p {
+	margin: 0.5rem 0;
+	line-height: 1.7;
+}
+
+.ugm-comment-list .reply a {
+	font-size: 0.85rem;
+	color: var(--ugm-accent, #003366);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.ugm-comment-list .reply a:hover {
+	text-decoration: underline;
+}
+
+.ugm-comment-form__title {
+	font-size: 1.4rem;
+	font-weight: 700;
+	margin: 2rem 0 1rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 2px solid var(--ugm-border, #dfe5ea);
+}
+
+.ugm-comment-form__notes {
+	font-size: 0.9rem;
+	color: #6b7280;
+	margin-bottom: 1rem;
+}
+
+.ugm-comment-form .comment-form-comment label,
+.ugm-comment-form .comment-form-author label,
+.ugm-comment-form .comment-form-email label,
+.ugm-comment-form .comment-form-url label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 0.35rem;
+}
+
+.ugm-comment-form input[type="text"],
+.ugm-comment-form input[type="email"],
+.ugm-comment-form input[type="url"],
+.ugm-comment-form textarea {
+	width: 100%;
+	padding: 0.6rem 0.8rem;
+	border: 1px solid #cfd8e1;
+	border-radius: 6px;
+	font-size: 1rem;
+	font-family: inherit;
+	transition: border-color 0.2s;
+}
+
+.ugm-comment-form input[type="text"]:focus,
+.ugm-comment-form input[type="email"]:focus,
+.ugm-comment-form input[type="url"]:focus,
+.ugm-comment-form textarea:focus {
+	outline: none;
+	border-color: var(--ugm-accent, #003366);
+}
+
+.ugm-comment-form textarea {
+	min-height: 140px;
+	resize: vertical;
+}
+
+.ugm-btn.ugm-btn--primary,
+.ugm-comment-form .form-submit .submit {
+	display: inline-block;
+	padding: 0.65rem 1.5rem;
+	background: var(--ugm-accent, #003366);
+	color: #fff;
+	border: none;
+	border-radius: 6px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+.ugm-btn.ugm-btn--primary:hover,
+.ugm-comment-form .form-submit .submit:hover {
+	background: var(--ugm-accent-dark, #002244);
+}
+
+/* ─── Author Profile ─────────────────────────────────────────────────────── */
+
+.ugm-author-profile {
+	display: flex;
+	align-items: flex-start;
+	gap: 1.25rem;
+	margin-bottom: 1.5rem;
+}
+
+.ugm-author-profile__avatar img {
+	width: 80px;
+	height: 80px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+.ugm-author-profile__info {
+	flex: 1;
+}
+
+.ugm-author-profile__bio {
+	color: #4b5563;
+	line-height: 1.7;
+	margin-top: 0.4rem;
+}
+
+/* ─── Archive heading description ───────────────────────────────────────── */
+
+.ugm-archive__description {
+	color: #4b5563;
+	font-size: 1rem;
+	line-height: 1.7;
+	margin: 0.5rem 0 0;
+}
+

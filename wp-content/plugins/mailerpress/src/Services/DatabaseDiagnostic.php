@@ -207,6 +207,29 @@ class DatabaseDiagnostic
                         'column' => $missingCol,
                     ];
                 }
+
+                // Detect extra columns (exist in DB but not in migrations)
+                // Exclude 'id' as it may be added via addColumn() and is always legitimate
+                $extraColumns = array_diff($actualColumns, $expectedStructure['columns']);
+                $result['extra_columns'] = array_values($extraColumns);
+
+                if (!empty($extraColumns)) {
+                    DatabaseRepairLogger::warning(__("Extra columns detected in {$tableName}", 'mailerpress'), [
+                        'extra_columns' => array_values($extraColumns),
+                        'expected' => $expectedStructure['columns'],
+                        'actual' => $actualColumns,
+                    ]);
+
+                    foreach ($extraColumns as $extraCol) {
+                        $result['issues'][] = [
+                            'type' => 'warning',
+                            'table' => $tableName,
+                            'issue' => 'extra_column',
+                            'message' => sprintf(__('Extra column in %s: %s (not defined in any migration)', 'mailerpress'), $tableName, $extraCol),
+                            'column' => $extraCol,
+                        ];
+                    }
+                }
             }
         } catch (\Throwable $e) {
             $result['issues'][] = [
@@ -338,29 +361,20 @@ class DatabaseDiagnostic
             $result['foreign_keys'] = $foreignKeys;
 
             // Compare with the expected foreign keys
-            if (!empty($expectedStructure['foreign_keys'])) {
-                $result['expected_foreign_keys'] = $expectedStructure['foreign_keys'];
-                $actualFKs = [];
-                foreach ($foreignKeys as $fk) {
-                    $actualFKs[] = [
-                        'column' => strtolower($fk['COLUMN_NAME']),
-                        'referenced_table' => str_replace($wpdb->prefix, '', $fk['REFERENCED_TABLE_NAME']),
-                        'referenced_column' => strtolower($fk['REFERENCED_COLUMN_NAME']),
-                    ];
-                }
+            $result['expected_foreign_keys'] = $expectedStructure['foreign_keys'] ?? [];
+            $actualFKs = [];
+            foreach ($foreignKeys as $fk) {
+                $actualFKs[] = [
+                    'column' => strtolower($fk['COLUMN_NAME']),
+                    'referenced_table' => str_replace($wpdb->prefix, '', $fk['REFERENCED_TABLE_NAME']),
+                    'referenced_column' => strtolower($fk['REFERENCED_COLUMN_NAME']),
+                    'constraint_name' => $fk['CONSTRAINT_NAME'],
+                ];
+            }
 
+            // Check for missing foreign keys (expected but not in DB)
+            if (!empty($expectedStructure['foreign_keys'])) {
                 foreach ($expectedStructure['foreign_keys'] as $expectedFK) {
-                    // Skip foreign key checks for contact_id in tracking tables
-                    // These were intentionally removed to allow anonymous tracking (contact_id = 0)
-                    if (
-                        strtolower($expectedFK['column']) === 'contact_id' &&
-                        strtolower($expectedFK['referenced_table']) === 'mailerpress_contact' &&
-                        strtolower($expectedFK['referenced_column']) === 'contact_id' &&
-                        ($tableName === 'mailerpress_email_tracking' || $tableName === 'mailerpress_click_tracking')
-                    ) {
-                        continue; // Skip this foreign key check - it was intentionally removed
-                    }
-                    
                     $fkFound = false;
                     foreach ($actualFKs as $actualFK) {
                         if (
@@ -389,6 +403,74 @@ class DatabaseDiagnostic
                             'foreign_key' => $expectedFK,
                         ];
                     }
+                }
+            }
+
+            // Check for extra foreign keys (in DB but not expected — should have been dropped by a migration)
+            $expectedFKsNormalized = array_map(function ($fk) {
+                return strtolower($fk['column']) . '|' . strtolower($fk['referenced_table']) . '|' . strtolower($fk['referenced_column']);
+            }, $expectedStructure['foreign_keys'] ?? []);
+
+            // Also detect duplicate foreign keys (same column/ref but different constraint names)
+            $seenFKs = [];
+
+            foreach ($actualFKs as $actualFK) {
+                $actualKey = $actualFK['column'] . '|' . $actualFK['referenced_table'] . '|' . $actualFK['referenced_column'];
+
+                if (!in_array($actualKey, $expectedFKsNormalized, true)) {
+                    // FK not expected at all — flag as extra
+                    $result['extra_foreign_keys'][] = $actualFK;
+                    $result['issues'][] = [
+                        'type' => 'warning',
+                        'table' => $tableName,
+                        'issue' => 'extra_foreign_key',
+                        'message' => sprintf(
+                            __('Extra foreign key in %s: %s -> %s.%s (should have been dropped by migration)', 'mailerpress'),
+                            $tableName,
+                            $actualFK['column'],
+                            $actualFK['referenced_table'],
+                            $actualFK['referenced_column']
+                        ),
+                        'foreign_key' => $actualFK,
+                    ];
+
+                    DatabaseRepairLogger::warning(__("Extra foreign key detected in {$tableName}", 'mailerpress'), [
+                        'constraint_name' => $actualFK['constraint_name'],
+                        'column' => $actualFK['column'],
+                        'referenced_table' => $actualFK['referenced_table'],
+                        'referenced_column' => $actualFK['referenced_column'],
+                    ]);
+                } elseif (isset($seenFKs[$actualKey])) {
+                    // FK is expected but we already saw one with the same signature — this is a duplicate
+                    $result['extra_foreign_keys'][] = $actualFK;
+                    $result['issues'][] = [
+                        'type' => 'warning',
+                        'table' => $tableName,
+                        'issue' => 'extra_foreign_key',
+                        'message' => sprintf(
+                            __('Duplicate foreign key in %s: %s -> %s.%s (constraint %s is a duplicate of %s)', 'mailerpress'),
+                            $tableName,
+                            $actualFK['column'],
+                            $actualFK['referenced_table'],
+                            $actualFK['referenced_column'],
+                            $actualFK['constraint_name'],
+                            $seenFKs[$actualKey]
+                        ),
+                        'foreign_key' => $actualFK,
+                    ];
+
+                    DatabaseRepairLogger::warning(__("Duplicate foreign key detected in {$tableName}", 'mailerpress'), [
+                        'constraint_name' => $actualFK['constraint_name'],
+                        'duplicate_of' => $seenFKs[$actualKey],
+                        'column' => $actualFK['column'],
+                        'referenced_table' => $actualFK['referenced_table'],
+                        'referenced_column' => $actualFK['referenced_column'],
+                    ]);
+                }
+
+                // Track the first constraint seen for each FK signature
+                if (!isset($seenFKs[$actualKey])) {
+                    $seenFKs[$actualKey] = $actualFK['constraint_name'];
                 }
             }
         } catch (\Throwable $e) {
@@ -877,6 +959,7 @@ class DatabaseDiagnostic
                 'missing_column' => count(array_filter($diagnostic['issues'], fn($i) => $i['issue'] === 'missing_column')),
                 'missing_index' => count(array_filter($diagnostic['issues'], fn($i) => $i['issue'] === 'missing_index')),
                 'missing_foreign_key' => count(array_filter($diagnostic['issues'], fn($i) => $i['issue'] === 'missing_foreign_key')),
+                'extra_foreign_key' => count(array_filter($diagnostic['issues'], fn($i) => $i['issue'] === 'extra_foreign_key')),
             ],
         ]);
 
@@ -894,6 +977,15 @@ class DatabaseDiagnostic
             'issues_per_table' => array_map('count', $issuesByTable),
         ]);
 
+        // Sort issues within each table: drop extra FKs first (before structural changes), then add columns, drop extras, then indexes, then foreign keys
+        $issueOrder = ['extra_foreign_key' => 0, 'missing_column' => 1, 'extra_column' => 2, 'missing_index' => 3, 'missing_foreign_key' => 4];
+        foreach ($issuesByTable as &$tableIssues) {
+            usort($tableIssues, static function ($a, $b) use ($issueOrder) {
+                return ($issueOrder[$a['issue']] ?? 99) <=> ($issueOrder[$b['issue']] ?? 99);
+            });
+        }
+        unset($tableIssues);
+
         // Treat the problems from the issues directly
         foreach ($issuesByTable as $tableName => $tableIssues) {
             $tableInfo = $diagnostic['tables'][$tableName] ?? null;
@@ -909,7 +1001,46 @@ class DatabaseDiagnostic
 
             foreach ($tableIssues as $issue) {
                 try {
-                    if ($issue['issue'] === 'missing_index' && isset($issue['index'])) {
+                    if ($issue['issue'] === 'extra_foreign_key' && isset($issue['foreign_key'])) {
+                        // Drop a foreign key that should have been removed by a migration
+                        $fk = $issue['foreign_key'];
+                        $constraintName = $fk['constraint_name'];
+
+                        DatabaseRepairLogger::info(__("Dropping extra foreign key: {$constraintName}", 'mailerpress'), [
+                            'table' => $tableName,
+                            'column' => $fk['column'],
+                            'referenced_table' => $fk['referenced_table'],
+                            'referenced_column' => $fk['referenced_column'],
+                        ]);
+
+                        $sql = "ALTER TABLE {$fullTableName} DROP FOREIGN KEY `{$constraintName}`";
+
+                        $wpdb->last_error = '';
+                        $result = $wpdb->query($sql);
+                        $lastError = $wpdb->last_error;
+
+                        if ($result !== false && empty($lastError)) {
+                            $fixed[] = [
+                                'type' => 'drop_foreign_key',
+                                'table' => $tableName,
+                                'constraint_name' => $constraintName,
+                                'column' => $fk['column'],
+                                'referenced_table' => $fk['referenced_table'],
+                            ];
+                            DatabaseRepairLogger::info(__("Foreign key dropped successfully: {$constraintName}", 'mailerpress'));
+                        } else {
+                            DatabaseRepairLogger::error(__("Failed to drop foreign key {$constraintName}", 'mailerpress'), [
+                                'table' => $tableName,
+                                'error' => $lastError,
+                                'sql' => $sql,
+                            ]);
+                            $warnings[] = sprintf(
+                                __('Failed to drop extra foreign key %s: %s', 'mailerpress'),
+                                $constraintName,
+                                $lastError ?: __('Unknown error', 'mailerpress')
+                            );
+                        }
+                    } elseif ($issue['issue'] === 'missing_index' && isset($issue['index'])) {
                         // Repair a missing index
                         $index = $issue['index'];
                         $columns = is_array($index['columns']) ? $index['columns'] : [$index['columns']];
@@ -1225,16 +1356,264 @@ class DatabaseDiagnostic
                             );
                         }
                     } elseif ($issue['issue'] === 'missing_column' && isset($issue['column'])) {
-                        // Missing columns require a migration, we cannot create them automatically
-                        DatabaseRepairLogger::warning(__("Missing column detected: {$tableName}.{$issue['column']}", 'mailerpress'), [
+                        $columnName = $issue['column'];
+
+                        // Check column doesn't already exist
+                        $currentCols = $wpdb->get_col("SHOW COLUMNS FROM {$fullTableName}", 0);
+                        if (in_array($columnName, $currentCols, true)) {
+                            DatabaseRepairLogger::info(__("Column {$columnName} already exists in {$tableName}, skipping", 'mailerpress'));
+                            continue;
+                        }
+
+                        // Look up the column definition from all migrations
+                        $columnDef = $this->getColumnDefinitionFromMigrations($tableName, $columnName);
+
+                        if ($columnDef === null) {
+                            DatabaseRepairLogger::warning(__("Cannot find column definition for {$tableName}.{$columnName} in any migration", 'mailerpress'), [
+                                'table' => $tableName,
+                                'column' => $columnName,
+                            ]);
+                            $warnings[] = sprintf(
+                                __('Missing column: %s.%s (definition not found in migrations)', 'mailerpress'),
+                                $tableName,
+                                $columnName
+                            );
+                            continue;
+                        }
+
+                        $isAutoIncrement = stripos($columnDef, 'AUTO_INCREMENT') !== false;
+
+                        if ($isAutoIncrement) {
+                            // AUTO_INCREMENT column (typically 'id') — needs special PK handling
+                            $existingPK = $wpdb->get_var(
+                                $wpdb->prepare(
+                                    "SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS
+                                     WHERE TABLE_SCHEMA = DATABASE()
+                                     AND TABLE_NAME = %s
+                                     AND CONSTRAINT_TYPE = 'PRIMARY KEY'",
+                                    $fullTableName
+                                )
+                            );
+
+                            if ($existingPK > 0) {
+                                // Drop child FKs that reference this table's PK first
+                                $childFKs = $wpdb->get_results(
+                                    "SELECT kcu.TABLE_NAME AS child_table, kcu.CONSTRAINT_NAME AS fk_name
+                                     FROM information_schema.KEY_COLUMN_USAGE kcu
+                                     JOIN information_schema.TABLE_CONSTRAINTS tc
+                                       ON tc.TABLE_SCHEMA = kcu.TABLE_SCHEMA
+                                      AND tc.TABLE_NAME = kcu.TABLE_NAME
+                                      AND tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME
+                                     WHERE kcu.TABLE_SCHEMA = DATABASE()
+                                       AND kcu.REFERENCED_TABLE_NAME = '{$fullTableName}'
+                                       AND tc.CONSTRAINT_TYPE = 'FOREIGN KEY'",
+                                    ARRAY_A
+                                );
+
+                                if (!empty($childFKs)) {
+                                    DatabaseRepairLogger::info(__("Dropping child foreign keys that reference {$tableName} before PK change", 'mailerpress'), [
+                                        'child_fks' => $childFKs,
+                                    ]);
+                                    foreach ($childFKs as $childFK) {
+                                        $dropSql = "ALTER TABLE `{$childFK['child_table']}` DROP FOREIGN KEY `{$childFK['fk_name']}`";
+                                        $wpdb->query($dropSql);
+                                        DatabaseRepairLogger::info(__("Dropped FK {$childFK['fk_name']} from {$childFK['child_table']}", 'mailerpress'));
+                                    }
+                                }
+
+                                // Get existing PK columns to remove AUTO_INCREMENT before dropping PK
+                                $pkColumns = $wpdb->get_results(
+                                    "SELECT c.COLUMN_NAME, c.COLUMN_TYPE, c.EXTRA
+                                     FROM information_schema.KEY_COLUMN_USAGE kcu
+                                     JOIN information_schema.COLUMNS c
+                                       ON c.TABLE_SCHEMA = kcu.TABLE_SCHEMA
+                                      AND c.TABLE_NAME = kcu.TABLE_NAME
+                                      AND c.COLUMN_NAME = kcu.COLUMN_NAME
+                                     WHERE kcu.TABLE_SCHEMA = DATABASE()
+                                       AND kcu.TABLE_NAME = '{$fullTableName}'
+                                       AND kcu.CONSTRAINT_NAME = 'PRIMARY'",
+                                    ARRAY_A
+                                );
+
+                                $alterParts = [];
+                                foreach ($pkColumns as $pkCol) {
+                                    if (stripos($pkCol['EXTRA'], 'auto_increment') !== false) {
+                                        $alterParts[] = "MODIFY COLUMN `{$pkCol['COLUMN_NAME']}` {$pkCol['COLUMN_TYPE']} NOT NULL";
+                                    }
+                                }
+                                $alterParts[] = 'DROP PRIMARY KEY';
+                                $alterParts[] = "ADD COLUMN `{$columnName}` {$columnDef} FIRST";
+                                $alterParts[] = "ADD PRIMARY KEY (`{$columnName}`)";
+
+                                $sql = "ALTER TABLE {$fullTableName} " . implode(', ', $alterParts);
+                            } else {
+                                $sql = "ALTER TABLE {$fullTableName} ADD COLUMN `{$columnName}` {$columnDef} FIRST, ADD PRIMARY KEY (`{$columnName}`)";
+                            }
+                        } else {
+                            // Regular column — simple ALTER TABLE ADD COLUMN
+                            $sql = "ALTER TABLE {$fullTableName} ADD COLUMN `{$columnName}` {$columnDef}";
+                        }
+
+                        DatabaseRepairLogger::info(__("Attempting to add column {$columnName} to {$tableName}", 'mailerpress'), [
                             'table' => $tableName,
-                            'column' => $issue['column'],
+                            'column' => $columnName,
+                            'sql' => $sql,
                         ]);
-                        $warnings[] = sprintf(
-                            __('Missing column: %s.%s (requires a migration)', 'mailerpress'),
-                            $tableName,
-                            $issue['column']
+
+                        $wpdb->last_error = '';
+                        $result = $wpdb->query($sql);
+                        $lastError = $wpdb->last_error;
+
+                        if ($result !== false && empty($lastError)) {
+                            $newCols = $wpdb->get_col("SHOW COLUMNS FROM {$fullTableName}", 0);
+                            if (in_array($columnName, $newCols, true)) {
+                                $fixed[] = [
+                                    'type' => 'column',
+                                    'table' => $tableName,
+                                    'column' => $columnName,
+                                ];
+                                DatabaseRepairLogger::info(__("Column {$columnName} added successfully to {$tableName}", 'mailerpress'));
+                            } else {
+                                $warnings[] = sprintf(
+                                    __('Column %s added to %s but not found during verification', 'mailerpress'),
+                                    $columnName,
+                                    $tableName
+                                );
+                            }
+                        } else {
+                            DatabaseRepairLogger::error(__("Failed to add column {$columnName} to {$tableName}", 'mailerpress'), [
+                                'table' => $tableName,
+                                'column' => $columnName,
+                                'error' => $lastError,
+                                'sql' => $sql,
+                            ]);
+                            $warnings[] = sprintf(
+                                __('Error adding column %s to %s: %s', 'mailerpress'),
+                                $columnName,
+                                $tableName,
+                                $lastError ?: __('Unknown error', 'mailerpress')
+                            );
+                        }
+                    } elseif ($issue['issue'] === 'extra_column' && isset($issue['column'])) {
+                        // Drop a column that exists in DB but not in any migration
+                        $columnName = $issue['column'];
+
+                        // Safety: never drop 'id' column
+                        if ($columnName === 'id') {
+                            DatabaseRepairLogger::info(__("Skipping drop of 'id' column in {$tableName} (safety check)", 'mailerpress'));
+                            continue;
+                        }
+
+                        // Check column still exists
+                        $currentCols = $wpdb->get_col("SHOW COLUMNS FROM {$fullTableName}", 0);
+                        if (!in_array($columnName, $currentCols, true)) {
+                            DatabaseRepairLogger::info(__("Extra column {$columnName} already gone from {$tableName}, skipping", 'mailerpress'));
+                            continue;
+                        }
+
+                        // Step 1: Drop any foreign keys ON this column (from this table)
+                        $fksOnColumn = $wpdb->get_results(
+                            $wpdb->prepare(
+                                "SELECT CONSTRAINT_NAME
+                                 FROM information_schema.KEY_COLUMN_USAGE
+                                 WHERE TABLE_SCHEMA = DATABASE()
+                                 AND TABLE_NAME = %s
+                                 AND COLUMN_NAME = %s
+                                 AND REFERENCED_TABLE_NAME IS NOT NULL",
+                                $fullTableName,
+                                $columnName
+                            ),
+                            ARRAY_A
                         );
+
+                        foreach ($fksOnColumn as $fk) {
+                            $dropFkSql = "ALTER TABLE {$fullTableName} DROP FOREIGN KEY `{$fk['CONSTRAINT_NAME']}`";
+                            $wpdb->query($dropFkSql);
+                            DatabaseRepairLogger::info(__("Dropped FK {$fk['CONSTRAINT_NAME']} on column {$columnName} before dropping column", 'mailerpress'));
+                        }
+
+                        // Step 2: Drop any foreign keys from OTHER tables that reference this column
+                        $childFks = $wpdb->get_results(
+                            $wpdb->prepare(
+                                "SELECT kcu.TABLE_NAME AS child_table, kcu.CONSTRAINT_NAME AS fk_name
+                                 FROM information_schema.KEY_COLUMN_USAGE kcu
+                                 JOIN information_schema.TABLE_CONSTRAINTS tc
+                                   ON tc.TABLE_SCHEMA = kcu.TABLE_SCHEMA
+                                  AND tc.TABLE_NAME = kcu.TABLE_NAME
+                                  AND tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME
+                                 WHERE kcu.TABLE_SCHEMA = DATABASE()
+                                   AND kcu.REFERENCED_TABLE_NAME = %s
+                                   AND kcu.REFERENCED_COLUMN_NAME = %s
+                                   AND tc.CONSTRAINT_TYPE = 'FOREIGN KEY'",
+                                $fullTableName,
+                                $columnName
+                            ),
+                            ARRAY_A
+                        );
+
+                        foreach ($childFks as $childFk) {
+                            $dropFkSql = "ALTER TABLE `{$childFk['child_table']}` DROP FOREIGN KEY `{$childFk['fk_name']}`";
+                            $wpdb->query($dropFkSql);
+                            DatabaseRepairLogger::info(__("Dropped child FK {$childFk['fk_name']} from {$childFk['child_table']} referencing {$columnName}", 'mailerpress'));
+                        }
+
+                        // Step 3: Drop any indexes on this column (except PRIMARY)
+                        $indexesOnColumn = $wpdb->get_results(
+                            "SHOW INDEX FROM {$fullTableName} WHERE Column_name = '{$columnName}'",
+                            ARRAY_A
+                        );
+                        $droppedIndexes = [];
+                        foreach ($indexesOnColumn as $idx) {
+                            if ($idx['Key_name'] !== 'PRIMARY' && !in_array($idx['Key_name'], $droppedIndexes, true)) {
+                                $dropIdxSql = "ALTER TABLE {$fullTableName} DROP INDEX `{$idx['Key_name']}`";
+                                $wpdb->query($dropIdxSql);
+                                $droppedIndexes[] = $idx['Key_name'];
+                                DatabaseRepairLogger::info(__("Dropped index {$idx['Key_name']} on column {$columnName} before dropping column", 'mailerpress'));
+                            }
+                        }
+
+                        // Step 4: Drop the column
+                        $sql = "ALTER TABLE {$fullTableName} DROP COLUMN `{$columnName}`";
+                        DatabaseRepairLogger::info(__("Attempting to drop extra column {$columnName} from {$tableName}", 'mailerpress'), [
+                            'table' => $tableName,
+                            'column' => $columnName,
+                            'sql' => $sql,
+                        ]);
+
+                        $wpdb->last_error = '';
+                        $result = $wpdb->query($sql);
+                        $lastError = $wpdb->last_error;
+
+                        if ($result !== false && empty($lastError)) {
+                            $newCols = $wpdb->get_col("SHOW COLUMNS FROM {$fullTableName}", 0);
+                            if (!in_array($columnName, $newCols, true)) {
+                                $fixed[] = [
+                                    'type' => 'dropped_column',
+                                    'table' => $tableName,
+                                    'column' => $columnName,
+                                ];
+                                DatabaseRepairLogger::info(__("Extra column {$columnName} dropped successfully from {$tableName}", 'mailerpress'));
+                            } else {
+                                $warnings[] = sprintf(
+                                    __('Column %s drop executed on %s but column still exists', 'mailerpress'),
+                                    $columnName,
+                                    $tableName
+                                );
+                            }
+                        } else {
+                            DatabaseRepairLogger::error(__("Failed to drop extra column {$columnName} from {$tableName}", 'mailerpress'), [
+                                'table' => $tableName,
+                                'column' => $columnName,
+                                'error' => $lastError,
+                                'sql' => $sql,
+                            ]);
+                            $warnings[] = sprintf(
+                                __('Error dropping column %s from %s: %s', 'mailerpress'),
+                                $columnName,
+                                $tableName,
+                                $lastError ?: __('Unknown error', 'mailerpress')
+                            );
+                        }
                     }
                 } catch (\Throwable $e) {
                     DatabaseRepairLogger::exception($e, [
@@ -1262,9 +1641,96 @@ class DatabaseDiagnostic
     }
 
     /**
+     * Get the SQL definition of a column by replaying all migrations.
+     * Returns the full SQL type definition (e.g. "BIGINT(20) UNSIGNED NULL") or null if not found.
+     */
+    protected function getColumnDefinitionFromMigrations(string $tableName, string $columnName): ?string
+    {
+        global $wpdb;
+        $fullTableName = Tables::get($tableName);
+
+        $files = glob($this->migrationPath . '/*.php');
+        if ($files === false) {
+            return null;
+        }
+
+        sort($files);
+
+        $lastDefinition = null;
+        $wasDropped = false;
+
+        foreach ($files as $file) {
+            if (!file_exists($file)) {
+                continue;
+            }
+
+            try {
+                $schema = new SchemaBuilder();
+                $migration = require $file;
+
+                if (!is_callable($migration)) {
+                    continue;
+                }
+
+                $migration($schema);
+
+                $reflection = new \ReflectionClass($schema);
+                $operationsProperty = $reflection->getProperty('operations');
+                $operationsProperty->setAccessible(true);
+                $operations = $operationsProperty->getValue($schema);
+
+                foreach ($operations as $op) {
+                    $manager = $op['manager'];
+                    if ($manager->getTableName() !== $fullTableName) {
+                        continue;
+                    }
+
+                    $managerReflection = new \ReflectionClass($manager);
+
+                    // Check if this migration drops the column
+                    $columnsToDropProperty = $managerReflection->getProperty('columnsToDrop');
+                    $columnsToDropProperty->setAccessible(true);
+                    $columnsToDrop = $columnsToDropProperty->getValue($manager);
+
+                    if (in_array($columnName, $columnsToDrop, true)) {
+                        $lastDefinition = null;
+                        $wasDropped = true;
+                    }
+
+                    // Check columnBuilders (most columns)
+                    $columnBuildersProperty = $managerReflection->getProperty('columnBuilders');
+                    $columnBuildersProperty->setAccessible(true);
+                    $columnBuilders = $columnBuildersProperty->getValue($manager);
+
+                    foreach ($columnBuilders as $builder) {
+                        if ($builder->getName() === $columnName) {
+                            $lastDefinition = $builder->getSQL();
+                            $wasDropped = false;
+                        }
+                    }
+
+                    // Check columns (addColumn / id())
+                    $columnsProperty = $managerReflection->getProperty('columns');
+                    $columnsProperty->setAccessible(true);
+                    $columns = $columnsProperty->getValue($manager);
+
+                    if (isset($columns[$columnName])) {
+                        $lastDefinition = $columns[$columnName];
+                        $wasDropped = false;
+                    }
+                }
+            } catch (\Throwable $e) {
+                continue;
+            }
+        }
+
+        return $lastDefinition;
+    }
+
+    /**
      * Clean orphan records that reference non-existent parent records
      * This is necessary before creating foreign keys
-     * 
+     *
      * @return int Number of orphan records cleaned
      */
     protected function cleanOrphanRecords(

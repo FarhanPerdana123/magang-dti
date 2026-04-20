@@ -366,22 +366,26 @@ function mailerpress_get_page(string $context): string
 
     switch ($context) {
         case 'unsub_page':
-            if (empty($setting) || !isset($setting['unsubpage']) || $setting['unsubpage']['useDefault'] ?? true) {
+            $unsub_page_id = (int) ( $setting['unsubpage']['pageId'] ?? 0 );
+            if ( empty($setting) || !isset($setting['unsubpage']) || ( $setting['unsubpage']['useDefault'] ?? true ) || $unsub_page_id <= 0 ) {
                 return home_url('?mailpress-pages=mailerpress&action=confirm_unsubscribe');
             } else {
-                return sprintf(
-                    '%s?action=confirm_unsubscribe',
-                    get_the_permalink((int)($setting['unsubpage']['pageId'] ?? 0))
-                );
+                $permalink = get_the_permalink( $unsub_page_id );
+                if ( empty( $permalink ) || false === $permalink ) {
+                    return home_url('?mailpress-pages=mailerpress&action=confirm_unsubscribe');
+                }
+                return sprintf( '%s?action=confirm_unsubscribe', $permalink );
             }
         case 'manage_page':
-            if (empty($setting) || !isset($setting['subpage']) || $setting['subpage']['useDefault'] ?? true) {
+            $manage_page_id = (int) ( $setting['subpage']['pageId'] ?? 0 );
+            if ( empty($setting) || !isset($setting['subpage']) || ( $setting['subpage']['useDefault'] ?? true ) || $manage_page_id <= 0 ) {
                 return home_url('?mailpress-pages=mailerpress&action=manage');
             } else {
-                return sprintf(
-                    '%s?action=manage',
-                    get_the_permalink((int)($setting['subpage']['pageId'] ?? 0))
-                );
+                $permalink = get_the_permalink( $manage_page_id );
+                if ( empty( $permalink ) || false === $permalink ) {
+                    return home_url('?mailpress-pages=mailerpress&action=manage');
+                }
+                return sprintf( '%s?action=manage', $permalink );
             }
     }
 

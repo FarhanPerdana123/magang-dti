@@ -67,7 +67,7 @@ class QueueManager
         $data = $jobInstance->getData();
 
         // Check if table exists before inserting
-        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '{$this->tableName}'") === $this->tableName;
+        $table_exists = Tables::exists($this->tableName);
         if (!$table_exists) {
             throw new \RuntimeException("Queue table {$this->tableName} does not exist. Please run migrations.");
         }
@@ -111,7 +111,7 @@ class QueueManager
         global $wpdb;
 
         // Check if table exists before querying
-        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '{$this->tableName}'") === $this->tableName;
+        $table_exists = Tables::exists($this->tableName);
         if (!$table_exists) {
             return null;
         }
@@ -134,7 +134,7 @@ class QueueManager
         global $wpdb;
 
         // Check if table exists before querying
-        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '{$this->tableName}'") === $this->tableName;
+        $table_exists = Tables::exists($this->tableName);
         if (!$table_exists) {
             // Table doesn't exist yet, return null
             // This can happen during initial installation before migrations run
@@ -177,7 +177,7 @@ class QueueManager
     
         
         // Check if table exists before processing
-        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '{$this->tableName}'") === $this->tableName;
+        $table_exists = Tables::exists($this->tableName);
         if (!$table_exists) {
             // Table doesn't exist yet, skip processing
             return;
@@ -233,7 +233,7 @@ class QueueManager
         global $wpdb;
         
         // Check if table exists before deleting
-        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '{$this->tableName}'") === $this->tableName;
+        $table_exists = Tables::exists($this->tableName);
         if (!$table_exists) {
             return;
         }
@@ -269,7 +269,7 @@ class QueueManager
         global $wpdb;
 
         // Check if table exists before querying
-        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '{$this->tableName}'") === $this->tableName;
+        $table_exists = Tables::exists($this->tableName);
         if (!$table_exists) {
             return;
         }

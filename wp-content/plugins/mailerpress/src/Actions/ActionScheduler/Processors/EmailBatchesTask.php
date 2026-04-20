@@ -50,7 +50,7 @@ class EmailBatchesTask
             "SELECT id, sender_name, sender_to, subject, campaign_id
          FROM {$tableBatch}
          WHERE status IN ('pending', 'in_progress')
-         AND (scheduled_at IS NULL OR scheduled_at <= NOW())"
+         AND (scheduled_at IS NULL OR scheduled_at <= UTC_TIMESTAMP())"
         );
 
         if (!empty($batches)) {

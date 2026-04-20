@@ -48,10 +48,23 @@ class Activation
      */
     private function addDefaultPage(): void
     {
+        $cptSlug = Kernel::getContainer()->get('cpt-page-slug');
+
+        $existing = get_posts([
+            'post_type'      => $cptSlug,
+            'post_status'    => 'publish',
+            'name'           => 'mailerpress',
+            'posts_per_page' => 1,
+        ]);
+
+        if (!empty($existing)) {
+            return;
+        }
+
         wp_insert_post([
-            'post_type' => Kernel::getContainer()->get('cpt-page-slug'),
-            'post_status' => 'publish',
-            'post_title' => 'Mailerpress',
+            'post_type'    => $cptSlug,
+            'post_status'  => 'publish',
+            'post_title'   => 'Mailerpress',
             'post_content' => '[mailerpress_pages]',
         ]);
     }

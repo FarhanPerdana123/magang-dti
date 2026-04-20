@@ -237,7 +237,8 @@ class Options
         }
         $optionName = sanitize_key($optionName);
 
-        if (!str_starts_with($optionName, 'mailerpress_') && !str_starts_with($optionName, 'mailerpress-')) {
+        $allowedOptions = ['woocommerce_mailerpress_settings', 'pmpro_mailerpress_settings'];
+        if (!str_starts_with($optionName, 'mailerpress_') && !str_starts_with($optionName, 'mailerpress-') && !in_array($optionName, $allowedOptions, true)) {
             return new \WP_Error('forbidden_option', 'Only mailerpress options can be modified.', ['status' => 403]);
         }
 
@@ -284,7 +285,8 @@ class Options
     {
         $option_name = $request->get_param('name');
 
-        if (!str_starts_with($option_name, 'mailerpress_') && !str_starts_with($option_name, 'mailerpress-')) {
+        $allowedOptions = ['woocommerce_mailerpress_settings', 'pmpro_mailerpress_settings'];
+        if (!str_starts_with($option_name, 'mailerpress_') && !str_starts_with($option_name, 'mailerpress-') && !in_array($option_name, $allowedOptions, true)) {
             return new WP_Error('forbidden_option', 'Only mailerpress options can be read.', ['status' => 403]);
         }
 
@@ -314,7 +316,8 @@ class Options
 
         $optionName = sanitize_key($optionName);
 
-        if (!str_starts_with($optionName, 'mailerpress_') && !str_starts_with($optionName, 'mailerpress-')) {
+        $allowedOptions = ['woocommerce_mailerpress_settings', 'pmpro_mailerpress_settings'];
+        if (!str_starts_with($optionName, 'mailerpress_') && !str_starts_with($optionName, 'mailerpress-') && !in_array($optionName, $allowedOptions, true)) {
             return new \WP_Error('forbidden_option', 'Only mailerpress options can be deleted.', ['status' => 403]);
         }
 

@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-use MailerPress\Core\Tables;
+use MailerPress\Core\Enums\Tables;
 
 class CustomFields
 {
@@ -33,9 +33,8 @@ class CustomFields
 
         global $wpdb;
 
-        // Check if table exists before querying
-        $tableExists = $wpdb->get_var("SHOW TABLES LIKE '{$this->table}'") === $this->table;
-        if (!$tableExists) {
+        // Check if table exists before querying (cached in memory)
+        if (!Tables::exists($this->table)) {
             self::$cache = [];
             return [];
         }
@@ -74,10 +73,9 @@ class CustomFields
     {
         global $wpdb;
 
-        // Check if table exists before querying
-        $tableExists = $wpdb->get_var("SHOW TABLES LIKE '{$this->table}'") === $this->table;
-        if (!$tableExists) {
-            return null; // Table doesn't exist yet, return null
+        // Check if table exists before querying (cached in memory)
+        if (!Tables::exists($this->table)) {
+            return null;
         }
 
         $field = $wpdb->get_row(

@@ -114,9 +114,20 @@ class MigrationValidator
         // Get actual columns from database
         $actualColumns = $wpdb->get_col("SHOW COLUMNS FROM {$tableName}", 0);
 
-        // Check if all expected columns exist
+        // Check if all expected columns exist (from columnBuilders)
         foreach ($columnBuilders as $builder) {
             $columnName = $builder->getName();
+            if (!in_array($columnName, $actualColumns, true)) {
+                return false;
+            }
+        }
+
+        // Also check columns added via addColumn() / id() which populate $this->columns directly
+        $columnsProperty = $reflection->getProperty('columns');
+        $columnsProperty->setAccessible(true);
+        $simpleColumns = $columnsProperty->getValue($manager);
+
+        foreach (array_keys($simpleColumns) as $columnName) {
             if (!in_array($columnName, $actualColumns, true)) {
                 return false;
             }
@@ -127,7 +138,7 @@ class MigrationValidator
         $versionProperty->setAccessible(true);
         $expectedVersion = $versionProperty->getValue($manager);
 
-        if ($expectedVersion && $expectedVersion !== '1.5.3') {
+        if ($expectedVersion && $expectedVersion !== '1.5.4') {
             $versionOptionName = 'custom_table_' . sanitize_key(str_replace($wpdb->prefix, '', $tableName)) . '_version';
             $actualVersion = get_option($versionOptionName);
 

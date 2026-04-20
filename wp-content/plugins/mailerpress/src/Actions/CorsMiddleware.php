@@ -21,6 +21,9 @@ class CorsMiddleware
 
         // Add custom CORS headers
         add_filter('rest_pre_serve_request', [$this, 'customCorsHeaders'], 15);
+
+        // Prevent reverse proxies (Varnish, Nginx, CDNs) from caching MailerPress REST responses
+        add_filter('rest_post_dispatch', [$this, 'addNoCacheHeaders'], 10, 3);
     }
 
     /**
@@ -33,6 +36,30 @@ class CorsMiddleware
     {
         // Handle OPTIONS preflight requests early
         $this->handlePreflight();
+    }
+
+    /**
+     * Add no-cache headers to all MailerPress REST responses so reverse proxies
+     * (Varnish, Nginx caches, CDNs) never store them.
+     *
+     * @param \WP_HTTP_Response $result
+     * @param \WP_REST_Server   $server
+     * @param \WP_REST_Request  $request
+     * @return \WP_HTTP_Response
+     */
+    public function addNoCacheHeaders(\WP_HTTP_Response $result, \WP_REST_Server $server, \WP_REST_Request $request): \WP_HTTP_Response
+    {
+        if (strpos($request->get_route(), '/mailerpress/') === false) {
+            return $result;
+        }
+
+        if ($result instanceof \WP_REST_Response) {
+            $result->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+            $result->header('Pragma', 'no-cache');
+            $result->header('Expires', '0');
+        }
+
+        return $result;
     }
 
     /**

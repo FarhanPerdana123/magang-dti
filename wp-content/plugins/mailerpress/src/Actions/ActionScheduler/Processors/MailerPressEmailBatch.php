@@ -7,6 +7,7 @@ use DI\NotFoundException;
 use MailerPress\Core\Attributes\Action;
 use MailerPress\Core\DynamicPostRenderer;
 use MailerPress\Core\Enums\Tables;
+use MailerPress\Core\HtmlParser;
 use MailerPress\Core\Interfaces\ContactFetcherInterface;
 use MailerPress\Core\Kernel;
 use MailerPress\Models\Contacts;
@@ -250,16 +251,57 @@ class MailerPressEmailBatch
 
 
 
+                        $parser = Kernel::getContainer()->get(HtmlParser::class);
                         $payload = [
                             'wp_batch_id' => $batch_id,
                             'domain_id' => $servicesData['services']['mailerpress']['conf']['domain'],
                             'name' => $subject,
-                            'emails' => array_map(function ($c) use ($htmlContent, $subject) {
+                            'emails' => array_map(function ($c) use ($htmlContent, $subject, $batch_id, $post, $parser, $openTracking, $clickTracking) {
                                 $contact = Kernel::getContainer()->get(Contacts::class)->get($c);
+
+                                $trackContactId = ('anonymously' === $openTracking) ? 0 : (int) $contact->contact_id;
+                                $contact_variables = [
+                                    'CONTACT_ID'  => (int) $contact->contact_id,
+                                    'CAMPAIGN_ID' => (int) $post,
+                                    'UNSUB_LINK'  => wp_unslash( sprintf(
+                                        '%s&data=%s&cid=%s&batchId=%s',
+                                        mailerpress_get_page( 'unsub_page' ),
+                                        esc_attr( $contact->unsubscribe_token ),
+                                        esc_attr( $contact->access_token ),
+                                        $batch_id
+                                    ) ),
+                                    'MANAGE_SUB_LINK' => wp_unslash( sprintf(
+                                        '%s&cid=%s',
+                                        mailerpress_get_page( 'manage_page' ),
+                                        esc_attr( $contact->access_token )
+                                    ) ),
+                                    'CONTACT_NAME'        => esc_html( $contact->first_name ) . ' ' . esc_html( $contact->last_name ),
+                                    'contact_name'        => esc_html( $contact->first_name ) . ' ' . esc_html( $contact->last_name ),
+                                    'contact_email'       => esc_html( $contact->email ),
+                                    'contact_first_name'  => esc_html( $contact->first_name ),
+                                    'contact_last_name'   => esc_html( $contact->last_name ),
+                                ];
+
+                                if ( 'no' !== $openTracking ) {
+                                    $contact_variables['TRACK_OPEN'] = get_rest_url(
+                                        null,
+                                        sprintf(
+                                            'mailerpress/v1/campaign/track-open?token=%s',
+                                            HtmlParser::generateTrackOpenToken(
+                                                $trackContactId,
+                                                (int) $post,
+                                                (int) $batch_id
+                                            )
+                                        )
+                                    );
+                                }
+
+                                $body = $parser->init( $htmlContent, $contact_variables )->replaceVariables( $clickTracking );
+
                                 return [
-                                    'to' => $contact->email,
+                                    'to'      => $contact->email,
                                     'subject' => $subject,
-                                    'body' => $htmlContent,
+                                    'body'    => $body,
                                 ];
                             }, $sendingChunk),
                         ];
@@ -429,13 +471,16 @@ class MailerPressEmailBatch
     }
 
     /**
-     * Convert scheduled_at string (WP timezone) to Unix timestamp.
+     * Convert scheduled_at string to Unix timestamp.
+     * The value is expected in UTC (stored that way since createBatchV2 passes UTC).
+     * Falls back to WP timezone interpretation for backward compatibility with
+     * any batches created before the UTC fix.
      */
     private function convert_scheduled_at_to_timestamp(string $scheduledAt): int
     {
-        $tz = function_exists('wp_timezone') ? wp_timezone() : new \DateTimeZone(wp_timezone_string());
         try {
-            $dt = new \DateTime($scheduledAt, $tz);
+            // Try UTC first (new behavior: createBatchV2 passes UTC)
+            $dt = new \DateTime($scheduledAt, new \DateTimeZone('UTC'));
             return $dt->getTimestamp();
         } catch (\Exception $e) {
             // fallback to current time if parsing fails

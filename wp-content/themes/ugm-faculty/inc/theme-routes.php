@@ -37,7 +37,7 @@ function ugm_route_latest_news_template( $template ) {
 		return $template;
 	}
 
-	$latest_news_template = get_theme_file_path( 'templates/latest-news.php' );
+	$latest_news_template = get_theme_file_path( 'page-templates/latest-news.php' );
 
 	if ( file_exists( $latest_news_template ) ) {
 		return $latest_news_template;
@@ -62,7 +62,7 @@ function ugm_route_magazine_news_template( $template ) {
 		return $template;
 	}
 
-	$magazine_template = get_theme_file_path( 'templates/magazine-news.php' );
+	$magazine_template = get_theme_file_path( 'page-templates/magazine-news.php' );
 
 	if ( file_exists( $magazine_template ) ) {
 		return $magazine_template;

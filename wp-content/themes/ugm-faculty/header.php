@@ -11,8 +11,11 @@
 
 $faculty_whatsapp = trim( (string) get_theme_mod( 'ugm_faculty_whatsapp', '+628112869988' ) );
 $faculty_phone    = trim( (string) get_theme_mod( 'ugm_faculty_phone', '+62(274)588688' ) );
+$header_email     = sanitize_email( (string) get_theme_mod( 'ugm_header_contact_email', 'info@ugm.ac.id' ) );
+$header_phone     = trim( (string) get_theme_mod( 'ugm_header_contact_phone', $faculty_phone ) );
+$header_whatsapp  = trim( (string) get_theme_mod( 'ugm_header_contact_whatsapp', $faculty_whatsapp ) );
 
-$cs_number_raw = '' !== $faculty_whatsapp ? $faculty_whatsapp : $faculty_phone;
+$cs_number_raw = '' !== $header_whatsapp ? $header_whatsapp : $header_phone;
 $cs_digits     = preg_replace( '/[^0-9]/', '', $cs_number_raw );
 
 if ( '' !== $cs_digits && '0' === substr( $cs_digits, 0, 1 ) ) {
@@ -30,38 +33,38 @@ $header_social_icons    = array(
 	array(
 		'label' => __( 'Instagram', 'ugm-faculty' ),
 		'file'  => 'Component Instagram.png',
-		'url'   => 'https://www.instagram.com/',
+		'url'   => get_theme_mod( 'ugm_social_instagram_url', 'https://www.instagram.com/' ),
 	),
 	array(
 		'label' => __( 'YouTube', 'ugm-faculty' ),
 		'file'  => 'Component YouTube.png',
-		'url'   => 'https://www.youtube.com/',
+		'url'   => get_theme_mod( 'ugm_social_youtube_url', 'https://www.youtube.com/' ),
 	),
 	array(
 		'label' => __( 'Facebook', 'ugm-faculty' ),
 		'file'  => 'Component Facebook.png',
-		'url'   => 'https://www.facebook.com/',
+		'url'   => get_theme_mod( 'ugm_social_facebook_url', 'https://www.facebook.com/' ),
 	),
 	array(
 		'label' => __( 'X', 'ugm-faculty' ),
 		'file'  => 'Component Twitter.png',
-		'url'   => 'https://x.com/',
+		'url'   => get_theme_mod( 'ugm_social_x_url', 'https://x.com/' ),
 	),
 	array(
 		'label' => __( 'LinkedIn', 'ugm-faculty' ),
 		'file'  => 'Component LinkedIn.png',
-		'url'   => 'https://www.linkedin.com/',
+		'url'   => get_theme_mod( 'ugm_social_linkedin_url', 'https://www.linkedin.com/' ),
 	),
 	array(
 		'label' => __( 'TikTok', 'ugm-faculty' ),
 		'file'  => 'Component TikTok.png',
-		'url'   => 'https://www.tiktok.com/',
+		'url'   => get_theme_mod( 'ugm_social_tiktok_url', 'https://www.tiktok.com/' ),
 	),
 );
 $header_quick_links     = array(
 	array(
 		'label' => __( 'Email', 'ugm-faculty' ),
-		'url'   => 'mailto:info@ugm.ac.id',
+		'url'   => '' !== $header_email ? 'mailto:' . $header_email : 'mailto:info@ugm.ac.id',
 	),
 	array(
 		'label' => __( 'Perpustakaan', 'ugm-faculty' ),
@@ -81,8 +84,8 @@ $header_quick_links     = array(
 	),
 );
 
-if ( '' === $cs_link && '' !== $faculty_phone ) {
-	$cs_link   = 'tel:' . preg_replace( '/[^0-9+]/', '', $faculty_phone );
+if ( '' === $cs_link && '' !== $header_phone ) {
+	$cs_link   = 'tel:' . preg_replace( '/[^0-9+]/', '', $header_phone );
 	$cs_target = '';
 	$cs_rel    = '';
 }
@@ -107,7 +110,7 @@ if ( '' === $cs_link && '' !== $faculty_phone ) {
 				<span class="screen-reader-text"><?php esc_html_e( 'Menu', 'ugm-faculty' ); ?></span>
 			</button>
 
-			<?php get_template_part( 'parts/header/site-branding' ); ?>
+			<?php get_template_part( 'template-parts/header/site-branding' ); ?>
 
 			<div class="site-header__meta">
 				<div class="site-header__meta-top">
@@ -115,14 +118,16 @@ if ( '' === $cs_link && '' !== $faculty_phone ) {
 						<?php foreach ( $header_social_icons as $social_icon ) : ?>
 							<?php
 							$icon_path = get_theme_file_path( 'assets/images/' . $social_icon['file'] );
-							if ( ! file_exists( $icon_path ) ) {
+							$social_url = esc_url( (string) $social_icon['url'] );
+
+							if ( ! file_exists( $icon_path ) || '' === $social_url ) {
 								continue;
 							}
 							?>
 							<li class="site-header__social-item">
 								<a
 									class="site-header__social-link"
-									href="<?php echo esc_url( $social_icon['url'] ); ?>"
+									href="<?php echo esc_url( $social_url ); ?>"
 									target="_blank"
 									rel="noopener noreferrer"
 									aria-label="<?php echo esc_attr( $social_icon['label'] ); ?>"
@@ -140,8 +145,8 @@ if ( '' === $cs_link && '' !== $faculty_phone ) {
 					</ul>
 
 					<div class="site-header__actions">
-						<?php get_template_part( 'parts/header/language-switcher' ); ?>
-						<?php get_template_part( 'parts/header/search' ); ?>
+						<?php get_template_part( 'template-parts/header/language-switcher' ); ?>
+						<?php get_template_part( 'template-parts/header/search' ); ?>
 					</div>
 				</div>
 
@@ -180,7 +185,7 @@ if ( '' === $cs_link && '' !== $faculty_phone ) {
 				</nav>
 			</div>
 
-			<?php get_template_part( 'parts/header/navigation' ); ?>
+			<?php get_template_part( 'template-parts/header/navigation' ); ?>
 
 			<div id="header-search-form" class="header-search__panel" hidden>
 				<button class="header-search__close" type="button" aria-label="<?php esc_attr_e( 'Close search', 'ugm-faculty' ); ?>">&times;</button>
@@ -206,7 +211,7 @@ if ( '' === $cs_link && '' !== $faculty_phone ) {
 	<?php endif; ?>
 
 	<?php if ( $is_front_landing ) : ?>
-		<?php get_template_part( 'parts/content/hero' ); ?>
+		<?php get_template_part( 'template-parts/content/hero' ); ?>
 	<?php endif; ?>
 
 	<div id="content" class="site-content">

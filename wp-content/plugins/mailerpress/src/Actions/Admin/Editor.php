@@ -81,7 +81,7 @@ class Editor
             if (!is_array($userPreferences)) {
                 $userPreferences = [];
             }
-            $pages = get_pages();
+            $pages = get_pages(['number' => 100, 'sort_column' => 'post_title']);
             $globalTypographySettings = get_option('mailerpress_global_typography');
             // Ensure it's an array if it exists
             if ($globalTypographySettings && is_string($globalTypographySettings)) {
@@ -189,7 +189,6 @@ Thank you,
                 ],
                 'currentUser' => wp_get_current_user()->ID,
                 'typography' => $globalTypographySettings ?: '',
-                'dbCheckEnabled' => defined('MAILERPRESS_DB_CHECK') && constant('MAILERPRESS_DB_CHECK') === true,
             ]);
         }
 
@@ -211,7 +210,6 @@ Thank you,
             'pluginInited' => $this->checkPluginInit(),
             'isPro' => is_plugin_active('mailerpress-pro/mailerpress-pro.php'),
             'isProPresent' => file_exists(WP_PLUGIN_DIR . '/mailerpress-pro/mailerpress-pro.php'),
-            'dbCheckEnabled' => defined('MAILERPRESS_DB_CHECK') && constant('MAILERPRESS_DB_CHECK') === true,
         ];
 
         // Enregistrer un script minimal pour rendre jsVars disponible globalement

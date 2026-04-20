@@ -450,7 +450,7 @@ class ProcessChunkImportContact
             foreach ($nextChunks as $chunk) {
                 // Check if action is already scheduled
                 if (function_exists('as_has_scheduled_action')) {
-                    $alreadyScheduled = as_has_scheduled_action('process_import_chunk', [$chunk->id]);
+                    $alreadyScheduled = as_has_scheduled_action('process_import_chunk', [$chunk->id, false]);
 
                     if (!$alreadyScheduled && function_exists('as_schedule_single_action')) {
                         // Schedule with staggered delay
@@ -500,13 +500,14 @@ class ProcessChunkImportContact
                     $wpdb->update($importChunks, [
                         'processed' => 0,
                         'retry_count' => $retry_count + 1,
-                        'error_message' => 'Stale chunk - processing timeout'
+                        'error_message' => 'Stale chunk - processing timeout',
+                        'processing_started_at' => null,
                     ], ['id' => $chunk->id]);
 
                     // Schedule for immediate processing
                     if (function_exists('as_schedule_single_action')) {
                         $alreadyScheduled = function_exists('as_has_scheduled_action')
-                            ? as_has_scheduled_action('process_import_chunk', [$chunk->id])
+                            ? as_has_scheduled_action('process_import_chunk', [$chunk->id, false])
                             : false;
 
                         if (!$alreadyScheduled) {

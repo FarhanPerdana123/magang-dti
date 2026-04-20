@@ -27,15 +27,17 @@ class ThemeStyles
     {
         $result = [];
 
+        // Cache the base theme data to avoid repeated expensive calls
+        $baseThemeData = \WP_Theme_JSON_Resolver::get_merged_data('theme')->get_raw_data();
+
         // Add the default theme under 'theme'
         $result['Core'] = array_merge(
             ['title' => 'Default'],
-            \WP_Theme_JSON_Resolver::get_merged_data('theme')->get_raw_data()
+            $baseThemeData
         );
 
         $variations = \WP_Theme_JSON_Resolver::get_style_variations();
         $unique_variations = [];
-
 
         foreach ($variations as $variation) {
             $title = $variation['title'] ?? '';
@@ -44,12 +46,10 @@ class ThemeStyles
             }
         }
 
-
         foreach ($unique_variations as $title => $variation) {
             if (!empty($variation['settings']['color'])) {
-
                 $result[$title] = $this->deepMerge(
-                    \WP_Theme_JSON_Resolver::get_merged_data('theme')->get_raw_data(),
+                    $baseThemeData,
                     $variation
                 );
             }

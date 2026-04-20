@@ -7,7 +7,7 @@ namespace MailerPress\Core\Migrations;
 class CustomTableManager
 {
     protected string $tableName;
-    protected string $version = '1.5.3';
+    protected string $version = '1.5.4';
     protected string $versionOptionName;
     protected array $columns = [];
     protected array|string|null $primaryKey = null;

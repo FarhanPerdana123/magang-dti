@@ -21,6 +21,7 @@ function ugm_theme_setup() {
 
 	// Enable support for Post Thumbnails on posts and pages.
 	add_theme_support( 'post-thumbnails' );
+	add_theme_support( 'menus' );
 
 	// Switch default core markup to output valid HTML5.
 	add_theme_support(
@@ -56,5 +57,31 @@ function ugm_theme_setup() {
 			'mobile-quick-links' => esc_html__( 'Mobile Quick Links', 'ugm-faculty' ),
 		)
 	);
+
+	// Improve editor/content compatibility with modern blocks.
+	add_theme_support( 'responsive-embeds' );
+	add_theme_support( 'align-wide' );
 }
 add_action( 'after_setup_theme', 'ugm_theme_setup' );
+
+/**
+ * Limit excerpt length for consistent card layout.
+ *
+ * @param int $length Default excerpt word count.
+ * @return int
+ */
+function ugm_custom_excerpt_length( $length ) {
+	return 30;
+}
+add_filter( 'excerpt_length', 'ugm_custom_excerpt_length', 999 );
+
+/**
+ * Replace default excerpt ellipsis "..." with a clean "…".
+ *
+ * @param string $more Default more string.
+ * @return string
+ */
+function ugm_custom_excerpt_more( $more ) {
+	return '&hellip;';
+}
+add_filter( 'excerpt_more', 'ugm_custom_excerpt_more' );

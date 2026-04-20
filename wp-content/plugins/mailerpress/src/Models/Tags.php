@@ -19,8 +19,8 @@ class Tags
         
         $table_name = Tables::get(Tables::MAILERPRESS_TAGS);
         
-        // Check if table exists before querying
-        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '{$table_name}'") === $table_name;
+        // Check if table exists before querying (cached in memory)
+        $table_exists = Tables::exists($table_name);
         
         if (!$table_exists) {
             // Table doesn't exist yet, return empty array

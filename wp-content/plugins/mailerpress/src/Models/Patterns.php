@@ -20,7 +20,9 @@ class Patterns
         $args = [
             'post_type'      => Kernel::getContainer()->get('cpt-pattern-slug'),
             'post_status'    => 'publish',
-            'posts_per_page' => -1,
+            'posts_per_page' => 100,
+            'no_found_rows'  => true,
+            'suppress_filters' => true,
         ];
 
         // 🔧 Allow devs to modify the query

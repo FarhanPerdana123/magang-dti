@@ -135,9 +135,6 @@ class Migrations
             return new WP_REST_Response(['error' => __('Unauthorized', 'mailerpress')], 403);
         }
 
-        if (!defined('MAILERPRESS_DB_CHECK') || constant('MAILERPRESS_DB_CHECK') !== true) {
-            return new WP_REST_Response(['error' => __('Database check is disabled', 'mailerpress')], 403);
-        }
 
         try {
             $diagnostic = new DatabaseDiagnostic();
@@ -163,9 +160,6 @@ class Migrations
             return new WP_REST_Response(['error' => __('Unauthorized', 'mailerpress')], 403);
         }
 
-        if (!defined('MAILERPRESS_DB_CHECK') || constant('MAILERPRESS_DB_CHECK') !== true) {
-            return new WP_REST_Response(['error' => __('Database check is disabled', 'mailerpress')], 403);
-        }
 
         try {
             // Initialiser le logger avant tout
@@ -217,9 +211,6 @@ class Migrations
             return new WP_REST_Response(['error' => __('Unauthorized', 'mailerpress')], 403);
         }
 
-        if (!defined('MAILERPRESS_DB_CHECK') || constant('MAILERPRESS_DB_CHECK') !== true) {
-            return new WP_REST_Response(['error' => __('Database check is disabled', 'mailerpress')], 403);
-        }
 
         try {
             $format = $request->get_param('format') ?: 'json';

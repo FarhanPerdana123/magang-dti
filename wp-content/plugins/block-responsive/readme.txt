@@ -1,10 +1,10 @@
-=== Block Responsive – Make Editor Blocks Responsive Easily ===
+=== Block Responsive - Make Editor Blocks Responsive Easily ===
 Contributors:       ashrafuzzaman93
-Donate link:        https://wise.com/pay/me/saka2
+Donate link:        https://ashrafuzzaman.com/
 Tags:               responsive design, block editor, mobile friendly, custom styles, block visibility
 Requires at least:  6.7
-Tested up to:       6.9
-Stable tag:         1.0.4
+Tested up to:       7.0
+Stable tag:         1.0.5
 Requires PHP:       7.4
 License:            GPL-2.0-or-later
 License URI:        https://www.gnu.org/licenses/gpl-2.0.html
@@ -85,21 +85,25 @@ Your content will remain intact, but any responsive styling applied through the 
 
 == Changelog ==
 
+= 1.0.5 =
+* Fixed: Minor bugs and code improvements.
+* Enhance: Added compatibility with WordPress v7.0.
+
 = 1.0.4 =
-* Add: Compatibility with WordPress Site Editor
-* Improvement: Added compatibility with WordPress v6.9.
+* New: Compatibility with WordPress Site Editor
+* Enhance: Added compatibility with WordPress v6.9.
 
 = 1.0.3 =
-* Add: Responsive position and overflow controls
+* New: Responsive position and overflow controls
 
 = 1.0.2 =
-* Add: Compatibility with WooCommerce blocks
-* Fix: Reset issue with flex direction settings
+* New: Compatibility with WooCommerce blocks
+* Fixed: Reset issue with flex direction settings
 * Update: The language (.pot) file
 
 = 1.0.1 =
-* Add: Flex direction control in the alignment settings
-* Add: Support for negative margin values in the spacing controls
+* New: Flex direction control in the alignment settings
+* New: Support for negative margin values in the spacing controls
 * Update: The language (.pot) file
 
 = 1.0.0 =

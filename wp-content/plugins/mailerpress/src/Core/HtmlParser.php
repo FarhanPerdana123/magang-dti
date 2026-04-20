@@ -171,9 +171,11 @@ final class HtmlParser
         libxml_use_internal_errors(true);
 
         $dom = new \DOMDocument();
-        // Suppress deprecated warning for mb_convert_encoding with HTML-ENTITIES
-        // This is still functional but deprecated in PHP 8.2+
-        @$dom->loadHTML(mb_convert_encoding('<div id="mp-temp-wrapper">' . $html . '</div>', 'HTML-ENTITIES', 'UTF-8'));
+        // Load as a full HTML document so DOMDocument does not hoist <style> tags out of the
+        // document structure. Wrapping in a <div> caused DOMDocument to move the MJML-generated
+        // <style> block (containing .mj-column-per-* width rules) to <head>, which was then lost
+        // when only the wrapper's childNodes were extracted — resulting in columns stacking vertically.
+        @$dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NODEFDTD);
 
         $xpath = new \DOMXPath($dom);
         $nodes = $xpath->query('//a[@href]');
@@ -229,14 +231,9 @@ final class HtmlParser
             $trackedLinks++;
         }
 
-        // Extract inner HTML
-        $wrapper = $dom->getElementById('mp-temp-wrapper');
-        $newHtml = '';
-        foreach ($wrapper->childNodes as $child) {
-            $newHtml .= $dom->saveHTML($child);
-        }
-
-        return $newHtml;
+        // Remove the xml encoding pseudo-attribute injected for UTF-8 handling, then return the
+        // full serialised document so the <style> block in <head> is preserved intact.
+        return str_replace('<?xml encoding="UTF-8">', '', $dom->saveHTML());
     }
 
     private function mailerpress_product_url_to_id($url)

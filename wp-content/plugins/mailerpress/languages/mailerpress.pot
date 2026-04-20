@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MailerPress 1.5.3\n"
+"Project-Id-Version: MailerPress 1.5.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mailerpress\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-13T12:43:39+00:00\n"
+"POT-Creation-Date: 2026-04-06T08:50:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: mailerpress\n"
@@ -46,8 +46,8 @@ msgstr ""
 
 #: src/Actions/ActionScheduler/Processors/ConfirmationReminderTask.php:107
 #: src/Actions/Contacts/ContactCreated.php:45
-#: src/Api/Contacts.php:2928
-#: src/Api/Contacts.php:2950
+#: src/Api/Contacts.php:2947
+#: src/Api/Contacts.php:2969
 #: build/dist/js/mail-editor.js:1
 msgid "Confirm your subscription to [site:title]"
 msgstr ""
@@ -72,7 +72,7 @@ msgstr ""
 msgid "Your MailerPress Export is Ready"
 msgstr ""
 
-#: src/Actions/ActionScheduler/Processors/MailerPressEmailBatch.php:182
+#: src/Actions/ActionScheduler/Processors/MailerPressEmailBatch.php:183
 msgid "Email HTML content not found. Please save the campaign before sending."
 msgstr ""
 
@@ -236,8 +236,8 @@ msgid "Invalid contact token."
 msgstr ""
 
 #: src/Actions/Ajax/ManageSubscription.php:47
-#: src/Api/Contacts.php:2912
-#: src/Api/Contacts.php:3069
+#: src/Api/Contacts.php:2931
+#: src/Api/Contacts.php:3088
 msgid "Contact not found."
 msgstr ""
 
@@ -258,7 +258,7 @@ msgid "All %d emails failed to send. Check the batch log files in wp-content/mai
 msgstr ""
 
 #: src/Actions/Contacts/ContactCreated.php:54
-#: src/Api/Contacts.php:2929
+#: src/Api/Contacts.php:2948
 msgid ""
 "Hello [contact:firstName] [contact:lastName],\n"
 "\n"
@@ -1120,13 +1120,13 @@ msgid "%d actions processed"
 msgstr ""
 
 #: src/Api/ActionSchedulerDiagnostic.php:131
-#: src/Api/Contacts.php:1849
-#: src/Api/Contacts.php:2497
+#: src/Api/Contacts.php:1868
+#: src/Api/Contacts.php:2516
 msgid "Batch ID is required"
 msgstr ""
 
 #: src/Api/ActionSchedulerDiagnostic.php:145
-#: src/Api/Contacts.php:1931
+#: src/Api/Contacts.php:1950
 msgid "Batch not found"
 msgstr ""
 
@@ -1152,9 +1152,9 @@ msgstr ""
 
 #: src/Api/ActionSchedulerDiagnostic.php:244
 #: src/Api/Campaigns.php:734
-#: src/Api/Campaigns.php:2880
-#: src/Api/Campaigns.php:2934
-#: src/Api/Campaigns.php:4016
+#: src/Api/Campaigns.php:3001
+#: src/Api/Campaigns.php:3055
+#: src/Api/Campaigns.php:4208
 msgid "Campaign not found"
 msgstr ""
 
@@ -1183,9 +1183,9 @@ msgid "Invalid IDs provided"
 msgstr ""
 
 #: src/Api/Campaigns.php:656
-#: src/Api/Contacts.php:1914
-#: src/Api/Contacts.php:1984
-#: src/Api/Contacts.php:2050
+#: src/Api/Contacts.php:1933
+#: src/Api/Contacts.php:2003
+#: src/Api/Contacts.php:2069
 msgid "Invalid batch ID"
 msgstr ""
 
@@ -1196,7 +1196,8 @@ msgstr ""
 #: src/Api/Campaigns.php:1373
 #: src/Api/Campaigns.php:1937
 #: src/Api/Campaigns.php:1991
-#: src/Api/Campaigns.php:2059
+#: src/Api/Campaigns.php:2056
+#: src/Api/Campaigns.php:2111
 #: src/Api/Tags.php:295
 msgid "Campaign not found."
 msgstr ""
@@ -1289,62 +1290,78 @@ msgid "Campaign renamed successfully."
 msgstr ""
 
 #: src/Api/Campaigns.php:2017
-#: src/Api/Campaigns.php:2079
+#: src/Api/Campaigns.php:2131
 msgid "Failed to update campaign."
 msgstr ""
 
 #: src/Api/Campaigns.php:2024
-#: src/Api/Campaigns.php:2090
+#: src/Api/Campaigns.php:2142
 msgid "Campaign updated successfully."
 msgstr ""
 
-#: src/Api/Campaigns.php:2066
+#: src/Api/Campaigns.php:2078
+msgid "Failed to update campaign settings."
+msgstr ""
+
+#: src/Api/Campaigns.php:2118
 msgid "This campaign is currently locked by another user."
 msgstr ""
 
-#: src/Api/Campaigns.php:2334
+#: src/Api/Campaigns.php:2416
 msgid "You do not have permission to create a campaign batch."
 msgstr ""
 
-#: src/Api/Campaigns.php:2397
+#: src/Api/Campaigns.php:2508
 msgid "Failed to create batch"
 msgstr ""
 
+#: src/Api/Campaigns.php:2546
+msgid "The scheduled date is in the past. Please select a future date and time."
+msgstr ""
+
+#: src/Api/Campaigns.php:2558
+msgid "Invalid scheduled date format."
+msgstr ""
+
 #. translators: %s is the subject of the email
-#: src/Api/Campaigns.php:2692
+#: src/Api/Campaigns.php:2813
 msgid "[MailerPress TEST] - %s"
 msgstr ""
 
-#: src/Api/Campaigns.php:2735
+#: src/Api/Campaigns.php:2856
 msgid "Missing batchId"
 msgstr ""
 
-#: src/Api/Campaigns.php:2866
-#: src/Api/Campaigns.php:2920
+#: src/Api/Campaigns.php:2987
+#: src/Api/Campaigns.php:3041
 msgid "Missing campaign ID"
 msgstr ""
 
-#: src/Api/Campaigns.php:2884
+#: src/Api/Campaigns.php:3005
 msgid "Only automated campaigns can be deactivated"
 msgstr ""
 
-#: src/Api/Campaigns.php:2938
+#: src/Api/Campaigns.php:3059
 msgid "Only automated campaigns can be activated"
 msgstr ""
 
-#: src/Api/Campaigns.php:3633
+#: src/Api/Campaigns.php:3754
 msgid "Missing video url"
 msgstr ""
 
-#: src/Api/Campaigns.php:3638
+#: src/Api/Campaigns.php:3759
 msgid "Unsupported video url"
 msgstr ""
 
-#: src/Api/Campaigns.php:3684
+#: src/Api/Campaigns.php:3812
 msgid "Failed to fetch thumbnail"
 msgstr ""
 
-#: src/Api/Campaigns.php:3961
+#: src/Api/Campaigns.php:3931
+msgid "Failed to process thumbnail. Neither Imagick nor GD extension is available."
+msgstr ""
+
+#: src/Api/Campaigns.php:4153
 #: src/Api/Workflows.php:1796
 #: src/Api/Workflows.php:2162
 msgid "Contact #%d"
@@ -1420,162 +1437,162 @@ msgstr ""
 msgid "Note deleted successfully."
 msgstr ""
 
-#: src/Api/Contacts.php:762
+#: src/Api/Contacts.php:781
 msgid "Too many submission attempts. Please try again later."
 msgstr ""
 
-#: src/Api/Contacts.php:788
-#: src/Api/Contacts.php:870
+#: src/Api/Contacts.php:807
+#: src/Api/Contacts.php:889
 msgid "Contact added successfully."
 msgstr ""
 
-#: src/Api/Contacts.php:823
-#: src/Api/Contacts.php:1466
+#: src/Api/Contacts.php:842
+#: src/Api/Contacts.php:1485
 #: src/functions.php:352
 msgid "Contact updated successfully."
 msgstr ""
 
-#: src/Api/Contacts.php:1131
+#: src/Api/Contacts.php:1150
 msgid "This email address is already in use by another contact."
 msgstr ""
 
-#: src/Api/Contacts.php:1246
+#: src/Api/Contacts.php:1265
 #: build/dist/js/mail-editor.js:1
 msgid "Contacts updated successfully."
 msgstr ""
 
-#: src/Api/Contacts.php:1279
+#: src/Api/Contacts.php:1298
 #: src/functions.php:244
 msgid "Missing contact ID."
 msgstr ""
 
-#: src/Api/Contacts.php:1486
+#: src/Api/Contacts.php:1505
 msgid "Contact IDs must be an array and cannot be empty"
 msgstr ""
 
-#: src/Api/Contacts.php:1503
+#: src/Api/Contacts.php:1522
 msgid "One or more contacts were not found."
 msgstr ""
 
-#: src/Api/Contacts.php:1519
+#: src/Api/Contacts.php:1538
 msgid "Contacts deleted successfully"
 msgstr ""
 
-#: src/Api/Contacts.php:1526
+#: src/Api/Contacts.php:1545
 msgid "Failed to delete the contacts."
 msgstr ""
 
-#: src/Api/Contacts.php:1549
+#: src/Api/Contacts.php:1568
 msgid "Missing contact_id or list_id."
 msgstr ""
 
-#: src/Api/Contacts.php:1570
-#: src/Api/Contacts.php:1640
+#: src/Api/Contacts.php:1589
+#: src/Api/Contacts.php:1659
 msgid "Database error occurred."
 msgstr ""
 
-#: src/Api/Contacts.php:1577
-#: src/Api/Contacts.php:1647
+#: src/Api/Contacts.php:1596
+#: src/Api/Contacts.php:1666
 msgid "No matching record found."
 msgstr ""
 
-#: src/Api/Contacts.php:1588
+#: src/Api/Contacts.php:1607
 msgid "List removed from contact."
 msgstr ""
 
-#: src/Api/Contacts.php:1619
+#: src/Api/Contacts.php:1638
 msgid "Missing contact_id or tag_id."
 msgstr ""
 
-#: src/Api/Contacts.php:1658
+#: src/Api/Contacts.php:1677
 msgid "Tag removed from contact."
 msgstr ""
 
-#: src/Api/Contacts.php:1690
+#: src/Api/Contacts.php:1709
 msgid "Failed to delete contacts."
 msgstr ""
 
-#: src/Api/Contacts.php:1695
+#: src/Api/Contacts.php:1714
 msgid "All contacts have been deleted successfully."
 msgstr ""
 
-#: src/Api/Contacts.php:1717
+#: src/Api/Contacts.php:1736
 msgid "Failed to create delete batch."
 msgstr ""
 
-#: src/Api/Contacts.php:1770
+#: src/Api/Contacts.php:1789
 msgid "Delete batch created successfully. Deletion in progress..."
 msgstr ""
 
-#: src/Api/Contacts.php:1863
+#: src/Api/Contacts.php:1882
 msgid "Delete batch not found"
 msgstr ""
 
-#: src/Api/Contacts.php:1897
+#: src/Api/Contacts.php:1916
 msgid "Delete batch and all related data have been cleaned up"
 msgstr ""
 
-#: src/Api/Contacts.php:2001
+#: src/Api/Contacts.php:2020
 msgid "No failed chunks to retry"
 msgstr ""
 
-#: src/Api/Contacts.php:2032
+#: src/Api/Contacts.php:2051
 msgid "Retrying %d failed chunks"
 msgstr ""
 
-#: src/Api/Contacts.php:2101
+#: src/Api/Contacts.php:2120
 msgid "Reset %d stuck chunks and scheduled %d chunks for processing"
 msgstr ""
 
-#: src/Api/Contacts.php:2177
+#: src/Api/Contacts.php:2196
 msgid "No contacts to export."
 msgstr ""
 
-#: src/Api/Contacts.php:2227
+#: src/Api/Contacts.php:2246
 msgid "Export started"
 msgstr ""
 
-#: src/Api/Contacts.php:2336
+#: src/Api/Contacts.php:2355
 msgid "Failed to create import batch"
 msgstr ""
 
-#: src/Api/Contacts.php:2371
+#: src/Api/Contacts.php:2390
 msgid "Batch ID and chunk data are required"
 msgstr ""
 
-#: src/Api/Contacts.php:2385
-#: src/Api/Contacts.php:2511
+#: src/Api/Contacts.php:2404
+#: src/Api/Contacts.php:2530
 msgid "Import batch not found"
 msgstr ""
 
-#: src/Api/Contacts.php:2579
+#: src/Api/Contacts.php:2598
 msgid "Import batch and all related data have been cleaned up"
 msgstr ""
 
-#: src/Api/Contacts.php:2843
+#: src/Api/Contacts.php:2862
 msgid "Invalid email address."
 msgstr ""
 
-#: src/Api/Contacts.php:2920
-#: src/Api/Contacts.php:3077
+#: src/Api/Contacts.php:2939
+#: src/Api/Contacts.php:3096
 msgid "This contact is not in pending status."
 msgstr ""
 
-#: src/Api/Contacts.php:3033
-#: src/Api/Contacts.php:3041
+#: src/Api/Contacts.php:3052
+#: src/Api/Contacts.php:3060
 msgid "Failed to send confirmation reminder email."
 msgstr ""
 
-#: src/Api/Contacts.php:3048
+#: src/Api/Contacts.php:3067
 msgid "Confirmation reminder email sent successfully."
 msgstr ""
 
-#: src/Api/Contacts.php:3088
+#: src/Api/Contacts.php:3107
 #: build/dist/js/mail-editor.js:1
 msgid "Failed to confirm contact."
 msgstr ""
 
-#: src/Api/Contacts.php:3095
+#: src/Api/Contacts.php:3114
 #: build/dist/js/mail-editor.js:1
 msgid "Contact confirmed successfully."
 msgstr ""
@@ -1701,10 +1718,12 @@ msgid "No data to update"
 msgstr ""
 
 #: src/Api/EmbedAdmin.php:270
+#: build/dist/js/mail-editor.js:1
 msgid "Failed to update API key"
 msgstr ""
 
 #: src/Api/EmbedAdmin.php:276
+#: build/dist/js/mail-editor.js:1
 msgid "API key updated successfully"
 msgstr ""
 
@@ -1815,8 +1834,8 @@ msgstr ""
 #: src/Api/Migrations.php:75
 #: src/Api/Migrations.php:105
 #: src/Api/Migrations.php:135
-#: src/Api/Migrations.php:163
-#: src/Api/Migrations.php:217
+#: src/Api/Migrations.php:160
+#: src/Api/Migrations.php:211
 msgid "Unauthorized"
 msgstr ""
 
@@ -1832,12 +1851,6 @@ msgstr ""
 msgid "Migration lock released."
 msgstr ""
 
-#: src/Api/Migrations.php:139
-#: src/Api/Migrations.php:167
-#: src/Api/Migrations.php:221
-msgid "Database check is disabled"
-msgstr ""
-
 #: src/Api/Options.php:130
 msgid "This is a Sending Method Test"
 msgstr ""
@@ -1850,23 +1863,23 @@ msgstr ""
 msgid "An error occurred while sending the test email. Please check your configuration and try again."
 msgstr ""
 
-#: src/Api/Options.php:368
+#: src/Api/Options.php:371
 msgid "Missing IMAP credentials."
 msgstr ""
 
-#: src/Api/Options.php:395
+#: src/Api/Options.php:398
 msgid "Unable to access INBOX folder."
 msgstr ""
 
-#: src/Api/Options.php:405
+#: src/Api/Options.php:408
 msgid "Unable to connect to IMAP server: %s"
 msgstr ""
 
-#: src/Api/Options.php:455
+#: src/Api/Options.php:458
 msgid "Rate limit settings saved successfully."
 msgstr ""
 
-#: src/Api/Options.php:456
+#: src/Api/Options.php:459
 msgid "Failed to save rate limit settings."
 msgstr ""
 
@@ -1967,8 +1980,8 @@ msgstr ""
 #: src/Api/WebHooks.php:66
 #: src/Api/WebHooks.php:416
 #: src/Api/WebHooks.php:489
-#: src/Api/WebHooks.php:685
-#: src/Api/WebHooks.php:747
+#: src/Api/WebHooks.php:726
+#: src/Api/WebHooks.php:788
 msgid "Webhook ID is required"
 msgstr ""
 
@@ -2006,11 +2019,12 @@ msgstr ""
 #: src/Api/WebHooks.php:381
 #: src/Api/WebHooks.php:406
 #: src/Api/WebHooks.php:479
-#: src/Api/WebHooks.php:529
-#: src/Api/WebHooks.php:567
-#: src/Api/WebHooks.php:675
-#: src/Api/WebHooks.php:737
-#: src/Api/WebHooks.php:788
+#: src/Api/WebHooks.php:532
+#: src/Api/WebHooks.php:570
+#: src/Api/WebHooks.php:608
+#: src/Api/WebHooks.php:716
+#: src/Api/WebHooks.php:778
+#: src/Api/WebHooks.php:829
 msgid "Webhooks require MailerPress Pro"
 msgstr ""
 
@@ -2031,7 +2045,7 @@ msgid "Webhook saved successfully"
 msgstr ""
 
 #: src/Api/WebHooks.php:499
-#: src/Api/WebHooks.php:696
+#: src/Api/WebHooks.php:737
 msgid "Webhook not found"
 msgstr ""
 
@@ -2040,61 +2054,61 @@ msgstr ""
 msgid "Webhook deleted successfully"
 msgstr ""
 
-#: src/Api/WebHooks.php:594
+#: src/Api/WebHooks.php:635
 msgid "Invalid configuration data"
 msgstr ""
 
-#: src/Api/WebHooks.php:653
+#: src/Api/WebHooks.php:694
 msgid "Outgoing webhook settings saved successfully"
 msgstr ""
 
-#: src/Api/WebHooks.php:707
+#: src/Api/WebHooks.php:748
 #: build/dist/js/mail-editor.js:1
 msgid "Failed to regenerate webhook secret"
 msgstr ""
 
-#: src/Api/WebHooks.php:714
+#: src/Api/WebHooks.php:755
 #: build/dist/js/mail-editor.js:1
 msgid "Webhook secret regenerated successfully"
 msgstr ""
 
-#: src/Api/WebHooks.php:758
+#: src/Api/WebHooks.php:799
 msgid "Webhook secret not found. Please regenerate the secret."
 msgstr ""
 
-#: src/Api/WebHooks.php:798
+#: src/Api/WebHooks.php:839
 msgid "Event key is required"
 msgstr ""
 
-#: src/Api/WebHooks.php:809
+#: src/Api/WebHooks.php:850
 msgid "Event not found"
 msgstr ""
 
-#: src/Api/WebHooks.php:826
+#: src/Api/WebHooks.php:867
 msgid "None of the provided URLs are valid"
 msgstr ""
 
-#: src/Api/WebHooks.php:838
+#: src/Api/WebHooks.php:879
 msgid "No URLs configured for this webhook"
 msgstr ""
 
-#: src/Api/WebHooks.php:850
+#: src/Api/WebHooks.php:891
 msgid "Global webhook secret is not configured. Please set a secret key in webhook settings."
 msgstr ""
 
-#: src/Api/WebHooks.php:865
+#: src/Api/WebHooks.php:906
 msgid "No valid URLs to test"
 msgstr ""
 
-#: src/Api/WebHooks.php:886
+#: src/Api/WebHooks.php:927
 msgid "Failed to create test event"
 msgstr ""
 
-#: src/Api/WebHooks.php:940
+#: src/Api/WebHooks.php:981
 msgid "Test webhook sent successfully"
 msgstr ""
 
-#: src/Api/WebHooks.php:941
+#: src/Api/WebHooks.php:982
 msgid "All test webhooks failed"
 msgstr ""
 
@@ -2916,7 +2930,10 @@ msgid "Migration failed: %s - %s"
 msgstr ""
 
 #: src/Services/DatabaseDiagnostic.php:98
-#: src/Services/DatabaseDiagnostic.php:1047
+#: src/Services/DatabaseDiagnostic.php:1040
+#: src/Services/DatabaseDiagnostic.php:1178
+#: src/Services/DatabaseDiagnostic.php:1494
+#: src/Services/DatabaseDiagnostic.php:1614
 #: build/dist/js/mailerpress-pro-workflow.js:1
 msgid "Unknown error"
 msgstr ""
@@ -2933,161 +2950,193 @@ msgstr ""
 msgid "Missing column in %s: %s"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:216
+#: src/Services/DatabaseDiagnostic.php:228
+msgid "Extra column in %s: %s (not defined in any migration)"
+msgstr ""
+
+#: src/Services/DatabaseDiagnostic.php:239
 msgid "Unable to check columns: %s"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:300
+#: src/Services/DatabaseDiagnostic.php:323
 msgid "Missing index in %s: %s (%s)"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:321
+#: src/Services/DatabaseDiagnostic.php:344
 msgid "Unable to check indexes: %s"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:383
+#: src/Services/DatabaseDiagnostic.php:397
 msgid "Missing foreign key in %s: %s -> %s.%s"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:548
+#: src/Services/DatabaseDiagnostic.php:428
+msgid "Extra foreign key in %s: %s -> %s.%s (should have been dropped by migration)"
+msgstr ""
+
+#: src/Services/DatabaseDiagnostic.php:451
+msgid "Duplicate foreign key in %s: %s -> %s.%s (constraint %s is a duplicate of %s)"
+msgstr ""
+
+#: src/Services/DatabaseDiagnostic.php:630
 msgid "Duplicate index detected (ignored)"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:699
+#: src/Services/DatabaseDiagnostic.php:781
 msgid "Starting database repair"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:720
+#: src/Services/DatabaseDiagnostic.php:802
 msgid "Migration table does not exist - creating from scratch"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:745
+#: src/Services/DatabaseDiagnostic.php:827
 msgid "Failed to create migration table"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:749
+#: src/Services/DatabaseDiagnostic.php:831
 msgid "Failed to create migration table: "
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:752
+#: src/Services/DatabaseDiagnostic.php:834
 msgid "Migration tracking table created from scratch"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:753
+#: src/Services/DatabaseDiagnostic.php:835
 msgid "Migration table created successfully"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:761
+#: src/Services/DatabaseDiagnostic.php:843
 msgid "Initial migration status"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:765
-#: src/Services/DatabaseDiagnostic.php:766
+#: src/Services/DatabaseDiagnostic.php:847
+#: src/Services/DatabaseDiagnostic.php:848
 msgid "Migration lock released"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:773
+#: src/Services/DatabaseDiagnostic.php:855
 msgid "%d migration(s) failed reset(s)"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:783
+#: src/Services/DatabaseDiagnostic.php:865
 msgid "%d migration(s) in progress reset(s)"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:790
+#: src/Services/DatabaseDiagnostic.php:872
 msgid "Execution of migrations in force mode"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:792
-#: src/Services/DatabaseDiagnostic.php:793
+#: src/Services/DatabaseDiagnostic.php:874
+#: src/Services/DatabaseDiagnostic.php:875
 msgid "Migrations executed in force mode"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:796
+#: src/Services/DatabaseDiagnostic.php:878
 msgid "Check and repair the structural issues"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:800
+#: src/Services/DatabaseDiagnostic.php:882
 msgid "Diagnostic before repair"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:814
+#: src/Services/DatabaseDiagnostic.php:896
 msgid "Results of structural repair"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:823
+#: src/Services/DatabaseDiagnostic.php:905
 msgid "Structural issues repaired"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:828
+#: src/Services/DatabaseDiagnostic.php:910
 msgid "No structural issues to repair"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:834
+#: src/Services/DatabaseDiagnostic.php:916
 msgid "Database successfully repaired"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:835
+#: src/Services/DatabaseDiagnostic.php:917
 msgid "Database repair completed successfully"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:845
+#: src/Services/DatabaseDiagnostic.php:927
 msgid "Trace:"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:848
+#: src/Services/DatabaseDiagnostic.php:930
 msgid "Error during database repair: %s"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:866
+#: src/Services/DatabaseDiagnostic.php:948
 msgid "Starting structural issues repair"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:873
+#: src/Services/DatabaseDiagnostic.php:955
 msgid "Diagnostic obtained"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:892
+#: src/Services/DatabaseDiagnostic.php:975
 msgid "Problems grouped by table"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:940
+#: src/Services/DatabaseDiagnostic.php:1038
+msgid "Failed to drop extra foreign key %s: %s"
+msgstr ""
+
+#: src/Services/DatabaseDiagnostic.php:1071
 msgid "Missing index: %s (missing columns: %s)"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:1019
+#: src/Services/DatabaseDiagnostic.php:1150
 msgid "Index created but not verified: %s"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:1045
+#: src/Services/DatabaseDiagnostic.php:1176
 msgid "Error creating index %s: %s"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:1069
+#: src/Services/DatabaseDiagnostic.php:1200
 msgid "Missing foreign key: %s (referenced table does not exist)"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:1195
+#: src/Services/DatabaseDiagnostic.php:1326
 msgid "Unknown error - FK not created"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:1205
+#: src/Services/DatabaseDiagnostic.php:1336
 msgid "Column type mismatch: %s (%s) vs %s (%s)"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:1222
+#: src/Services/DatabaseDiagnostic.php:1353
 msgid "Error creating foreign key %s: %s"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:1234
-msgid "Missing column: %s.%s (requires a migration)"
+#: src/Services/DatabaseDiagnostic.php:1377
+msgid "Missing column: %s.%s (definition not found in migrations)"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:1245
+#: src/Services/DatabaseDiagnostic.php:1478
+msgid "Column %s added to %s but not found during verification"
+msgstr ""
+
+#: src/Services/DatabaseDiagnostic.php:1491
+msgid "Error adding column %s to %s: %s"
+msgstr ""
+
+#: src/Services/DatabaseDiagnostic.php:1598
+msgid "Column %s drop executed on %s but column still exists"
+msgstr ""
+
+#: src/Services/DatabaseDiagnostic.php:1611
+msgid "Error dropping column %s from %s: %s"
+msgstr ""
+
+#: src/Services/DatabaseDiagnostic.php:1624
 msgid "Error during repair: %s"
 msgstr ""
 
-#: src/Services/DatabaseDiagnostic.php:1252
+#: src/Services/DatabaseDiagnostic.php:1631
 msgid "Summary of structural repair"
 msgstr ""
 
@@ -3690,14 +3739,6 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: build/dist/js/mail-editor.js:1
-msgid "From name"
-msgstr ""
-
-#: build/dist/js/mail-editor.js:1
-msgid "From to"
-msgstr ""
-
-#: build/dist/js/mail-editor.js:1
 msgid "Generate AI"
 msgstr ""
 
@@ -3718,7 +3759,23 @@ msgid "Error processing date. Date set to minimum future time."
 msgstr ""
 
 #: build/dist/js/mail-editor.js:1
+msgid "Current site time:"
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "Select at least one recipient list to send."
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "The scheduled date must be in the future."
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
 msgid "Save settings"
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "The scheduled date must be in the future. Please update the date and try again."
 msgstr ""
 
 #: build/dist/js/mail-editor.js:1
@@ -3727,6 +3784,10 @@ msgstr ""
 
 #: build/dist/js/mail-editor.js:1
 msgid "Your newsletter is on it's way"
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "Failed to send campaign"
 msgstr ""
 
 #: build/dist/js/mail-editor.js:1
@@ -3811,6 +3872,10 @@ msgstr ""
 
 #: build/dist/js/mail-editor.js:1
 msgid "Publish"
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "Test emails have limited functionality: unsubscribe links are inactive and dynamic variables (e.g. {{first_name}}) are stripped or replaced with placeholder values."
 msgstr ""
 
 #: build/dist/js/mail-editor.js:1
@@ -4554,22 +4619,6 @@ msgid "An error occurred while creating the tag."
 msgstr ""
 
 #: build/dist/js/mail-editor.js:1
-msgid "Delivery"
-msgstr ""
-
-#: build/dist/js/mail-editor.js:1
-msgid "Send immediately when published"
-msgstr ""
-
-#: build/dist/js/mail-editor.js:1
-msgid "Schedule for later"
-msgstr ""
-
-#: build/dist/js/mail-editor.js:1
-msgid "Schedule date and time"
-msgstr ""
-
-#: build/dist/js/mail-editor.js:1
 msgid "Choose Your Starting Point"
 msgstr ""
 
@@ -4909,6 +4958,18 @@ msgid "Name"
 msgstr ""
 
 #: build/dist/js/mail-editor.js:1
+msgid "Contact lists"
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "Contact tags"
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "Custom segments are available only in the Pro version of MailerPress."
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
 #: build/dist/js/mailerpress-pro-workflow.js:1
 msgid "You have unsaved changes. Are you sure you want to leave?"
 msgstr ""
@@ -5244,6 +5305,14 @@ msgstr ""
 
 #: build/dist/js/mail-editor.js:1
 msgid "Failed to copy link"
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "Edit settings"
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "Edit settings: %s"
 msgstr ""
 
 #: build/dist/js/mail-editor.js:1
@@ -5779,6 +5848,14 @@ msgstr ""
 
 #: build/dist/js/mail-editor.js:1
 msgid "Weight"
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "Fallback font"
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "Used when the web font is not supported by the email client."
 msgstr ""
 
 #: build/dist/js/mail-editor.js:1
@@ -7542,6 +7619,10 @@ msgstr ""
 
 #: build/dist/js/mail-editor.js:1
 msgid "From email"
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "From name"
 msgstr ""
 
 #: build/dist/js/mail-editor.js:1
@@ -9365,6 +9446,10 @@ msgid "Generate Key"
 msgstr ""
 
 #: build/dist/js/mail-editor.js:1
+msgid "Leave empty to allow all domains, or specify: example.com"
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
 msgid "Embed Forms"
 msgstr ""
 
@@ -9462,6 +9547,10 @@ msgstr ""
 
 #: build/dist/js/mail-editor.js:1
 msgid "Are you sure you want to permanently delete this API key? This action cannot be undone."
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "Edit API Key"
 msgstr ""
 
 #: build/dist/js/mail-editor.js:1
@@ -10192,10 +10281,6 @@ msgid "Warnings:"
 msgstr ""
 
 #: build/dist/js/mail-editor.js:1
-msgid "Are you sure you want to repair the database? This action may take a few moments."
-msgstr ""
-
-#: build/dist/js/mail-editor.js:1
 msgid "Repairing..."
 msgstr ""
 
@@ -10217,6 +10302,22 @@ msgstr ""
 
 #: build/dist/js/mail-editor.js:1
 msgid "Export Full Report"
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "Repair Database Structure?"
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "If you proceed, the repair process will modify your database structure. This action cannot be undone. Please make sure you have a recent backup of your database before continuing."
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "Are you sure you want to repair your database structure?"
+msgstr ""
+
+#: build/dist/js/mail-editor.js:1
+msgid "Yes, Repair Database"
 msgstr ""
 
 #: build/dist/js/mail-editor.js:1
