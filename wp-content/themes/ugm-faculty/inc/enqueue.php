@@ -66,12 +66,13 @@ function ugm_enqueue_assets() {
 		true
 	);
 
-	// Load faculty slider only for the landing front page.
-	$is_front_landing = is_front_page()
+	// Load faculty slider on the front page and on pages using the landing template.
+	$is_front_landing    = is_front_page()
 		&& '1' !== get_query_var( 'ugm_latest_news' )
 		&& '1' !== get_query_var( 'ugm_magazine_news' );
+	$is_landing_template = is_page_template( 'page-templates/template-landing-page.php' );
 
-	if ( $is_front_landing ) {
+	if ( $is_front_landing || $is_landing_template ) {
 		wp_enqueue_script(
 			'ugm-faculty-slider',
 			get_template_directory_uri() . '/assets/js/faculty-slider.js',
@@ -86,3 +87,45 @@ function ugm_enqueue_assets() {
 	}
 }
 add_action( 'wp_enqueue_scripts', 'ugm_enqueue_assets' );
+
+/**
+ * Enqueue Gutenberg editor plugin for the Landing Page template.
+ *
+ * Only loaded on page edit / new-page admin screens.
+ * Adds a sidebar panel + full-screen preview overlay so admins can see
+ * the rendered template without leaving the block editor.
+ */
+function ugm_enqueue_editor_assets() {
+	$screen = get_current_screen();
+	if ( ! $screen || ! $screen->is_block_editor() ) {
+		return;
+	}
+
+	wp_enqueue_script(
+		'ugm-template-editor-notice',
+		get_template_directory_uri() . '/assets/js/template-editor-notice.js',
+		array( 'wp-data', 'wp-dom-ready', 'wp-i18n', 'wp-notices' ),
+		ugm_get_asset_version( '/assets/js/template-editor-notice.js' ),
+		true
+	);
+
+	if ( 'page' !== $screen->post_type ) {
+		return;
+	}
+
+	wp_enqueue_script(
+		'ugm-landing-page-editor',
+		get_template_directory_uri() . '/assets/js/landing-page-editor.js',
+		array( 'wp-plugins', 'wp-edit-post', 'wp-element', 'wp-data', 'wp-components' ),
+		ugm_get_asset_version( '/assets/js/landing-page-editor.js' ),
+		true
+	);
+
+	wp_enqueue_style(
+		'ugm-landing-page-editor',
+		get_template_directory_uri() . '/assets/css/landing-page-editor.css',
+		array(),
+		ugm_get_asset_version( '/assets/css/landing-page-editor.css' )
+	);
+}
+add_action( 'admin_enqueue_scripts', 'ugm_enqueue_editor_assets' );

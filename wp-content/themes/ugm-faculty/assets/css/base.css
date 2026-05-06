@@ -131,3 +131,17 @@ a:focus-visible {
 	word-wrap: normal;
 }
 
+/* =========================
+   GLOBAL CONTAINER SYSTEM
+========================= */
+.container {
+	width: min(100% - 2rem, 1200px);
+	margin-inline: auto;
+}
+
+@media (max-width: 768px) {
+	.container {
+		width: 100%;
+		padding-inline: 16px;
+	}
+}

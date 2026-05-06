@@ -1,0 +1,405 @@
+/**
+ * Landing Page Editor - CLEAN & IMPROVED
+ *
+ * @package ugm-faculty
+ */
+
+/* ================================
+   BLOCK EDITOR CANVAS PREVIEW
+================================ */
+
+.editor-styles-wrapper {
+	--home-gap-16: 16px;
+	--home-gap-24: 24px;
+	--home-border: #d6dbe0;
+	--home-muted: #6d7782;
+	--home-surface: #ffffff;
+	--home-placeholder: #e4e7eb;
+	--home-title: var(--color-primary-900, #063253);
+	--landing-editor-section-space: 56px;
+	--landing-editor-content-width: min(100% - 2rem, 1200px);
+	--landing-editor-content-gutter: max(1rem, calc((100% - 1200px) / 2));
+
+	background: #efefef;
+}
+
+.editor-visual-editor,
+.editor-visual-editor__post-title-wrapper,
+.block-editor-writing-flow,
+.block-editor-block-list__layout {
+	width: 100%;
+	max-width: 100% !important;
+}
+
+.editor-styles-wrapper .block-editor-block-list__layout.is-root-container,
+.editor-styles-wrapper .is-root-container {
+	width: 100%;
+	max-width: 100% !important;
+	padding-right: 0 !important;
+	padding-left: 0 !important;
+	background: #efefef;
+	box-sizing: border-box;
+}
+
+.editor-styles-wrapper .wp-block-post-content,
+.editor-styles-wrapper .wp-block-post-content > .block-editor-block-list__layout {
+	width: 100%;
+	max-width: 100% !important;
+}
+
+.editor-styles-wrapper .wp-block {
+	max-width: min(100% - 2rem, 1200px);
+}
+
+.editor-styles-wrapper .wp-block[data-type^="ugm/"] {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/hero-section"] {
+	max-width: none;
+}
+
+.editor-styles-wrapper .wp-block[data-type^="ugm/"] .components-placeholder {
+	min-height: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+}
+
+.editor-styles-wrapper .wp-block[data-type^="ugm/"] .components-placeholder__fieldset {
+	display: block;
+	width: 100%;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/site-header"],
+.editor-styles-wrapper .wp-block[data-type="ugm/site-footer"] {
+	max-width: none;
+	width: 100%;
+}
+
+.editor-styles-wrapper .home-section {
+	margin-bottom: var(--landing-editor-section-space);
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] {
+	display: block;
+	width: var(--landing-editor-content-width);
+	max-width: 1200px;
+	margin: 0 auto var(--landing-editor-section-space);
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .section-header--news {
+	margin-bottom: 18px;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .news-layout {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 24px;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .news-featured {
+	display: grid;
+	grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+	min-height: 258px;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .news-featured__media {
+	height: 100%;
+	min-height: 258px;
+	aspect-ratio: auto;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .news-featured__body {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: 24px 28px;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .news-list,
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .berita-list {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 24px;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .portal-list-card,
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .news-grid-card {
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: auto 1fr;
+	padding: 0;
+	background: var(--home-surface);
+	border: 1px solid var(--home-border);
+	overflow: hidden;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .portal-list-card__media,
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .news-grid-card__media {
+	display: block;
+	width: 100%;
+	height: clamp(145px, 14vw, 185px);
+	aspect-ratio: auto;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .portal-list-card__media img,
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .news-grid-card__media img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .portal-list-card__body,
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .news-grid-card__body {
+	padding: 13px 15px 16px;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"],
+.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"],
+.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"],
+.editor-styles-wrapper .wp-block[data-type="ugm/featured-category-column"] {
+	display: inline-block;
+	width: calc((var(--landing-editor-content-width) - (2 * var(--home-gap-24))) / 3);
+	max-width: calc((1200px - 48px) / 3);
+	margin: 0 0 var(--landing-editor-section-space) 24px;
+	vertical-align: top;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"],
+.editor-styles-wrapper .wp-block[data-type="ugm/featured-category-column"]:first-of-type {
+	margin-left: var(--landing-editor-content-gutter);
+}
+
+/* Batasi tinggi card preview featured-category di editor */
+.editor-styles-wrapper .wp-block[data-type="ugm/featured-category-column"] .featured-category-card__link {
+	min-height: 280px;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/featured-category-column"] .featured-category-column {
+	margin-bottom: 0;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .home-section,
+.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .home-section,
+.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .home-section {
+	margin-bottom: 0;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .section-title,
+.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .section-title,
+.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .section-title {
+	font-size: 1.35rem;
+	line-height: 1.25;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .portal-card__media,
+.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .portal-card__media,
+.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .portal-card__media {
+	aspect-ratio: 16 / 10;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .section-empty,
+.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .section-empty,
+.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .section-empty {
+	min-height: 60px;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/facility-section"],
+.editor-styles-wrapper .wp-block[data-type="ugm/faculty-section"],
+.editor-styles-wrapper .wp-block[data-type="ugm/faculty-list"],
+.editor-styles-wrapper .wp-block[data-type="ugm/agenda-section"],
+.editor-styles-wrapper .wp-block[data-type="ugm/agenda-only"],
+.editor-styles-wrapper .wp-block[data-type="ugm/facility-only"],
+.editor-styles-wrapper .wp-block[data-type="ugm/category-section"],
+.editor-styles-wrapper .wp-block[data-type="ugm/featured-categories"],
+.editor-styles-wrapper .wp-block[data-type="ugm/magazine-section"] {
+	display: block;
+	clear: both;
+	width: min(100% - 2rem, 1200px);
+	max-width: 1200px;
+	margin: 0 auto var(--landing-editor-section-space);
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/faculty-section"] .section-overline--faculty,
+.editor-styles-wrapper .wp-block[data-type="ugm/faculty-list"] .section-overline--faculty {
+	margin-top: 18px;
+}
+
+@media (max-width: 900px) {
+	.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/featured-category-column"] {
+		display: block;
+		width: var(--landing-editor-content-width);
+		max-width: 1200px;
+		margin: 0 auto var(--landing-editor-section-space);
+	}
+}
+
+/* ================================
+   OVERLAY PREVIEW
+================================ */
+
+#ugm-preview-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 999999;
+	display: flex;
+	flex-direction: column;
+	background: #eef1f4;
+	animation: ugmFadeIn 0.2s ease;
+}
+
+@keyframes ugmFadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* ================================
+   TOP BAR
+================================ */
+
+.ugm-preview-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 0 20px;
+	height: 52px;
+	background: #111827;
+	color: #fff;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.ugm-preview-bar__title {
+	font-size: 13px;
+	font-weight: 600;
+	letter-spacing: 0.03em;
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ugm-preview-bar__actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+/* BUTTONS */
+
+.ugm-preview-bar__link {
+	font-size: 12px;
+	color: #9ca3af;
+	text-decoration: none;
+	padding: 5px 10px;
+	border-radius: 4px;
+	transition: all 0.2s ease;
+}
+
+.ugm-preview-bar__link:hover {
+	background: rgba(255, 255, 255, 0.1);
+	color: #fff;
+}
+
+.ugm-preview-bar__close {
+	font-size: 12px;
+	font-weight: 600;
+	padding: 6px 14px;
+	border-radius: 4px;
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	background: transparent;
+	color: #fff;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.ugm-preview-bar__close:hover {
+	background: rgba(255, 255, 255, 0.1);
+	border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* ================================
+   LOADER
+================================ */
+
+.ugm-preview-loader {
+	position: absolute;
+	inset: 52px 0 0 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 14px;
+	color: #6b7280;
+	background: #eef1f4;
+}
+
+/* ================================
+   IFRAME
+================================ */
+
+.ugm-preview-frame {
+	flex: 1;
+	width: 100%;
+	border: none;
+	background: #fff;
+}
+
+/* ================================
+   SIDEBAR PANEL
+================================ */
+
+.ugm-landing-setting-panel {
+	padding-top: 10px;
+}
+
+.ugm-landing-panel__desc {
+	font-size: 12px;
+	color: #4b5563;
+	line-height: 1.6;
+	margin-bottom: 14px;
+}
+
+/* BUTTON */
+
+.ugm-landing-panel__preview-btn {
+	width: 100% !important;
+	justify-content: center !important;
+	font-weight: 600;
+	margin-bottom: 8px;
+}
+
+/* LINK */
+
+.ugm-landing-panel__ext-link {
+	display: block;
+	text-align: center;
+	font-size: 12px;
+	color: #2563eb;
+	text-decoration: none;
+}
+
+.ugm-landing-panel__ext-link:hover {
+	text-decoration: underline;
+}
+
+/* EMPTY STATE */
+
+.ugm-landing-panel__no-link {
+	font-size: 11px;
+	color: #9ca3af;
+	text-align: center;
+	font-style: italic;
+	margin-top: 4px;
+}

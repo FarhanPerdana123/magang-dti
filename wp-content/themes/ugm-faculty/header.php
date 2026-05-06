@@ -27,7 +27,8 @@ $cs_target = '_blank';
 $cs_rel    = 'noopener noreferrer';
 $is_latest_news_route = '1' === get_query_var( 'ugm_latest_news' );
 $is_magazine_news_route = '1' === get_query_var( 'ugm_magazine_news' );
-$is_front_landing       = is_front_page() && ! $is_latest_news_route && ! $is_magazine_news_route;
+$is_landing_template    = is_page_template( 'page-templates/template-landing-page.php' );
+$is_front_landing       = ( is_front_page() || $is_landing_template ) && ! $is_latest_news_route && ! $is_magazine_news_route;
 $front_route_no_hero    = is_front_page() && ! $is_front_landing;
 $header_social_icons    = array(
 	array(

@@ -29,6 +29,8 @@ if ( ! class_exists( 'UGM_Faculty_Theme' ) ) {
 			'widgets.php',
 			'customizer.php',
 			'security.php',
+			'landing-page-meta.php',
+			'blocks.php',
 		);
 
 		/**

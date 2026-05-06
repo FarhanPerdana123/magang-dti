@@ -80,3 +80,245 @@ function ugm_get_magazine_pdf_url( $post_id ) {
 
 	return esc_url_raw( (string) $pdf_value );
 }
+
+/**
+ * Render a visual skeleton placeholder for empty landing page sections.
+ *
+ * @param string $layout  Skeleton layout key.
+ * @param string $message Accessible fallback message.
+ * @param array  $args    Optional configuration.
+ * @return string
+ */
+function ugm_render_empty_skeleton( $layout, $message = '', $args = array() ) {
+	$layout = sanitize_key( (string) $layout );
+	$args   = wp_parse_args(
+		is_array( $args ) ? $args : array(),
+		array(
+			'count' => 4,
+		)
+	);
+	$count  = max( 1, absint( $args['count'] ) );
+
+	ob_start();
+	?>
+	<div class="ugm-empty-skeleton ugm-empty-skeleton--<?php echo esc_attr( $layout ); ?>">
+		<?php if ( '' !== $message ) : ?>
+			<span class="screen-reader-text"><?php echo esc_html( $message ); ?></span>
+		<?php endif; ?>
+
+		<?php if ( 'latest-news' === $layout ) : ?>
+			<div class="ugm-skeleton-news" aria-hidden="true">
+				<div class="ugm-skeleton-news__featured">
+					<span class="ugm-skeleton-box ugm-skeleton-box--media"></span>
+					<div class="ugm-skeleton-news__content">
+						<span class="ugm-skeleton-line ugm-skeleton-line--short"></span>
+						<span class="ugm-skeleton-line ugm-skeleton-line--title"></span>
+						<span class="ugm-skeleton-line ugm-skeleton-line--meta"></span>
+						<span class="ugm-skeleton-line"></span>
+						<span class="ugm-skeleton-line ugm-skeleton-line--wide"></span>
+					</div>
+				</div>
+				<div class="ugm-skeleton-news__list">
+					<?php for ( $i = 0; $i < 3; $i++ ) : ?>
+						<div class="ugm-skeleton-card ugm-skeleton-card--news">
+							<span class="ugm-skeleton-box ugm-skeleton-box--thumb"></span>
+							<div class="ugm-skeleton-card__body">
+								<span class="ugm-skeleton-line ugm-skeleton-line--short"></span>
+								<span class="ugm-skeleton-line"></span>
+								<span class="ugm-skeleton-line ugm-skeleton-line--meta"></span>
+							</div>
+						</div>
+					<?php endfor; ?>
+				</div>
+			</div>
+		<?php elseif ( 'portal-column' === $layout ) : ?>
+			<div class="ugm-skeleton-portal" aria-hidden="true">
+				<div class="ugm-skeleton-card ugm-skeleton-card--portal">
+					<span class="ugm-skeleton-box ugm-skeleton-box--poster"></span>
+					<div class="ugm-skeleton-card__body">
+						<span class="ugm-skeleton-line ugm-skeleton-line--short"></span>
+						<span class="ugm-skeleton-line"></span>
+						<span class="ugm-skeleton-line ugm-skeleton-line--meta"></span>
+					</div>
+				</div>
+				<div class="ugm-skeleton-portal__list">
+					<?php for ( $i = 0; $i < 2; $i++ ) : ?>
+						<div class="ugm-skeleton-list-item">
+							<span class="ugm-skeleton-box ugm-skeleton-box--mini-thumb"></span>
+							<div class="ugm-skeleton-list-item__body">
+								<span class="ugm-skeleton-line ugm-skeleton-line--short"></span>
+								<span class="ugm-skeleton-line"></span>
+								<span class="ugm-skeleton-line ugm-skeleton-line--meta"></span>
+							</div>
+						</div>
+					<?php endfor; ?>
+				</div>
+			</div>
+		<?php elseif ( 'featured-category' === $layout ) : ?>
+			<div class="ugm-skeleton-featured-category" aria-hidden="true">
+				<span class="ugm-skeleton-box ugm-skeleton-box--featured-category"></span>
+				<div class="ugm-skeleton-featured-category__body">
+					<span class="ugm-skeleton-line ugm-skeleton-line--title"></span>
+					<span class="ugm-skeleton-line"></span>
+					<span class="ugm-skeleton-line ugm-skeleton-line--wide"></span>
+					<span class="ugm-skeleton-line ugm-skeleton-line--short"></span>
+				</div>
+			</div>
+		<?php elseif ( 'category-grid' === $layout ) : ?>
+			<div class="category-grid category-grid--skeleton" aria-hidden="true">
+				<?php for ( $i = 0; $i < $count; $i++ ) : ?>
+					<div class="category-card category-card--skeleton">
+						<span class="ugm-skeleton-line ugm-skeleton-line--medium"></span>
+						<span class="ugm-skeleton-line ugm-skeleton-line--meta"></span>
+					</div>
+				<?php endfor; ?>
+			</div>
+		<?php elseif ( 'faculty-grid' === $layout ) : ?>
+			<div class="faculty-slider-wrapper faculty-slider-wrapper--skeleton" aria-hidden="true">
+				<div class="faculty-page faculty-page--skeleton">
+					<?php for ( $i = 0; $i < $count; $i++ ) : ?>
+						<div class="faculty-card faculty-card--skeleton">
+							<span class="ugm-skeleton-box ugm-skeleton-box--faculty"></span>
+						</div>
+					<?php endfor; ?>
+				</div>
+			</div>
+		<?php elseif ( 'agenda-list' === $layout ) : ?>
+			<div class="desktop-agenda-list desktop-agenda-list--skeleton" aria-hidden="true">
+				<?php for ( $i = 0; $i < $count; $i++ ) : ?>
+					<div class="desktop-agenda-card desktop-agenda-card--skeleton">
+						<span class="ugm-skeleton-box ugm-skeleton-box--agenda-date"></span>
+						<div class="desktop-agenda-card__body">
+							<span class="ugm-skeleton-line"></span>
+							<span class="ugm-skeleton-line ugm-skeleton-line--meta"></span>
+						</div>
+					</div>
+				<?php endfor; ?>
+			</div>
+		<?php elseif ( 'facility-grid' === $layout ) : ?>
+			<div class="desktop-facility-grid desktop-facility-grid--count-4 desktop-facility-grid--skeleton" aria-hidden="true">
+				<?php for ( $i = 0; $i < $count; $i++ ) : ?>
+					<div class="desktop-facility-card desktop-facility-card--skeleton">
+						<div class="desktop-facility-card__media desktop-facility-card__media--skeleton">
+							<span class="ugm-skeleton-box ugm-skeleton-box--facility"></span>
+							<span class="ugm-skeleton-line ugm-skeleton-line--facility-title"></span>
+						</div>
+					</div>
+				<?php endfor; ?>
+			</div>
+		<?php elseif ( 'magazine-grid' === $layout ) : ?>
+			<div class="majalah-grid majalah-grid--skeleton" aria-hidden="true">
+				<?php for ( $i = 0; $i < $count; $i++ ) : ?>
+					<div class="majalah-card majalah-card--skeleton">
+						<span class="ugm-skeleton-box ugm-skeleton-box--magazine"></span>
+					</div>
+				<?php endfor; ?>
+			</div>
+		<?php endif; ?>
+	</div>
+	<?php
+
+	return ob_get_clean();
+}
+
+/**
+ * Render repeated skeleton items to fill remaining slots in a partially filled section.
+ *
+ * @param string $layout Skeleton item layout key.
+ * @param int    $count  Number of skeleton items to render.
+ * @return string
+ */
+function ugm_render_partial_skeleton_items( $layout, $count ) {
+	$layout = sanitize_key( (string) $layout );
+	$count  = max( 0, absint( $count ) );
+
+	if ( $count < 1 ) {
+		return '';
+	}
+
+	ob_start();
+
+	for ( $i = 0; $i < $count; $i++ ) {
+		if ( 'latest-news-card' === $layout ) :
+			?>
+			<article class="news-grid-card news-grid-card--list news-grid-card--skeleton" aria-hidden="true">
+				<div class="news-grid-card__media news-grid-card__media--skeleton">
+					<span class="ugm-skeleton-box ugm-skeleton-box--thumb"></span>
+				</div>
+				<div class="news-grid-card__body">
+					<span class="ugm-skeleton-line ugm-skeleton-line--short"></span>
+					<span class="ugm-skeleton-line"></span>
+					<span class="ugm-skeleton-line ugm-skeleton-line--meta"></span>
+				</div>
+			</article>
+			<?php
+		elseif ( 'portal-list-card' === $layout ) :
+			?>
+			<article class="portal-list-card portal-list-card--skeleton" aria-hidden="true">
+				<div class="portal-list-card__media portal-list-card__media--skeleton">
+					<span class="ugm-skeleton-box ugm-skeleton-box--mini-thumb"></span>
+				</div>
+				<div class="portal-list-card__body">
+					<span class="ugm-skeleton-line ugm-skeleton-line--short"></span>
+					<span class="ugm-skeleton-line"></span>
+					<span class="ugm-skeleton-line ugm-skeleton-line--meta"></span>
+				</div>
+			</article>
+			<?php
+		elseif ( 'magazine-card' === $layout ) :
+			?>
+			<article class="majalah-card majalah-card--skeleton" aria-hidden="true">
+				<div class="majalah-card__link">
+					<div class="majalah-card__media majalah-card__media--skeleton">
+						<span class="ugm-skeleton-box ugm-skeleton-box--magazine"></span>
+					</div>
+					<div class="majalah-card__title majalah-card__title--skeleton">
+						<span class="ugm-skeleton-line ugm-skeleton-line--magazine-title"></span>
+					</div>
+				</div>
+			</article>
+			<?php
+		elseif ( 'category-card' === $layout ) :
+			?>
+			<div class="category-card category-card--skeleton" aria-hidden="true">
+				<span class="ugm-skeleton-line ugm-skeleton-line--medium"></span>
+				<span class="ugm-skeleton-line ugm-skeleton-line--meta"></span>
+			</div>
+			<?php
+		elseif ( 'faculty-card' === $layout ) :
+			?>
+			<article class="faculty-card faculty-card--skeleton" aria-hidden="true">
+				<div class="faculty-card__image faculty-card__image--skeleton">
+					<span class="ugm-skeleton-box ugm-skeleton-box--faculty"></span>
+				</div>
+				<div class="faculty-card__overlay">
+					<div class="faculty-card__title faculty-card__title--skeleton">
+						<span class="ugm-skeleton-line ugm-skeleton-line--faculty-title"></span>
+					</div>
+				</div>
+			</article>
+			<?php
+		elseif ( 'agenda-card' === $layout ) :
+			?>
+			<div class="desktop-agenda-card desktop-agenda-card--skeleton" aria-hidden="true">
+				<span class="ugm-skeleton-box ugm-skeleton-box--agenda-date"></span>
+				<div class="desktop-agenda-card__body">
+					<span class="ugm-skeleton-line"></span>
+					<span class="ugm-skeleton-line ugm-skeleton-line--meta"></span>
+				</div>
+			</div>
+			<?php
+		elseif ( 'facility-card' === $layout ) :
+			?>
+			<div class="desktop-facility-card desktop-facility-card--skeleton" aria-hidden="true">
+				<div class="desktop-facility-card__media desktop-facility-card__media--skeleton">
+					<span class="ugm-skeleton-box ugm-skeleton-box--facility"></span>
+					<span class="ugm-skeleton-line ugm-skeleton-line--facility-title"></span>
+				</div>
+			</div>
+			<?php
+		endif;
+	}
+
+	return ob_get_clean();
+}

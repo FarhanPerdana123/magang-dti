@@ -9,7 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$majalah_title        = get_theme_mod( 'ugm_magazine_section_title', __( 'Majalah Kabar Digital', 'ugm-faculty' ) );
+$majalah_title        = get_theme_mod( 'ugm_magazine_section_title', __( 'Majalah Kabar UGM', 'ugm-faculty' ) );
+$majalah_description  = get_theme_mod( 'ugm_magazine_section_description', __( 'Kabar dari UGM dalam bentuk majalah digital', 'ugm-faculty' ) );
 $majalah_archive_link = add_query_arg( 'ugm_magazine_news', '1', home_url( '/' ) );
 $majalah_count        = max( 1, min( 12, absint( get_theme_mod( 'ugm_magazine_item_count', 4 ) ) ) );
 
@@ -27,10 +28,22 @@ $majalah_query = new WP_Query(
 ?>
 
 <section class="home-section section-majalah-digital" aria-labelledby="section-majalah-digital-title">
-	<header class="section-header section-header--accent">
-		<h2 id="section-majalah-digital-title" class="section-title"><?php echo esc_html( $majalah_title ); ?></h2>
-		<span class="section-line" aria-hidden="true"></span>
-	</header>
+	<div class="section-majalah-digital__top">
+		<div class="section-majalah-digital__intro">
+			<header class="section-header section-header--accent section-header--majalah">
+				<h2 id="section-majalah-digital-title" class="section-title"><?php echo esc_html( $majalah_title ); ?></h2>
+				<span class="section-line" aria-hidden="true"></span>
+			</header>
+			<?php if ( '' !== trim( $majalah_description ) ) : ?>
+				<p class="section-majalah-digital__description"><?php echo esc_html( $majalah_description ); ?></p>
+			<?php endif; ?>
+		</div>
+
+		<a class="section-view-all section-view-all--majalah" href="<?php echo esc_url( $majalah_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua majalah', 'ugm-faculty' ); ?>">
+			<?php esc_html_e( 'Lihat Semua', 'ugm-faculty' ); ?>
+			<span aria-hidden="true">&#8594;</span>
+		</a>
+	</div>
 
 	<?php if ( $majalah_query->have_posts() ) : ?>
 		<div class="majalah-grid">
@@ -53,11 +66,14 @@ $majalah_query = new WP_Query(
 					</a>
 				</article>
 			<?php endwhile; ?>
+			<?php
+			$majalah_loaded_posts = (int) $majalah_query->post_count;
+			$majalah_missing      = max( 0, $majalah_count - $majalah_loaded_posts );
+			echo ugm_render_partial_skeleton_items( 'magazine-card', $majalah_missing ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			?>
 		</div>
 		<?php wp_reset_postdata(); ?>
 	<?php else : ?>
-		<p class="section-empty"><?php esc_html_e( 'Belum ada majalah.', 'ugm-faculty' ); ?></p>
+		<?php echo ugm_render_empty_skeleton( 'magazine-grid', __( 'Belum ada majalah.', 'ugm-faculty' ), array( 'count' => 4 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	<?php endif; ?>
-
-	<a class="section-arrow-link" href="<?php echo esc_url( $majalah_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua majalah', 'ugm-faculty' ); ?>">&#8594;</a>
 </section>

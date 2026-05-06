@@ -5,7 +5,14 @@
  * @package ugm-faculty
  */
 
-if ( ! is_front_page() || '1' === get_query_var( 'ugm_latest_news' ) ) {
+if ( ( ! is_front_page() && ! is_page_template( 'page-templates/template-landing-page.php' ) ) || '1' === get_query_var( 'ugm_latest_news' ) ) {
+	return;
+}
+
+// Skip PHP hero if the page's post content already has a ugm/hero-section block.
+// In that case, the block's own render_callback handles the output.
+global $post;
+if ( $post && has_block( 'ugm/hero-section', $post ) ) {
 	return;
 }
 

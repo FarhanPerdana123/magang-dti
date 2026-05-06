@@ -61,6 +61,19 @@ function ugm_theme_setup() {
 	// Improve editor/content compatibility with modern blocks.
 	add_theme_support( 'responsive-embeds' );
 	add_theme_support( 'align-wide' );
+
+	// Enable Full Site Editing (hybrid block theme mode).
+	// Allows WordPress to load block templates from /templates/*.html
+	// and template parts from /parts/*.html alongside classic PHP templates.
+	add_theme_support( 'block-templates' );
+
+	// Load theme CSS inside the block editor canvas so SSR block previews
+	// (ServerSideRender) display with the same styling as the frontend.
+	add_theme_support( 'editor-styles' );
+	add_editor_style( 'style.css' );
+	foreach ( array( 'base', 'header', 'hero', 'content', 'footer' ) as $ugm_module ) {
+		add_editor_style( 'assets/css/' . $ugm_module . '.css' );
+	}
 }
 add_action( 'after_setup_theme', 'ugm_theme_setup' );
 
