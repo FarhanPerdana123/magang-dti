@@ -317,6 +317,19 @@ function ugm_render_partial_skeleton_items( $layout, $count ) {
 				</div>
 			</div>
 			<?php
+		elseif ( 'video-list-card' === $layout ) :
+			?>
+			<article class="video-list-card video-list-card--skeleton" aria-hidden="true">
+				<div class="video-list-card__media video-list-card__media--skeleton">
+					<span class="ugm-skeleton-box ugm-skeleton-box--mini-thumb"></span>
+				</div>
+				<div class="video-list-card__body">
+					<span class="ugm-skeleton-line ugm-skeleton-line--short"></span>
+					<span class="ugm-skeleton-line"></span>
+					<span class="ugm-skeleton-line ugm-skeleton-line--meta"></span>
+				</div>
+			</article>
+			<?php
 		endif;
 	}
 

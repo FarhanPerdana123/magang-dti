@@ -11,8 +11,8 @@ $custom_logo_id = (int) get_theme_mod( 'custom_logo' );
 
 $dark_logo_url  = $dark_logo_id ? wp_get_attachment_image_url( $dark_logo_id, 'full' ) : '';
 $light_logo_url = $light_logo_id ? wp_get_attachment_image_url( $light_logo_id, 'full' ) : '';
-$branding_line_1 = trim( (string) get_theme_mod( 'ugm_branding_line_1', '' ) );
-$branding_line_2 = trim( (string) get_theme_mod( 'ugm_branding_line_2', '' ) );
+$branding_line_1 = trim( (string) get_theme_mod( 'ugm_branding_line_1', 'UNIVERSITAS' ) );
+$branding_line_2 = trim( (string) get_theme_mod( 'ugm_branding_line_2', 'GADJAH MADA' ) );
 $branding_line_3 = trim( (string) get_theme_mod( 'ugm_branding_line_3', '' ) );
 $branding_lines  = array_values(
 	array_filter(

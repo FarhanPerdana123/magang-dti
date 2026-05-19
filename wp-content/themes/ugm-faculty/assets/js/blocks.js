@@ -21,17 +21,109 @@
 	var MediaUpload       = wp.blockEditor.MediaUpload;
 	var MediaUploadCheck  = wp.blockEditor.MediaUploadCheck;
 	var PanelBody         = wp.components.PanelBody;
+	var CheckboxControl   = wp.components.CheckboxControl;
+	var SelectControl     = wp.components.SelectControl;
 	var TextControl       = wp.components.TextControl;
 	var TextareaControl   = wp.components.TextareaControl;
 	var Button            = wp.components.Button;
 	var Fragment          = wp.element.Fragment;
 	var Placeholder       = wp.components.Placeholder;
+	var useSelect         = wp.data.useSelect;
+
+	function parseCategorySlugValue( value ) {
+		return ( value || '' )
+			.split( ',' )
+			.map( function ( slug ) { return slug.trim(); } )
+			.filter( function ( slug ) { return slug !== ''; } );
+	}
+
+	function CategoryChecklistControl( props ) {
+		var categories = useSelect( function ( select ) {
+			return select( 'core' ).getEntityRecords( 'taxonomy', 'category', {
+				per_page: 100,
+				hide_empty: false,
+				orderby: 'name',
+				order: 'asc',
+			} );
+		}, [] );
+		var selectedSlugs = parseCategorySlugValue( props.value );
+
+		function toggleSlug( slug, checked ) {
+			var next = selectedSlugs.filter( function ( selectedSlug ) {
+				return selectedSlug !== slug;
+			} );
+
+			if ( checked ) {
+				next.push( slug );
+			}
+
+			props.onChange( next.join( ', ' ) );
+		}
+
+		return el(
+			'div',
+			{ className: 'ugm-category-checklist-control' },
+			el(
+				'p',
+				{ style: { fontSize: '11px', fontWeight: '600', margin: '0 0 8px', textTransform: 'uppercase' } },
+				props.label
+			),
+			Array.isArray( categories ) && categories.length > 0
+				? categories.map( function ( category ) {
+					return el( CheckboxControl, {
+						key: category.id,
+						label: category.name,
+						checked: selectedSlugs.indexOf( category.slug ) !== -1,
+						onChange: function ( checked ) {
+							toggleSlug( category.slug, checked );
+						},
+					} );
+				} )
+				: el(
+					'p',
+					{ style: { color: '#757575', fontSize: '12px', margin: '0 0 8px' } },
+					__( 'Memuat kategori...', 'ugm-faculty' )
+				),
+			el(
+				'p',
+				{ style: { color: '#757575', fontSize: '12px', margin: '8px 0 0' } },
+				props.help
+			)
+		);
+	}
+
+	function renderCategoryChecklistControl( attrs, setAttr, attributeKey, label, defaultSlug, helpText ) {
+		return el( CategoryChecklistControl, {
+			label: label,
+			value: attrs[ attributeKey ] || '',
+			onChange: function ( value ) {
+				var patch = {};
+				patch[ attributeKey ] = value;
+				setAttr( patch );
+			},
+			help: helpText || __( 'Pilih satu atau beberapa kategori. Kosongkan = default (' + ( defaultSlug || 'semua' ) + ').', 'ugm-faculty' ),
+		} );
+	}
+
+	function renderVisibilityControl( attrs, setAttr ) {
+		return el( SelectControl, {
+			label: __( 'Tampilkan di', 'ugm-faculty' ),
+			value: attrs.visibility || 'all',
+			options: [
+				{ label: __( 'Semua perangkat', 'ugm-faculty' ), value: 'all' },
+				{ label: __( 'Desktop saja', 'ugm-faculty' ), value: 'desktop' },
+				{ label: __( 'Mobile saja', 'ugm-faculty' ), value: 'mobile' },
+			],
+			onChange: function ( v ) { setAttr( { visibility: v } ); },
+			help: __( 'Gunakan ini untuk memisahkan block desktop vs mobile. Di frontend & preview editor akan otomatis tersembunyi sesuai ukuran layar.', 'ugm-faculty' ),
+		} );
+	}
 
 	/* ------------------------------------------------------------------
 	 * Helper: build the edit() function for a configurable section block
 	 * with title + categorySlug attributes shown in Inspector Controls.
 	 * ------------------------------------------------------------------ */
-	function makeSectionEdit( blockName, defaultTitle, defaultSlug ) {
+	function makeSectionEdit( blockName, defaultTitle, defaultSlug, categoryHelp ) {
 		return function ( props ) {
 			var attrs   = props.attributes;
 			var setAttr = props.setAttributes;
@@ -47,20 +139,15 @@
 					el(
 						PanelBody,
 						{ title: __( 'Pengaturan Section', 'ugm-faculty' ), initialOpen: true },
+						renderVisibilityControl( attrs, setAttr ),
 						el( TextControl, {
 							label:    __( 'Judul Section', 'ugm-faculty' ),
 							value:    attrs.title || '',
 							onChange: function ( v ) { setAttr( { title: v } ); },
-							help:     __( 'Kosongkan untuk menggunakan judul default dari Customizer.', 'ugm-faculty' ),
+							help:     __( 'Kosongkan jika tidak ingin menampilkan judul section.', 'ugm-faculty' ),
 						} ),
 						defaultSlug !== null
-							? el( TextControl, {
-								label:    __( 'Slug Kategori', 'ugm-faculty' ),
-								value:    attrs.categorySlug || '',
-								onChange: function ( v ) { setAttr( { categorySlug: v } ); },
-								help:     __( 'Slug kategori WordPress. Kosongkan = default (' + ( defaultSlug || 'semua' ) + ').', 'ugm-faculty' ),
-								style:    { fontFamily: 'monospace' },
-							} )
+							? renderCategoryChecklistControl( attrs, setAttr, 'categorySlug', __( 'Kategori', 'ugm-faculty' ), defaultSlug, categoryHelp )
 							: null
 					)
 				),
@@ -80,15 +167,31 @@
 	 * (header, footer, magazine).
 	 * ------------------------------------------------------------------ */
 	function makeStaticEdit( blockName, label ) {
-		return function () {
-			return el( Placeholder, {
-				icon:  'layout',
-				label: label,
-			},
-				el( ServerSideRender, {
-					block:      blockName,
-					httpMethod: 'POST',
-				} )
+		return function ( props ) {
+			var attrs   = props.attributes;
+			var setAttr = props.setAttributes;
+			return el(
+				Fragment,
+				null,
+				el(
+					InspectorControls,
+					null,
+					el(
+						PanelBody,
+						{ title: __( 'Pengaturan Section', 'ugm-faculty' ), initialOpen: true },
+						renderVisibilityControl( attrs, setAttr )
+					)
+				),
+				el( Placeholder, {
+					icon:  'layout',
+					label: label,
+				},
+					el( ServerSideRender, {
+						block:      blockName,
+						attributes: attrs,
+						httpMethod: 'POST',
+					} )
+				)
 			);
 		};
 	}
@@ -107,17 +210,13 @@
 					el(
 						PanelBody,
 						{ title: __( 'Seputar Kampus', 'ugm-faculty' ), initialOpen: true },
+						renderVisibilityControl( attrs, setAttr ),
 						el( TextControl, {
 							label: __( 'Judul Section', 'ugm-faculty' ),
 							value: attrs.campusTitle || '',
 							onChange: function ( v ) { setAttr( { campusTitle: v } ); },
 						} ),
-						el( TextControl, {
-							label: __( 'Slug Kategori', 'ugm-faculty' ),
-							value: attrs.campusCategorySlug || '',
-							onChange: function ( v ) { setAttr( { campusCategorySlug: v } ); },
-							style: { fontFamily: 'monospace' },
-						} )
+						renderCategoryChecklistControl( attrs, setAttr, 'campusCategorySlug', __( 'Kategori', 'ugm-faculty' ), 'seputar-kampus' )
 					),
 					el(
 						PanelBody,
@@ -127,12 +226,7 @@
 							value: attrs.facultyTitle || '',
 							onChange: function ( v ) { setAttr( { facultyTitle: v } ); },
 						} ),
-						el( TextControl, {
-							label: __( 'Slug Kategori', 'ugm-faculty' ),
-							value: attrs.facultyCategorySlug || '',
-							onChange: function ( v ) { setAttr( { facultyCategorySlug: v } ); },
-							style: { fontFamily: 'monospace' },
-						} )
+						renderCategoryChecklistControl( attrs, setAttr, 'facultyCategorySlug', __( 'Kategori', 'ugm-faculty' ), 'kabar-fakultas' )
 					),
 					el(
 						PanelBody,
@@ -142,12 +236,7 @@
 							value: attrs.partnershipTitle || '',
 							onChange: function ( v ) { setAttr( { partnershipTitle: v } ); },
 						} ),
-						el( TextControl, {
-							label: __( 'Slug Kategori', 'ugm-faculty' ),
-							value: attrs.partnershipCategorySlug || '',
-							onChange: function ( v ) { setAttr( { partnershipCategorySlug: v } ); },
-							style: { fontFamily: 'monospace' },
-						} )
+						renderCategoryChecklistControl( attrs, setAttr, 'partnershipCategorySlug', __( 'Kategori', 'ugm-faculty' ), 'kerjasama' )
 					)
 				),
 				el( ServerSideRender, {
@@ -173,6 +262,7 @@
 					el(
 						PanelBody,
 						{ title: __( 'Seputar UGM', 'ugm-faculty' ), initialOpen: true },
+						renderVisibilityControl( attrs, setAttr ),
 						el( TextControl, {
 							label: __( 'Judul Overline', 'ugm-faculty' ),
 							value: attrs.overline || '',
@@ -184,13 +274,7 @@
 							value: attrs.title || '',
 							onChange: function ( v ) { setAttr( { title: v } ); },
 						} ),
-						el( TextControl, {
-							label: __( 'Slug Kategori', 'ugm-faculty' ),
-							value: attrs.categorySlug || '',
-							onChange: function ( v ) { setAttr( { categorySlug: v } ); },
-							help: __( 'Isi slug kategori post untuk section ini.', 'ugm-faculty' ),
-							style: { fontFamily: 'monospace' },
-						} )
+						renderCategoryChecklistControl( attrs, setAttr, 'categorySlug', __( 'Kategori', 'ugm-faculty' ), 'semua' )
 					)
 				),
 				el( ServerSideRender, {
@@ -215,35 +299,24 @@
 					null,
 					el(
 						PanelBody,
-						{ title: __( 'Agenda Kegiatan', 'ugm-faculty' ), initialOpen: true },
+						{ title: __( 'Event & Agenda', 'ugm-faculty' ), initialOpen: true },
+						renderVisibilityControl( attrs, setAttr ),
 						el( TextControl, {
 							label: __( 'Judul Section', 'ugm-faculty' ),
 							value: attrs.title || '',
 							onChange: function ( v ) { setAttr( { title: v } ); },
 						} ),
-						el( TextControl, {
-							label: __( 'Slug Kategori Agenda', 'ugm-faculty' ),
-							value: attrs.categorySlug || '',
-							onChange: function ( v ) { setAttr( { categorySlug: v } ); },
-							help: __( 'Kosongkan = default (agenda).', 'ugm-faculty' ),
-							style: { fontFamily: 'monospace' },
-						} )
+						renderCategoryChecklistControl( attrs, setAttr, 'categorySlug', __( 'Kategori Agenda', 'ugm-faculty' ), 'agenda' )
 					),
 					el(
 						PanelBody,
-						{ title: __( 'Fasilitas Mahasiswa', 'ugm-faculty' ), initialOpen: false },
+						{ title: __( 'Fasilitas Kampus', 'ugm-faculty' ), initialOpen: false },
 						el( TextControl, {
 							label: __( 'Judul Section', 'ugm-faculty' ),
 							value: attrs.facilityTitle || '',
 							onChange: function ( v ) { setAttr( { facilityTitle: v } ); },
 						} ),
-						el( TextControl, {
-							label: __( 'Slug Kategori Fasilitas', 'ugm-faculty' ),
-							value: attrs.facilityCategorySlug || '',
-							onChange: function ( v ) { setAttr( { facilityCategorySlug: v } ); },
-							help: __( 'Kosongkan = default (fasilitas-mahasiswa / fasilitas).', 'ugm-faculty' ),
-							style: { fontFamily: 'monospace' },
-						} )
+						renderCategoryChecklistControl( attrs, setAttr, 'facilityCategorySlug', __( 'Kategori Fasilitas', 'ugm-faculty' ), 'fasilitas-mahasiswa' )
 					)
 				),
 				el( ServerSideRender, {
@@ -278,7 +351,7 @@
 	 * directly from the page editor sidebar.
 	 * ------------------------------------------------------------------ */
 	registerBlockType( 'ugm/hero-section', {
-		title:       __( 'Hero Section', 'ugm-faculty' ),
+		title:       __( 'Banner Utama', 'ugm-faculty' ),
 		description: __( 'Gambar latar, judul, dan deskripsi halaman landing.', 'ugm-faculty' ),
 		category:    'ugm-sections',
 		icon:        'format-image',
@@ -286,8 +359,12 @@
 		attributes: {
 			imageId:     { type: 'integer', default: 0 },
 			imageUrl:    { type: 'string',  default: '' },
+			mediaType:   { type: 'string',  default: 'image' },
+			videoId:     { type: 'integer', default: 0 },
+			videoUrl:    { type: 'string',  default: '' },
 			title:       { type: 'string',  default: '' },
 			description: { type: 'string',  default: '' },
+			visibility:  { type: 'string',  default: 'all' },
 		},
 		edit: function ( props ) {
 			var attrs   = props.attributes;
@@ -303,13 +380,71 @@
 					null,
 					el(
 						PanelBody,
-						{ title: __( 'Gambar Latar Hero', 'ugm-faculty' ), initialOpen: true },
-						el(
+						{ title: __( 'Media Latar Hero', 'ugm-faculty' ), initialOpen: true },
+						renderVisibilityControl( attrs, setAttr ),
+						el( SelectControl, {
+							label: __( 'Jenis Media', 'ugm-faculty' ),
+							value: attrs.mediaType || 'image',
+							options: [
+								{ label: __( 'Gambar', 'ugm-faculty' ), value: 'image' },
+								{ label: __( 'Video', 'ugm-faculty' ), value: 'video' },
+							],
+							onChange: function ( v ) { setAttr( { mediaType: v } ); },
+							help: __( 'Video akan berjalan otomatis dengan mode muted dan loop.', 'ugm-faculty' ),
+						} ),
+						( attrs.mediaType || 'image' ) === 'video'
+							? el(
+								MediaUploadCheck,
+								null,
+								el( MediaUpload, {
+									onSelect: function ( media ) {
+										setAttr( { mediaType: 'video', videoId: media.id, videoUrl: media.url } );
+									},
+									allowedTypes: [ 'video' ],
+									value: attrs.videoId || 0,
+									render: function ( ref ) {
+										return el(
+											'div',
+											{ style: { marginBottom: '8px' } },
+											attrs.videoUrl
+												? el( 'video', {
+													src: attrs.videoUrl,
+													muted: true,
+													loop: true,
+													autoPlay: true,
+													playsInline: true,
+													controls: true,
+													style: { width: '100%', borderRadius: '4px', marginBottom: '6px' },
+												} )
+												: el( 'p', { style: { color: '#999', marginBottom: '6px' } },
+													__( 'Belum ada video hero. Pilih video dari Media Library.', 'ugm-faculty' )
+												),
+											el( Button, {
+												onClick:     ref.open,
+												isSecondary: true,
+												style:       { marginRight: '6px' },
+											}, attrs.videoUrl
+												? __( 'Ganti Video', 'ugm-faculty' )
+												: __( 'Pilih Video', 'ugm-faculty' )
+											),
+											attrs.videoUrl
+												? el( Button, {
+													onClick:       function () { setAttr( { videoId: 0, videoUrl: '' } ); },
+													isDestructive: true,
+												}, __( 'Hapus', 'ugm-faculty' ) )
+												: null
+										);
+									},
+								} )
+							)
+							: null,
+						( attrs.mediaType || 'image' ) === 'image'
+							? el(
 							MediaUploadCheck,
 							null,
 							el( MediaUpload, {
 								onSelect: function ( media ) {
-									setAttr( { imageId: media.id, imageUrl: media.url } );
+									setAttr( { mediaType: 'image', imageId: media.id, imageUrl: media.url } );
 								},
 								allowedTypes: [ 'image' ],
 								value: attrs.imageId || 0,
@@ -344,6 +479,7 @@
 								},
 							} )
 						)
+							: null
 					),
 					el(
 						PanelBody,
@@ -352,14 +488,14 @@
 							label:    __( 'Judul Hero', 'ugm-faculty' ),
 							value:    attrs.title || '',
 							onChange: function ( v ) { setAttr( { title: v } ); },
-							help:     __( 'Kosongkan = judul default dari Customizer.', 'ugm-faculty' ),
+							help:     __( 'Kosongkan jika tidak ingin menampilkan judul hero.', 'ugm-faculty' ),
 						} ),
 						el( TextareaControl, {
 							label:    __( 'Deskripsi Hero', 'ugm-faculty' ),
 							value:    attrs.description || '',
 							onChange: function ( v ) { setAttr( { description: v } ); },
 							rows:     3,
-							help:     __( 'Kosongkan = deskripsi default dari Customizer.', 'ugm-faculty' ),
+							help:     __( 'Kosongkan jika tidak ingin menampilkan deskripsi hero.', 'ugm-faculty' ),
 						} )
 					)
 				),
@@ -382,49 +518,50 @@
 	var sections = [
 		{
 			name:         'ugm/latest-news',
-			title:        __( 'Berita Terbaru', 'ugm-faculty' ),
+			title:        __( 'Highlight Informasi', 'ugm-faculty' ),
 			description:  __( 'Menampilkan postingan terbaru pada landing page.', 'ugm-faculty' ),
 			icon:         'rss',
 			defaultTitle: __( 'Berita Terbaru', 'ugm-faculty' ),
-			defaultSlug:  '', // Kosong = tampilkan semua post terbaru (semua kategori).
+			defaultSlug:  '',
+			categoryHelp: __( 'Biarkan kosong agar otomatis mengikuti gabungan kategori dari Informasi Akademik, Informasi Umum, dan Pencapaian.', 'ugm-faculty' ),
 			attrs: {
-				title:        { type: 'string', default: '' },
+				title:        { type: 'string', default: 'Highlight Informasi' },
 				categorySlug: { type: 'string', default: '' },
 			},
 		},
 		{
 			name:         'ugm/academic-news',
-			title:        __( 'Berita Akademik', 'ugm-faculty' ),
+			title:        __( 'Informasi Akademik', 'ugm-faculty' ),
 			description:  __( 'Menampilkan berita berdasarkan kategori akademik.', 'ugm-faculty' ),
 			icon:         'book',
 			defaultTitle: __( 'Berita Akademik', 'ugm-faculty' ),
 			defaultSlug:  'pendidikan',
 			attrs: {
-				title:        { type: 'string', default: '' },
+				title:        { type: 'string', default: 'Informasi Akademik' },
 				categorySlug: { type: 'string', default: '' },
 			},
 		},
 		{
 			name:         'ugm/profile-section',
-			title:        __( 'Profile', 'ugm-faculty' ),
-			description:  __( 'Menampilkan konten kategori profile.', 'ugm-faculty' ),
+			title:        __( 'Informasi Umum', 'ugm-faculty' ),
+			description:  __( 'Menampilkan konten kategori profil / informasi umum.', 'ugm-faculty' ),
 			icon:         'admin-users',
 			defaultTitle: __( 'Profile', 'ugm-faculty' ),
 			defaultSlug:  'profile',
 			attrs: {
-				title:        { type: 'string', default: '' },
+				title:        { type: 'string', default: 'Informasi Umum' },
 				categorySlug: { type: 'string', default: '' },
 			},
 		},
 		{
 			name:         'ugm/achievement-section',
-			title:        __( 'Prestasi', 'ugm-faculty' ),
-			description:  __( 'Menampilkan konten kategori prestasi.', 'ugm-faculty' ),
+			title:        __( 'Pencapaian', 'ugm-faculty' ),
+			description:  __( 'Menampilkan konten pencapaian / prestasi berdasarkan kategori.', 'ugm-faculty' ),
 			icon:         'awards',
 			defaultTitle: __( 'Prestasi', 'ugm-faculty' ),
 			defaultSlug:  'prestasi',
 			attrs: {
-				title:        { type: 'string', default: '' },
+				title:        { type: 'string', default: 'Pencapaian' },
 				categorySlug: { type: 'string', default: '' },
 			},
 		},
@@ -435,8 +572,9 @@
 			icon:         'building',
 			defaultTitle: __( 'Fasilitas', 'ugm-faculty' ),
 			defaultSlug:  'fasilitas',
+			supports:     { html: false, multiple: false, inserter: false },
 			attrs: {
-				title:        { type: 'string', default: '' },
+				title:        { type: 'string', default: 'Fasilitas' },
 				categorySlug: { type: 'string', default: '' },
 			},
 		},
@@ -447,24 +585,26 @@
 			icon:         'art',
 			defaultTitle: __( 'Fakultas dan Sekolah', 'ugm-faculty' ),
 			defaultSlug:  null, // No category — data from Customizer.
+			supports:     { html: false, multiple: false, inserter: false },
 			attrs: {
 				overline: { type: 'string', default: 'Seputar UGM' },
-				title: { type: 'string', default: '' },
+				title: { type: 'string', default: 'Fakultas dan Sekolah' },
 				categorySlug: { type: 'string', default: '' },
 			},
 		},
 		{
 			name:         'ugm/agenda-section',
-			title:        __( 'Agenda Kegiatan', 'ugm-faculty' ),
+			title:        __( 'Event & Agenda', 'ugm-faculty' ),
 			description:  __( 'Menampilkan agenda kegiatan berdasarkan kategori.', 'ugm-faculty' ),
 			icon:         'calendar',
 			defaultTitle: __( 'Agenda Kegiatan', 'ugm-faculty' ),
 			defaultSlug:  'agenda',
+			supports:     { html: false, multiple: false, inserter: false },
 			attrs: {
-				title:                { type: 'string', default: '' },
+				title:                { type: 'string', default: 'Event & Agenda' },
 				categorySlug:         { type: 'string', default: '' },
-				facilityTitle:        { type: 'string', default: 'Fasilitas Mahasiswa' },
-				facilityCategorySlug: { type: 'string', default: 'fasilitas-mahasiswa' },
+				facilityTitle:        { type: 'string', default: '' },
+				facilityCategorySlug: { type: 'string', default: '' },
 			},
 		},
 		{
@@ -475,26 +615,26 @@
 			defaultTitle: __( 'Kategori', 'ugm-faculty' ),
 			defaultSlug:  null,
 			attrs: {
-				title: { type: 'string', default: '' },
+				title: { type: 'string', default: 'Kategori' },
 			},
 		},
 		{
 			name:         'ugm/video-section',
-			title:        __( 'Video', 'ugm-faculty' ),
+			title:        __( 'Media Video', 'ugm-faculty' ),
 			description:  __( 'Menampilkan video unggulan dan daftar video berdasarkan kategori.', 'ugm-faculty' ),
 			icon:         'video-alt3',
 			defaultTitle: __( 'Video', 'ugm-faculty' ),
 			defaultSlug:  'video',
 			attrs: {
-				title:        { type: 'string', default: '' },
-				categorySlug: { type: 'string', default: 'video' },
+				title:        { type: 'string', default: 'Media Video' },
+				categorySlug: { type: 'string', default: '' },
 			},
 		},
 	];
 
 	/* Editor previews - frontend still uses the PHP hardcoded template. */
 	sections.forEach( function ( section ) {
-		var editFn = makeSectionEdit( section.name, section.defaultTitle, section.defaultSlug );
+		var editFn = makeSectionEdit( section.name, section.defaultTitle, section.defaultSlug, section.categoryHelp );
 
 		if ( 'ugm/faculty-section' === section.name ) {
 			editFn = makeFacultyEdit( section.name );
@@ -507,8 +647,8 @@
 			description: section.description,
 			category:    'ugm-sections',
 			icon:        section.icon,
-			supports:    { html: false, multiple: false },
-			attributes:  section.attrs,
+			supports:    section.supports || { html: false, multiple: false },
+			attributes:  Object.assign( { visibility: { type: 'string', default: 'all' } }, section.attrs ),
 			edit:        editFn,
 			save:        function () { return null; },
 		} );
@@ -519,14 +659,15 @@
 		description: __( 'Blok lama — gunakan "Sorotan Kategori Kolom" agar tiap kolom bisa dipindah terpisah.', 'ugm-faculty' ),
 		category: 'ugm-sections',
 		icon: 'screenoptions',
-		supports: { html: false, multiple: false },
+		supports: { html: false, multiple: false, inserter: false },
 		attributes: {
-			campusTitle: { type: 'string', default: 'Seputar Kampus' },
-			campusCategorySlug: { type: 'string', default: 'seputar-kampus' },
-			facultyTitle: { type: 'string', default: 'Kabar Fakultas' },
-			facultyCategorySlug: { type: 'string', default: 'kabar-fakultas' },
-			partnershipTitle: { type: 'string', default: 'Kerjasama' },
-			partnershipCategorySlug: { type: 'string', default: 'kerjasama' },
+			visibility: { type: 'string', default: 'all' },
+			campusTitle: { type: 'string', default: '' },
+			campusCategorySlug: { type: 'string', default: '' },
+			facultyTitle: { type: 'string', default: '' },
+			facultyCategorySlug: { type: 'string', default: '' },
+			partnershipTitle: { type: 'string', default: '' },
+			partnershipCategorySlug: { type: 'string', default: '' },
 		},
 		edit: makeFeaturedCategoriesEdit(),
 		save: function () { return null; },
@@ -534,17 +675,18 @@
 
 	/* ugm/featured-category-column — single reorderable column */
 	registerBlockType( 'ugm/featured-category-column', {
-		title:       __( 'Sorotan Kategori Kolom', 'ugm-faculty' ),
-		description: __( 'Satu kolom sorotan kategori. Tambahkan tiga blok ini berdampingan dan pindah-pindahkan sesuka hati.', 'ugm-faculty' ),
+		title:       __( 'Highlight Konten', 'ugm-faculty' ),
+		description: __( 'Satu kolom highlight konten. Tambahkan tiga blok ini berdampingan dan pindah-pindahkan sesuka hati.', 'ugm-faculty' ),
 		category:    'ugm-sections',
 		icon:        'columns',
 		supports:    { html: false },
 		attributes: {
-			title:        { type: 'string', default: '' },
+			visibility:   { type: 'string', default: 'all' },
+			title:        { type: 'string', default: 'Highlight Konten' },
 			categorySlug: { type: 'string', default: '' },
 			emptyText:    { type: 'string', default: '' },
 		},
-		edit: makeSectionEdit( 'ugm/featured-category-column', __( 'Sorotan Kategori', 'ugm-faculty' ), 'seputar-kampus' ),
+		edit: makeSectionEdit( 'ugm/featured-category-column', __( 'Highlight Konten', 'ugm-faculty' ), 'seputar-kampus' ),
 		save: function () { return null; },
 	} );
 
@@ -552,7 +694,7 @@
 	[
 		{ name: 'ugm/site-header',      title: __( 'Header Situs', 'ugm-faculty' ),   icon: 'admin-site' },
 		{ name: 'ugm/site-footer',      title: __( 'Footer Situs', 'ugm-faculty' ),   icon: 'admin-site-alt3' },
-		{ name: 'ugm/magazine-section', title: __( 'Majalah Digital', 'ugm-faculty' ), icon: 'media-document' },
+		{ name: 'ugm/magazine-section', title: __( 'E-Magazine', 'ugm-faculty' ), icon: 'media-document' },
 	].forEach( function ( block ) {
 		registerBlockType( block.name, {
 			title:    block.title,
@@ -560,6 +702,7 @@
 				? 'theme' : 'ugm-sections',
 			icon:     block.icon,
 			supports: { html: false, multiple: false },
+			attributes: { visibility: { type: 'string', default: 'all' } },
 			edit:     makeStaticEdit( block.name, block.title ),
 			save:     function () { return null; },
 		} );
@@ -567,43 +710,46 @@
 
 	/* ugm/agenda-only — Agenda Kegiatan mandiri */
 	registerBlockType( 'ugm/agenda-only', {
-		title:       __( 'Agenda Kegiatan', 'ugm-faculty' ),
-		description: __( 'Menampilkan daftar agenda kegiatan. Bisa dipindah terpisah dari Fasilitas Mahasiswa.', 'ugm-faculty' ),
+		title:       __( 'Event & Agenda', 'ugm-faculty' ),
+		description: __( 'Menampilkan daftar agenda kegiatan. Bisa dipindah terpisah dari Fasilitas Kampus.', 'ugm-faculty' ),
 		category:    'ugm-sections',
 		icon:        'calendar-alt',
 		supports:    { html: false },
 		attributes: {
-			title:        { type: 'string', default: '' },
+			visibility:  { type: 'string', default: 'all' },
+			title:        { type: 'string', default: 'Event & Agenda' },
 			categorySlug: { type: 'string', default: '' },
 		},
-		edit: makeSectionEdit( 'ugm/agenda-only', __( 'Agenda Kegiatan', 'ugm-faculty' ), 'agenda' ),
+		edit: makeSectionEdit( 'ugm/agenda-only', __( 'Event & Agenda', 'ugm-faculty' ), 'agenda' ),
 		save: function () { return null; },
 	} );
 
 	/* ugm/facility-only — Fasilitas Mahasiswa mandiri */
 	registerBlockType( 'ugm/facility-only', {
-		title:       __( 'Fasilitas Mahasiswa', 'ugm-faculty' ),
-		description: __( 'Menampilkan grid fasilitas mahasiswa. Bisa dipindah terpisah dari Agenda Kegiatan.', 'ugm-faculty' ),
+		title:       __( 'Fasilitas Kampus', 'ugm-faculty' ),
+		description: __( 'Menampilkan grid fasilitas kampus. Bisa dipindah terpisah dari Event & Agenda.', 'ugm-faculty' ),
 		category:    'ugm-sections',
 		icon:        'building',
 		supports:    { html: false },
 		attributes: {
-			title:        { type: 'string', default: '' },
+			visibility:  { type: 'string', default: 'all' },
+			title:        { type: 'string', default: 'Fasilitas Kampus' },
 			categorySlug: { type: 'string', default: '' },
 		},
-		edit: makeSectionEdit( 'ugm/facility-only', __( 'Fasilitas Mahasiswa', 'ugm-faculty' ), 'fasilitas-mahasiswa' ),
+		edit: makeSectionEdit( 'ugm/facility-only', __( 'Fasilitas Kampus', 'ugm-faculty' ), 'fasilitas-mahasiswa' ),
 		save: function () { return null; },
 	} );
 	/* ugm/faculty-list — Fakultas dan Sekolah (Manual / Static) */
 	registerBlockType( 'ugm/faculty-list', {
-		title:       __( 'Fakultas dan Sekolah (Manual)', 'ugm-faculty' ),
-		description: __( 'Daftar fakultas diinput langsung di editor — gambar, nama, link website.', 'ugm-faculty' ),
+		title:       __( 'Struktur Akademik', 'ugm-faculty' ),
+		description: __( 'Daftar fakultas/sekolah diinput langsung di editor — gambar, nama, link website.', 'ugm-faculty' ),
 		category:    'ugm-sections',
 		icon:        'building',
 		supports:    { html: false },
 		attributes: {
+			visibility: { type: 'string', default: 'all' },
 			overline: { type: 'string', default: 'Seputar UGM' },
-			title:    { type: 'string', default: '' },
+			title:    { type: 'string', default: 'Struktur Akademik' },
 			items:    { type: 'array',  default: [] },
 		},
 
@@ -711,6 +857,7 @@
 
 					/* Section settings */
 					el( PanelBody, { title: 'Pengaturan Section', initialOpen: true },
+						renderVisibilityControl( attrs, setAttr ),
 						el( TextControl, {
 							label: 'Overline (teks kecil)',
 							value: attrs.overline || '',
@@ -743,6 +890,199 @@
 				/* Live preview */
 				el( ServerSideRender, {
 					block: 'ugm/faculty-list',
+					attributes: attrs,
+					httpMethod: 'POST',
+				} )
+			);
+		},
+
+		save: function () { return null; },
+	} );
+
+	/* ------------------------------------------------------------------
+	 * ugm/template-links — Tautan Layanan (Grid Kartu Manual)
+	 *
+	 * Manually-configured grid of link cards matching the UGM portal
+	 * navigation style: dark-navy card, icon image, bold label, sublabel,
+	 * optional background image, and an external URL.
+	 * ------------------------------------------------------------------ */
+	registerBlockType( 'ugm/template-links', {
+		title:       __( 'Layanan Pilihan', 'ugm-faculty' ),
+		description: __( 'Grid kartu layanan pilihan dengan ikon, label, dan URL. Data diinput manual di editor.', 'ugm-faculty' ),
+		category:    'ugm-sections',
+		icon:        'admin-links',
+		supports:    { html: false },
+		attributes: {
+			visibility: { type: 'string', default: 'all' },
+			title: { type: 'string', default: 'Layanan Pilihan' },
+			items: { type: 'array',  default: [] },
+		},
+
+		edit: function ( props ) {
+			var attrs   = props.attributes;
+			var setAttr = props.setAttributes;
+			var items   = Array.isArray( attrs.items ) ? attrs.items : [];
+
+			function renderSectionSettings() {
+				return el( PanelBody, { title: __( 'Pengaturan Section', 'ugm-faculty' ), initialOpen: true },
+					renderVisibilityControl( attrs, setAttr ),
+					el( TextControl, {
+						label: __( 'Judul Section', 'ugm-faculty' ),
+						value: attrs.title || '',
+						onChange: function ( v ) { setAttr( { title: v } ); },
+					} )
+				);
+			}
+
+			/* ---- Render one item row in the inspector ---- */
+			function renderItemRow( item, index ) {
+				function updateItem( patch ) {
+					var next = items.map( function ( it, i ) {
+						return i === index ? Object.assign( {}, it, patch ) : it;
+					} );
+					setAttr( { items: next } );
+				}
+
+				return el(
+					'div',
+					{
+						key: 'tl-item-' + index,
+						style: {
+							border: '1px solid #ddd', borderRadius: '4px',
+							padding: '10px', marginBottom: '10px', background: '#fafafa',
+						},
+					},
+
+					/* Row header */
+					el( 'div',
+						{ style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' } },
+						el( 'strong', null, __( 'Tautan #', 'ugm-faculty' ) + ( index + 1 ) ),
+						el( Button, {
+							isDestructive: true, isSmall: true,
+							onClick: function () {
+								setAttr( { items: items.filter( function ( _, i ) { return i !== index; } ) } );
+							},
+						}, __( 'Hapus', 'ugm-faculty' ) )
+					),
+
+					/* Label */
+					el( TextControl, {
+						label:    __( 'Label (Judul)', 'ugm-faculty' ),
+						value:    item.label || '',
+						onChange: function ( v ) { updateItem( { label: v } ); },
+					} ),
+
+					/* Sublabel */
+					el( TextControl, {
+						label:    __( 'Sub-label / Teks Kecil', 'ugm-faculty' ),
+						value:    item.sublabel || '',
+						onChange: function ( v ) { updateItem( { sublabel: v } ); },
+						help:     __( 'Contoh: aspirasi.ugm.ac.id', 'ugm-faculty' ),
+					} ),
+
+					/* Link URL */
+					el( TextControl, {
+						label:    __( 'URL Tujuan', 'ugm-faculty' ),
+						value:    item.link || '',
+						type:     'url',
+						onChange: function ( v ) { updateItem( { link: v } ); },
+						help:     __( 'Link dibuka di tab baru. Contoh: https://ppid.ugm.ac.id', 'ugm-faculty' ),
+						style:    { fontFamily: 'monospace' },
+					} ),
+
+					/* Icon image */
+					el( 'div', { style: { marginBottom: '10px' } },
+						el( 'p', { style: { fontSize: '12px', fontWeight: '600', margin: '0 0 4px' } },
+							__( 'Ikon / Logo', 'ugm-faculty' )
+						),
+						item.iconUrl
+							? el( 'div', { style: { marginBottom: '6px' } },
+								el( 'img', {
+									src: item.iconUrl, alt: '',
+									style: {
+										width: '52px', height: '52px', objectFit: 'contain',
+										borderRadius: '4px', display: 'block', marginBottom: '4px',
+										background: '#1a3a5c', padding: '4px',
+									},
+								} ),
+								el( Button, {
+									isDestructive: true, isSmall: true, style: { marginBottom: '4px' },
+									onClick: function () { updateItem( { iconUrl: '', iconId: 0 } ); },
+								}, __( 'Hapus Ikon', 'ugm-faculty' ) )
+							)
+							: null,
+						el( MediaUploadCheck, null,
+							el( MediaUpload, {
+								allowedTypes: [ 'image' ],
+								value:        item.iconId || null,
+								onSelect:     function ( media ) { updateItem( { iconUrl: media.url, iconId: media.id } ); },
+								render:       function ( ref ) {
+									return el( Button, { isSecondary: true, isSmall: true, onClick: ref.open },
+										item.iconUrl ? __( 'Ganti Ikon', 'ugm-faculty' ) : __( 'Pilih Ikon', 'ugm-faculty' )
+									);
+								},
+							} )
+						)
+					),
+
+					/* Background image */
+					el( 'div', null,
+						el( 'p', { style: { fontSize: '12px', fontWeight: '600', margin: '0 0 4px' } },
+							__( 'Gambar Latar Kartu (opsional)', 'ugm-faculty' )
+						),
+						item.bgUrl
+							? el( 'div', { style: { marginBottom: '6px' } },
+								el( 'img', {
+									src: item.bgUrl, alt: '',
+									style: { width: '100%', height: '52px', objectFit: 'cover', borderRadius: '3px', display: 'block', marginBottom: '4px' },
+								} ),
+								el( Button, {
+									isDestructive: true, isSmall: true, style: { marginBottom: '4px' },
+									onClick: function () { updateItem( { bgUrl: '', bgId: 0 } ); },
+								}, __( 'Hapus Gambar Latar', 'ugm-faculty' ) )
+							)
+							: null,
+						el( MediaUploadCheck, null,
+							el( MediaUpload, {
+								allowedTypes: [ 'image' ],
+								value:        item.bgId || null,
+								onSelect:     function ( media ) { updateItem( { bgUrl: media.url, bgId: media.id } ); },
+								render:       function ( ref ) {
+									return el( Button, { isSecondary: true, isSmall: true, onClick: ref.open },
+										item.bgUrl ? __( 'Ganti Gambar Latar', 'ugm-faculty' ) : __( 'Pilih Gambar Latar', 'ugm-faculty' )
+									);
+								},
+							} )
+						)
+					)
+				);
+			}
+
+			return el( Fragment, null,
+
+				/* Inspector Controls */
+				el( InspectorControls, null,
+					renderSectionSettings(),
+
+					el( PanelBody, { title: __( 'Daftar Tautan (' + items.length + ')', 'ugm-faculty' ), initialOpen: true },
+						items.length > 0
+							? items.map( function ( item, index ) { return renderItemRow( item, index ); } )
+							: el( 'p', { style: { fontSize: '12px', color: '#777', fontStyle: 'italic' } },
+								__( 'Belum ada tautan. Klik "+ Tambah" di bawah.', 'ugm-faculty' )
+							),
+						el( Button, {
+							isPrimary: true,
+							style: { width: '100%', justifyContent: 'center', marginTop: '8px' },
+							onClick: function () {
+								setAttr( { items: items.concat( [ { label: '', sublabel: '', link: '', iconUrl: '', iconId: 0, bgUrl: '', bgId: 0 } ] ) } );
+							},
+						}, __( '+ Tambah Tautan', 'ugm-faculty' ) )
+					)
+				),
+
+				/* Live SSR preview */
+				el( ServerSideRender, {
+					block:      'ugm/template-links',
 					attributes: attrs,
 					httpMethod: 'POST',
 				} )

@@ -9,18 +9,36 @@ get_header();
 
 $latest_title = get_theme_mod( 'ugm_latest_section_title', __( 'Berita Terbaru', 'ugm-faculty' ) );
 $paged        = max( 1, (int) get_query_var( 'paged' ), (int) get_query_var( 'page' ) );
-
-$latest_news_query = new WP_Query(
-	array(
-		'post_type'           => 'post',
-		'posts_per_page'      => 10,
-		'paged'               => $paged,
-		'ignore_sticky_posts' => true,
-		'post_status'         => 'publish',
-		'orderby'             => 'date',
-		'order'               => 'DESC',
-	)
+$query_args   = array(
+	'post_type'           => 'post',
+	'posts_per_page'      => 10,
+	'paged'               => $paged,
+	'ignore_sticky_posts' => true,
+	'post_status'         => 'publish',
+	'orderby'             => 'date',
+	'order'               => 'DESC',
 );
+
+$whitelist_ids = function_exists( 'ugm_collect_news_whitelist_category_ids' )
+	? ugm_collect_news_whitelist_category_ids()
+	: array();
+
+if ( ! empty( $whitelist_ids ) ) {
+	$query_args['category__in'] = $whitelist_ids;
+} else {
+	$exclude_ids = array_unique(
+		array_merge(
+			function_exists( 'ugm_resolve_agenda_exclude_ids' ) ? ugm_resolve_agenda_exclude_ids( '' ) : array(),
+			function_exists( 'ugm_resolve_faculty_exclude_ids_multi' ) ? ugm_resolve_faculty_exclude_ids_multi( '' ) : array()
+		)
+	);
+
+	if ( ! empty( $exclude_ids ) ) {
+		$query_args['category__not_in'] = $exclude_ids;
+	}
+}
+
+$latest_news_query = new WP_Query( $query_args );
 ?>
 <main id="primary" class="site-main ugm-archive">
 	<div class="ugm-archive__container">

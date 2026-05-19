@@ -38,6 +38,22 @@ function ugm_blocks_maybe_enqueue_styles() {
 	// Ensure block previews inherit theme styles inside the Site Editor iframe.
 	if ( function_exists( 'wp_enqueue_style' ) ) {
 		wp_enqueue_style( 'ugm-style' );
+
+		// Load key front-end modules so skeleton previews (including Video) render
+		// properly in the editor/Site Editor SSR iframe.
+		$css_modules = array( 'base', 'content' );
+		foreach ( $css_modules as $css_module ) {
+			$handle          = 'ugm-style-' . $css_module;
+			$module_rel_path = '/assets/css/' . $css_module . '.css';
+			$src             = get_template_directory_uri() . $module_rel_path;
+
+			wp_enqueue_style(
+				$handle,
+				$src,
+				array( 'ugm-style' ),
+				function_exists( 'ugm_get_asset_version' ) ? ugm_get_asset_version( $module_rel_path ) : UGM_THEME_VERSION
+			);
+		}
 	}
 }
 
@@ -55,6 +71,10 @@ function ugm_blocks_maybe_enqueue_styles() {
  * @return string
  */
 function ugm_block_section_header( $title, $id, $view_url = '', $view_label = '' ) {
+	if ( '' === trim( (string) $title ) ) {
+		return '';
+	}
+
 	$out  = '<header class="section-header">';
 	$out .= '<h2 id="' . esc_attr( $id ) . '" class="section-title">' . esc_html( $title ) . '</h2>';
 	$out .= '<span class="section-line" aria-hidden="true"></span>';
@@ -65,6 +85,47 @@ function ugm_block_section_header( $title, $id, $view_url = '', $view_label = ''
 	}
 	$out .= '</header>';
 	return $out;
+}
+
+/**
+ * Resolve a section title while preserving an intentionally empty value.
+ *
+ * Missing attributes mean the block predates the current default and should
+ * receive the default title. An explicit empty string means the editor user
+ * intentionally removed the heading.
+ *
+ * @param array  $attrs         Block attributes.
+ * @param string $default_title Default title for legacy blocks.
+ * @param string $key           Attribute key.
+ * @return string
+ */
+function ugm_resolve_section_title( $attrs, $default_title = '', $key = 'title' ) {
+	if ( is_array( $attrs ) && array_key_exists( $key, $attrs ) ) {
+		return trim( (string) $attrs[ $key ] );
+	}
+
+	return trim( (string) $default_title );
+}
+
+/**
+ * Map block attribute visibility to a CSS class.
+ *
+ * @param array $attrs Block attributes.
+ * @return string CSS class name (or empty string).
+ */
+function ugm_block_visibility_class( $attrs ) {
+	$visibility = is_array( $attrs ) && isset( $attrs['visibility'] )
+		? (string) $attrs['visibility']
+		: 'all';
+	$visibility = strtolower( trim( $visibility ) );
+
+	if ( 'desktop' === $visibility ) {
+		return 'ugm-only-desktop';
+	}
+	if ( 'mobile' === $visibility ) {
+		return 'ugm-only-mobile';
+	}
+	return '';
 }
 
 /**
@@ -85,12 +146,143 @@ function ugm_get_category_by_candidate_slugs( array $slugs ) {
 }
 
 /**
+ * Parse a category slug attribute into a sanitized unique slug list.
+ *
+ * Accepts comma-separated input such as "pendidikan, profile".
+ *
+ * @param mixed            $raw_slug_attr Raw attribute value.
+ * @param string|string[] $default_slugs Optional fallback slugs when the attribute is empty.
+ * @return string[]
+ */
+function ugm_parse_category_slug_list( $raw_slug_attr, $default_slugs = array() ) {
+	$slugs = array();
+	$parts = is_array( $raw_slug_attr )
+		? $raw_slug_attr
+		: preg_split( '/\s*,\s*/', (string) $raw_slug_attr );
+
+	foreach ( (array) $parts as $part ) {
+		$slug = sanitize_key( trim( (string) $part ) );
+		if ( '' !== $slug ) {
+			$slugs[] = $slug;
+		}
+	}
+
+	if ( empty( $slugs ) ) {
+		foreach ( (array) $default_slugs as $default_slug ) {
+			$slug = sanitize_key( trim( (string) $default_slug ) );
+			if ( '' !== $slug ) {
+				$slugs[] = $slug;
+			}
+		}
+	}
+
+	$slugs = array_values( array_unique( $slugs ) );
+	$slugs = ugm_expand_category_slug_aliases( $slugs );
+	return array_values( array_unique( $slugs ) );
+}
+
+/**
+ * Expand alias slugs into additional category slugs.
+ *
+ * This allows using a single configured slug that represents multiple
+ * categories, e.g. entering "pendidikan-profile" can include posts from both
+ * "pendidikan" and "profile" categories.
+ *
+ * The original slug is preserved (union behavior).
+ *
+ * @param string[] $slugs Sanitized category slugs.
+ * @return string[] Expanded slug list.
+ */
+function ugm_expand_category_slug_aliases( array $slugs ) {
+	$aliases = apply_filters(
+		'ugm_category_slug_aliases',
+		array(
+			// Example alias used on some sites.
+			'pendidikan-profile' => array( 'pendidikan', 'profile' ),
+			'profile-pendidikan' => array( 'profile', 'pendidikan' ),
+		)
+	);
+
+	if ( empty( $aliases ) || ! is_array( $aliases ) ) {
+		return $slugs;
+	}
+
+	// Build reverse map so members can include their alias keys.
+	$reverse = array();
+	foreach ( $aliases as $alias_key => $members ) {
+		$alias_key = sanitize_key( trim( (string) $alias_key ) );
+		if ( '' === $alias_key || ! is_array( $members ) ) {
+			continue;
+		}
+		foreach ( $members as $member ) {
+			$member = sanitize_key( trim( (string) $member ) );
+			if ( '' === $member ) {
+				continue;
+			}
+			if ( ! isset( $reverse[ $member ] ) ) {
+				$reverse[ $member ] = array();
+			}
+			$reverse[ $member ][] = $alias_key;
+		}
+	}
+
+	$out = $slugs;
+	foreach ( $slugs as $slug ) {
+		// If user enters an alias slug, include its member slugs.
+		if ( isset( $aliases[ $slug ] ) && is_array( $aliases[ $slug ] ) ) {
+			foreach ( $aliases[ $slug ] as $member_slug ) {
+				$member_slug = sanitize_key( trim( (string) $member_slug ) );
+				if ( '' !== $member_slug ) {
+					$out[] = $member_slug;
+				}
+			}
+		}
+
+		// If user enters a member slug, also include any alias slugs that contain it.
+		if ( isset( $reverse[ $slug ] ) && is_array( $reverse[ $slug ] ) ) {
+			foreach ( $reverse[ $slug ] as $alias_key ) {
+				$alias_key = sanitize_key( trim( (string) $alias_key ) );
+				if ( '' !== $alias_key ) {
+					$out[] = $alias_key;
+				}
+			}
+		}
+	}
+
+	return array_values( array_unique( $out ) );
+}
+
+/**
+ * Build a category archive URL from one or more slugs.
+ *
+ * @param string[] $slugs Sanitized category slugs.
+ * @return string
+ */
+function ugm_get_category_archive_url_from_slugs( array $slugs ) {
+	$term = ugm_get_category_by_candidate_slugs( $slugs );
+
+	if ( $term instanceof WP_Term ) {
+		$link = get_category_link( $term->term_id );
+		if ( ! is_wp_error( $link ) ) {
+			return $link;
+		}
+	}
+
+	if ( ! empty( $slugs ) ) {
+		return home_url( '/category/' . reset( $slugs ) . '/' );
+	}
+
+	return home_url( '/category/' );
+}
+
+/**
  * Render the "featured category columns" section shared by template and block preview.
  *
  * @param array $attrs Block attributes.
  * @return string
  */
 function ugm_render_featured_categories_markup( $attrs = array() ) {
+	$visibility_class = ugm_block_visibility_class( $attrs );
 	$defaults = array(
 		'campusTitle'       => __( 'Seputar Kampus', 'ugm-faculty' ),
 		'campusCategorySlug' => 'seputar-kampus',
@@ -99,24 +291,24 @@ function ugm_render_featured_categories_markup( $attrs = array() ) {
 		'partnershipTitle'  => __( 'Kerjasama', 'ugm-faculty' ),
 		'partnershipCategorySlug' => 'kerjasama',
 	);
-	$attrs = wp_parse_args( is_array( $attrs ) ? $attrs : array(), $defaults );
+	$attrs = is_array( $attrs ) ? $attrs : array();
 
 	$sections = array(
 		array(
-			'title'      => trim( (string) $attrs['campusTitle'] ) ?: $defaults['campusTitle'],
-			'slugs'      => array_filter( array( trim( (string) $attrs['campusCategorySlug'] ) ) ),
+			'title'      => ugm_resolve_section_title( $attrs, $defaults['campusTitle'], 'campusTitle' ),
+			'slugs'      => ugm_parse_category_slug_list( $attrs['campusCategorySlug'] ?? '', array( $defaults['campusCategorySlug'] ) ),
 			'empty_text' => __( 'Belum ada artikel seputar kampus.', 'ugm-faculty' ),
 			'fallback'   => home_url( '/category/' ),
 		),
 		array(
-			'title'      => trim( (string) $attrs['facultyTitle'] ) ?: $defaults['facultyTitle'],
-			'slugs'      => array_filter( array( trim( (string) $attrs['facultyCategorySlug'] ) ) ),
+			'title'      => ugm_resolve_section_title( $attrs, $defaults['facultyTitle'], 'facultyTitle' ),
+			'slugs'      => ugm_parse_category_slug_list( $attrs['facultyCategorySlug'] ?? '', array( $defaults['facultyCategorySlug'] ) ),
 			'empty_text' => __( 'Belum ada kabar fakultas.', 'ugm-faculty' ),
 			'fallback'   => home_url( '/category/' ),
 		),
 		array(
-			'title'      => trim( (string) $attrs['partnershipTitle'] ) ?: $defaults['partnershipTitle'],
-			'slugs'      => array_filter( array( trim( (string) $attrs['partnershipCategorySlug'] ) ) ),
+			'title'      => ugm_resolve_section_title( $attrs, $defaults['partnershipTitle'], 'partnershipTitle' ),
+			'slugs'      => ugm_parse_category_slug_list( $attrs['partnershipCategorySlug'] ?? '', array( $defaults['partnershipCategorySlug'] ) ),
 			'empty_text' => __( 'Belum ada artikel kerjasama.', 'ugm-faculty' ),
 			'fallback'   => home_url( '/category/' ),
 		),
@@ -124,12 +316,13 @@ function ugm_render_featured_categories_markup( $attrs = array() ) {
 
 	ob_start();
 	?>
-	<section class="home-section section-featured-categories" aria-label="<?php esc_attr_e( 'Sorotan kategori', 'ugm-faculty' ); ?>">
+	<section class="home-section section-featured-categories <?php echo esc_attr( $visibility_class ); ?>" aria-label="<?php esc_attr_e( 'Sorotan kategori', 'ugm-faculty' ); ?>">
 		<div class="featured-category-grid">
 			<?php foreach ( $sections as $section ) : ?>
 				<?php
 				$term = ugm_get_category_by_candidate_slugs( $section['slugs'] );
 				$link = $term instanceof WP_Term ? get_category_link( $term->term_id ) : $section['fallback'];
+				$term_ids = ugm_resolve_multiple_slugs_to_ids( $section['slugs'] );
 				$args = array(
 					'post_type'           => 'post',
 					'posts_per_page'      => 1,
@@ -138,8 +331,8 @@ function ugm_render_featured_categories_markup( $attrs = array() ) {
 					'no_found_rows'       => true,
 				);
 
-				if ( $term instanceof WP_Term ) {
-					$args['cat'] = (int) $term->term_id;
+				if ( ! empty( $term_ids ) ) {
+					$args['category__in'] = $term_ids;
 				} else {
 					$args['post__in'] = array( 0 );
 				}
@@ -147,10 +340,12 @@ function ugm_render_featured_categories_markup( $attrs = array() ) {
 				$q = new WP_Query( $args );
 				?>
 				<section class="featured-category-column" aria-label="<?php echo esc_attr( $section['title'] ); ?>">
-					<header class="section-header">
-						<h2 class="section-title"><?php echo esc_html( $section['title'] ); ?></h2>
-						<span class="section-line" aria-hidden="true"></span>
-					</header>
+					<?php if ( '' !== $section['title'] ) : ?>
+						<header class="section-header">
+							<h2 class="section-title"><?php echo esc_html( $section['title'] ); ?></h2>
+							<span class="section-line" aria-hidden="true"></span>
+						</header>
+					<?php endif; ?>
 
 					<?php if ( $q->have_posts() ) : ?>
 						<?php
@@ -198,9 +393,8 @@ function ugm_render_featured_categories_markup( $attrs = array() ) {
  * @return string
  */
 function ugm_render_category_section_markup( $attrs = array() ) {
-	$title = isset( $attrs['title'] ) && '' !== trim( (string) $attrs['title'] )
-		? trim( (string) $attrs['title'] )
-		: __( 'Kategori', 'ugm-faculty' );
+	$visibility_class = ugm_block_visibility_class( $attrs );
+	$title = ugm_resolve_section_title( $attrs, __( 'Kategori', 'ugm-faculty' ) );
 
 	$top_level_category_terms = get_categories(
 		array(
@@ -218,11 +412,13 @@ function ugm_render_category_section_markup( $attrs = array() ) {
 
 	ob_start();
 	?>
-	<section class="home-section section-category" aria-labelledby="section-category-title">
-		<header class="section-header">
-			<h2 id="section-category-title" class="section-title"><?php echo esc_html( $title ); ?></h2>
-			<span class="section-line" aria-hidden="true"></span>
-		</header>
+	<section class="home-section section-category <?php echo esc_attr( $visibility_class ); ?>" aria-labelledby="section-category-title">
+		<?php if ( '' !== $title ) : ?>
+			<header class="section-header">
+				<h2 id="section-category-title" class="section-title"><?php echo esc_html( $title ); ?></h2>
+				<span class="section-line" aria-hidden="true"></span>
+			</header>
+		<?php endif; ?>
 
 		<?php if ( ! empty( $top_level_category_terms ) ) : ?>
 			<details class="category-mobile-list">
@@ -369,13 +565,14 @@ function ugm_render_category_section_markup( $attrs = array() ) {
  * ========================================================================== */
 
 function ugm_render_block_site_header( $attrs ) {
+	$visibility_class = ugm_block_visibility_class( $attrs );
 	// Single ob_start/ob_get_clean — everything echoed into one buffer.
 	// IMPORTANT: do NOT use nested ob_start() without ob_get_clean(), and do NOT
 	// return a manually-built string while a buffer is still open — that leaks
 	// extra output into the REST JSON response making it invalid.
 	ob_start();
 
-	echo '<header id="masthead" class="site-header is-solid" style="position:relative;top:auto;">';
+	echo '<header id="masthead" class="site-header is-solid ' . esc_attr( $visibility_class ) . '" style="position:relative;top:auto;">';
 	echo '<div class="site-header__inner">';
 	echo '<div class="site-header__branding">';
 	get_template_part( 'template-parts/header/site-branding' );
@@ -400,6 +597,9 @@ register_block_type( 'ugm/site-header', array(
 	'category'        => 'theme',
 	'render_callback' => 'ugm_render_block_site_header',
 	'supports'        => array( 'html' => false ),
+	'attributes'      => array(
+		'visibility' => array( 'type' => 'string', 'default' => 'all' ),
+	),
 ) );
 
 /* ==========================================================================
@@ -416,8 +616,12 @@ register_block_type( 'ugm/site-header', array(
  *  - description (string) — Hero sub-description text.
  */
 function ugm_render_block_hero_section( $attrs ) {
+	$visibility_class = ugm_block_visibility_class( $attrs );
+	$media_type       = isset( $attrs['mediaType'] ) && 'video' === $attrs['mediaType'] ? 'video' : 'image';
 	$image_id  = isset( $attrs['imageId'] ) ? absint( $attrs['imageId'] ) : 0;
 	$image_url = '';
+	$video_id  = isset( $attrs['videoId'] ) ? absint( $attrs['videoId'] ) : 0;
+	$video_url = '';
 
 	if ( $image_id > 0 ) {
 		$image_url = (string) wp_get_attachment_image_url( $image_id, 'full' );
@@ -442,35 +646,43 @@ function ugm_render_block_hero_section( $attrs ) {
 		}
 	}
 
-	$default_title = "UNIVERSITAS\nGADJAH MADA";
-	$default_desc  = 'Sebagai universitas nasional pertama di Indonesia, UGM telah menjadi pusat pendidikan, penelitian, dan pengabdian masyarakat sejak berdiri tahun 1949, melahirkan ribuan alumni yang berkiprah di berbagai bidang untuk bangsa dan dunia.';
-
-	$title = isset( $attrs['title'] ) && '' !== $attrs['title']
-		? $attrs['title']
-		: trim( (string) get_theme_mod( 'ugm_hero_headline', $default_title ) );
-	if ( '' === $title ) {
-		$title = $default_title;
+	if ( $video_id > 0 ) {
+		$video_url = (string) wp_get_attachment_url( $video_id );
+	} elseif ( ! empty( $attrs['videoUrl'] ) ) {
+		$video_url = esc_url_raw( (string) $attrs['videoUrl'] );
 	}
 
-	$desc = isset( $attrs['description'] ) && '' !== $attrs['description']
-		? $attrs['description']
-		: trim( (string) get_theme_mod( 'ugm_hero_description', $default_desc ) );
-	if ( '' === $desc ) {
-		$desc = $default_desc;
+	$has_video  = 'video' === $media_type && '' !== $video_url;
+	$video_type = 'video/mp4';
+	if ( $has_video ) {
+		$video_filetype = wp_check_filetype( $video_url );
+		if ( ! empty( $video_filetype['type'] ) ) {
+			$video_type = $video_filetype['type'];
+		}
 	}
+
+	$title = isset( $attrs['title'] ) ? trim( (string) $attrs['title'] ) : '';
+	$desc  = isset( $attrs['description'] ) ? trim( (string) $attrs['description'] ) : '';
 
 	ob_start();
 	?>
-	<section class="hero" <?php echo $image_url ? 'style="background-image: url(' . esc_url( $image_url ) . ');"' : ''; ?> aria-labelledby="hero-title">
+	<section class="hero <?php echo esc_attr( $visibility_class ); ?>" <?php echo ( $image_url && ! $has_video ) ? 'style="background-image: url(' . esc_url( $image_url ) . ');"' : ''; ?> aria-labelledby="hero-title">
+		<?php if ( $has_video ) : ?>
+			<video class="hero__video" autoplay muted loop playsinline preload="metadata" <?php echo $image_url ? 'poster="' . esc_url( $image_url ) . '"' : ''; ?> aria-hidden="true">
+				<source src="<?php echo esc_url( $video_url ); ?>" type="<?php echo esc_attr( $video_type ); ?>">
+			</video>
+		<?php endif; ?>
 		<div class="hero__overlay" aria-hidden="true"></div>
-		<div class="hero__content">
-			<?php if ( $title ) : ?>
-				<h1 id="hero-title" class="hero__title"><?php echo wp_kses_post( nl2br( esc_html( $title ), false ) ); ?></h1>
-			<?php endif; ?>
-			<?php if ( $desc ) : ?>
-				<p class="hero__description"><?php echo esc_html( $desc ); ?></p>
-			<?php endif; ?>
-		</div>
+		<?php if ( '' !== $title || '' !== $desc ) : ?>
+			<div class="hero__content">
+				<?php if ( '' !== $title ) : ?>
+					<h1 id="hero-title" class="hero__title"><?php echo wp_kses_post( nl2br( esc_html( $title ), false ) ); ?></h1>
+				<?php endif; ?>
+				<?php if ( '' !== $desc ) : ?>
+					<p class="hero__description"><?php echo esc_html( $desc ); ?></p>
+				<?php endif; ?>
+			</div>
+		<?php endif; ?>
 	</section>
 	<?php
 	return ob_get_clean();
@@ -485,8 +697,12 @@ register_block_type( 'ugm/hero-section', array(
 	'attributes'      => array(
 		'imageId'     => array( 'type' => 'integer', 'default' => 0 ),
 		'imageUrl'    => array( 'type' => 'string',  'default' => '' ),
+		'mediaType'   => array( 'type' => 'string',  'default' => 'image' ),
+		'videoId'     => array( 'type' => 'integer', 'default' => 0 ),
+		'videoUrl'    => array( 'type' => 'string',  'default' => '' ),
 		'title'       => array( 'type' => 'string',  'default' => '' ),
 		'description' => array( 'type' => 'string',  'default' => '' ),
+		'visibility'  => array( 'type' => 'string',  'default' => 'all' ),
 	),
 ) );
 
@@ -495,9 +711,10 @@ register_block_type( 'ugm/hero-section', array(
  * ========================================================================== */
 
 function ugm_render_block_site_footer( $attrs ) {
+	$visibility_class = ugm_block_visibility_class( $attrs );
 	ob_start();
 	// Render the <footer> element using the widgetized footer output.
-	?><footer id="colophon" class="site-footer ugm-footer" aria-labelledby="footer-block-title">
+	?><footer id="colophon" class="site-footer ugm-footer <?php echo esc_attr( $visibility_class ); ?>" aria-labelledby="footer-block-title">
 		<h2 id="footer-block-title" class="screen-reader-text"><?php esc_html_e( 'Footer Information', 'ugm-faculty' ); ?></h2>
 		<?php
 		$areas = array(
@@ -531,32 +748,40 @@ register_block_type( 'ugm/site-footer', array(
 	'category'        => 'theme',
 	'render_callback' => 'ugm_render_block_site_footer',
 	'supports'        => array( 'html' => false ),
+	'attributes'      => array(
+		'visibility' => array( 'type' => 'string', 'default' => 'all' ),
+	),
 ) );
 
 /* ==========================================================================
  * Common attributes shared by content sections
  * ========================================================================== */
 
-$ugm_section_attrs = array(
-	'title'        => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'categorySlug' => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-);
+function ugm_get_section_attrs( $default_title = '' ) {
+	return array(
+		'title'        => array(
+			'type'    => 'string',
+			'default' => $default_title,
+		),
+		'categorySlug' => array(
+			'type'    => 'string',
+			'default' => '',
+		),
+		'visibility'  => array(
+			'type'    => 'string',
+			'default' => 'all',
+		),
+	);
+}
 
 /* ==========================================================================
  * 3. ugm/latest-news — Berita Terbaru
  * ========================================================================== */
 
 function ugm_render_block_latest_news( $attrs ) {
-	$title    = isset( $attrs['title'] ) && '' !== $attrs['title']
-		? $attrs['title']
-		: get_theme_mod( 'ugm_latest_section_title', __( 'Berita Terbaru', 'ugm-faculty' ) );
-	$cat_slug = isset( $attrs['categorySlug'] ) ? sanitize_key( $attrs['categorySlug'] ) : '';
+	$visibility_class = ugm_block_visibility_class( $attrs );
+	$title    = ugm_resolve_section_title( $attrs, __( 'Highlight Informasi', 'ugm-faculty' ) );
+	$cat_slugs = ugm_parse_category_slug_list( $attrs['categorySlug'] ?? '' );
 
 	$count = max( 1, absint( get_theme_mod( 'ugm_latest_news_count', 4 ) ) );
 	$args  = array(
@@ -569,11 +794,11 @@ function ugm_render_block_latest_news( $attrs ) {
 		'no_found_rows'       => true,
 	);
 
-	if ( '' !== $cat_slug ) {
+	if ( ! empty( $cat_slugs ) ) {
 		// Explicit category override on the block itself.
-		$cat = get_category_by_slug( $cat_slug );
-		if ( $cat ) {
-			$args['category__in'] = ugm_get_category_tree_ids( (int) $cat->term_id );
+		$term_ids = ugm_resolve_multiple_slugs_to_ids( $cat_slugs );
+		if ( ! empty( $term_ids ) ) {
+			$args['category__in'] = $term_ids;
 		} else {
 			$args['post__in'] = array( 0 );
 		}
@@ -583,17 +808,8 @@ function ugm_render_block_latest_news( $attrs ) {
 		$whitelist_ids = ugm_collect_news_whitelist_category_ids();
 		if ( ! empty( $whitelist_ids ) ) {
 			$args['category__in'] = $whitelist_ids;
-		}
-		// Jika whitelist kosong (tidak ada blok tsb di halaman), tampilkan semua
-		// kecuali agenda & fakultas (backward compat).
-		if ( empty( $whitelist_ids ) ) {
-			$exclude = array_unique( array_merge(
-				ugm_resolve_agenda_exclude_ids( '' ),
-				ugm_resolve_faculty_exclude_ids( '' )
-			) );
-			if ( ! empty( $exclude ) ) {
-				$args['category__not_in'] = $exclude;
-			}
+		} else {
+			$args['post__in'] = array( 0 );
 		}
 	}
 
@@ -602,9 +818,10 @@ function ugm_render_block_latest_news( $attrs ) {
 	$archive_link = add_query_arg( 'ugm_latest_news', '1', home_url( '/' ) );
 
 	ob_start();
-	echo '<section class="home-section section-news" aria-labelledby="block-news-title">';
+	echo '<section class="home-section section-news ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-news-title">';
 	echo ugm_block_section_header( $title, 'block-news-title', $archive_link, __( 'Lihat semua berita terbaru', 'ugm-faculty' ) ); // phpcs:ignore
 	ugm_render_latest_news_grid( $q );
+	echo '<a class="section-arrow-link section-arrow-link--latest-news" href="' . esc_url( $archive_link ) . '" aria-label="' . esc_attr__( 'Lihat semua berita terbaru', 'ugm-faculty' ) . '">&#8594;</a>';
 	echo '</section>';
 
 	wp_reset_postdata();
@@ -655,11 +872,11 @@ function ugm_collect_news_whitelist_category_ids() {
 			continue;
 		}
 		$found_any  = true;
-		$attrs      = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
-		$slug       = isset( $attrs['categorySlug'] ) && '' !== $attrs['categorySlug']
-			? sanitize_key( $attrs['categorySlug'] )
-			: $defaults[ $name ];
-		$slugs_found[] = $slug;
+		$attrs       = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
+		$slugs_found = array_merge(
+			$slugs_found,
+			ugm_parse_category_slug_list( $attrs['categorySlug'] ?? '', array( $defaults[ $name ] ) )
+		);
 	}
 
 	if ( ! $found_any ) {
@@ -801,7 +1018,7 @@ register_block_type( 'ugm/latest-news', array(
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_latest_news',
 	'supports'        => array( 'html' => false ),
-	'attributes'      => $ugm_section_attrs,
+	'attributes'      => ugm_get_section_attrs( __( 'Highlight Informasi', 'ugm-faculty' ) ),
 ) );
 
 /* ==========================================================================
@@ -809,22 +1026,18 @@ register_block_type( 'ugm/latest-news', array(
  * ========================================================================== */
 
 function ugm_render_block_academic_news( $attrs ) {
-	$title    = isset( $attrs['title'] ) && '' !== $attrs['title']
-		? $attrs['title']
-		: get_theme_mod( 'ugm_academic_section_title', __( 'Berita Akademik', 'ugm-faculty' ) );
-	$cat_slug = isset( $attrs['categorySlug'] ) && '' !== $attrs['categorySlug']
-		? sanitize_key( $attrs['categorySlug'] ) : 'pendidikan';
-
-	$cat     = get_category_by_slug( $cat_slug );
-	$cat_id  = $cat ? (int) $cat->term_id : 0;
-	$archive = $cat_id > 0 ? get_category_link( $cat_id ) : home_url( '/category/' . $cat_slug . '/' );
+	$visibility_class = ugm_block_visibility_class( $attrs );
+	$title    = ugm_resolve_section_title( $attrs, __( 'Informasi Akademik', 'ugm-faculty' ) );
+	$cat_slugs = ugm_parse_category_slug_list( $attrs['categorySlug'] ?? '', array( 'pendidikan' ) );
+	$cat_ids   = ugm_resolve_multiple_slugs_to_ids( $cat_slugs );
+	$archive   = ugm_get_category_archive_url_from_slugs( $cat_slugs );
 	$count   = max( 1, absint( get_theme_mod( 'ugm_academic_news_count', 3 ) ) );
 
-	$args = $cat_id > 0
+	$args = ! empty( $cat_ids )
 		? array(
 			'post_type'           => 'post',
 			'posts_per_page'      => $count,
-			'category__in'        => ugm_get_category_tree_ids( $cat_id ),
+			'category__in'        => $cat_ids,
 			'ignore_sticky_posts' => true,
 			'post_status'         => 'publish',
 			'orderby'             => 'date',
@@ -835,7 +1048,7 @@ function ugm_render_block_academic_news( $attrs ) {
 
 	ob_start();
 	$q = new WP_Query( $args );
-	echo '<section class="home-section section-academic" aria-labelledby="block-academic-title">';
+	echo '<section class="home-section section-academic ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-academic-title">';
 	echo ugm_block_section_header( $title, 'block-academic-title' ); // phpcs:ignore
 	ugm_render_portal_column( $q, __( 'Belum ada berita akademik.', 'ugm-faculty' ) );
 	echo '<a class="section-arrow-link" href="' . esc_url( $archive ) . '" aria-label="' . esc_attr__( 'Lihat semua berita akademik', 'ugm-faculty' ) . '">&#8594;</a>';
@@ -849,7 +1062,7 @@ register_block_type( 'ugm/academic-news', array(
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_academic_news',
 	'supports'        => array( 'html' => false ),
-	'attributes'      => $ugm_section_attrs,
+	'attributes'      => ugm_get_section_attrs( __( 'Informasi Akademik', 'ugm-faculty' ) ),
 ) );
 
 /* ==========================================================================
@@ -857,22 +1070,18 @@ register_block_type( 'ugm/academic-news', array(
  * ========================================================================== */
 
 function ugm_render_block_profile_section( $attrs ) {
-	$title    = isset( $attrs['title'] ) && '' !== $attrs['title']
-		? $attrs['title']
-		: get_theme_mod( 'ugm_profile_section_title', __( 'Profile', 'ugm-faculty' ) );
-	$cat_slug = isset( $attrs['categorySlug'] ) && '' !== $attrs['categorySlug']
-		? sanitize_key( $attrs['categorySlug'] ) : 'profile';
-
-	$cat     = get_category_by_slug( $cat_slug );
-	$cat_id  = $cat ? (int) $cat->term_id : 0;
-	$archive = $cat_id > 0 ? get_category_link( $cat_id ) : home_url( '/category/' . $cat_slug . '/' );
+	$visibility_class = ugm_block_visibility_class( $attrs );
+	$title    = ugm_resolve_section_title( $attrs, __( 'Informasi Umum', 'ugm-faculty' ) );
+	$cat_slugs = ugm_parse_category_slug_list( $attrs['categorySlug'] ?? '', array( 'profile' ) );
+	$cat_ids   = ugm_resolve_multiple_slugs_to_ids( $cat_slugs );
+	$archive   = ugm_get_category_archive_url_from_slugs( $cat_slugs );
 	$count   = max( 1, absint( get_theme_mod( 'ugm_profile_news_count', 3 ) ) );
 
-	$args = $cat_id > 0
+	$args = ! empty( $cat_ids )
 		? array(
 			'post_type'           => 'post',
 			'posts_per_page'      => $count,
-			'category__in'        => ugm_get_category_tree_ids( $cat_id ),
+			'category__in'        => $cat_ids,
 			'ignore_sticky_posts' => true,
 			'post_status'         => 'publish',
 			'orderby'             => 'date',
@@ -883,7 +1092,7 @@ function ugm_render_block_profile_section( $attrs ) {
 
 	ob_start();
 	$q = new WP_Query( $args );
-	echo '<section class="home-section section-profile" aria-labelledby="block-profile-title">';
+	echo '<section class="home-section section-profile ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-profile-title">';
 	echo ugm_block_section_header( $title, 'block-profile-title' ); // phpcs:ignore
 	ugm_render_portal_column( $q, __( 'Belum ada konten profile.', 'ugm-faculty' ) );
 	echo '<a class="section-arrow-link" href="' . esc_url( $archive ) . '" aria-label="' . esc_attr__( 'Lihat semua profile', 'ugm-faculty' ) . '">&#8594;</a>';
@@ -897,7 +1106,7 @@ register_block_type( 'ugm/profile-section', array(
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_profile_section',
 	'supports'        => array( 'html' => false ),
-	'attributes'      => $ugm_section_attrs,
+	'attributes'      => ugm_get_section_attrs( __( 'Informasi Umum', 'ugm-faculty' ) ),
 ) );
 
 /* ==========================================================================
@@ -905,22 +1114,18 @@ register_block_type( 'ugm/profile-section', array(
  * ========================================================================== */
 
 function ugm_render_block_achievement_section( $attrs ) {
-	$title    = isset( $attrs['title'] ) && '' !== $attrs['title']
-		? $attrs['title']
-		: get_theme_mod( 'ugm_achievement_section_title', __( 'Prestasi', 'ugm-faculty' ) );
-	$cat_slug = isset( $attrs['categorySlug'] ) && '' !== $attrs['categorySlug']
-		? sanitize_key( $attrs['categorySlug'] ) : 'prestasi';
-
-	$cat     = get_category_by_slug( $cat_slug );
-	$cat_id  = $cat ? (int) $cat->term_id : 0;
-	$archive = $cat_id > 0 ? get_category_link( $cat_id ) : home_url( '/category/' . $cat_slug . '/' );
+	$visibility_class = ugm_block_visibility_class( $attrs );
+	$title    = ugm_resolve_section_title( $attrs, __( 'Pencapaian', 'ugm-faculty' ) );
+	$cat_slugs = ugm_parse_category_slug_list( $attrs['categorySlug'] ?? '', array( 'prestasi' ) );
+	$cat_ids   = ugm_resolve_multiple_slugs_to_ids( $cat_slugs );
+	$archive   = ugm_get_category_archive_url_from_slugs( $cat_slugs );
 	$count   = max( 1, absint( get_theme_mod( 'ugm_achievement_news_count', 3 ) ) );
 
-	$args = $cat_id > 0
+	$args = ! empty( $cat_ids )
 		? array(
 			'post_type'           => 'post',
 			'posts_per_page'      => $count,
-			'category__in'        => ugm_get_category_tree_ids( $cat_id ),
+			'category__in'        => $cat_ids,
 			'ignore_sticky_posts' => true,
 			'post_status'         => 'publish',
 			'orderby'             => 'date',
@@ -931,7 +1136,7 @@ function ugm_render_block_achievement_section( $attrs ) {
 
 	ob_start();
 	$q = new WP_Query( $args );
-	echo '<section class="home-section section-achievement" aria-labelledby="block-achievement-title">';
+	echo '<section class="home-section section-achievement ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-achievement-title">';
 	echo ugm_block_section_header( $title, 'block-achievement-title' ); // phpcs:ignore
 	ugm_render_portal_column( $q, __( 'Belum ada konten prestasi.', 'ugm-faculty' ) );
 	echo '<a class="section-arrow-link" href="' . esc_url( $archive ) . '" aria-label="' . esc_attr__( 'Lihat semua prestasi', 'ugm-faculty' ) . '">&#8594;</a>';
@@ -945,7 +1150,7 @@ register_block_type( 'ugm/achievement-section', array(
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_achievement_section',
 	'supports'        => array( 'html' => false ),
-	'attributes'      => $ugm_section_attrs,
+	'attributes'      => ugm_get_section_attrs( __( 'Pencapaian', 'ugm-faculty' ) ),
 ) );
 
 /* ==========================================================================
@@ -963,7 +1168,10 @@ register_block_type( 'ugm/featured-categories', array(
 	'description'     => __( 'Blok lama — gunakan "Sorotan Kategori Kolom" agar tiap kolom bisa dipindah secara terpisah.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_featured_categories',
-	'supports'        => array( 'html' => false ),
+	'supports'        => array(
+		'html'     => false,
+		'inserter' => false,
+	),
 	'attributes'      => array(
 		'campusTitle' => array(
 			'type'    => 'string',
@@ -988,6 +1196,10 @@ register_block_type( 'ugm/featured-categories', array(
 		'partnershipCategorySlug' => array(
 			'type'    => 'string',
 			'default' => 'kerjasama',
+		),
+		'visibility' => array(
+			'type'    => 'string',
+			'default' => 'all',
 		),
 	),
 ) );
@@ -1015,19 +1227,14 @@ register_block_type( 'ugm/featured-categories', array(
  */
 function ugm_render_single_featured_column( $attrs ) {
 	// Normalise attrs — same logic as ugm_render_featured_categories_markup.
-	$title      = isset( $attrs['title'] ) && '' !== trim( (string) $attrs['title'] )
-		? trim( (string) $attrs['title'] )
-		: __( 'Sorotan Kategori', 'ugm-faculty' );
-	$cat_slug   = isset( $attrs['categorySlug'] ) && '' !== trim( (string) $attrs['categorySlug'] )
-		? sanitize_key( trim( (string) $attrs['categorySlug'] ) )
-		: '';
+	$title      = ugm_resolve_section_title( $attrs, __( 'Highlight Konten', 'ugm-faculty' ) );
 	$empty_text = isset( $attrs['emptyText'] ) && '' !== trim( (string) $attrs['emptyText'] )
 		? trim( (string) $attrs['emptyText'] )
 		: sprintf( __( 'Belum ada artikel %s.', 'ugm-faculty' ), $title );
 
-	$slugs = $cat_slug ? array( $cat_slug ) : array();
-	$term  = $cat_slug ? ugm_get_category_by_candidate_slugs( $slugs ) : null;
-	$link  = $term instanceof WP_Term ? get_category_link( $term->term_id ) : home_url( '/category/' );
+	$slugs    = ugm_parse_category_slug_list( $attrs['categorySlug'] ?? '' );
+	$term_ids = ugm_resolve_multiple_slugs_to_ids( $slugs );
+	$link     = ugm_get_category_archive_url_from_slugs( $slugs );
 
 	$args = array(
 		'post_type'           => 'post',
@@ -1036,8 +1243,8 @@ function ugm_render_single_featured_column( $attrs ) {
 		'post_status'         => 'publish',
 		'no_found_rows'       => true,
 	);
-	if ( $term instanceof WP_Term ) {
-		$args['cat'] = (int) $term->term_id;
+	if ( ! empty( $term_ids ) ) {
+		$args['category__in'] = $term_ids;
 	} else {
 		$args['post__in'] = array( 0 );
 	}
@@ -1049,10 +1256,12 @@ function ugm_render_single_featured_column( $attrs ) {
 	// untuk satu kolom — sehingga CSS yang sudah ada langsung berlaku tanpa modifikasi.
 	?>
 	<section class="featured-category-column" aria-label="<?php echo esc_attr( $title ); ?>">
-		<header class="section-header">
-			<h2 class="section-title"><?php echo esc_html( $title ); ?></h2>
-			<span class="section-line" aria-hidden="true"></span>
-		</header>
+		<?php if ( '' !== $title ) : ?>
+			<header class="section-header">
+				<h2 class="section-title"><?php echo esc_html( $title ); ?></h2>
+				<span class="section-line" aria-hidden="true"></span>
+			</header>
+		<?php endif; ?>
 
 		<?php if ( $q->have_posts() ) : ?>
 			<?php
@@ -1102,12 +1311,13 @@ function ugm_render_single_featured_column( $attrs ) {
  * @return string
  */
 function ugm_render_block_featured_category_column( $attrs ) {
+	$visibility_class = ugm_block_visibility_class( $attrs );
 	// Render sebagai .home-section seperti Berita Akademik / Profile / Prestasi.
 	// Di template landing page, blok-blok ini dikumpulkan dalam .home-sections-triple
 	// (grid 3-kolom) karena sudah ditambahkan ke $triple_names.
 	$col_html = ugm_render_single_featured_column( $attrs );
 
-	return '<section class="home-section section-featured-category-col">' .
+	return '<section class="home-section section-featured-category-col ' . esc_attr( $visibility_class ) . '">' .
 		$col_html .
 		'</section>';
 }
@@ -1119,9 +1329,10 @@ register_block_type( 'ugm/featured-category-column', array(
 	'render_callback' => 'ugm_render_block_featured_category_column',
 	'supports'        => array( 'html' => false ),
 	'attributes'      => array(
-		'title'        => array( 'type' => 'string', 'default' => '' ),
+		'title'        => array( 'type' => 'string', 'default' => 'Highlight Konten' ),
 		'categorySlug' => array( 'type' => 'string', 'default' => '' ),
 		'emptyText'    => array( 'type' => 'string', 'default' => '' ),
+		'visibility'   => array( 'type' => 'string', 'default' => 'all' ),
 	),
 ) );
 
@@ -1143,7 +1354,11 @@ register_block_type( 'ugm/category-section', array(
 	'attributes'      => array(
 		'title' => array(
 			'type'    => 'string',
-			'default' => __( 'Kategori', 'ugm-faculty' ),
+			'default' => 'Kategori',
+		),
+		'visibility' => array(
+			'type'    => 'string',
+			'default' => 'all',
 		),
 	),
 ) );
@@ -1153,22 +1368,18 @@ register_block_type( 'ugm/category-section', array(
  * ========================================================================== */
 
 function ugm_render_block_facility_section( $attrs ) {
-	$title    = isset( $attrs['title'] ) && '' !== $attrs['title']
-		? $attrs['title']
-		: __( 'Fasilitas', 'ugm-faculty' );
-	$cat_slug = isset( $attrs['categorySlug'] ) && '' !== $attrs['categorySlug']
-		? sanitize_key( $attrs['categorySlug'] ) : 'fasilitas';
-
-	$cat     = get_category_by_slug( $cat_slug );
-	$cat_id  = $cat ? (int) $cat->term_id : 0;
-	$archive = $cat_id > 0 ? get_category_link( $cat_id ) : home_url( '/category/' . $cat_slug . '/' );
+	$visibility_class = ugm_block_visibility_class( $attrs );
+	$title    = ugm_resolve_section_title( $attrs, __( 'Fasilitas', 'ugm-faculty' ) );
+	$cat_slugs = ugm_parse_category_slug_list( $attrs['categorySlug'] ?? '', array( 'fasilitas' ) );
+	$cat_ids   = ugm_resolve_multiple_slugs_to_ids( $cat_slugs );
+	$archive   = ugm_get_category_archive_url_from_slugs( $cat_slugs );
 	$count   = max( 1, absint( get_theme_mod( 'ugm_facility_news_count', 3 ) ) );
 
-	$args = $cat_id > 0
+	$args = ! empty( $cat_ids )
 		? array(
 			'post_type'           => 'post',
 			'posts_per_page'      => $count,
-			'category__in'        => ugm_get_category_tree_ids( $cat_id ),
+			'category__in'        => $cat_ids,
 			'ignore_sticky_posts' => true,
 			'post_status'         => 'publish',
 			'orderby'             => 'date',
@@ -1179,7 +1390,7 @@ function ugm_render_block_facility_section( $attrs ) {
 
 	ob_start();
 	$q = new WP_Query( $args );
-	echo '<section class="home-section section-facility" aria-labelledby="block-facility-title">';
+	echo '<section class="home-section section-facility ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-facility-title">';
 	echo ugm_block_section_header( $title, 'block-facility-title' ); // phpcs:ignore
 	ugm_render_portal_column( $q, __( 'Belum ada konten fasilitas.', 'ugm-faculty' ) );
 	echo '<a class="section-arrow-link" href="' . esc_url( $archive ) . '" aria-label="' . esc_attr__( 'Lihat semua fasilitas', 'ugm-faculty' ) . '">&#8594;</a>';
@@ -1192,8 +1403,11 @@ register_block_type( 'ugm/facility-section', array(
 	'title'           => __( 'Fasilitas', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_facility_section',
-	'supports'        => array( 'html' => false ),
-	'attributes'      => $ugm_section_attrs,
+	'supports'        => array(
+		'html'     => false,
+		'inserter' => false,
+	),
+	'attributes'      => ugm_get_section_attrs( __( 'Fasilitas', 'ugm-faculty' ) ),
 ) );
 
 /* ==========================================================================
@@ -1201,26 +1415,23 @@ register_block_type( 'ugm/facility-section', array(
  * ========================================================================== */
 
 function ugm_render_block_faculty_section( $attrs ) {
+	$visibility_class = ugm_block_visibility_class( $attrs );
 	$overline = isset( $attrs['overline'] ) && '' !== trim( (string) $attrs['overline'] )
 		? trim( (string) $attrs['overline'] )
 		: __( 'Seputar UGM', 'ugm-faculty' );
-	$title = isset( $attrs['title'] ) && '' !== $attrs['title']
-		? $attrs['title']
-		: get_theme_mod( 'ugm_faculty_section_title', __( 'Fakultas dan Sekolah', 'ugm-faculty' ) );
+	$title = ugm_resolve_section_title( $attrs, __( 'Fakultas dan Sekolah', 'ugm-faculty' ) );
 
-	$cat_slug = isset( $attrs['categorySlug'] ) && '' !== trim( (string) $attrs['categorySlug'] )
-		? sanitize_key( $attrs['categorySlug'] )
-		: '';
+	$cat_slugs = ugm_parse_category_slug_list( $attrs['categorySlug'] ?? '' );
 	$list     = array();
 
-	if ( '' !== $cat_slug ) {
-		$cat = get_category_by_slug( $cat_slug );
-		if ( $cat instanceof WP_Term ) {
+	if ( ! empty( $cat_slugs ) ) {
+		$cat_ids = ugm_resolve_multiple_slugs_to_ids( $cat_slugs );
+		if ( ! empty( $cat_ids ) ) {
 			$q = new WP_Query(
 				array(
 					'post_type'           => 'post',
 					'posts_per_page'      => 16,
-					'category__in'        => ugm_get_category_tree_ids( (int) $cat->term_id ),
+					'category__in'        => $cat_ids,
 					'ignore_sticky_posts' => true,
 					'post_status'         => 'publish',
 					'orderby'             => 'date',
@@ -1244,12 +1455,12 @@ function ugm_render_block_faculty_section( $attrs ) {
 	}
 
 	ob_start();
-	echo '<section class="home-section section-faculty" aria-labelledby="block-faculty-title">';
+	echo '<section class="home-section section-faculty ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-faculty-title">';
 	echo '<p class="section-overline section-overline--faculty">' . esc_html( $overline ) . '</p>';
 	echo ugm_block_section_header( $title, 'block-faculty-title' ); // phpcs:ignore
 
 	if ( ! empty( $list ) ) {
-		$items_per_page = 8;
+		$items_per_page = wp_is_mobile() ? 3 : 8;
 		$total_pages    = ceil( count( $list ) / $items_per_page );
 		echo '<div class="faculty-slider-wrapper">';
 		echo '<button class="faculty-nav faculty-nav--prev" aria-label="' . esc_attr__( 'Previous page', 'ugm-faculty' ) . '">&#8249;</button>';
@@ -1300,11 +1511,15 @@ register_block_type( 'ugm/faculty-section', array(
 	'title'           => __( 'Fakultas dan Sekolah', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_faculty_section',
-	'supports'        => array( 'html' => false ),
+	'supports'        => array(
+		'html'     => false,
+		'inserter' => false,
+	),
 	'attributes'      => array(
 		'overline' => array( 'type' => 'string', 'default' => 'Seputar UGM' ),
-		'title' => array( 'type' => 'string', 'default' => '' ),
+		'title' => array( 'type' => 'string', 'default' => 'Fakultas dan Sekolah' ),
 		'categorySlug' => array( 'type' => 'string', 'default' => '' ),
+		'visibility' => array( 'type' => 'string', 'default' => 'all' ),
 	),
 ) );
 
@@ -1325,12 +1540,11 @@ register_block_type( 'ugm/faculty-section', array(
  * @return string HTML.
  */
 function ugm_render_block_faculty_list( $attrs ) {
+	$visibility_class = ugm_block_visibility_class( $attrs );
 	$overline = isset( $attrs['overline'] ) && '' !== trim( (string) $attrs['overline'] )
 		? trim( (string) $attrs['overline'] )
 		: __( 'Seputar UGM', 'ugm-faculty' );
-	$title = isset( $attrs['title'] ) && '' !== trim( (string) $attrs['title'] )
-		? trim( (string) $attrs['title'] )
-		: __( 'Fakultas dan Sekolah', 'ugm-faculty' );
+	$title = ugm_resolve_section_title( $attrs, __( 'Struktur Akademik', 'ugm-faculty' ) );
 
 	// Decode items from JSON attribute.
 	$raw_items = isset( $attrs['items'] ) ? $attrs['items'] : array();
@@ -1350,12 +1564,12 @@ function ugm_render_block_faculty_list( $attrs ) {
 	}
 
 	ob_start();
-	echo '<section class="home-section section-faculty" aria-labelledby="block-faculty-list-title">';
+	echo '<section class="home-section section-faculty ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-faculty-list-title">';
 	echo '<p class="section-overline section-overline--faculty">' . esc_html( $overline ) . '</p>';
 	echo ugm_block_section_header( $title, 'block-faculty-list-title' ); // phpcs:ignore
 
 	if ( ! empty( $list ) ) {
-		$items_per_page = 8;
+		$items_per_page = wp_is_mobile() ? 3 : 8;
 		$total_pages    = (int) ceil( count( $list ) / $items_per_page );
 		echo '<div class="faculty-slider-wrapper">';
 		echo '<button class="faculty-nav faculty-nav--prev" aria-label="' . esc_attr__( 'Previous page', 'ugm-faculty' ) . '">&#8249;</button>';
@@ -1409,7 +1623,8 @@ register_block_type( 'ugm/faculty-list', array(
 	'supports'        => array( 'html' => false ),
 	'attributes'      => array(
 		'overline' => array( 'type' => 'string', 'default' => 'Seputar UGM' ),
-		'title'    => array( 'type' => 'string', 'default' => '' ),
+		'title'    => array( 'type' => 'string', 'default' => 'Struktur Akademik' ),
+		'visibility' => array( 'type' => 'string', 'default' => 'all' ),
 		'items'    => array(
 			'type'    => 'array',
 			'default' => array(),
@@ -1473,10 +1688,12 @@ function ugm_render_agenda_column_html( $title, $cat_slug ) {
 
 	ob_start();
 	echo '<section class="section-campus-desktop__agenda" aria-labelledby="block-agenda-title">';
-	echo '<header class="section-header section-header--desktop-agenda">';
-	echo '<h2 id="block-agenda-title" class="section-title">' . esc_html( $title ) . '</h2>';
-	echo '<span class="section-line" aria-hidden="true"></span>';
-	echo '</header>';
+	if ( '' !== trim( (string) $title ) ) {
+		echo '<header class="section-header section-header--desktop-agenda">';
+		echo '<h2 id="block-agenda-title" class="section-title">' . esc_html( $title ) . '</h2>';
+		echo '<span class="section-line" aria-hidden="true"></span>';
+		echo '</header>';
+	}
 
 	if ( $agenda_q->have_posts() ) {
 		$agenda_items = 0;
@@ -1516,18 +1733,12 @@ function ugm_render_agenda_column_html( $title, $cat_slug ) {
  * @return string HTML.
  */
 function ugm_render_facility_column_html( $facility_title, $facility_slug ) {
-	$facility_root     = ugm_get_category_root_by_slugs( array_filter( array( $facility_slug, 'fasilitas-mahasiswa', 'fasilitas', 'sarana-prasarana', 'sarana', 'prasarana' ) ) );
-	$facility_term_ids = array();
-	$facility_archive  = home_url( '/' );
-
-	if ( $facility_root ) {
-		$facility_root_id  = (int) $facility_root->term_id;
-		$facility_term_ids = ugm_get_category_tree_ids( $facility_root_id );
-		$fac_link          = get_category_link( $facility_root_id );
-		if ( ! is_wp_error( $fac_link ) ) {
-			$facility_archive = $fac_link;
-		}
+	$facility_slugs    = ugm_parse_category_slug_list( $facility_slug, array( 'fasilitas-mahasiswa' ) );
+	$facility_term_ids = ugm_resolve_multiple_slugs_to_ids( $facility_slugs );
+	if ( empty( $facility_term_ids ) ) {
+		$facility_term_ids = ugm_resolve_multiple_slugs_to_ids( array( 'fasilitas-mahasiswa', 'fasilitas', 'sarana-prasarana', 'sarana', 'prasarana' ) );
 	}
+	$facility_archive  = ugm_get_category_archive_url_from_slugs( $facility_slugs );
 
 	$facility_args = array(
 		'post_type'           => 'post',
@@ -1547,12 +1758,14 @@ function ugm_render_facility_column_html( $facility_title, $facility_slug ) {
 
 	ob_start();
 	echo '<section class="section-campus-desktop__facility" aria-labelledby="block-facility-desktop-title">';
-	echo '<header class="section-header section-header--desktop-facility">';
-	echo '<h2 id="block-facility-desktop-title" class="section-title">' . esc_html( $facility_title ) . '</h2>';
-	echo '<span class="section-line" aria-hidden="true"></span>';
-	echo '<a class="section-view-all section-view-all--desktop-facility" href="' . esc_url( $facility_archive ) . '" aria-label="' . esc_attr( sprintf( __( 'Lihat semua %s', 'ugm-faculty' ), $facility_title ) ) . '">';
-	echo esc_html__( 'Lihat Semua', 'ugm-faculty' ) . ' <span aria-hidden="true">&rarr;</span></a>';
-	echo '</header>';
+	if ( '' !== trim( (string) $facility_title ) ) {
+		echo '<header class="section-header section-header--desktop-facility">';
+		echo '<h2 id="block-facility-desktop-title" class="section-title">' . esc_html( $facility_title ) . '</h2>';
+		echo '<span class="section-line" aria-hidden="true"></span>';
+		echo '<a class="section-view-all section-view-all--desktop-facility" href="' . esc_url( $facility_archive ) . '" aria-label="' . esc_attr( sprintf( __( 'Lihat semua %s', 'ugm-faculty' ), $facility_title ) ) . '">';
+		echo esc_html__( 'Lihat Semua', 'ugm-faculty' ) . ' <span aria-hidden="true">&rarr;</span></a>';
+		echo '</header>';
+	}
 
 	if ( $facility_q->have_posts() ) {
 		$facility_posts = $facility_q->posts;
@@ -1590,20 +1803,16 @@ function ugm_render_facility_column_html( $facility_title, $facility_slug ) {
  * -------------------------------------------------------------------------- */
 
 function ugm_render_block_agenda_section( $attrs ) {
-	$title          = isset( $attrs['title'] ) && '' !== $attrs['title']
-		? $attrs['title']
-		: get_theme_mod( 'ugm_events_section_title', __( 'Agenda Kegiatan', 'ugm-faculty' ) );
-	$cat_slug       = isset( $attrs['categorySlug'] ) && '' !== $attrs['categorySlug']
-		? sanitize_key( $attrs['categorySlug'] ) : '';
-	$facility_title = isset( $attrs['facilityTitle'] ) && '' !== trim( (string) $attrs['facilityTitle'] )
-		? trim( (string) $attrs['facilityTitle'] )
-		: __( 'Fasilitas Mahasiswa', 'ugm-faculty' );
+	$visibility_class = ugm_block_visibility_class( $attrs );
+	$title          = ugm_resolve_section_title( $attrs, __( 'Event & Agenda', 'ugm-faculty' ) );
+	$cat_slug       = isset( $attrs['categorySlug'] ) ? trim( (string) $attrs['categorySlug'] ) : '';
+	$facility_title = ugm_resolve_section_title( $attrs, __( 'Fasilitas Kampus', 'ugm-faculty' ), 'facilityTitle' );
 	$facility_slug  = isset( $attrs['facilityCategorySlug'] ) && '' !== trim( (string) $attrs['facilityCategorySlug'] )
-		? sanitize_key( $attrs['facilityCategorySlug'] )
+		? trim( (string) $attrs['facilityCategorySlug'] )
 		: 'fasilitas-mahasiswa';
 
 	ob_start();
-	echo '<section class="home-section section-campus-desktop" aria-label="' . esc_attr__( 'Agenda dan fasilitas kampus', 'ugm-faculty' ) . '">';
+	echo '<section class="home-section section-campus-desktop ' . esc_attr( $visibility_class ) . '" aria-label="' . esc_attr__( 'Agenda dan fasilitas kampus', 'ugm-faculty' ) . '">';
 	echo ugm_render_agenda_column_html( $title, $cat_slug );    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo ugm_render_facility_column_html( $facility_title, $facility_slug ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo '</section>';
@@ -1615,12 +1824,16 @@ register_block_type( 'ugm/agenda-section', array(
 	'description'     => __( 'Blok lama — gunakan "Agenda Kegiatan" dan "Fasilitas Mahasiswa" terpisah agar bisa dipindah secara mandiri.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_agenda_section',
-	'supports'        => array( 'html' => false ),
+	'supports'        => array(
+		'html'     => false,
+		'inserter' => false,
+	),
 	'attributes'      => array(
-		'title'                => array( 'type' => 'string', 'default' => '' ),
+		'title'                => array( 'type' => 'string', 'default' => 'Event & Agenda' ),
 		'categorySlug'         => array( 'type' => 'string', 'default' => '' ),
-		'facilityTitle'        => array( 'type' => 'string', 'default' => 'Fasilitas Mahasiswa' ),
+		'facilityTitle'        => array( 'type' => 'string', 'default' => 'Fasilitas Kampus' ),
 		'facilityCategorySlug' => array( 'type' => 'string', 'default' => 'fasilitas-mahasiswa' ),
+		'visibility'           => array( 'type' => 'string', 'default' => 'all' ),
 	),
 ) );
 
@@ -1629,16 +1842,13 @@ register_block_type( 'ugm/agenda-section', array(
  * -------------------------------------------------------------------------- */
 
 function ugm_render_block_agenda_only( $attrs ) {
-	$title    = isset( $attrs['title'] ) && '' !== trim( (string) $attrs['title'] )
-		? trim( (string) $attrs['title'] )
-		: get_theme_mod( 'ugm_events_section_title', __( 'Agenda Kegiatan', 'ugm-faculty' ) );
-	$cat_slug = isset( $attrs['categorySlug'] ) && '' !== trim( (string) $attrs['categorySlug'] )
-		? sanitize_key( trim( (string) $attrs['categorySlug'] ) )
-		: '';
+	$visibility_class = ugm_block_visibility_class( $attrs );
+	$title    = ugm_resolve_section_title( $attrs, __( 'Event & Agenda', 'ugm-faculty' ) );
+	$cat_slug = isset( $attrs['categorySlug'] ) ? trim( (string) $attrs['categorySlug'] ) : '';
 
 	$inner = ugm_render_agenda_column_html( $title, $cat_slug );
 	// Wrapped in the same outer section so CSS stays intact even when standalone.
-	return '<section class="home-section section-campus-desktop section-campus-desktop--agenda-only" aria-label="' .
+	return '<section class="home-section section-campus-desktop section-campus-desktop--agenda-only ' . esc_attr( $visibility_class ) . '" aria-label="' .
 		esc_attr__( 'Agenda kegiatan', 'ugm-faculty' ) . '">' . $inner . '</section>';
 }
 
@@ -1649,8 +1859,9 @@ register_block_type( 'ugm/agenda-only', array(
 	'render_callback' => 'ugm_render_block_agenda_only',
 	'supports'        => array( 'html' => false ),
 	'attributes'      => array(
-		'title'        => array( 'type' => 'string', 'default' => '' ),
+		'title'        => array( 'type' => 'string', 'default' => 'Event & Agenda' ),
 		'categorySlug' => array( 'type' => 'string', 'default' => '' ),
+		'visibility'   => array( 'type' => 'string', 'default' => 'all' ),
 	),
 ) );
 
@@ -1659,15 +1870,14 @@ register_block_type( 'ugm/agenda-only', array(
  * -------------------------------------------------------------------------- */
 
 function ugm_render_block_facility_only( $attrs ) {
-	$title    = isset( $attrs['title'] ) && '' !== trim( (string) $attrs['title'] )
-		? trim( (string) $attrs['title'] )
-		: __( 'Fasilitas Mahasiswa', 'ugm-faculty' );
+	$visibility_class = ugm_block_visibility_class( $attrs );
+	$title    = ugm_resolve_section_title( $attrs, __( 'Fasilitas Kampus', 'ugm-faculty' ) );
 	$cat_slug = isset( $attrs['categorySlug'] ) && '' !== trim( (string) $attrs['categorySlug'] )
-		? sanitize_key( trim( (string) $attrs['categorySlug'] ) )
+		? trim( (string) $attrs['categorySlug'] )
 		: 'fasilitas-mahasiswa';
 
 	$inner = ugm_render_facility_column_html( $title, $cat_slug );
-	return '<section class="home-section section-campus-desktop section-campus-desktop--facility-only" aria-label="' .
+	return '<section class="home-section section-campus-desktop section-campus-desktop--facility-only ' . esc_attr( $visibility_class ) . '" aria-label="' .
 		esc_attr__( 'Fasilitas mahasiswa', 'ugm-faculty' ) . '">' . $inner . '</section>';
 }
 
@@ -1678,8 +1888,9 @@ register_block_type( 'ugm/facility-only', array(
 	'render_callback' => 'ugm_render_block_facility_only',
 	'supports'        => array( 'html' => false ),
 	'attributes'      => array(
-		'title'        => array( 'type' => 'string', 'default' => '' ),
+		'title'        => array( 'type' => 'string', 'default' => 'Fasilitas Kampus' ),
 		'categorySlug' => array( 'type' => 'string', 'default' => '' ),
+		'visibility'   => array( 'type' => 'string', 'default' => 'all' ),
 	),
 ) );
 
@@ -1690,8 +1901,9 @@ register_block_type( 'ugm/facility-only', array(
  * ========================================================================== */
 
 function ugm_render_block_magazine_section( $attrs ) {
+	$visibility_class = ugm_block_visibility_class( $attrs );
 	ob_start();
-	get_template_part( 'template-parts/section-majalah' );
+	get_template_part( 'template-parts/section-majalah', null, array( 'visibility_class' => $visibility_class ) );
 	return ob_get_clean();
 }
 
@@ -1700,6 +1912,9 @@ register_block_type( 'ugm/magazine-section', array(
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_magazine_section',
 	'supports'        => array( 'html' => false ),
+	'attributes'      => array(
+		'visibility' => array( 'type' => 'string', 'default' => 'all' ),
+	),
 ) );
 
 /* ==========================================================================
@@ -1716,16 +1931,11 @@ register_block_type( 'ugm/magazine-section', array(
  * @return string
  */
 function ugm_render_block_video_section( $attrs ) {
-	$title    = isset( $attrs['title'] ) && '' !== trim( (string) $attrs['title'] )
-		? trim( (string) $attrs['title'] )
-		: __( 'Video', 'ugm-faculty' );
-	$cat_slug = isset( $attrs['categorySlug'] ) && '' !== trim( (string) $attrs['categorySlug'] )
-		? sanitize_key( trim( (string) $attrs['categorySlug'] ) )
-		: 'video';
-
-	$cat    = get_category_by_slug( $cat_slug );
-	$cat_id = $cat instanceof WP_Term ? (int) $cat->term_id : 0;
-	$archive = $cat_id > 0 ? get_category_link( $cat_id ) : home_url( '/category/' . $cat_slug . '/' );
+	$visibility_class = ugm_block_visibility_class( $attrs );
+	$title    = ugm_resolve_section_title( $attrs, __( 'Media Video', 'ugm-faculty' ) );
+	$cat_slugs = ugm_parse_category_slug_list( $attrs['categorySlug'] ?? '', array( 'video' ) );
+	$cat_ids   = ugm_resolve_multiple_slugs_to_ids( $cat_slugs );
+	$archive   = ugm_get_category_archive_url_from_slugs( $cat_slugs );
 
 	$args = array(
 		'post_type'           => 'post',
@@ -1736,8 +1946,8 @@ function ugm_render_block_video_section( $attrs ) {
 		'order'               => 'DESC',
 		'no_found_rows'       => true,
 	);
-	if ( $cat_id > 0 ) {
-		$args['category__in'] = ugm_get_category_tree_ids( $cat_id );
+	if ( ! empty( $cat_ids ) ) {
+		$args['category__in'] = $cat_ids;
 	} else {
 		$args['post__in'] = array( 0 );
 	}
@@ -1745,7 +1955,7 @@ function ugm_render_block_video_section( $attrs ) {
 	$q = new WP_Query( $args );
 
 	ob_start();
-	echo '<section class="home-section section-video" aria-labelledby="block-video-title">';
+	echo '<section class="home-section section-video ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-video-title">';
 	echo ugm_block_section_header( $title, 'block-video-title', $archive, __( 'Lihat semua video', 'ugm-faculty' ) ); // phpcs:ignore
 
 	if ( $q->have_posts() ) {
@@ -1776,10 +1986,24 @@ function ugm_render_block_video_section( $attrs ) {
 			echo '</article>';
 			echo '</div>';
 		}
+		if ( ! ( $featured instanceof WP_Post ) ) {
+			// Safety: render featured skeleton if no featured post.
+			echo '<div class="video-area video-area--featured">';
+			echo '<div class="video-featured video-featured--skeleton">';
+			echo '<div class="video-featured__media video-featured__media--skeleton">';
+			echo '<span class="ugm-skeleton-box ugm-skeleton-box--media"></span>';
+			echo '</div>';
+			echo '<div class="video-featured__body">';
+			echo '<span class="ugm-skeleton-line ugm-skeleton-line--title"></span>';
+			echo '<span class="ugm-skeleton-line ugm-skeleton-line--meta"></span>';
+			echo '</div>';
+			echo '</div>';
+			echo '</div>';
+		}
 
-		// List of videos (right).
+		// List of videos (right) + skeleton placeholders for remaining slots.
+		echo '<div class="video-area video-area--list">';
 		if ( ! empty( $list ) ) {
-			echo '<div class="video-area video-area--list">';
 			foreach ( $list as $item ) {
 				$GLOBALS['post'] = $item;
 				setup_postdata( $item );
@@ -1798,11 +2022,10 @@ function ugm_render_block_video_section( $attrs ) {
 				echo '</div>';
 				echo '</article>';
 			}
-			// Skeleton placeholders for missing list items.
-			$missing = max( 0, 3 - count( $list ) );
-			echo ugm_render_partial_skeleton_items( 'video-list-card', $missing ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo '</div>';
 		}
+		$missing = max( 0, 3 - count( $list ) );
+		echo ugm_render_partial_skeleton_items( 'video-list-card', $missing ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '</div>';
 
 		echo '</div>'; // .video-layout
 	} else {
@@ -1810,24 +2033,17 @@ function ugm_render_block_video_section( $attrs ) {
 		echo '<div class="video-layout video-layout--skeleton">';
 		echo '<div class="video-area video-area--featured">';
 		echo '<div class="video-featured video-featured--skeleton">';
-		echo '<div class="ugm-skeleton-block video-featured__media video-featured__media--skeleton"></div>';
+		echo '<div class="video-featured__media video-featured__media--skeleton">';
+		echo '<span class="ugm-skeleton-box ugm-skeleton-box--media"></span>';
+		echo '</div>';
 		echo '<div class="video-featured__body">';
-		echo '<div class="ugm-skeleton-block ugm-skeleton-block--title" style="width:80%;height:18px;margin-bottom:8px;"></div>';
-		echo '<div class="ugm-skeleton-block" style="width:45%;height:14px;"></div>';
+		echo '<span class="ugm-skeleton-line ugm-skeleton-line--title"></span>';
+		echo '<span class="ugm-skeleton-line ugm-skeleton-line--meta"></span>';
 		echo '</div>';
 		echo '</div>';
 		echo '</div>';
 		echo '<div class="video-area video-area--list">';
-		for ( $i = 0; $i < 3; $i++ ) {
-			echo '<div class="video-list-card video-list-card--skeleton">';
-			echo '<div class="ugm-skeleton-block video-list-card__media video-list-card__media--skeleton"></div>';
-			echo '<div class="video-list-card__body">';
-			echo '<div class="ugm-skeleton-block ugm-skeleton-block--title" style="width:90%;height:14px;margin-bottom:6px;"></div>';
-			echo '<div class="ugm-skeleton-block ugm-skeleton-block--title" style="width:70%;height:14px;margin-bottom:8px;"></div>';
-			echo '<div class="ugm-skeleton-block" style="width:40%;height:12px;"></div>';
-			echo '</div>';
-			echo '</div>';
-		}
+		echo ugm_render_partial_skeleton_items( 'video-list-card', 3 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</div>';
 		echo '</div>'; // .video-layout--skeleton
 	}
@@ -1844,8 +2060,121 @@ register_block_type( 'ugm/video-section', array(
 	'render_callback' => 'ugm_render_block_video_section',
 	'supports'        => array( 'html' => false ),
 	'attributes'      => array(
-		'title'        => array( 'type' => 'string', 'default' => '' ),
+		'title'        => array( 'type' => 'string', 'default' => 'Media Video' ),
 		'categorySlug' => array( 'type' => 'string', 'default' => 'video' ),
+		'visibility'   => array( 'type' => 'string', 'default' => 'all' ),
+	),
+) );
+
+/* ==========================================================================
+ * 14. ugm/template-links — Tautan Layanan (Grid Kartu Manual)
+ *
+ * Displays a manually-configured grid of link cards — icon image, bold title,
+ * subtitle / URL, and an external link. Designed to match the UGM portal
+ * navigation style (dark-navy cards, gold accent, white typography).
+ * ========================================================================== */
+
+/**
+ * Render the template-links section.
+ *
+ * @param array $attrs Block attributes.
+ * @return string
+ */
+function ugm_render_block_template_links( $attrs ) {
+	$visibility_class = ugm_block_visibility_class( $attrs );
+	$title = ugm_resolve_section_title( $attrs, __( 'Layanan Pilihan', 'ugm-faculty' ) );
+
+	$items = isset( $attrs['items'] ) && is_array( $attrs['items'] ) ? $attrs['items'] : array();
+
+	ob_start();
+	echo '<section class="home-section section-template-links ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-template-links-title">';
+
+	if ( '' !== $title ) {
+		echo ugm_block_section_header( $title, 'block-template-links-title' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	if ( ! empty( $items ) ) {
+		echo '<div class="template-links-grid">';
+
+		foreach ( $items as $item ) {
+			$label    = isset( $item['label'] )    ? trim( (string) $item['label'] )    : '';
+			$sublabel = isset( $item['sublabel'] ) ? trim( (string) $item['sublabel'] ) : '';
+			$link     = isset( $item['link'] )     ? esc_url( (string) $item['link'] )  : '';
+			$icon_url = isset( $item['iconUrl'] )  ? esc_url( (string) $item['iconUrl'] ) : '';
+			$bg_url   = isset( $item['bgUrl'] )    ? esc_url( (string) $item['bgUrl'] )   : '';
+
+			if ( '' === $label && '' === $link ) {
+				continue;
+			}
+
+			$tag       = '' !== $link ? 'a' : 'div';
+			$link_attr = '' !== $link
+				? ' href="' . $link . '" target="_blank" rel="noopener noreferrer"'
+				: '';
+			$bg_style  = '' !== $bg_url
+				? ' style="--tlc-bg: url(' . $bg_url . ');"'
+				: '';
+
+			echo '<' . $tag . ' class="template-link-card"' . $link_attr . $bg_style . '>'; // phpcs:ignore
+			echo '<div class="template-link-card__bg" aria-hidden="true"></div>';
+			echo '<div class="template-link-card__inner">';
+
+			if ( '' !== $icon_url ) {
+				echo '<div class="template-link-card__icon">';
+				echo '<img src="' . $icon_url . '" alt="' . esc_attr( $label ) . '" loading="lazy">';
+				echo '</div>';
+			} else {
+				echo '<div class="template-link-card__icon template-link-card__icon--empty" aria-hidden="true"></div>';
+			}
+
+			echo '<div class="template-link-card__text">';
+			if ( '' !== $label ) {
+				echo '<span class="template-link-card__label">' . esc_html( $label ) . '</span>';
+			}
+			if ( '' !== $sublabel ) {
+				echo '<span class="template-link-card__sublabel">' . esc_html( $sublabel ) . '</span>';
+			}
+			echo '</div>'; // .template-link-card__text
+
+			echo '</div>'; // .template-link-card__inner
+			echo '</' . $tag . '>';
+		}
+
+		echo '</div>'; // .template-links-grid
+	} else {
+		// Skeleton placeholder when no items configured.
+		echo '<div class="template-links-grid template-links-grid--skeleton">';
+		for ( $i = 0; $i < 7; $i++ ) {
+			echo '<div class="template-link-card template-link-card--skeleton">';
+			echo '<div class="template-link-card__bg" aria-hidden="true"></div>';
+			echo '<div class="template-link-card__inner">';
+			echo '<div class="template-link-card__icon">';
+			echo '<span class="ugm-skeleton-box" style="width:52px;height:52px;border-radius:8px;opacity:.35;"></span>';
+			echo '</div>';
+			echo '<div class="template-link-card__text">';
+			echo '<span class="ugm-skeleton-line ugm-skeleton-line--title" style="width:65%;margin-bottom:7px;opacity:.35;"></span>';
+			echo '<span class="ugm-skeleton-line ugm-skeleton-line--meta" style="width:48%;opacity:.25;"></span>';
+			echo '</div>';
+			echo '</div>';
+			echo '</div>';
+		}
+		echo '</div>';
+	}
+
+	echo '</section>';
+	return ob_get_clean();
+}
+
+register_block_type( 'ugm/template-links', array(
+	'title'           => __( 'Tautan Layanan', 'ugm-faculty' ),
+	'description'     => __( 'Grid kartu tautan layanan dengan ikon, label, dan URL. Data diinput manual langsung di editor.', 'ugm-faculty' ),
+	'category'        => 'ugm-sections',
+	'render_callback' => 'ugm_render_block_template_links',
+	'supports'        => array( 'html' => false ),
+	'attributes'      => array(
+		'title' => array( 'type' => 'string', 'default' => 'Layanan Pilihan' ),
+		'items' => array( 'type' => 'array',  'default' => array() ),
+		'visibility' => array( 'type' => 'string', 'default' => 'all' ),
 	),
 ) );
 
@@ -1883,6 +2212,14 @@ function ugm_render_portal_column( WP_Query $q, $empty_msg = '' ) {
 		return $label;
 	};
 
+	$get_excerpt = function () {
+		$excerpt = trim( wp_strip_all_tags( get_the_excerpt() ) );
+		if ( '' === $excerpt ) {
+			$excerpt = wp_trim_words( wp_strip_all_tags( get_the_content( null, false ) ), 30, '...' );
+		}
+		return $excerpt;
+	};
+
 	echo '<div class="portal-column">';
 
 	if ( $featured instanceof WP_Post ) {
@@ -1890,6 +2227,7 @@ function ugm_render_portal_column( WP_Query $q, $empty_msg = '' ) {
 		$GLOBALS['post'] = $post;     // Required: setup_postdata alone does not set the global post.
 		setup_postdata( $post );
 		$_has_thumb = has_post_thumbnail();
+		$_excerpt   = $get_excerpt();
 		echo '<article class="' . esc_attr( implode( ' ', get_post_class( 'portal-card portal-card--featured' ) ) ) . '">';
 		if ( $_has_thumb ) {
 			echo '<a class="portal-card__media" href="' . esc_url( get_the_permalink() ) . '" aria-hidden="true" tabindex="-1">' . get_the_post_thumbnail( null, 'medium_large' ) . '</a>';
@@ -1899,6 +2237,7 @@ function ugm_render_portal_column( WP_Query $q, $empty_msg = '' ) {
 		echo '<div class="portal-card__body">';
 		$_label = $get_label(); if ( '' !== $_label ) { echo '<p class="card-kicker">' . esc_html( $_label ) . '</p>'; }
 		echo '<h3 class="card-title"><a href="' . esc_url( get_the_permalink() ) . '">' . get_the_title() . '</a></h3>';
+		if ( '' !== $_excerpt ) { echo '<p class="card-excerpt">' . esc_html( $_excerpt ) . '</p>'; }
 		echo '<p class="card-date">' . esc_html( get_the_date( 'j F Y, H.i' ) ) . '</p>';
 		echo '</div></article>';
 	}
@@ -1910,6 +2249,7 @@ function ugm_render_portal_column( WP_Query $q, $empty_msg = '' ) {
 			$GLOBALS['post'] = $post; // Required: setup_postdata alone does not set the global post.
 			setup_postdata( $post );
 			$_has_thumb = has_post_thumbnail();
+			$_excerpt   = $get_excerpt();
 			echo '<article class="' . esc_attr( implode( ' ', get_post_class( 'portal-list-card' ) ) ) . '">';
 			if ( $_has_thumb ) {
 				echo '<a class="portal-list-card__media" href="' . esc_url( get_the_permalink() ) . '" aria-hidden="true" tabindex="-1">' . get_the_post_thumbnail( null, 'thumbnail' ) . '</a>';
@@ -1919,6 +2259,7 @@ function ugm_render_portal_column( WP_Query $q, $empty_msg = '' ) {
 			echo '<div class="portal-list-card__body">';
 			$_label = $get_label(); if ( '' !== $_label ) { echo '<p class="card-kicker">' . esc_html( $_label ) . '</p>'; }
 			echo '<h3 class="card-title"><a href="' . esc_url( get_the_permalink() ) . '">' . get_the_title() . '</a></h3>';
+			if ( '' !== $_excerpt ) { echo '<p class="card-excerpt">' . esc_html( $_excerpt ) . '</p>'; }
 			echo '<p class="card-date">' . esc_html( get_the_date( 'j F Y, H.i' ) ) . '</p>';
 			echo '</div></article>';
 		}
@@ -1944,22 +2285,23 @@ function ugm_render_portal_column( WP_Query $q, $empty_msg = '' ) {
  * @return int[]
  */
 function ugm_resolve_agenda_exclude_ids( $slug_attr ) {
+	$slug_list = ugm_parse_category_slug_list( $slug_attr );
+
 	// 1. Explicit slug attr (from block attribute).
-	if ( '' !== $slug_attr ) {
-		// Try exact slug first, then WP-suffixed variants (-2, -3, -4).
-		$slug_candidates = array( $slug_attr, $slug_attr . '-2', $slug_attr . '-3', $slug_attr . '-4' );
-		foreach ( $slug_candidates as $try_slug ) {
-			$cat = get_category_by_slug( sanitize_key( $try_slug ) );
-			if ( $cat ) {
-				return ugm_get_category_tree_ids( (int) $cat->term_id );
-			}
+	if ( ! empty( $slug_list ) ) {
+		$resolved_ids = ugm_resolve_multiple_slugs_to_ids( $slug_list );
+		if ( ! empty( $resolved_ids ) ) {
+			return $resolved_ids;
 		}
+
 		// Last resort: search by name containing the slug keyword.
 		$all_cats = get_categories( array( 'hide_empty' => false, 'number' => 50 ) );
-		$keyword  = str_replace( '-', ' ', $slug_attr );
-		foreach ( $all_cats as $cat ) {
-			if ( false !== stripos( $cat->name, $keyword ) || false !== stripos( $cat->slug, $slug_attr ) ) {
-				return ugm_get_category_tree_ids( (int) $cat->term_id );
+		foreach ( $slug_list as $slug ) {
+			$keyword = str_replace( '-', ' ', $slug );
+			foreach ( $all_cats as $cat ) {
+				if ( false !== stripos( $cat->name, $keyword ) || false !== stripos( $cat->slug, $slug ) ) {
+					return ugm_get_category_tree_ids( (int) $cat->term_id );
+				}
 			}
 		}
 		return array();
@@ -1993,6 +2335,45 @@ function ugm_resolve_agenda_exclude_ids( $slug_attr ) {
 }
 
 /**
+ * Resolve the term IDs for the faculty section category with multi-slug support.
+ *
+ * @param string $slug_attr Category slug override (may contain commas).
+ * @return int[]
+ */
+function ugm_resolve_faculty_exclude_ids_multi( $slug_attr ) {
+	$slug_list = ugm_parse_category_slug_list( $slug_attr );
+
+	if ( ! empty( $slug_list ) ) {
+		return ugm_resolve_multiple_slugs_to_ids( $slug_list );
+	}
+
+	$page_id = (int) get_the_ID();
+	if ( $page_id <= 0 ) {
+		$page_id = (int) get_queried_object_id();
+	}
+
+	if ( $page_id > 0 ) {
+		$post = get_post( $page_id );
+		if ( $post instanceof WP_Post ) {
+			foreach ( parse_blocks( (string) $post->post_content ) as $block ) {
+				if ( 'ugm/faculty-section' !== ( $block['blockName'] ?? '' ) ) {
+					continue;
+				}
+
+				$block_slugs = ugm_parse_category_slug_list( $block['attrs']['categorySlug'] ?? '' );
+				if ( ! empty( $block_slugs ) ) {
+					return ugm_resolve_multiple_slugs_to_ids( $block_slugs );
+				}
+
+				break;
+			}
+		}
+	}
+
+	return ugm_resolve_multiple_slugs_to_ids( array( 'fakultas-dan-sekolah', 'fakultas', 'faculty' ) );
+}
+
+/**
  * Resolve the term IDs for the faculty section category (used to exclude from latest news).
  *
  * Reads categorySlug from the ugm/faculty-section block on the current page.
@@ -2002,12 +2383,10 @@ function ugm_resolve_agenda_exclude_ids( $slug_attr ) {
  * @return int[]
  */
 function ugm_resolve_faculty_exclude_ids( $slug_attr ) {
-	if ( '' !== $slug_attr ) {
-		$cat = get_category_by_slug( sanitize_key( $slug_attr ) );
-		if ( $cat ) {
-			return ugm_get_category_tree_ids( (int) $cat->term_id );
-		}
-		return array();
+	$slug_list = ugm_parse_category_slug_list( $slug_attr );
+
+	if ( ! empty( $slug_list ) ) {
+		return ugm_resolve_multiple_slugs_to_ids( $slug_list );
 	}
 
 	// Resolve the current page ID.
@@ -2070,7 +2449,7 @@ add_action( 'enqueue_block_editor_assets', function () {
 	wp_enqueue_script(
 		'ugm-blocks',
 		get_template_directory_uri() . '/assets/js/blocks.js',
-		array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-server-side-render' ),
+		array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render' ),
 		ugm_get_asset_version( '/assets/js/blocks.js' ),
 		true
 	);
@@ -2123,16 +2502,17 @@ add_action( 'init', function () {
 
 	$landing_blocks =
 		'<!-- wp:ugm/hero-section {"imageId":0,"imageUrl":"","title":"","description":""} /-->' . "\n" .
-		'<!-- wp:ugm/latest-news {"title":"Berita Terbaru","categorySlug":""} /-->' . "\n" .
-		'<!-- wp:ugm/academic-news {"title":"Berita Akademik","categorySlug":"pendidikan"} /-->' . "\n" .
-		'<!-- wp:ugm/profile-section {"title":"Profile","categorySlug":"profile"} /-->' . "\n" .
-		'<!-- wp:ugm/achievement-section {"title":"Prestasi","categorySlug":"prestasi"} /-->' . "\n" .
-		'<!-- wp:ugm/featured-categories {"campusTitle":"Seputar Kampus","campusCategorySlug":"seputar-kampus","facultyTitle":"Kabar Fakultas","facultyCategorySlug":"kabar-fakultas","partnershipTitle":"Kerjasama","partnershipCategorySlug":"kerjasama"} /-->' . "\n" .
+		'<!-- wp:ugm/latest-news {"title":"Highlight Informasi"} /-->' . "\n" .
+		'<!-- wp:ugm/academic-news {"title":"Informasi Akademik"} /-->' . "\n" .
+		'<!-- wp:ugm/profile-section {"title":"Informasi Umum"} /-->' . "\n" .
+		'<!-- wp:ugm/achievement-section {"title":"Pencapaian"} /-->' . "\n" .
+		'<!-- wp:ugm/featured-categories /-->' . "\n" .
 		'<!-- wp:ugm/category-section {"title":"Kategori"} /-->' . "\n" .
-		'<!-- wp:ugm/faculty-section {"title":"Fakultas dan Sekolah","categorySlug":"fakultas-dan-sekolah"} /-->' . "\n" .
-		'<!-- wp:ugm/agenda-section {"title":"Agenda Kegiatan","categorySlug":"agenda"} /-->' . "\n" .
+		'<!-- wp:ugm/faculty-section {"title":"Fakultas dan Sekolah"} /-->' . "\n" .
+		'<!-- wp:ugm/agenda-section {"title":"Event & Agenda"} /-->' . "\n" .
 		'<!-- wp:ugm/magazine-section /-->' . "\n" .
-		'<!-- wp:ugm/video-section {"title":"Video","categorySlug":"video"} /-->';
+		'<!-- wp:ugm/video-section {"title":"Media Video"} /-->' . "\n" .
+		'<!-- wp:ugm/template-links {"title":"Layanan Pilihan","items":[]} /-->';
 
 	register_block_pattern( 'ugm/landing-page-sections', array(
 		'title'       => __( 'Konten Halaman Landing — Semua Section', 'ugm-faculty' ),
@@ -2577,4 +2957,60 @@ add_action( 'admin_init', function () {
 	}
 
 	update_option( 'ugm_landing_blocks_migrated_v8_split_featured_cols', true );
+} );
+
+/* ==========================================================================
+ * Migration v9: add ugm/template-links after ugm/video-section on existing
+ * landing pages so the new block appears in the editor canvas.
+ * Delete 'ugm_landing_blocks_migrated_v9_template_links' to re-run.
+ * ========================================================================== */
+
+add_action( 'admin_init', function () {
+	if ( get_option( 'ugm_landing_blocks_migrated_v9_template_links' ) ) {
+		return;
+	}
+
+	$pages = get_posts( array(
+		'post_type'      => 'page',
+		'post_status'    => array( 'publish', 'draft', 'private' ),
+		'posts_per_page' => -1,
+		'meta_query'     => array(
+			array(
+				'key'   => '_wp_page_template',
+				'value' => 'page-templates/template-landing-page.php',
+			),
+		),
+	) );
+
+	foreach ( $pages as $page ) {
+		$content = (string) $page->post_content;
+
+		// Skip empty or already-migrated.
+		if ( '' === trim( $content ) || false !== strpos( $content, 'wp:ugm/template-links' ) ) {
+			continue;
+		}
+
+		$insert = '<!-- wp:ugm/template-links {"title":"Tautan Layanan","items":[]} /-->' . "\n";
+		$needle = '<!-- wp:ugm/video-section';
+
+		if ( false !== strpos( $content, $needle ) ) {
+			// Insert AFTER the video-section block line.
+			$content = preg_replace(
+				'/(' . preg_quote( '<!-- wp:ugm/video-section', '/' ) . '[^\n]*)(\n|$)/',
+				'$1' . "\n" . $insert,
+				$content,
+				1
+			);
+		} else {
+			// Fallback: append at the end.
+			$content .= "\n" . $insert;
+		}
+
+		wp_update_post( array(
+			'ID'           => $page->ID,
+			'post_content' => $content,
+		) );
+	}
+
+	update_option( 'ugm_landing_blocks_migrated_v9_template_links', true );
 } );

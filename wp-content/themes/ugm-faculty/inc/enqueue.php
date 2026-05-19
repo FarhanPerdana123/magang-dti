@@ -30,11 +30,29 @@ function ugm_get_asset_version( $relative_path ) {
  * Enqueue theme styles and scripts.
  */
 function ugm_enqueue_assets() {
-	// Enqueue main theme stylesheet.
+	// Bootstrap 5 (fondasi CSS) — dimuat sebelum CSS kustom.
+	// Kelas Bootstrap langsung bisa dipakai di seluruh tema.
+	// CSS kustom tetap menimpa Bootstrap di mana diperlukan.
+	wp_enqueue_style(
+		'bootstrap',
+		'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
+		array(),
+		'5.3.3'
+	);
+
+	wp_enqueue_script(
+		'bootstrap-bundle',
+		'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js',
+		array(),
+		'5.3.3',
+		true
+	);
+
+	// Main theme stylesheet (bergantung pada Bootstrap).
 	wp_enqueue_style(
 		'ugm-style',
 		get_stylesheet_uri(),
-		array(),
+		array( 'bootstrap' ),
 		ugm_get_asset_version( 'style.css' )
 	);
 
@@ -52,7 +70,7 @@ function ugm_enqueue_assets() {
 		wp_enqueue_style(
 			'ugm-style-' . $css_module,
 			get_template_directory_uri() . $module_rel_path,
-			array( 'ugm-style' ),
+			array( 'ugm-style', 'bootstrap' ),
 			ugm_get_asset_version( $module_rel_path )
 		);
 	}
