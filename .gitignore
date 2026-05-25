@@ -30,3 +30,8 @@ node_modules/
 
 # Composer
 /vendor/
+
+check-blocks.php
+check-template.php
+debug-query.php
+flush-template-cache.php

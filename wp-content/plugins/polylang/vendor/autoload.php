@@ -19,8 +19,4 @@ if (PHP_VERSION_ID < 50600) {
 
 require_once __DIR__ . '/composer/autoload_real.php';
 
-<<<<<<< HEAD:wp-content/plugins/elementor/vendor/autoload.php
 return ComposerAutoloaderInit4c0e44c710c61512878dc3b45b4de108::getLoader();
-=======
-return ComposerAutoloaderInit07320ff48ed93afe07402c80408feb2f::getLoader();
->>>>>>> origin/dev-fe:wp-content/plugins/polylang/vendor/autoload.php
