@@ -23,6 +23,7 @@
 	var PanelBody         = wp.components.PanelBody;
 	var TextControl       = wp.components.TextControl;
 	var TextareaControl   = wp.components.TextareaControl;
+	var SelectControl     = wp.components.SelectControl;
 	var Button            = wp.components.Button;
 	var Fragment          = wp.element.Fragment;
 	var Placeholder       = wp.components.Placeholder;
@@ -510,6 +511,311 @@
 			supports:    { html: false, multiple: false },
 			attributes:  section.attrs,
 			edit:        editFn,
+			save:        function () { return null; },
+		} );
+	} );
+
+	/* ==================================================================
+	 * UGM — BERITA TERBARU SECTIONS
+	 * Register custom blocks for the "Berita Terbaru" page template.
+	 * Users add/remove these blocks to control which sections appear.
+	 * ================================================================== */
+
+	// Register the "UGM — Berita Terbaru" category (client-side).
+	if ( wp.blocks.getCategories && wp.blocks.setCategories ) {
+		var existingCategories = wp.blocks.getCategories();
+		var hasBeritaCategory  = existingCategories.some( function ( c ) {
+			return c.slug === 'ugm-berita-terbaru';
+		} );
+		if ( ! hasBeritaCategory ) {
+			var ugmSectionsIdx = existingCategories.findIndex( function ( c ) {
+				return c.slug === 'ugm-sections';
+			} );
+			var newCategory = { slug: 'ugm-berita-terbaru', title: __( 'UGM — Berita Terbaru', 'ugm-faculty' ), icon: 'admin-post' };
+			var updatedCats = existingCategories.slice();
+			if ( ugmSectionsIdx !== -1 ) {
+				updatedCats.splice( ugmSectionsIdx + 1, 0, newCategory );
+			} else {
+				updatedCats.unshift( newCategory );
+			}
+			wp.blocks.setCategories( updatedCats );
+		}
+	}
+
+	/**
+	 * Build edit() for a Berita Terbaru section block.
+	 * Shows InspectorControls with configurable fields + SSR preview.
+	 * Preview is wrapped in .ugmbt-page so CSS custom properties apply.
+	 *
+	 * @param {string}   blockName  Full block name, e.g. 'ugm/bt-hero-post'.
+	 * @param {Array}    fields     Array of {key, label, type ('text'|'number'|'select'), help, default}.
+	 * @return {Function}
+	 */
+	function makeBeritaEdit( blockName, fields ) {
+		return function ( props ) {
+			var attrs   = props.attributes;
+			var setAttr = props.setAttributes;
+
+			var controls = fields.map( function ( field ) {
+				if ( field.type === 'select' ) {
+					return el( SelectControl, {
+						key:      field.key,
+						label:    field.label,
+						value:    attrs[ field.key ] || field.default,
+						options:  field.options || [],
+						onChange: function ( v ) {
+							var obj = {};
+							obj[ field.key ] = v;
+							setAttr( obj );
+						},
+						help: field.help || '',
+					} );
+				}
+				if ( field.type === 'number' ) {
+					return el( TextControl, {
+						key:      field.key,
+						label:    field.label,
+						value:    String( attrs[ field.key ] !== undefined ? attrs[ field.key ] : field.default ),
+						type:     'number',
+						onChange: function ( v ) {
+							var obj = {};
+							obj[ field.key ] = parseInt( v, 10 ) || field.default;
+							setAttr( obj );
+						},
+						help: field.help || '',
+					} );
+				}
+				if ( field.type === 'image' ) {
+					return el(
+						'div',
+						{ key: field.key, className: 'ugmbt-editor-image-control' },
+						el( 'p', { className: 'ugmbt-editor-image-control__label' }, field.label ),
+						attrs[ field.urlKey ]
+							? el( 'img', {
+								src: attrs[ field.urlKey ],
+								alt: '',
+								style: { width: '100%', height: 'auto', marginBottom: '8px' },
+							} )
+							: el( 'p', { style: { color: '#757575' } }, field.help || '' ),
+						el(
+							MediaUploadCheck,
+							null,
+							el( MediaUpload, {
+								onSelect: function ( media ) {
+									var obj = {};
+									obj[ field.idKey ]  = media.id || 0;
+									obj[ field.urlKey ] = media.url || '';
+									obj[ field.altKey ] = media.alt || media.title || '';
+									setAttr( obj );
+								},
+								allowedTypes: [ 'image' ],
+								value: attrs[ field.idKey ] || 0,
+								render: function ( ref ) {
+									return el(
+										Fragment,
+										null,
+										el( Button, {
+											onClick: ref.open,
+											variant: 'secondary',
+											style: { marginRight: '8px' },
+										}, attrs[ field.urlKey ] ? __( 'Ganti Poster', 'ugm-faculty' ) : __( 'Pilih Poster', 'ugm-faculty' ) ),
+										attrs[ field.urlKey ]
+											? el( Button, {
+												onClick: function () {
+													var obj = {};
+													obj[ field.idKey ]  = 0;
+													obj[ field.urlKey ] = '';
+													obj[ field.altKey ] = '';
+													setAttr( obj );
+												},
+												isDestructive: true,
+											}, __( 'Hapus', 'ugm-faculty' ) )
+											: null
+									);
+								},
+							} )
+						)
+					);
+				}
+				return el( TextControl, {
+					key:      field.key,
+					label:    field.label,
+					value:    attrs[ field.key ] || '',
+					onChange: function ( v ) {
+						var obj = {};
+						obj[ field.key ] = v;
+						setAttr( obj );
+					},
+					help: field.help || '',
+					style: field.mono ? { fontFamily: 'monospace' } : {},
+				} );
+			} );
+
+			return el(
+				Fragment,
+				null,
+				el(
+					InspectorControls,
+					null,
+					el( PanelBody, { title: __( 'Pengaturan Section', 'ugm-faculty' ), initialOpen: true },
+						controls
+					)
+				),
+				// Wrap dengan .ugmbt-page agar CSS variables aktif di editor.
+				el( 'div', { className: 'ugmbt-page' },
+					el( ServerSideRender, {
+						block:      blockName,
+						attributes: attrs,
+						httpMethod: 'POST',
+					} )
+				)
+			);
+		};
+	}
+
+	/* --- Berita Terbaru section blocks --- */
+	var beritaBlocks = [
+		{
+			name:        'ugm/bt-news-section',
+			title:       __( 'Kumpulan Berita', 'ugm-faculty' ),
+			description: __( 'Beberapa section berita: 1 berita besar + 1 berita samping + grid berita.', 'ugm-faculty' ),
+			icon:        'layout',
+			attributes: {
+				sectionsCount: { type: 'integer', default: 4 },
+				postsPerRow:   { type: 'integer', default: 3 },
+				categorySlug:  { type: 'string',  default: '' },
+			},
+			fields: [
+				{ key: 'sectionsCount', label: __( 'Jumlah Section Berita', 'ugm-faculty' ),
+				  type: 'number', default: 4,
+				  help: __( 'Jumlah pola berita yang tampil dalam satu halaman. Minimal 1, maksimal 8.', 'ugm-faculty' ) },
+				{ key: 'postsPerRow', label: __( 'Artikel Grid per Section', 'ugm-faculty' ),
+				  type: 'number', default: 3,
+				  help: __( 'Jumlah kartu grid di bawah berita utama. Minimal 2, maksimal 4.', 'ugm-faculty' ) },
+				{ key: 'categorySlug', label: __( 'Slug Kategori (opsional)', 'ugm-faculty' ),
+				  help: __( 'Kosongkan = berita terbaru dari semua kategori.', 'ugm-faculty' ), mono: true },
+			],
+		},
+		{
+			name:        'ugm/bt-featured-row',
+			title:       __( 'Baris Utama Berita', 'ugm-faculty' ),
+			description: __( '1 berita besar di kiri + 1 berita pendukung di kanan dalam satu baris.', 'ugm-faculty' ),
+			icon:        'format-image',
+			attributes: {
+				categorySlug: { type: 'string', default: '' },
+			},
+			fields: [
+				{ key: 'categorySlug', label: __( 'Slug Kategori (opsional)', 'ugm-faculty' ),
+				  help: __( 'Kosongkan = berita terbaru dari semua kategori.', 'ugm-faculty' ), mono: true },
+			],
+		},
+		{
+			name:        'ugm/bt-news-grid',
+			title:       __( 'Grid Kolom Berita', 'ugm-faculty' ),
+			description: __( 'Baris kartu berita berukuran sama (default 3 kolom).', 'ugm-faculty' ),
+			icon:        'grid-view',
+			attributes: {
+				postsCount:   { type: 'integer', default: 3 },
+				categorySlug: { type: 'string',  default: '' },
+			},
+			fields: [
+				{ key: 'postsCount',   label: __( 'Jumlah Kolom / Artikel', 'ugm-faculty' ),
+				  type: 'number', default: 3,
+				  help: __( 'Minimal 2, maksimal 6 artikel dalam satu baris grid.', 'ugm-faculty' ) },
+				{ key: 'categorySlug', label: __( 'Slug Kategori (opsional)', 'ugm-faculty' ),
+				  help: __( 'Kosongkan = semua kategori.', 'ugm-faculty' ), mono: true },
+			],
+		},
+		{
+			name:        'ugm/bt-sidebar-promo',
+			title:       __( 'Sidebar: Poster & Update', 'ugm-faculty' ),
+			description: __( 'Tombol UGM Peduli Bencana dan poster informasi di sidebar.', 'ugm-faculty' ),
+			icon:        'format-image',
+			attributes: {
+				buttonText:    { type: 'string',  default: 'UGM Peduli Bencana - Update' },
+				buttonUrl:     { type: 'string',  default: '/peduli-bencana/' },
+				posterOneId:   { type: 'integer', default: 0 },
+				posterOneUrl:  { type: 'string',  default: '' },
+				posterOneAlt:  { type: 'string',  default: '' },
+				posterOneLink: { type: 'string',  default: '' },
+				posterTwoId:   { type: 'integer', default: 0 },
+				posterTwoUrl:  { type: 'string',  default: '' },
+				posterTwoAlt:  { type: 'string',  default: '' },
+				posterTwoLink: { type: 'string',  default: '' },
+			},
+			fields: [
+				{ key: 'buttonText', label: __( 'Teks Tombol', 'ugm-faculty' ) },
+				{ key: 'buttonUrl', label: __( 'URL Tombol', 'ugm-faculty' ),
+				  help: __( 'Contoh: /peduli-bencana/ atau URL lengkap.', 'ugm-faculty' ), mono: true },
+				{ key: 'posterOneImage', label: __( 'Poster 1', 'ugm-faculty' ),
+				  type: 'image', idKey: 'posterOneId', urlKey: 'posterOneUrl', altKey: 'posterOneAlt',
+				  help: __( 'Pilih gambar poster pertama dari Media Library.', 'ugm-faculty' ) },
+				{ key: 'posterOneLink', label: __( 'Link Poster 1 (opsional)', 'ugm-faculty' ), mono: true },
+				{ key: 'posterTwoImage', label: __( 'Poster 2', 'ugm-faculty' ),
+				  type: 'image', idKey: 'posterTwoId', urlKey: 'posterTwoUrl', altKey: 'posterTwoAlt',
+				  help: __( 'Pilih gambar poster kedua dari Media Library.', 'ugm-faculty' ) },
+				{ key: 'posterTwoLink', label: __( 'Link Poster 2 (opsional)', 'ugm-faculty' ), mono: true },
+			],
+		},
+		{
+			name:        'ugm/bt-sidebar-news',
+			title:       __( 'Sidebar: Berita Terbaru', 'ugm-faculty' ),
+			description: __( 'Widget sidebar berisi daftar judul berita terbaru.', 'ugm-faculty' ),
+			icon:        'list-view',
+			attributes: {
+				widgetTitle: { type: 'string',  default: '' },
+				postsCount:  { type: 'integer', default: 5 },
+			},
+			fields: [
+				{ key: 'widgetTitle', label: __( 'Judul Widget', 'ugm-faculty' ),
+				  help: __( 'Kosongkan = "Berita Terbaru".', 'ugm-faculty' ) },
+				{ key: 'postsCount',  label: __( 'Jumlah Berita', 'ugm-faculty' ),
+				  type: 'number', default: 5 },
+			],
+		},
+		{
+			name:        'ugm/bt-sidebar-agenda',
+			title:       __( 'Sidebar: Agenda Terbaru', 'ugm-faculty' ),
+			description: __( 'Widget sidebar agenda dengan kotak tanggal navy dan tombol "Semua Agenda".', 'ugm-faculty' ),
+			icon:        'calendar-alt',
+			attributes: {
+				widgetTitle: { type: 'string',  default: '' },
+				postsCount:  { type: 'integer', default: 3 },
+				agendaUrl:   { type: 'string',  default: '/agenda/' },
+			},
+			fields: [
+				{ key: 'widgetTitle', label: __( 'Judul Widget', 'ugm-faculty' ),
+				  help: __( 'Kosongkan = "Agenda Terbaru".', 'ugm-faculty' ) },
+				{ key: 'postsCount',  label: __( 'Jumlah Agenda', 'ugm-faculty' ),
+				  type: 'number', default: 3 },
+				{ key: 'agendaUrl',   label: __( 'URL Tombol "Semua Agenda"', 'ugm-faculty' ),
+				  help: __( 'Contoh: /agenda/ atau /kegiatan/', 'ugm-faculty' ), mono: true },
+			],
+		},
+		{
+			name:        'ugm/bt-sidebar-categories',
+			title:       __( 'Sidebar: Kategori', 'ugm-faculty' ),
+			description: __( 'Widget sidebar berisi semua kategori berita beserta jumlah artikelnya.', 'ugm-faculty' ),
+			icon:        'category',
+			attributes: {
+				widgetTitle: { type: 'string', default: '' },
+			},
+			fields: [
+				{ key: 'widgetTitle', label: __( 'Judul Widget', 'ugm-faculty' ),
+				  help: __( 'Kosongkan = "Kategori".', 'ugm-faculty' ) },
+			],
+		},
+	];
+
+	beritaBlocks.forEach( function ( block ) {
+		registerBlockType( block.name, {
+			title:       block.title,
+			description: block.description,
+			category:    'ugm-berita-terbaru',
+			icon:        block.icon,
+			supports:    { html: false, multiple: false },
+			attributes:  block.attributes,
+			edit:        makeBeritaEdit( block.name, block.fields ),
 			save:        function () { return null; },
 		} );
 	} );

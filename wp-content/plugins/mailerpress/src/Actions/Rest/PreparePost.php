@@ -133,6 +133,43 @@ class PreparePost
             }
         }
 
+        // Add post meta (skip WP internal keys, allow plugin-prefixed keys like _EventStartDate)
+        $all_meta = get_post_meta( $post->ID );
+        $post_meta = [];
+        $post_meta_resolved = [];
+
+        $wp_internal_meta = [
+            '_edit_lock', '_edit_last', '_wp_page_template', '_wp_attachment_metadata',
+            '_wp_attached_file', '_thumbnail_id', '_wp_old_slug', '_wp_trash_meta_status',
+            '_wp_trash_meta_time', '_wp_desired_post_slug', '_encloseme',
+        ];
+
+        foreach ( $all_meta as $key => $values ) {
+            if ( in_array( $key, $wp_internal_meta, true ) ) {
+                continue;
+            }
+            $value = count( $values ) === 1 ? $values[0] : $values;
+            $post_meta[ $key ] = $value;
+
+            if ( is_numeric( $value ) && wp_attachment_is_image( (int) $value ) ) {
+                $attachment_id = (int) $value;
+                $post_meta_resolved[ $key ] = [
+                    'ID'    => $attachment_id,
+                    'url'   => wp_get_attachment_image_url( $attachment_id, 'full' ),
+                    'alt'   => get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ),
+                    'title' => get_the_title( $attachment_id ),
+                    'sizes' => $this->getImageSizes( $attachment_id ),
+                ];
+            }
+        }
+
+        if ( ! empty( $post_meta ) ) {
+            $data['post_meta'] = $post_meta;
+        }
+        if ( ! empty( $post_meta_resolved ) ) {
+            $data['post_meta_resolved'] = $post_meta_resolved;
+        }
+
         $response->set_data($data);
 
         return apply_filters('mailerpress/query-rest-data', $response, $post, $request);

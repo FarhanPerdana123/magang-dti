@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'a8cteam51/wayback-link-fixer',
-        'pretty_version' => '1.3.6',
-        'version' => '1.3.6.0',
-        'reference' => '734245b3005b4535ea2f502c0387e3a7d9c99142',
+        'pretty_version' => '1.4.0',
+        'version' => '1.4.0.0',
+        'reference' => 'ceb2f43071430010df68b98d841b90d7dca44b44',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'a8cteam51/wayback-link-fixer' => array(
-            'pretty_version' => '1.3.6',
-            'version' => '1.3.6.0',
-            'reference' => '734245b3005b4535ea2f502c0387e3a7d9c99142',
+            'pretty_version' => '1.4.0',
+            'version' => '1.4.0.0',
+            'reference' => 'ceb2f43071430010df68b98d841b90d7dca44b44',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

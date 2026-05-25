@@ -85,6 +85,31 @@ function ugm_enqueue_assets() {
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
 	}
+
+	$template_slug = is_singular() ? get_page_template_slug( get_queried_object_id() ) : '';
+
+	// Muat CSS khusus halaman Berita Terbaru.
+	if (
+		is_page_template( 'page-templates/berita-terbaru.php' ) ||
+		'berita-terbaru' === $template_slug ||
+		'page-templates/berita-terbaru.php' === $template_slug
+	) {
+		wp_enqueue_style(
+			'ugm-berita-terbaru',
+			get_template_directory_uri() . '/assets/css/berita-terbaru.css',
+			array( 'ugm-style' ),
+			ugm_get_asset_version( '/assets/css/berita-terbaru.css' )
+		);
+	}
+
+	if ( is_singular( 'post' ) && in_array( $template_slug, array( 'single-berita', 'single-berita.php' ), true ) ) {
+		wp_enqueue_style(
+			'ugm-single-berita',
+			get_template_directory_uri() . '/assets/css/single-berita.css',
+			array( 'ugm-style' ),
+			ugm_get_asset_version( '/assets/css/single-berita.css' )
+		);
+	}
 }
 add_action( 'wp_enqueue_scripts', 'ugm_enqueue_assets' );
 
@@ -129,3 +154,43 @@ function ugm_enqueue_editor_assets() {
 	);
 }
 add_action( 'admin_enqueue_scripts', 'ugm_enqueue_editor_assets' );
+
+/**
+ * Enqueue berita-terbaru.css ke dalam block editor
+ * sehingga ServerSideRender preview tampil dengan styling yang benar.
+ */
+function ugm_enqueue_berita_terbaru_editor_style() {
+	// Hanya load jika ini adalah block editor untuk halaman (page).
+	$screen = get_current_screen();
+	if ( ! $screen || ! $screen->is_block_editor() || 'page' !== $screen->post_type ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'ugm-berita-terbaru',
+		get_template_directory_uri() . '/assets/css/berita-terbaru.css',
+		array(),
+		ugm_get_asset_version( '/assets/css/berita-terbaru.css' )
+	);
+}
+add_action( 'admin_enqueue_scripts', 'ugm_enqueue_berita_terbaru_editor_style' );
+
+/**
+ * Juga daftarkan ke enqueue_block_editor_assets untuk iframe editor (WP 6.3+).
+ */
+function ugm_enqueue_berita_terbaru_block_editor_style() {
+	wp_enqueue_style(
+		'ugm-berita-terbaru-editor',
+		get_template_directory_uri() . '/assets/css/berita-terbaru.css',
+		array(),
+		ugm_get_asset_version( '/assets/css/berita-terbaru.css' )
+	);
+
+	wp_enqueue_style(
+		'ugm-single-berita-editor',
+		get_template_directory_uri() . '/assets/css/single-berita.css',
+		array(),
+		ugm_get_asset_version( '/assets/css/single-berita.css' )
+	);
+}
+add_action( 'enqueue_block_editor_assets', 'ugm_enqueue_berita_terbaru_block_editor_style' );

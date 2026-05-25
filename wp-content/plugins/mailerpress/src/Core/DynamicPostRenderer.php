@@ -202,7 +202,7 @@ class DynamicPostRenderer
         }
 
         $postTypeRaw = strtolower($parsed['postType'] ?? 'post');
-        $postType = $this->postTypeMap[$postTypeRaw] ?? rtrim($postTypeRaw, 's');
+        $postType = $this->postTypeMap[$postTypeRaw] ?? $postTypeRaw;
 
         $orderby = 'date';
         $order = 'DESC';
@@ -290,12 +290,66 @@ class DynamicPostRenderer
 
     protected function fetchPosts(array $args): array
     {
-        // ✅ Optimization: Suppress filters to avoid heavy hooks from WooCommerce and other plugins
-        $args['suppress_filters'] = true;
-        $args['no_found_rows'] = true; // Avoid counting total if not necessary
+        $args['suppress_filters'] = false;
+        $args['no_found_rows'] = true;
         $query = new WP_Query($args);
+
+        if ( ! $query->have_posts() ) {
+            global $wp_filter;
+
+            $hooks_to_bypass = [ 'posts_pre_query', 'pre_get_posts', 'parse_query' ];
+            $saved_hooks     = [];
+
+            foreach ( $hooks_to_bypass as $hook ) {
+                if ( isset( $wp_filter[ $hook ] ) ) {
+                    $saved_hooks[ $hook ] = clone $wp_filter[ $hook ];
+                    remove_all_filters( $hook );
+                }
+            }
+
+            $args['suppress_filters'] = true;
+            $query = new WP_Query( $args );
+
+            foreach ( $saved_hooks as $hook => $filter_obj ) {
+                $wp_filter[ $hook ] = $filter_obj;
+            }
+        }
+
+        if ( ! $query->have_posts() && ! empty( $args['post_type'] ) ) {
+            global $wpdb;
+
+            $post_type = sanitize_key( $args['post_type'] );
+            $per_page  = absint( $args['posts_per_page'] ?? 10 );
+            $offset    = absint( $args['offset'] ?? 0 );
+            $order     = strtoupper( $args['order'] ?? 'DESC' ) === 'ASC' ? 'ASC' : 'DESC';
+            $orderby   = in_array( $args['orderby'] ?? 'date', [ 'date', 'title', 'modified' ], true )
+                ? 'post_' . ( $args['orderby'] ?? 'date' )
+                : 'post_date';
+
+            $exclude_sql = '';
+            if ( ! empty( $args['post__not_in'] ) ) {
+                $ids         = implode( ',', array_map( 'absint', $args['post__not_in'] ) );
+                $exclude_sql = " AND ID NOT IN ({$ids})";
+            }
+
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $raw = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT * FROM {$wpdb->posts} WHERE post_type = %s AND post_status = 'publish'{$exclude_sql} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d",
+                    $post_type,
+                    $per_page,
+                    $offset
+                )
+            );
+
+            if ( ! empty( $raw ) ) {
+                wp_reset_postdata();
+                return array_map( fn( $row ) => new \WP_Post( $row ), $raw );
+            }
+        }
+
         $posts = $query->have_posts() ? $query->posts : [];
-        wp_reset_postdata(); // Clean global data
+        wp_reset_postdata();
         return $posts;
     }
 
@@ -307,10 +361,12 @@ class DynamicPostRenderer
                 $blockNameWithKey = trim($blockMatches[1]);
                 $blockContent = $blockMatches[2];
 
-                // Extract block name and optional field key (for ACF fields)
+                // Extract block name and optional field key (for ACF fields) or block params
                 $blockName = $blockNameWithKey;
                 $fieldKey = null;
                 $linkToPost = false;
+                $blockParams = '';
+
                 if (strpos($blockNameWithKey, 'post acf field:') === 0) {
                     // Parse: "post acf field:fieldKey:linkToPost=1" or "post acf field:fieldKey:linkToPost=0"
                     $blockName = 'post acf field';
@@ -324,6 +380,18 @@ class DynamicPostRenderer
                         // Old format without linkToPost (backward compatibility)
                         $fieldKey = $rest;
                     }
+                } elseif (strpos($blockNameWithKey, 'post meta:') === 0) {
+                    $blockName = 'post meta';
+                    $rest = substr($blockNameWithKey, strlen('post meta:'));
+                    if (preg_match('/^(.+?):format=(.*)$/', $rest, $fmtMatch)) {
+                        $fieldKey = $fmtMatch[1];
+                        $blockParams = $fmtMatch[2];
+                    } else {
+                        $fieldKey = $rest;
+                    }
+                } elseif (preg_match('/^([a-zA-Z ]+):(.+)$/', trim($blockNameWithKey), $paramMatch)) {
+                    $blockName = trim($paramMatch[1]);
+                    $blockParams = trim($paramMatch[2]);
                 } else {
                     $blockName = trim($blockNameWithKey);
                 }
@@ -354,18 +422,29 @@ class DynamicPostRenderer
                         break;
 
                     case 'post excerpt':
+                        $wordCount = ! empty( $blockParams ) ? (int) $blockParams : 30;
                         $node = $xpath->query('.//div', $wrapper)->item(0);
-                        if ($node) {
-                            $node->nodeValue = wp_trim_words(strip_tags($post->post_content), 30);
+                        if ( $node ) {
+                            if ( $wordCount <= 0 ) {
+                                $node->nodeValue = wp_strip_all_tags( $post->post_content );
+                            } else {
+                                $node->nodeValue = wp_trim_words( strip_tags( $post->post_content ), $wordCount );
+                            }
                         }
                         break;
 
                     case 'post media':
-                        // Only update if post has featured image
                         $img = $xpath->query('.//img', $wrapper)->item(0);
-                        if ($img && has_post_thumbnail($post)) {
-                            $img->setAttribute('src', get_the_post_thumbnail_url($post, 'full'));
-                            $img->setAttribute('alt', get_the_title($post));
+                        if ( $img && has_post_thumbnail( $post ) ) {
+                            $resolution = ! empty( $blockParams ) ? $blockParams : 'full';
+                            $allowedSizes = [ 'thumbnail', 'medium', 'medium_large', 'large', 'full' ];
+                            if ( ! in_array( $resolution, $allowedSizes, true ) ) {
+                                $resolution = 'full';
+                            }
+                            $img->setAttribute( 'src', get_the_post_thumbnail_url( $post, $resolution ) );
+                            $img->setAttribute( 'alt', get_the_title( $post ) );
+                            $img->setAttribute( 'width', '100%' );
+                            $img->setAttribute( 'style', 'width:100%;max-width:100%;height:auto;display:block;' );
                         }
                         break;
 
@@ -442,10 +521,57 @@ class DynamicPostRenderer
                         }
                         break;
 
+                    case 'post meta':
+                        if ($fieldKey) {
+                            $metaValue = get_post_meta($post->ID, $fieldKey, true);
+                            if ($metaValue !== '' && $metaValue !== false) {
+                                $node = $xpath->query('.//div', $wrapper)->item(0);
+                                if (!$node) {
+                                    $node = $xpath->query('.//td', $wrapper)->item(0);
+                                }
+                                if ($node) {
+                                    if (is_array($metaValue)) {
+                                        $displayValue = implode(', ', array_filter($metaValue, 'is_scalar'));
+                                    } else {
+                                        $displayValue = (string) $metaValue;
+                                    }
+
+                                    // Date formatting: blockParams = "date|" or "time|" or "datetime|" or "custom|format"
+                                    if (!empty($blockParams) && strtotime($displayValue) !== false) {
+                                        $parts = explode('|', $blockParams, 2);
+                                        $dateType = $parts[0] ?? 'date';
+                                        $customFmt = $parts[1] ?? '';
+
+                                        $wpDate = get_option('date_format', 'F j, Y');
+                                        $wpTime = get_option('time_format', 'g:i a');
+
+                                        switch ($dateType) {
+                                            case 'time':
+                                                $fmt = $wpTime;
+                                                break;
+                                            case 'datetime':
+                                                $fmt = $wpDate . ' ' . $wpTime;
+                                                break;
+                                            case 'custom':
+                                                $fmt = !empty($customFmt) ? $customFmt : $wpDate;
+                                                break;
+                                            default:
+                                                $fmt = $wpDate;
+                                                break;
+                                        }
+                                        $displayValue = date_i18n($fmt, strtotime($displayValue));
+                                    }
+
+                                    $node->nodeValue = esc_html($displayValue);
+                                }
+                            }
+                        }
+                        break;
+
                     case 'post content':
                         $td = $xpath->query('.//td', $wrapper)->item(0);
                         if ($td) {
-                            $rawContent = apply_filters('the_content', $post->post_content);
+                            $rawContent = apply_filters( 'the_content', $post->post_content );
                             $safeContent = $this->sanitizeHtmlForEmail($rawContent);
 
                             $styleMap = [];
@@ -521,6 +647,12 @@ class DynamicPostRenderer
             LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
         );
         libxml_clear_errors();
+
+        $images = $dom->getElementsByTagName( 'img' );
+        foreach ( $images as $img ) {
+            $img->setAttribute( 'width', '100%' );
+            $img->setAttribute( 'style', 'width:100%;max-width:100%;height:auto;display:block;' );
+        }
 
         $container = $dom->getElementsByTagName('div')->item(0);
         $rows = '';

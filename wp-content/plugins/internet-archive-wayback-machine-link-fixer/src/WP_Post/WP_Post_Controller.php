@@ -17,7 +17,7 @@ use Throwable;
 use Internet_Archive\Wayback_Machine_Link_Fixer\Link\Link;
 use Internet_Archive\Wayback_Machine_Link_Fixer\Settings\Settings;
 use Internet_Archive\Wayback_Machine_Link_Fixer\Link\Link_Exclusion;
-use Internet_Archive\Wayback_Machine_Link_Fixer\Ajax\Link_Check_Ajax;
+use Internet_Archive\Wayback_Machine_Link_Fixer\Rest\Link_Check_Rest;
 use Internet_Archive\Wayback_Machine_Link_Fixer\Link\Link_Repository;
 use Internet_Archive\Wayback_Machine_Link_Fixer\Processor\Post_Processor;
 use Internet_Archive\Wayback_Machine_Link_Fixer\Event\Process_Local_Post_Event;
@@ -256,17 +256,23 @@ class WP_Post_Controller {
 			'iawmlfArchivedLinks',
 			array(
 				'links'           => wp_json_encode( $links ),
-				'linkCheckAjax'   => Link_Check_Ajax::ACTION,
-				'linkCheckNonce'  => wp_create_nonce( Link_Check_Ajax::ACTION ),
+				'linkCheckNonce'  => wp_create_nonce( 'wp_rest' ),
 				'linkDelayInDays' => Settings::get_link_check_duration(),
 				'fixerOption'     => Settings::get_fixer_option(),
-				'ajaxUrl'         => admin_url( 'admin-ajax.php' ),
-
+				'restUrl'         => rest_url( Link_Check_Rest::NAMESPACE . Link_Check_Rest::ROUTE ),
 			)
 		);
 
 		// Enqueue the script.
 		wp_enqueue_script( 'iawm-link-fixer-front-link-checker' );
+
+		// Enqueue the link icon CSS if set.
+		$link_icon_css = Settings::get_link_icon_css();
+		if ( '' !== $link_icon_css ) {
+			wp_register_style( 'iawmlf-link-icons', false, array(), IAWMLF_VERSION );
+			wp_enqueue_style( 'iawmlf-link-icons' );
+			wp_add_inline_style( 'iawmlf-link-icons', $link_icon_css );
+		}
 	}
 
 	/**
@@ -312,8 +318,8 @@ class WP_Post_Controller {
 			return $block_content;
 		}
 
-		$json      = esc_attr( wp_json_encode( $links ) );
-		$html_data = "<div class='__iawmlf-post-loop-links' style='display:none;' data-iawmlf-post-links='{$json}'></div>";
+		$json      = wp_json_encode( $links, JSON_HEX_TAG );
+		$html_data = "<script type='application/json' class='__iawmlf-post-loop-links'>{$json}</script>";
 
 		return $html_data . $block_content;
 	}

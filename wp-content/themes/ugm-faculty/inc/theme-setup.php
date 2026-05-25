@@ -71,7 +71,7 @@ function ugm_theme_setup() {
 	// (ServerSideRender) display with the same styling as the frontend.
 	add_theme_support( 'editor-styles' );
 	add_editor_style( 'style.css' );
-	foreach ( array( 'base', 'header', 'hero', 'content', 'footer' ) as $ugm_module ) {
+	foreach ( array( 'base', 'header', 'hero', 'content', 'footer', 'berita-terbaru' ) as $ugm_module ) {
 		add_editor_style( 'assets/css/' . $ugm_module . '.css' );
 	}
 }

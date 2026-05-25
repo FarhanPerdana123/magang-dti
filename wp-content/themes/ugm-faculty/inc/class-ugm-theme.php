@@ -31,6 +31,8 @@ if ( ! class_exists( 'UGM_Faculty_Theme' ) ) {
 			'security.php',
 			'landing-page-meta.php',
 			'blocks.php',
+			'berita-terbaru-blocks.php',
+			'single-berita-block.php',
 		);
 
 		/**
@@ -40,7 +42,7 @@ if ( ! class_exists( 'UGM_Faculty_Theme' ) ) {
 			$this->define_constants();
 			$this->load_modules();
 
-			add_action( 'after_setup_theme', array( $this, 'load_translation' ), 5 );
+			add_action( 'after_setup_theme', array( $this, 'load_translation' ), 0 );
 		}
 
 		/**

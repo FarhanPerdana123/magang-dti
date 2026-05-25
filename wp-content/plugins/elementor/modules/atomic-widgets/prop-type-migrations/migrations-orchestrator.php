@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Migrations_Orchestrator {
 	const EXPERIMENT_BC_MIGRATIONS = 'e_bc_migrations';
-	const MIGRATIONS_URL = 'https://migrations.elementor.com/';
+	const MIGRATIONS_URL = 'https://editor.elementor.com/v1/migrations/';
 
 	private static ?self $instance = null;
 
@@ -337,6 +337,8 @@ class Migrations_Orchestrator {
 			$document->get_post()->ID,
 			Document::ELEMENTOR_DATA_META_KEY,
 			function( $migrated_data ) use ( $document ) {
+				$document->delete_meta( Document::CACHE_META_KEY );
+
 				$document->update_json_meta(
 					Document::ELEMENTOR_DATA_META_KEY,
 					$migrated_data

@@ -89,6 +89,16 @@
 			"name": "landing-page",
 			"title": "Landing Page",
 			"postTypes": [ "page" ]
+		},
+		{
+			"name": "berita-terbaru",
+			"title": "Berita Terbaru",
+			"postTypes": [ "page" ]
+		},
+		{
+			"name": "single-berita",
+			"title": "Berita Detail",
+			"postTypes": [ "post" ]
 		}
 	],
 	"templateParts": [

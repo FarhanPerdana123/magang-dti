@@ -5,12 +5,11 @@
 **Requires at least:** 6.4  
 **Tested up to:** 6.9  
 **Requires PHP:** 7.4  
-**Stable tag:** 1.3.6
+**Stable tag:** 1.4.0-RC1
 **License:** GPL-3.0-or-later  
 **License URI:** https://www.gnu.org/licenses/gpl-3.0.html
 
 [![Unit Tests](https://github.com/a8cteam51/wayback-link-fixer/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/a8cteam51/wayback-link-fixer/actions/workflows/unit-tests.yml)
-
 
 ## Description
 
@@ -126,6 +125,21 @@ Specify the number of consecutive failed checks before a link is marked as broke
 You can choose what outcome you want to happen when a link is found to be broken. The options are:
  * **Do Nothing** - This will not change the link at all, but useful for monitoring content.
  * **Replace Link (No Notification)** - This will replace the broken link with the archived version, if one exists. If no archived version exists, the link will not be changed. No notice will be given to the user that the link has been replaced.
+
+#### Link Icon
+
+![Link Icon](./_docs/settings--link-icon.png)
+
+When the Fixer Option is set to **Replace Link**, you can optionally display a small icon next to fixed links on the frontend. This lets visitors know the link points to an archived version.
+
+The available options are:
+ * **None** - No icon is displayed (default).
+ * **Internet Archive Logo (Before Link)** - Displays the Internet Archive icon before the link text.
+ * **Internet Archive Logo (After Link)** - Displays the Internet Archive icon after the link text.
+
+A live preview is shown next to the selector so you can see how the icon will look.
+
+Third-party plugins can add custom icons using the `iawmlf_link_icons` filter. See the [Developer Documentation](#iawmlf_link_icons) for details.
 
 ### Auto Archiver
 
@@ -929,6 +943,21 @@ add_filter( 'iawmlf_menu_icon_base64', function( string $icon ): string {
 #### Advanced Customization
 
 These filters allow advanced customization of URLs, timeouts, and client implementations.
+
+#### `iawmlf_link_icons`
+
+This filter allows you to add custom icons to the link icon selector in settings. The Link Icon setting is only available when the Fixer Option is set to **Replace Link**. Each icon should be an array with `id`, `name`, and `css_rule` keys. The `css_rule` should be a complete CSS rule including selector and braces.
+
+```php
+add_filter( 'iawmlf_link_icons', function( array $icons ): array {
+   $icons[] = array(
+      'id'       => 'custom_checkmark',
+      'name'     => 'Checkmark',
+      'css_rule' => 'a[href*="web.archive.org/web"]:after, a[href*="web-wp.archive.org/web"]:after { content: "\2713"; font-size: 0.8em; opacity: 0.7; }',
+   );
+   return $icons;
+} );
+```
 
 #### `iawmlf_is_valid_check`
 

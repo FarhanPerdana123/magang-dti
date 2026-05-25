@@ -8,6 +8,7 @@ namespace MailerPress\Api;
 
 use DI\DependencyException;
 use DI\NotFoundException;
+use MailerPress\Core\ApiAuthentication;
 use MailerPress\Core\Attributes\Endpoint;
 use MailerPress\Core\Enums\Tables;
 use MailerPress\Core\Kernel;
@@ -309,6 +310,7 @@ class Contacts
     #[Endpoint(
         'export/(?P<export_id>[a-zA-Z0-9-]+)',
         methods: 'GET',
+        permissionCallback: '__return_true'
     )]
     public static function handleExportDownload(WP_REST_Request $request)
     {
@@ -550,8 +552,8 @@ class Contacts
         $custom_fields_table = Tables::get(Tables::MAILERPRESS_CONTACT_CUSTOM_FIELDS);
         $field_definitions_table = Tables::get(Tables::MAILERPRESS_CUSTOM_FIELD_DEFINITIONS);
 
-        $per_page = isset($_GET['perPages']) ? (int)(wp_unslash($_GET['perPages'])) : 20;
-        $page = isset($_GET['paged']) ? (int)(wp_unslash($_GET['paged'])) : 1;
+        $per_page = (int)($request->get_param('perPages') ?? 20);
+        $page = (int)($request->get_param('paged') ?? 1);
         $offset = ($page - 1) * $per_page;
         $search = $request->get_param('search');
 
@@ -573,9 +575,10 @@ class Contacts
         }
 
         // Subscription status filter
-        if (!empty($_GET['subscription_status'])) {
+        $subscription_status = $request->get_param('subscription_status');
+        if (!empty($subscription_status)) {
             $where .= ' AND c.subscription_status = %s';
-            $params[] = sanitize_text_field(wp_unslash($_GET['subscription_status']));
+            $params[] = sanitize_text_field($subscription_status);
         }
 
         // Filter by lists
@@ -616,16 +619,53 @@ class Contacts
             $params = array_merge($params, $tagIds);
         }
 
+        // Filter by segment (handled by pro plugin via filter hook)
+        $segmentParam = $request->get_param( 'segment' );
+        if ( ! empty( $segmentParam ) && is_array( $segmentParam ) ) {
+            $segmentIds = [];
+            foreach ( $segmentParam as $seg ) {
+                if ( isset( $seg['id'] ) ) {
+                    $segmentIds[] = (int) $seg['id'];
+                }
+            }
+            if ( ! empty( $segmentIds ) ) {
+                $segmentWhere = apply_filters( 'mailerpress_contacts_segment_where', '', $segmentIds );
+                if ( ! empty( $segmentWhere ) ) {
+                    $where .= " AND ({$segmentWhere})";
+                }
+            }
+        }
+
         // Order - Use whitelist to prevent SQL injection
         $allowed_orderby = ['contact_id', 'email', 'first_name', 'last_name', 'created_at', 'updated_at', 'subscription_status', 'opt_in_source'];
         $allowed_order = ['ASC', 'DESC'];
         $orderby_param = $request->get_param('orderby');
         $order_param = strtoupper($request->get_param('order') ?? 'DESC');
-        $orderby = in_array($orderby_param, $allowed_orderby, true) ? $orderby_param : 'contact_id';
         $order = in_array($order_param, $allowed_order, true) ? $order_param : 'DESC';
-        $orderBy = sprintf('c.%s %s', esc_sql($orderby), esc_sql($order));
+        $custom_field_sort = false;
 
-        $hasJoins = !empty($listIds) || !empty($tagIds);
+        if ( is_string( $orderby_param ) && str_starts_with( $orderby_param, 'custom_' ) ) {
+            $custom_sort_key = substr( $orderby_param, 7 );
+            $field_exists = $wpdb->get_var( $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$field_definitions_table} WHERE field_key = %s",
+                $custom_sort_key
+            ) );
+            if ( $field_exists ) {
+                $custom_field_sort = true;
+                $joins .= $wpdb->prepare(
+                    " LEFT JOIN {$custom_fields_table} cf_sort ON cf_sort.contact_id = c.contact_id AND cf_sort.field_key = %s",
+                    $custom_sort_key
+                );
+                $orderBy = sprintf( 'cf_sort.field_value %s', esc_sql( $order ) );
+            } else {
+                $orderBy = sprintf( 'c.contact_id %s', esc_sql( $order ) );
+            }
+        } else {
+            $orderby = in_array( $orderby_param, $allowed_orderby, true ) ? $orderby_param : 'contact_id';
+            $orderBy = sprintf( 'c.%s %s', esc_sql( $orderby ), esc_sql( $order ) );
+        }
+
+        $hasJoins = !empty($listIds) || !empty($tagIds) || $custom_field_sort;
 
         // Run COUNT query first — use COUNT(*) when no JOINs (faster than COUNT(DISTINCT))
         $countSelect = $hasJoins ? 'COUNT(DISTINCT c.contact_id)' : 'COUNT(*)';
@@ -755,9 +795,57 @@ class Contacts
         ], 200);
     }
 
+    /**
+     * Allow contact submissions from:
+     * - Logged-in users (admin UI, API key auth sets the user)
+     * - Valid WP REST nonce (Gutenberg block, shortcode — frontend forms on the same site)
+     * - Valid API key pair (external integrations: Zapier, custom scripts, etc.)
+     */
+    public function checkContactSubmission(\WP_REST_Request $request): bool|\WP_Error
+    {
+        // Internal PHP call via rest_do_request (e.g. add_mailerpress_contact)
+        if (!empty($GLOBALS['mailerpress_internal_php_call'])) {
+            return true;
+        }
+
+        // Already authenticated (admin cookie, or API key auth already ran via determine_current_user)
+        if (is_user_logged_in()) {
+            return true;
+        }
+
+        // External integrations: API key + secret headers
+        $apiAuth = ApiAuthentication::authenticate($request);
+        if ($apiAuth === true) {
+            if (!ApiAuthentication::hasPermission($request, 'contacts:write')) {
+                return new \WP_Error(
+                    'rest_forbidden',
+                    __('API key missing required scope: contacts:write', 'mailerpress'),
+                    ['status' => 403]
+                );
+            }
+            return true;
+        }
+        if (is_wp_error($apiAuth)) {
+            return $apiAuth;
+        }
+
+        // Frontend forms: valid WP REST nonce (Gutenberg block, shortcode)
+        $nonce = $request->get_header('X-WP-Nonce');
+        if ($nonce && false !== wp_verify_nonce($nonce, 'wp_rest')) {
+            return true;
+        }
+
+        return new \WP_Error(
+            'rest_forbidden',
+            __('Authentication required. Please refresh the page and try again.', 'mailerpress'),
+            ['status' => 401]
+        );
+    }
+
     #[Endpoint(
         'contact',
-        methods: 'POST'
+        methods: 'POST',
+        permissionCallback: 'checkContactSubmission'
     )]
     public function add(\WP_REST_Request $request): \WP_Error|\WP_HTTP_Response|\WP_REST_Response
     {
@@ -787,16 +875,36 @@ class Contacts
 
         $table_name = Tables::get(Tables::MAILERPRESS_CONTACT);
 
-        // Récupérer et sécuriser les données
-        $email = sanitize_email($request->get_param('contactEmail'));
-        $first_name = sanitize_text_field($request->get_param('contactFirstName'));
-        $last_name = sanitize_text_field($request->get_param('contactLastName'));
-        $subscription_status = sanitize_text_field($request->get_param('contactStatus'));
+        // Accept both legacy contact* params and standard contact field names.
+        $email = sanitize_email(
+            $request->get_param('contactEmail')
+            ?? $request->get_param('email')
+            ?? ''
+        );
+        $first_name = sanitize_text_field(
+            $request->get_param('contactFirstName')
+            ?? $request->get_param('first_name')
+            ?? $request->get_param('firstName')
+            ?? ''
+        );
+        $last_name = sanitize_text_field(
+            $request->get_param('contactLastName')
+            ?? $request->get_param('last_name')
+            ?? $request->get_param('lastName')
+            ?? ''
+        );
+        $subscription_status = sanitize_text_field(
+            $request->get_param('contactStatus')
+            ?? $request->get_param('subscription_status')
+            ?? $request->get_param('subscriptionStatus')
+            ?? ''
+        );
         $contactTags = $request->get_param('tags') ?? [];
         $contactLists = $request->get_param('lists') ?? [];
         $optinSource = $request->get_param('opt_in_source') ?? 'unknown';
         $optinDetails = $request->get_param('optin_details') ?? '';
         $customFields = $request->get_param('custom_fields') ?? [];
+        $lang = sanitize_text_field($request->get_param('lang') ?? '');
 
         // Honeypot protection: if honeypot is enabled and field is filled, reject silently
         if (\MailerPress\Services\RateLimitConfig::isHoneypotEnabled()) {
@@ -808,6 +916,14 @@ class Contacts
                     'success' => true
                 ]);
             }
+        }
+
+        if (empty($email) || !is_email($email)) {
+            return new \WP_Error(
+                'invalid_email',
+                __('A valid email address is required.', 'mailerpress'),
+                ['status' => 400]
+            );
         }
 
         // Vérifier si le contact existe déjà
@@ -844,13 +960,7 @@ class Contacts
             $isNewContact = true;
             // Nouveau contact
             $unsubscribe_token = wp_generate_uuid4();
-            $singUpConfirmation = get_option('mailerpress_signup_confirmation', wp_json_encode([
-                'enableSignupConfirmation' => true
-            ]));
-
-            if (is_string($singUpConfirmation)) {
-                $singUpConfirmation = json_decode($singUpConfirmation, true);
-            }
+            $singUpConfirmation = mailerpress_get_signup_confirmation_option();
 
             // Déterminer le statut d'abonnement final
             // Si un statut explicite est fourni (et n'est pas vide), l'utiliser
@@ -978,6 +1088,23 @@ class Contacts
                     ['%d', '%d']
                 );
                 do_action('mailerpress_contact_list_added', $contactId, $default_list_id);
+            }
+        }
+
+        // Store contact language for translated confirmation emails
+        if (isset($contactId)) {
+            $contactLang = !empty($lang) ? $lang : apply_filters('wpml_current_language', null);
+            if ($contactLang) {
+                $customFieldsTable = Tables::get(Tables::MAILERPRESS_CONTACT_CUSTOM_FIELDS);
+                $wpdb->replace(
+                    $customFieldsTable,
+                    [
+                        'contact_id' => $contactId,
+                        'field_key' => '_language',
+                        'field_value' => $contactLang,
+                    ],
+                    ['%d', '%s', '%s']
+                );
             }
         }
 
@@ -1120,7 +1247,13 @@ class Contacts
                 $updateData = [];
                 $updateFormat = [];
 
+                // Get current status before update to detect status change
+                $previousStatus = '';
                 if (!empty($newStatus)) {
+                    $previousStatus = $wpdb->get_var($wpdb->prepare(
+                        "SELECT subscription_status FROM {$table_name} WHERE contact_id = %d",
+                        $id
+                    ));
                     $updateData['subscription_status'] = esc_html($newStatus);
                     $updateFormat[] = '%s';
                 }
@@ -1164,6 +1297,11 @@ class Contacts
                         $updateFormat,
                         ['%d']
                     );
+
+                    // Trigger workflow when contact becomes subscribed
+                    if (!empty($newStatus) && $newStatus === 'subscribed' && $previousStatus !== 'subscribed') {
+                        \do_action('mailerpress_contact_created', $id);
+                    }
                 }
 
                 // Add new tags (only if tag doesn't already exist)
@@ -1338,6 +1476,11 @@ class Contacts
                 $updateFormat,
                 ['%d']
             );
+
+            // Trigger workflow when contact becomes subscribed
+            if ($newStatus === 'subscribed' && $previousStatus !== 'subscribed') {
+                \do_action('mailerpress_contact_created', $id);
+            }
         }
 
         // Add tags (only if tag doesn't already exist)
@@ -2340,6 +2483,7 @@ class Contacts
             'lists' => wp_json_encode($data['lists'] ?? []),
             'count' => 0, // Start at 0, will be incremented as chunks are added
             'subscription_status' => $data['status'] ?? 'pending',
+            'force_update' => isset($data['forceUpdate']) && $data['forceUpdate'] ? 1 : 0,
         ];
 
         $wpdb->insert(
@@ -2403,6 +2547,19 @@ class Contacts
                 'batch_not_found',
                 __('Import batch not found', 'mailerpress'),
                 ['status' => 404]
+            );
+        }
+
+        // Persist forceUpdate on the batch so background processors can read it.
+        // Only update if the value differs (avoids a redundant write on every chunk).
+        $force_update_value = $forceUpdate ? 1 : 0;
+        if ( (int) $batch->force_update !== $force_update_value ) {
+            $wpdb->update(
+                Tables::get(Tables::MAILERPRESS_CONTACT_BATCHES),
+                ['force_update' => $force_update_value],
+                ['batch_id' => $batch_id],
+                ['%d'],
+                ['%d']
             );
         }
 
@@ -2942,28 +3099,7 @@ class Contacts
         }
 
         // Get confirmation email settings
-        $signupConfirmationOption = get_option('mailerpress_signup_confirmation', wp_json_encode([
-            'enableSignupConfirmation' => true,
-            'emailSubject' => __('Confirm your subscription to [site:title]', 'mailerpress'),
-            'emailContent' => __(
-                'Hello [contact:firstName] [contact:lastName],
-
-You have received this email regarding your subscription to [site:title]. Please confirm it to receive emails from us:
-
-[activation_link]Click here to confirm your subscription[/activation_link]
-
-If you received this email in error, simply delete it. You will no longer receive emails from us if you do not confirm your subscription using the link above.
-
-Thank you,
-
-<a target="_blank" href="[site:homeURL]">[site:title]</a>',
-                'mailerpress'
-            )
-        ]));
-
-        if (is_string($signupConfirmationOption)) {
-            $signupConfirmationOption = json_decode($signupConfirmationOption, true);
-        }
+        $signupConfirmationOption = mailerpress_get_signup_confirmation_option();
 
         $content = $signupConfirmationOption['emailContent'] ?? '';
         $subject = $signupConfirmationOption['emailSubject'] ?? __('Confirm your subscription to [site:title]', 'mailerpress');

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Berita Terbaru — Block HTML Reference</title>
+<style>
+/* ── Reset & Base ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #1a1a2e; }
+a { color: inherit; text-decoration: none; }
+img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* ── Variables ───────────────────────────────────────────────────────────── */
+:root {
+	--ugmbt-navy:    #004266;
+	--ugmbt-border:  #e0e0e0;
+	--ugmbt-muted:   #666;
+	--ugmbt-kicker:  #004266;
+	--ugmbt-radius:  6px;
+	--ugmbt-gap:     24px;
+}
+
+/* ── Container ───────────────────────────────────────────────────────────── */
+.ugmbt-page      { padding: 32px 0 64px; }
+.ugmbt-container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────────── */
+.ugmbt-breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ugmbt-muted); margin-bottom: 12px; }
+.ugmbt-breadcrumb a:hover { color: var(--ugmbt-navy); }
+
+/* ── Page Title ──────────────────────────────────────────────────────────── */
+.ugmbt-page-title { font-size: 28px; font-weight: 700; color: var(--ugmbt-navy); border-left: 4px solid var(--ugmbt-navy); padding-left: 12px; margin-bottom: 28px; }
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+.ugmbt-layout          { display: grid; grid-template-columns: 1fr 300px; gap: 40px; align-items: start; }
+.ugmbt-layout--no-sidebar { grid-template-columns: 1fr; }
+
+/* ── ROW 1: Hero + Secondary ─────────────────────────────────────────────── */
+.ugmbt-row1 { display: grid; grid-template-columns: 3fr 2fr; gap: var(--ugmbt-gap); margin-bottom: var(--ugmbt-gap); }
+
+/* Hero */
+.ugmbt-hero { display: flex; flex-direction: column; gap: 10px; }
+.ugmbt-card__img-wrap--hero { display: block; aspect-ratio: 16/9; border-radius: var(--ugmbt-radius); overflow: hidden; background: #ccc; }
+.ugmbt-card__title--hero { font-size: 22px; line-height: 1.35; }
+.ugmbt-card__title--hero a:hover { color: var(--ugmbt-navy); }
+
+/* Secondary */
+.ugmbt-secondary { display: flex; flex-direction: column; gap: 8px; border-left: 1px solid var(--ugmbt-border); padding-left: var(--ugmbt-gap); }
+.ugmbt-card__img-wrap--sec { display: block; aspect-ratio: 4/3; border-radius: var(--ugmbt-radius); overflow: hidden; background: #ccc; }
+.ugmbt-card__title { font-size: 16px; line-height: 1.4; font-weight: 600; }
+.ugmbt-card__title a:hover { color: var(--ugmbt-navy); }
+
+/* Meta row */
+.ugmbt-card__meta-row { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ugmbt-muted); }
+.ugmbt-card__kicker   { font-weight: 600; color: var(--ugmbt-kicker); text-transform: uppercase; letter-spacing: .04em; }
+.ugmbt-card__sep      { opacity: .5; }
+.ugmbt-card__excerpt  { font-size: 14px; color: var(--ugmbt-muted); line-height: 1.6; }
+
+/* Placeholder image */
+.ugmbt-placeholder    { width: 100%; height: 100%; min-height: 180px; background: linear-gradient(135deg,#d0d8e4,#bcc8d8); border-radius: var(--ugmbt-radius); }
+
+/* ── Divider ──────────────────────────────────────────────────────────────── */
+.ugmbt-divider { border: none; border-top: 1px solid var(--ugmbt-border); margin: 0 0 var(--ugmbt-gap); }
+
+/* ── ROW 2: Grid 3 Kolom ──────────────────────────────────────────────────── */
+.ugmbt-row2 { display: grid; gap: var(--ugmbt-gap); }
+.ugmbt-row2--3col { grid-template-columns: repeat(3,1fr); }
+.ugmbt-row2--2col { grid-template-columns: repeat(2,1fr); }
+.ugmbt-row2--4col { grid-template-columns: repeat(4,1fr); }
+
+.ugmbt-grid-card { display: flex; flex-direction: column; gap: 8px; }
+.ugmbt-card__img-wrap--grid { display: block; aspect-ratio: 4/3; border-radius: var(--ugmbt-radius); overflow: hidden; background: #ccc; }
+.ugmbt-card__meta { font-size: 12px; color: var(--ugmbt-muted); }
+
+/* ── Pagination ──────────────────────────────────────────────────────────── */
+.ugmbt-pagination { margin-top: 40px; display: flex; justify-content: center; }
+.ugmbt-pagination ul { display: flex; gap: 6px; list-style: none; }
+.ugmbt-pagination .page-numbers { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 10px; border: 1px solid var(--ugmbt-border); border-radius: 4px; font-size: 14px; transition: background .2s,color .2s; }
+.ugmbt-pagination .page-numbers.current,
+.ugmbt-pagination .page-numbers:hover { background: var(--ugmbt-navy); color: #fff; border-color: var(--ugmbt-navy); }
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────── */
+.ugmbt-sidebar   { display: flex; flex-direction: column; gap: 32px; }
+.ugmbt-widget    { background: #fff; border-radius: var(--ugmbt-radius); padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+.ugmbt-widget__title { font-size: 15px; font-weight: 700; color: var(--ugmbt-navy); border-bottom: 2px solid var(--ugmbt-navy); padding-bottom: 8px; margin-bottom: 14px; }
+
+/* Sidebar news list */
+.ugmbt-news-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.ugmbt-news-list a { font-size: 13px; line-height: 1.5; color: #1a1a2e; }
+.ugmbt-news-list a:hover { color: var(--ugmbt-navy); }
+
+/* Sidebar agenda */
+.ugmbt-agenda-list   { display: flex; flex-direction: column; gap: 12px; }
+.ugmbt-agenda-item   { display: flex; gap: 12px; align-items: flex-start; }
+.ugmbt-agenda-date   { display: flex; flex-direction: column; align-items: center; background: var(--ugmbt-navy); color: #fff; border-radius: 4px; padding: 6px 10px; min-width: 44px; }
+.ugmbt-agenda-date__day { font-size: 20px; font-weight: 700; line-height: 1; }
+.ugmbt-agenda-date__mon { font-size: 11px; text-transform: uppercase; }
+.ugmbt-agenda-title  { font-size: 13px; line-height: 1.5; }
+.ugmbt-btn-agenda    { display: inline-block; margin-top: 12px; font-size: 13px; color: var(--ugmbt-navy); font-weight: 600; }
+
+/* Sidebar categories */
+.ugmbt-cat-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.ugmbt-cat-list li { display: flex; justify-content: space-between; align-items: center; font-size: 13px; border-bottom: 1px solid var(--ugmbt-border); padding-bottom: 8px; }
+.ugmbt-cat-list li:last-child { border-bottom: none; padding-bottom: 0; }
+.ugmbt-cat-list a:hover { color: var(--ugmbt-navy); }
+.ugmbt-cat-list span { font-size: 11px; color: var(--ugmbt-muted); }
+</style>
+</head>
+<body>
+
+<main id="primary" class="site-main ugmbt-page">
+<div class="ugmbt-container">
+
+	<!-- Breadcrumb -->
+	<nav class="ugmbt-breadcrumb" aria-label="Breadcrumb">
+		<a href="#">Berita</a>
+		<span aria-hidden="true">&#8250;</span>
+		<span aria-current="page">Berita Terbaru</span>
+	</nav>
+
+	<!-- Judul Halaman -->
+	<h1 class="ugmbt-page-title">Berita Terbaru</h1>
+
+	<!-- Layout Utama -->
+	<div class="ugmbt-layout">
+
+		<!-- ═══════ MAIN CONTENT ═══════ -->
+		<div class="ugmbt-main">
+
+			<!-- ROW 1: Hero + Secondary -->
+			<div class="ugmbt-row1">
+
+				<!-- Hero -->
+				<article class="ugmbt-hero">
+					<a href="#" class="ugmbt-card__img-wrap ugmbt-card__img-wrap--hero" aria-label="Judul Berita Hero">
+						<div class="ugmbt-placeholder"></div>
+					</a>
+					<h2 class="ugmbt-card__title ugmbt-card__title--hero">
+						<a href="#">Universitas Gadjah Mada Raih Peringkat Terbaik Nasional Tahun Ini</a>
+					</h2>
+					<div class="ugmbt-card__meta-row">
+						<span class="ugmbt-card__kicker">Akademik</span>
+						<span class="ugmbt-card__sep" aria-hidden="true">&middot;</span>
+						<span class="ugmbt-card__date">Senin, 12 Mei 2025</span>
+					</div>
+					<p class="ugmbt-card__excerpt">
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+					</p>
+				</article>
+
+				<!-- Secondary -->
+				<article class="ugmbt-secondary">
+					<a href="#" class="ugmbt-card__img-wrap ugmbt-card__img-wrap--sec" aria-label="Judul Berita Kedua">
+						<div class="ugmbt-placeholder"></div>
+					</a>
+					<h2 class="ugmbt-card__title">
+						<a href="#">Mahasiswa UGM Berhasil Mengembangkan Teknologi Baru Berbasis AI</a>
+					</h2>
+					<div class="ugmbt-card__meta-row">
+						<span class="ugmbt-card__kicker">Riset</span>
+						<span class="ugmbt-card__sep" aria-hidden="true">&middot;</span>
+						<span class="ugmbt-card__date">Minggu, 11 Mei 2025</span>
+					</div>
+					<p class="ugmbt-card__excerpt">
+						Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+					</p>
+				</article>
+
+			</div><!-- /ugmbt-row1 -->
+
+			<hr class="ugmbt-divider" aria-hidden="true">
+
+			<!-- ROW 2: Grid 3 Kolom -->
+			<div class="ugmbt-row2 ugmbt-row2--3col">
+
+				<!-- Card 1 -->
+				<article class="ugmbt-grid-card">
+					<a href="#" class="ugmbt-card__img-wrap ugmbt-card__img-wrap--grid" aria-label="Berita Grid 1">
+						<div class="ugmbt-placeholder"></div>
+					</a>
+					<p class="ugmbt-card__kicker">Pengabdian</p>
+					<h2 class="ugmbt-card__title"><a href="#">Program KKN UGM Menyentuh Pelosok Nusantara</a></h2>
+					<p class="ugmbt-card__meta">Sabtu, 10 Mei 2025</p>
+					<p class="ugmbt-card__excerpt">Phasellus elementum, nibh ut tristique laoreet, odio nunc accumsan justo.</p>
+				</article>
+
+				<!-- Card 2 -->
+				<article class="ugmbt-grid-card">
+					<a href="#" class="ugmbt-card__img-wrap ugmbt-card__img-wrap--grid" aria-label="Berita Grid 2">
+						<div class="ugmbt-placeholder"></div>
+					</a>
+					<p class="ugmbt-card__kicker">Kolaborasi</p>
+					<h2 class="ugmbt-card__title"><a href="#">UGM Jalin Kerjasama Strategis dengan 10 Universitas Internasional</a></h2>
+					<p class="ugmbt-card__meta">Jumat, 9 Mei 2025</p>
+					<p class="ugmbt-card__excerpt">Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae.</p>
+				</article>
+
+				<!-- Card 3 -->
+				<article class="ugmbt-grid-card">
+					<a href="#" class="ugmbt-card__img-wrap ugmbt-card__img-wrap--grid" aria-label="Berita Grid 3">
+						<div class="ugmbt-placeholder"></div>
+					</a>
+					<p class="ugmbt-card__kicker">Inovasi</p>
+					<h2 class="ugmbt-card__title"><a href="#">Laboratorium Terpadu UGM Resmikan Fasilitas Penelitian Mutakhir</a></h2>
+					<p class="ugmbt-card__meta">Kamis, 8 Mei 2025</p>
+					<p class="ugmbt-card__excerpt">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque.</p>
+				</article>
+
+			</div><!-- /ugmbt-row2 -->
+
+			<!-- Pagination -->
+			<nav class="ugmbt-pagination" aria-label="Navigasi halaman">
+				<ul>
+					<li><span class="page-numbers current">1</span></li>
+					<li><a class="page-numbers" href="#">2</a></li>
+					<li><a class="page-numbers" href="#">3</a></li>
+					<li><a class="page-numbers next" href="#">Selanjutnya &raquo;</a></li>
+				</ul>
+			</nav>
+
+		</div><!-- /ugmbt-main -->
+
+		<!-- ═══════ SIDEBAR ═══════ -->
+		<aside class="ugmbt-sidebar" aria-label="Sidebar">
+
+			<!-- Widget: Berita Terbaru -->
+			<section class="ugmbt-widget" aria-labelledby="ugmbt-widget-news">
+				<h2 class="ugmbt-widget__title" id="ugmbt-widget-news">Berita Terbaru</h2>
+				<ul class="ugmbt-news-list" role="list">
+					<li><a href="#">UGM Selenggarakan Seminar Internasional Bidang Kesehatan</a></li>
+					<li><a href="#">Tim Robotika UGM Juara di Kompetisi Asia Tenggara</a></li>
+					<li><a href="#">Fakultas Teknik UGM Perkenalkan Kurikulum Berbasis Industri 4.0</a></li>
+					<li><a href="#">UGM Buka Program Beasiswa Penuh untuk Mahasiswa Berprestasi</a></li>
+					<li><a href="#">Peneliti UGM Temukan Senyawa Baru Berpotensi Atasi Penyakit Tropis</a></li>
+				</ul>
+			</section>
+
+			<!-- Widget: Agenda Terbaru -->
+			<section class="ugmbt-widget" aria-labelledby="ugmbt-widget-agenda">
+				<h2 class="ugmbt-widget__title" id="ugmbt-widget-agenda">Agenda Terbaru</h2>
+				<div class="ugmbt-agenda-list">
+					<div class="ugmbt-agenda-item">
+						<div class="ugmbt-agenda-date" aria-label="15 Mei 2025">
+							<span class="ugmbt-agenda-date__day">15</span>
+							<span class="ugmbt-agenda-date__mon">Mei</span>
+						</div>
+						<div class="ugmbt-agenda-body">
+							<a class="ugmbt-agenda-title" href="#">Wisuda Program Sarjana Periode II 2025</a>
+						</div>
+					</div>
+					<div class="ugmbt-agenda-item">
+						<div class="ugmbt-agenda-date" aria-label="20 Mei 2025">
+							<span class="ugmbt-agenda-date__day">20</span>
+							<span class="ugmbt-agenda-date__mon">Mei</span>
+						</div>
+						<div class="ugmbt-agenda-body">
+							<a class="ugmbt-agenda-title" href="#">Konferensi Nasional Penelitian dan Pengabdian Masyarakat</a>
+						</div>
+					</div>
+					<div class="ugmbt-agenda-item">
+						<div class="ugmbt-agenda-date" aria-label="25 Mei 2025">
+							<span class="ugmbt-agenda-date__day">25</span>
+							<span class="ugmbt-agenda-date__mon">Mei</span>
+						</div>
+						<div class="ugmbt-agenda-body">
+							<a class="ugmbt-agenda-title" href="#">Open House Program Pascasarjana UGM 2025</a>
+						</div>
+					</div>
+				</div>
+				<a class="ugmbt-btn-agenda" href="#">Semua Agenda &rarr;</a>
+			</section>
+
+			<!-- Widget: Kategori -->
+			<section class="ugmbt-widget" aria-labelledby="ugmbt-widget-cats">
+				<h2 class="ugmbt-widget__title" id="ugmbt-widget-cats">Kategori</h2>
+				<ul class="ugmbt-cat-list" role="list">
+					<li>
+						<a href="#">Akademik</a>
+						<span>24 Artikel Total</span>
+					</li>
+					<li>
+						<a href="#">Inovasi</a>
+						<span>18 Artikel Total</span>
+					</li>
+					<li>
+						<a href="#">Kolaborasi</a>
+						<span>12 Artikel Total</span>
+					</li>
+					<li>
+						<a href="#">Pengabdian</a>
+						<span>9 Artikel Total</span>
+					</li>
+					<li>
+						<a href="#">Riset</a>
+						<span>31 Artikel Total</span>
+					</li>
+				</ul>
+			</section>
+
+		</aside><!-- /ugmbt-sidebar -->
+
+	</div><!-- /ugmbt-layout -->
+</div><!-- /ugmbt-container -->
+</main>
+
+</body>
+</html>

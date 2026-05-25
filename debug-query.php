@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Debug script: simulate exactly what the block render callbacks do,
  * WITH all WordPress hooks/filters active (same as frontend context).
@@ -10,7 +10,7 @@ $_SERVER['REQUEST_URI'] = '/wordpress/';
 // Simulate front-page context so all hooks fire identically to frontend.
 require 'C:/xampp/htdocs/wordpress/wp-load.php';
 
-// Set up the global post to the landing page (ID=6) — same as frontend.
+// Set up the global post to the landing page (ID=6) ΓÇö same as frontend.
 global $post, $wp_the_query, $wp_query;
 $landing = get_post( 6 );
 $wp_query->is_front_page = true;

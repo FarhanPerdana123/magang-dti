@@ -1,0 +1,993 @@
+/*
+ * Berita Terbaru – template stylesheet
+ * Warna navy: PANTONE P111-16C (C100 M035 Y000 K060) → #004266
+ *
+ * @package ugm-faculty
+ */
+
+/* ── Custom Properties ──────────────────────────────────────────────────────
+   Didefinisikan di :root agar aktif di editor block preview (ServerSideRender)
+   sekaligus di frontend. Nilai dapat di-override di .ugmbt-page jika perlu.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+	--ugmbt-navy: #004266;
+	/* PANTONE P111-16C */
+	--ugmbt-navy-dark: #003050;
+	--ugmbt-navy-light: #1a5c7e;
+	--ugmbt-border: #dde3ea;
+	--ugmbt-muted: #6d7782;
+	--ugmbt-bg: #ffffff;
+	--ugmbt-surface: #f7f9fb;
+	--ugmbt-text: #1f2937;
+	--ugmbt-radius: 4px;
+	--ugmbt-column-gap: 18px;
+}
+
+.ugmbt-page {
+	font-family: var(--font-family-body, 'Source Sans 3', 'Segoe UI', Arial, sans-serif);
+	color: var(--ugmbt-text);
+	background: #efefef;
+}
+
+
+/* ── Wrapper Utama ─────────────────────────────────────────────────────────── */
+.ugmbt-container {
+	width: min(100% - 2rem, 1200px);
+	margin-inline: auto;
+	padding-block: 32px 48px;
+	background: transparent;
+}
+
+/* ── Breadcrumb ────────────────────────────────────────────────────────────── */
+.ugmbt-breadcrumb {
+	font-size: 12px;
+	color: var(--ugmbt-navy);
+	margin-bottom: 8px;
+}
+
+.ugmbt-breadcrumb a {
+	color: var(--ugmbt-navy);
+	text-decoration: none;
+}
+
+.ugmbt-breadcrumb a:hover {
+	text-decoration: underline;
+}
+
+.ugmbt-breadcrumb span {
+	margin: 0 5px;
+	color: var(--ugmbt-muted);
+}
+
+/* ── Judul Halaman ─────────────────────────────────────────────────────────── */
+.ugmbt-page-title {
+	font-size: clamp(20px, 4vw, 28px);
+	font-weight: 700;
+	color: var(--ugmbt-navy);
+	margin: 0 0 20px;
+	padding-bottom: 10px;
+	border-bottom: 2px solid var(--ugmbt-border);
+	font-family: var(--font-family-heading, 'Montserrat', sans-serif);
+}
+
+/* ── Layout Dua Kolom ─────────────────────────────────────────────────────── */
+.ugmbt-layout {
+	display: flex;
+	gap: 28px;
+	align-items: flex-start;
+}
+
+.ugmbt-main {
+	flex: 1 1 0;
+	min-width: 0;
+	background: transparent;
+	padding: 0;
+}
+
+.ugmbt-sidebar {
+	width: 270px;
+	flex-shrink: 0;
+}
+
+/* ROW 1: kedua kolom setinggi kolom tertinggi */
+.ugmbt-row1 {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--ugmbt-column-gap);
+	margin-bottom: 0;
+	align-items: stretch;
+}
+
+/* Hero: 2/3 lebar row → sejajar dengan 2 kolom grid di bawah
+   Secondary: 1/3 lebar row → sejajar dengan 1 kolom grid di bawah */
+.ugmbt-hero {
+	grid-column: span 2;
+	min-width: 0;
+}
+
+/* Secondary: flex column agar image bisa fill sisa ruang vertikal */
+.ugmbt-secondary {
+	grid-column: span 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+/* ── Divider ──────────────────────────────────────────────────────────────── */
+.ugmbt-divider {
+	border: none;
+	border-top: 1px solid var(--ugmbt-border);
+	margin: 0;
+}
+
+/* ── ROW 2: Grid 3 Kolom ──────────────────────────────────────────────────── */
+.ugmbt-row2 {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--ugmbt-column-gap);
+}
+
+.ugmbt-grid-card {
+	padding: 20px 0;
+}
+
+.ugmbt-grid-card:last-child {
+	border-right: none;
+}
+
+/* ── Shared Card Styles ───────────────────────────────────────────────────── */
+/* Shared padding untuk hero & secondary text area */
+.ugmbt-hero {
+	padding: 20px 0;
+}
+
+.ugmbt-secondary {
+	padding: 20px 0;
+}
+
+/* Image wrapper */
+.ugmbt-card__img-wrap {
+	display: block;
+	overflow: hidden;
+	background: var(--ugmbt-surface);
+	margin-bottom: 10px;
+	position: relative;
+	text-decoration: none;
+}
+
+/* Hero: aspect ratio fixed */
+.ugmbt-card__img-wrap--hero {
+	aspect-ratio: 16 / 10;
+}
+
+/* Secondary: aspect-ratio dihitung agar tinggi gambar = tinggi hero image.
+   Dengan flex 2:1 (hero=2/3 row, sec=1/3 row):
+     hero_img_h = (2/3) × row × (10/16) = row × 5/12
+     sec_ratio  = (1/3 row) / (5/12 row) = 4/5
+   Hasilnya portrait 4:5 — tinggi gambar kanan = tinggi gambar kiri. */
+.ugmbt-card__img-wrap--sec {
+	aspect-ratio: 7 / 9;
+	margin-bottom: 10px;
+}
+
+.ugmbt-card__img-wrap--grid {
+	aspect-ratio: 16 / 9;
+	width: 100%;
+}
+
+.ugmbt-card__img-wrap img {
+	width: 100%;
+	height: 100%;
+	display: block;
+	object-fit: cover;
+	transition: transform 0.25s ease;
+}
+
+.ugmbt-card__img-wrap:hover img,
+.ugmbt-card__img-wrap:focus-visible img {
+	transform: scale(1.03);
+}
+
+/* Placeholder jika tidak ada gambar */
+.ugmbt-placeholder {
+	width: 100%;
+	height: 100%;
+	min-height: 160px;
+	background: linear-gradient(135deg, #dde3ea 0%, #c8d2db 100%);
+}
+
+/* Tanggal badge di foto hero */
+.ugmbt-img-date {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	background: rgba(0, 66, 102, 0.85);
+	color: #fff;
+	font-size: 10px;
+	font-weight: 600;
+	padding: 3px 8px;
+	border-radius: 3px;
+	pointer-events: none;
+}
+
+/* Kicker / label kategori (sekarang inline dalam .ugmbt-card__meta-row) */
+.ugmbt-card__kicker {
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--ugmbt-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+/* Judul artikel */
+.ugmbt-card__title {
+	font-size: 13.5px;
+	font-weight: 700;
+	color: var(--ugmbt-navy);
+	line-height: 1.4;
+	margin: 0 0 6px;
+}
+
+.ugmbt-card__title--hero {
+	font-size: 17px;
+}
+
+.ugmbt-card__title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.ugmbt-card__title a:hover,
+.ugmbt-card__title a:focus-visible {
+	text-decoration: underline;
+}
+
+/* Baris meta: [KATEGORI · Tanggal] di bawah judul */
+.ugmbt-card__meta-row {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	margin: 0 0 8px;
+	flex-wrap: wrap;
+}
+
+/* Separator titik tengah */
+.ugmbt-card__sep {
+	color: var(--ugmbt-muted);
+	font-size: 11px;
+	line-height: 1;
+}
+
+/* Tanggal */
+.ugmbt-card__date {
+	font-size: 11px;
+	color: var(--ugmbt-muted);
+}
+
+/* Legacy: ugmbt-card__meta masih ada untuk backward-compat */
+.ugmbt-card__meta {
+	font-size: 11px;
+	color: var(--ugmbt-muted);
+	margin: 0 0 6px;
+	display: none;
+	/* digantikan oleh meta-row */
+}
+
+/* Excerpt */
+.ugmbt-card__excerpt {
+	font-size: 12.5px;
+	color: #444;
+	line-height: 1.6;
+	margin: 0;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 4;
+	overflow: hidden;
+}
+
+/* ── Empty State ──────────────────────────────────────────────────────────── */
+.ugmbt-empty {
+	padding: 20px;
+	color: var(--ugmbt-muted);
+	font-style: italic;
+}
+
+/* ── Pagination ───────────────────────────────────────────────────────────── */
+.ugmbt-pagination {
+	margin-top: 48px;
+	padding-top: 28px;
+	border-top: 0;
+	display: flex;
+	justify-content: center;
+}
+
+.ugmbt-pagination .page-numbers {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 8px;
+}
+
+.ugmbt-pagination .page-numbers li a,
+.ugmbt-pagination .page-numbers li span {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 40px;
+	height: 40px;
+	padding: 0 12px;
+	border: 1px solid #dde4eb;
+	background: #fff;
+	color: var(--ugmbt-navy);
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1;
+	text-decoration: none;
+	transition: background 0.18s, color 0.18s;
+	box-sizing: border-box;
+}
+
+.ugmbt-pagination .page-numbers li .dots {
+	color: #1f2937;
+	font-weight: 400;
+}
+
+.ugmbt-pagination .page-numbers li a:hover {
+	background: var(--ugmbt-navy);
+	color: #fff;
+	border-color: var(--ugmbt-navy);
+}
+
+.ugmbt-pagination .page-numbers li .current {
+	background: var(--ugmbt-navy);
+	color: #fff;
+	border-color: var(--ugmbt-navy);
+}
+
+/* ── Sidebar Widget ───────────────────────────────────────────────────────── */
+.ugmbt-widget {
+	background: transparent;
+	margin-bottom: 20px;
+	padding: 0;
+}
+
+.ugmbt-widget__title {
+	font-size: 15px;
+	font-weight: 700;
+	color: var(--ugmbt-navy);
+	margin: 0 0 12px;
+	padding-bottom: 8px;
+	border-bottom: 2px solid var(--ugmbt-navy);
+	font-family: var(--font-family-heading, 'Montserrat', sans-serif);
+}
+
+/* Sidebar: daftar berita */
+.ugmbt-news-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.ugmbt-news-list li {
+	padding: 8px 0;
+	border-bottom: 1px solid var(--ugmbt-border);
+	font-size: 12.5px;
+	line-height: 1.45;
+}
+
+.ugmbt-news-list li:last-child {
+	border-bottom: none;
+	padding-bottom: 0;
+}
+
+.ugmbt-news-list a {
+	color: var(--ugmbt-navy);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.ugmbt-news-list a:hover {
+	text-decoration: underline;
+}
+
+/* Sidebar: Agenda */
+.ugmbt-agenda-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.ugmbt-agenda-item {
+	display: flex;
+	gap: 12px;
+	padding: 10px 0;
+	border-bottom: 1px solid var(--ugmbt-border);
+	align-items: flex-start;
+}
+
+.ugmbt-agenda-item:last-child {
+	border-bottom: none;
+}
+
+.ugmbt-agenda-date {
+	background: var(--ugmbt-navy);
+	color: #fff;
+	text-align: center;
+	padding: 6px 8px;
+	border-radius: var(--ugmbt-radius);
+	min-width: 44px;
+	flex-shrink: 0;
+	line-height: 1;
+}
+
+.ugmbt-agenda-date__day {
+	display: block;
+	font-size: 20px;
+	font-weight: 700;
+}
+
+.ugmbt-agenda-date__mon {
+	display: block;
+	font-size: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	margin-top: 2px;
+}
+
+.ugmbt-agenda-title {
+	font-size: 12.5px;
+	color: var(--ugmbt-navy);
+	font-weight: 600;
+	line-height: 1.4;
+	text-decoration: none;
+}
+
+.ugmbt-agenda-title:hover {
+	text-decoration: underline;
+}
+
+/* Tombol Semua Agenda */
+.ugmbt-btn-agenda {
+	display: inline-block;
+	margin-top: 12px;
+	padding: 7px 16px;
+	background: var(--ugmbt-navy);
+	color: #fff;
+	font-size: 12px;
+	font-weight: 600;
+	border-radius: var(--ugmbt-radius);
+	text-decoration: none;
+	transition: background 0.18s;
+}
+
+.ugmbt-btn-agenda:hover,
+.ugmbt-btn-agenda:focus-visible {
+	background: var(--ugmbt-navy-dark);
+	color: #fff;
+}
+
+/* Sidebar: Kategori */
+.ugmbt-cat-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.ugmbt-cat-list li {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 7px 0;
+	border-bottom: 1px solid var(--ugmbt-border);
+	font-size: 12.5px;
+}
+
+.ugmbt-cat-list li:last-child {
+	border-bottom: none;
+}
+
+.ugmbt-cat-list a {
+	color: var(--ugmbt-navy);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.ugmbt-cat-list a:hover {
+	text-decoration: underline;
+}
+
+.ugmbt-cat-list span {
+	color: var(--ugmbt-muted);
+	font-size: 11px;
+	white-space: nowrap;
+	margin-left: 8px;
+}
+
+/* ── Responsive: Tablet (≤ 960px) ────────────────────────────────────────── */
+@media (max-width: 960px) {
+	.ugmbt-layout {
+		flex-direction: column;
+	}
+
+	.ugmbt-sidebar {
+		width: 100%;
+	}
+
+	.ugmbt-row2 {
+		grid-template-columns: 1fr;
+	}
+
+	.ugmbt-row1 {
+		grid-template-columns: 1fr;
+	}
+
+	.ugmbt-hero,
+	.ugmbt-secondary {
+		grid-column: auto;
+	}
+
+	.ugmbt-grid-card {
+		border-right: none;
+		border-bottom: 1px solid var(--ugmbt-border);
+		padding: 16px 0;
+	}
+
+	.ugmbt-grid-card:last-child {
+		border-bottom: none;
+	}
+}
+
+/* ── Responsive: Mobile (≤ 600px) ────────────────────────────────────────── */
+@media (max-width: 600px) {
+	.ugmbt-container {
+		width: 100%;
+		padding: 16px 16px 32px;
+	}
+
+	.ugmbt-hero,
+	.ugmbt-secondary {
+		padding: 16px 0;
+	}
+
+	.ugmbt-main {
+		padding: 16px;
+	}
+
+	.ugmbt-card__title--hero {
+		font-size: 15px;
+	}
+}
+
+/* ── Editor-only: Label "SIDEBAR" pada blok sidebar ──────────────────────── */
+/* Badge ini tampil di Gutenberg editor untuk memberi konteks visual,
+   tapi TIDAK tampil di frontend (disembunyikan di .ugmbt-page). */
+.ugmbt-editor-sidebar-label {
+	display: inline-block;
+	background: var(--ugmbt-navy, #004266);
+	color: #fff;
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.8px;
+	text-transform: uppercase;
+	padding: 3px 10px;
+	border-radius: 3px;
+	margin-bottom: 10px;
+}
+
+/* Sembunyikan label di frontend (saat ada dalam .ugmbt-page) */
+.ugmbt-page .ugmbt-editor-sidebar-label {
+	display: none;
+}
+
+/* ── Empty block state ────────────────────────────────────────────────────── */
+.ugmbt-empty-block {
+	padding: 20px;
+	border: 2px dashed var(--ugmbt-border, #dde3ea);
+	border-radius: 4px;
+	color: var(--ugmbt-muted, #6d7782);
+	font-style: italic;
+	text-align: center;
+}
+
+/* Layout refinement matching the Berita Terbaru page reference. */
+.ugmbt-page {
+	background: #fff;
+}
+
+.ugmbt-container {
+	width: min(100% - 32px, 930px);
+	padding-block: 14px 56px;
+}
+
+.ugmbt-breadcrumb {
+	margin-bottom: 6px;
+	font-size: 10px;
+	line-height: 1.4;
+}
+
+.ugmbt-page-title {
+	display: inline-block;
+	margin: 0 0 22px;
+	padding-bottom: 6px;
+	border-bottom: 2px solid #f6b900;
+	font-size: 24px;
+	line-height: 1.15;
+}
+
+.ugmbt-layout {
+	gap: 48px;
+}
+
+.ugmbt-sidebar {
+	width: 250px;
+}
+
+.ugmbt-row1,
+.ugmbt-row2 {
+	gap: 22px;
+}
+
+.ugmbt-hero,
+.ugmbt-secondary,
+.ugmbt-grid-card {
+	padding: 0;
+}
+
+.ugmbt-divider,
+.ugmbt-section-divider {
+	border: 0;
+	border-top: 1px solid #dde4eb;
+	margin: 24px 0;
+}
+
+.ugmbt-section-divider {
+	margin: 28px 0 24px;
+}
+
+.ugmbt-card__img-wrap {
+	margin-bottom: 12px;
+}
+
+.ugmbt-card__img-wrap--hero {
+	aspect-ratio: 16 / 9;
+}
+
+.ugmbt-card__img-wrap--sec {
+	aspect-ratio: 4 / 3;
+}
+
+.ugmbt-card__title {
+	margin-bottom: 5px;
+	color: var(--ugmbt-navy);
+	font-size: 14px;
+	line-height: 1.24;
+}
+
+.ugmbt-card__title--hero {
+	font-size: 16px;
+	line-height: 1.28;
+}
+
+.ugmbt-card__meta-row {
+	margin-bottom: 8px;
+	gap: 4px;
+}
+
+.ugmbt-card__kicker,
+.ugmbt-card__date,
+.ugmbt-card__sep {
+	font-size: 10px;
+	line-height: 1.3;
+}
+
+.ugmbt-card__kicker {
+	letter-spacing: 0;
+}
+
+.ugmbt-card__excerpt {
+	font-size: 12px;
+	line-height: 1.45;
+	-webkit-line-clamp: 4;
+}
+
+.ugmbt-grid-card .ugmbt-card__excerpt {
+	-webkit-line-clamp: 5;
+}
+
+.ugmbt-widget {
+	margin-bottom: 26px;
+}
+
+.ugmbt-widget__title {
+	display: inline-block;
+	margin-bottom: 10px;
+	padding-bottom: 6px;
+	border-bottom: 2px solid #f6b900;
+	font-size: 14px;
+	line-height: 1.2;
+}
+
+.ugmbt-widget::after {
+	content: "";
+	display: block;
+	border-bottom: 1px solid #dde4eb;
+	transform: translateY(-11px);
+}
+
+.ugmbt-news-list li,
+.ugmbt-agenda-item,
+.ugmbt-cat-list li {
+	border-bottom-color: #dde4eb;
+}
+
+.ugmbt-news-list li {
+	padding: 9px 0;
+	font-size: 12px;
+	line-height: 1.35;
+}
+
+.ugmbt-agenda-item {
+	gap: 12px;
+	padding: 12px 0;
+}
+
+.ugmbt-agenda-date {
+	min-width: 42px;
+	background: transparent;
+	color: var(--ugmbt-navy);
+	padding: 0;
+}
+
+.ugmbt-agenda-date__day {
+	font-size: 22px;
+	line-height: 1;
+}
+
+.ugmbt-agenda-date__mon {
+	font-size: 9px;
+	letter-spacing: 0;
+}
+
+.ugmbt-btn-agenda {
+	float: right;
+	margin-top: 14px;
+	border-radius: 0;
+	padding: 9px 18px;
+}
+
+.ugmbt-cat-list li {
+	align-items: flex-start;
+	gap: 8px;
+	padding: 8px 0;
+	font-size: 12px;
+}
+
+.ugmbt-cat-list span {
+	margin-left: auto;
+	font-size: 10px;
+	text-align: right;
+}
+
+.ugmbt-promo {
+	margin-bottom: 28px;
+}
+
+.ugmbt-promo__button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	min-height: 30px;
+	margin-bottom: 42px;
+	padding: 7px 18px;
+	border-radius: 999px;
+	background: #f6b000;
+	color: #fff;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.2;
+	text-align: center;
+	text-decoration: none;
+	box-sizing: border-box;
+}
+
+.ugmbt-promo__button:hover,
+.ugmbt-promo__button:focus-visible {
+	background: #dc9f00;
+	color: #fff;
+}
+
+.ugmbt-promo__poster {
+	display: block;
+	width: 100%;
+	margin-bottom: 40px;
+	background: #f7f9fb;
+	text-decoration: none;
+}
+
+.ugmbt-promo__poster img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.ugmbt-promo__placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 180px;
+	margin-bottom: 24px;
+	padding: 18px;
+	border: 1px dashed #b8c3ce;
+	background: #f7f9fb;
+	color: #6d7782;
+	font-size: 12px;
+	line-height: 1.4;
+	text-align: center;
+}
+
+@media (max-width: 960px) {
+	.ugmbt-container {
+		width: min(100% - 32px, 720px);
+		padding-block: 18px 44px;
+	}
+
+	.ugmbt-layout {
+		gap: 34px;
+	}
+
+	.ugmbt-main {
+		width: 100%;
+	}
+
+	.ugmbt-sidebar {
+		width: 100%;
+	}
+
+	.ugmbt-row1,
+	.ugmbt-row2 {
+		grid-template-columns: 1fr;
+		gap: 0;
+	}
+
+	.ugmbt-hero,
+	.ugmbt-secondary,
+	.ugmbt-grid-card {
+		padding: 0 0 22px;
+		border-bottom: 1px solid #dde4eb;
+	}
+
+	.ugmbt-grid-card:last-child {
+		border-bottom: 1px solid #dde4eb;
+	}
+
+	.ugmbt-card__img-wrap--hero,
+	.ugmbt-card__img-wrap--sec,
+	.ugmbt-card__img-wrap--grid {
+		aspect-ratio: 16 / 9;
+	}
+
+	.ugmbt-divider,
+	.ugmbt-section-divider {
+		display: none;
+	}
+
+	.ugmbt-section-group {
+		display: flex;
+		flex-direction: column;
+		gap: 22px;
+	}
+}
+
+@media (max-width: 600px) {
+	.ugmbt-container {
+		width: 100%;
+		padding: 16px 18px 36px;
+	}
+
+	.ugmbt-page-title {
+		margin-bottom: 20px;
+		font-size: 22px;
+	}
+
+	.ugmbt-main {
+		padding: 0;
+	}
+
+	.ugmbt-card__title,
+	.ugmbt-card__title--hero {
+		font-size: 16px;
+		line-height: 1.28;
+	}
+
+	.ugmbt-card__excerpt {
+		font-size: 13px;
+		-webkit-line-clamp: 4;
+	}
+
+	.ugmbt-widget {
+		margin-bottom: 30px;
+	}
+
+	.ugmbt-promo__button,
+	.ugmbt-promo__poster,
+	.ugmbt-promo__placeholder {
+		margin-bottom: 22px;
+	}
+}
+
+/* Gutenberg preview for the complete Berita Terbaru pattern. */
+.editor-styles-wrapper .wp-block.ugmbt-editor-shell,
+.editor-styles-wrapper .ugmbt-editor-shell {
+	width: min(100% - 32px, 930px);
+	max-width: 930px;
+	margin: 0 auto 48px;
+	padding: 14px 0 56px;
+	background: #fff;
+	box-sizing: border-box;
+}
+
+.editor-styles-wrapper .ugmbt-editor-shell > .wp-block-group__inner-container {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 250px;
+	gap: 48px;
+	align-items: start;
+}
+
+.editor-styles-wrapper .wp-block.ugmbt-editor-main,
+.editor-styles-wrapper .wp-block.ugmbt-editor-sidebar,
+.editor-styles-wrapper .ugmbt-editor-main > .wp-block-group__inner-container,
+.editor-styles-wrapper .ugmbt-editor-sidebar > .wp-block-group__inner-container {
+	width: 100%;
+	max-width: none;
+	margin: 0;
+}
+
+.editor-styles-wrapper .ugmbt-editor-main .wp-block[data-type="ugm/bt-news-section"],
+.editor-styles-wrapper .ugmbt-editor-sidebar .wp-block[data-type^="ugm/bt-sidebar-"] {
+	width: 100%;
+	max-width: none;
+	margin: 0;
+}
+
+.editor-styles-wrapper .ugmbt-editor-sidebar .wp-block[data-type^="ugm/bt-sidebar-"] {
+	margin-bottom: 26px;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/bt-news-section"] > .ugmbt-page,
+.editor-styles-wrapper .wp-block[data-type^="ugm/bt-sidebar-"] > .ugmbt-page {
+	background: transparent;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/bt-news-section"] .ugmbt-section-group,
+.editor-styles-wrapper .wp-block[data-type^="ugm/bt-sidebar-"] .ugmbt-widget {
+	margin-top: 0;
+}
+
+.editor-styles-wrapper .ugmbt-editor-image-control {
+	margin-bottom: 18px;
+}
+
+.editor-styles-wrapper .ugmbt-editor-image-control__label {
+	margin: 0 0 8px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	color: #1e1e1e;
+}
+
+@media (max-width: 960px) {
+	.editor-styles-wrapper .wp-block.ugmbt-editor-shell,
+	.editor-styles-wrapper .ugmbt-editor-shell {
+		width: min(100% - 32px, 720px);
+		padding: 18px 0 44px;
+	}
+
+	.editor-styles-wrapper .ugmbt-editor-shell > .wp-block-group__inner-container {
+		grid-template-columns: 1fr;
+		gap: 34px;
+	}
+}
