@@ -32,6 +32,7 @@ $majalah_query = new WP_Query(
 );
 ?>
 
+<<<<<<< HEAD
 <section class="home-section section-majalah-digital <?php echo esc_attr( $visibility_class ); ?>" aria-labelledby="section-majalah-digital-title">
 	<div class="section-majalah-digital__top">
 		<div class="section-majalah-digital__intro">
@@ -49,6 +50,13 @@ $majalah_query = new WP_Query(
 			<span aria-hidden="true">&#8594;</span>
 		</a>
 	</div>
+=======
+<section class="home-section section-majalah-digital" aria-labelledby="section-majalah-digital-title">
+	<header class="section-header section-header--accent scroll-reveal">
+		<h2 id="section-majalah-digital-title" class="section-title"><?php echo esc_html( $majalah_title ); ?></h2>
+		<span class="section-line" aria-hidden="true"></span>
+	</header>
+>>>>>>> origin/dev-fe
 
 	<?php if ( $majalah_query->have_posts() ) : ?>
 		<div class="majalah-grid">
@@ -58,7 +66,7 @@ $majalah_query = new WP_Query(
 				$magazine_link    = '' !== $magazine_pdf_url ? $magazine_pdf_url : get_permalink();
 				$open_in_new_tab  = '' !== $magazine_pdf_url;
 				?>
-				<article <?php post_class( 'majalah-card' ); ?>>
+				<article <?php post_class( 'majalah-card scroll-reveal' ); ?>>
 					<a class="majalah-card__link" href="<?php echo esc_url( $magazine_link ); ?>" aria-label="<?php the_title_attribute(); ?>" <?php echo $open_in_new_tab ? 'target="_blank" rel="noopener"' : ''; ?>>
 						<div class="majalah-card__media">
 							<?php if ( has_post_thumbnail() ) : ?>
@@ -80,6 +88,13 @@ $majalah_query = new WP_Query(
 		<a class="section-arrow-link section-arrow-link--majalah" href="<?php echo esc_url( $majalah_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua majalah', 'ugm-faculty' ); ?>">&#8594;</a>
 		<?php wp_reset_postdata(); ?>
 	<?php else : ?>
+<<<<<<< HEAD
 		<?php echo ugm_render_empty_skeleton( 'magazine-grid', __( 'Belum ada majalah.', 'ugm-faculty' ), array( 'count' => 4 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	<?php endif; ?>
+=======
+		<p class="section-empty scroll-reveal"><?php esc_html_e( 'Belum ada majalah.', 'ugm-faculty' ); ?></p>
+	<?php endif; ?>
+
+	<a class="section-arrow-link scroll-reveal" href="<?php echo esc_url( $majalah_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua majalah', 'ugm-faculty' ); ?>">&#8594;</a>
+>>>>>>> origin/dev-fe
 </section>
