@@ -32,6 +32,6 @@ node_modules/
 /vendor/
 
 check-blocks.php
-check-template.php
+check-templates.php
 debug-query.php
 flush-template-cache.php
