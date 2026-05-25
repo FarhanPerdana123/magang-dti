@@ -23,7 +23,9 @@ function ugm_get_asset_version( $relative_path ) {
 		return (string) filemtime( $absolute_path );
 	}
 
-	return UGM_THEME_VERSION;
+	$theme_version = defined( 'UGM_THEME_VERSION' ) ? UGM_THEME_VERSION : wp_get_theme()->get( 'Version' );
+
+	return (string) $theme_version;
 }
 
 /**
