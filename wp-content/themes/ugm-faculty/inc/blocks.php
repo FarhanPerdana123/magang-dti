@@ -622,6 +622,7 @@ function ugm_render_block_hero_section( $attrs ) {
 	$image_url = '';
 	$video_id  = isset( $attrs['videoId'] ) ? absint( $attrs['videoId'] ) : 0;
 	$video_url = '';
+	$slide_images = array();
 
 	if ( $image_id > 0 ) {
 		$image_url = (string) wp_get_attachment_image_url( $image_id, 'full' );
@@ -661,12 +662,66 @@ function ugm_render_block_hero_section( $attrs ) {
 		}
 	}
 
+	if ( ! $has_video && ! empty( $attrs['slideImages'] ) && is_array( $attrs['slideImages'] ) ) {
+		foreach ( $attrs['slideImages'] as $slide_image ) {
+			if ( ! is_array( $slide_image ) ) {
+				continue;
+			}
+
+			$slide_id  = isset( $slide_image['id'] ) ? absint( $slide_image['id'] ) : 0;
+			$slide_url = '';
+			if ( $slide_id > 0 ) {
+				$slide_url = (string) wp_get_attachment_image_url( $slide_id, 'full' );
+			}
+			if ( '' === $slide_url && ! empty( $slide_image['url'] ) ) {
+				$slide_url = esc_url_raw( (string) $slide_image['url'] );
+			}
+			if ( '' !== $slide_url ) {
+				$slide_images[] = array(
+					'id'  => $slide_id,
+					'url' => $slide_url,
+				);
+			}
+		}
+	}
+
+	if ( empty( $slide_images ) && '' !== $image_url ) {
+		$slide_images[] = array(
+			'id'  => $image_id,
+			'url' => $image_url,
+		);
+	}
+
+	$has_slider = ! $has_video && count( $slide_images ) > 1;
+	$hero_id    = $has_slider ? 'ugm-hero-slider-' . wp_unique_id() : '';
 	$title = isset( $attrs['title'] ) ? trim( (string) $attrs['title'] ) : '';
 	$desc  = isset( $attrs['description'] ) ? trim( (string) $attrs['description'] ) : '';
 
 	ob_start();
 	?>
-	<section class="hero <?php echo esc_attr( $visibility_class ); ?>" <?php echo ( $image_url && ! $has_video ) ? 'style="background-image: url(' . esc_url( $image_url ) . ');"' : ''; ?> aria-labelledby="hero-title">
+	<section class="hero <?php echo esc_attr( $visibility_class ); ?><?php echo $has_slider ? ' hero--slider ' . esc_attr( $hero_id ) : ''; ?>" <?php echo ( $image_url && ! $has_video && ! $has_slider ) ? 'style="background-image: url(' . esc_url( $image_url ) . ');"' : ''; ?> aria-labelledby="hero-title">
+		<?php if ( $has_slider ) : ?>
+			<style>
+				<?php
+				$slide_count    = count( $slide_images );
+				$animation_time = $slide_count * 8;
+				foreach ( $slide_images as $slide_index => $slide_image ) :
+					$delay = $slide_index * 8;
+					?>
+					.<?php echo esc_html( $hero_id ); ?> .hero__slide--<?php echo esc_html( (string) $slide_index ); ?> {
+						animation-delay: <?php echo esc_html( (string) $delay ); ?>s;
+					}
+				<?php endforeach; ?>
+				.<?php echo esc_html( $hero_id ); ?> .hero__slide {
+					animation-duration: <?php echo esc_html( (string) $animation_time ); ?>s;
+				}
+			</style>
+			<div class="hero__slides" aria-hidden="true">
+				<?php foreach ( $slide_images as $slide_index => $slide_image ) : ?>
+					<span class="hero__slide hero__slide--<?php echo esc_attr( (string) $slide_index ); ?>" style="background-image: url('<?php echo esc_url( $slide_image['url'] ); ?>');"></span>
+				<?php endforeach; ?>
+			</div>
+		<?php endif; ?>
 		<?php if ( $has_video ) : ?>
 			<video class="hero__video" autoplay muted loop playsinline preload="metadata" <?php echo $image_url ? 'poster="' . esc_url( $image_url ) . '"' : ''; ?> aria-hidden="true">
 				<source src="<?php echo esc_url( $video_url ); ?>" type="<?php echo esc_attr( $video_type ); ?>">
@@ -698,6 +753,7 @@ register_block_type( 'ugm/hero-section', array(
 		'imageId'     => array( 'type' => 'integer', 'default' => 0 ),
 		'imageUrl'    => array( 'type' => 'string',  'default' => '' ),
 		'mediaType'   => array( 'type' => 'string',  'default' => 'image' ),
+		'slideImages' => array( 'type' => 'array',   'default' => array() ),
 		'videoId'     => array( 'type' => 'integer', 'default' => 0 ),
 		'videoUrl'    => array( 'type' => 'string',  'default' => '' ),
 		'title'       => array( 'type' => 'string',  'default' => '' ),
@@ -1048,7 +1104,7 @@ function ugm_render_block_academic_news( $attrs ) {
 
 	ob_start();
 	$q = new WP_Query( $args );
-	echo '<section class="home-section section-academic ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-academic-title">';
+	echo '<section class="home-section section-academic col-12 col-lg-4 ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-academic-title">';
 	echo ugm_block_section_header( $title, 'block-academic-title' ); // phpcs:ignore
 	ugm_render_portal_column( $q, __( 'Belum ada berita akademik.', 'ugm-faculty' ) );
 	echo '<a class="section-arrow-link" href="' . esc_url( $archive ) . '" aria-label="' . esc_attr__( 'Lihat semua berita akademik', 'ugm-faculty' ) . '">&#8594;</a>';
@@ -1092,7 +1148,7 @@ function ugm_render_block_profile_section( $attrs ) {
 
 	ob_start();
 	$q = new WP_Query( $args );
-	echo '<section class="home-section section-profile ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-profile-title">';
+	echo '<section class="home-section section-profile col-12 col-lg-4 ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-profile-title">';
 	echo ugm_block_section_header( $title, 'block-profile-title' ); // phpcs:ignore
 	ugm_render_portal_column( $q, __( 'Belum ada konten profile.', 'ugm-faculty' ) );
 	echo '<a class="section-arrow-link" href="' . esc_url( $archive ) . '" aria-label="' . esc_attr__( 'Lihat semua profile', 'ugm-faculty' ) . '">&#8594;</a>';
@@ -1136,7 +1192,7 @@ function ugm_render_block_achievement_section( $attrs ) {
 
 	ob_start();
 	$q = new WP_Query( $args );
-	echo '<section class="home-section section-achievement ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-achievement-title">';
+	echo '<section class="home-section section-achievement col-12 col-lg-4 ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-achievement-title">';
 	echo ugm_block_section_header( $title, 'block-achievement-title' ); // phpcs:ignore
 	ugm_render_portal_column( $q, __( 'Belum ada konten prestasi.', 'ugm-faculty' ) );
 	echo '<a class="section-arrow-link" href="' . esc_url( $archive ) . '" aria-label="' . esc_attr__( 'Lihat semua prestasi', 'ugm-faculty' ) . '">&#8594;</a>';
@@ -1660,11 +1716,11 @@ register_block_type( 'ugm/faculty-list', array(
 function ugm_render_agenda_column_html( $title, $cat_slug ) {
 	$agenda_term_ids = ugm_resolve_agenda_exclude_ids( $cat_slug );
 
-	$agenda_archive = home_url( '/' );
+	$agenda_archive = ugm_get_agenda_page_url();
 	if ( ! empty( $agenda_term_ids ) ) {
 		$first = reset( $agenda_term_ids );
 		$link  = get_category_link( $first );
-		if ( ! is_wp_error( $link ) ) {
+		if ( home_url( '/' ) === $agenda_archive && ! is_wp_error( $link ) ) {
 			$agenda_archive = $link;
 		}
 	}
@@ -1675,8 +1731,12 @@ function ugm_render_agenda_column_html( $title, $cat_slug ) {
 		'posts_per_page'      => $agenda_count,
 		'ignore_sticky_posts' => true,
 		'post_status'         => 'publish',
-		'orderby'             => 'date',
-		'order'               => 'DESC',
+		'meta_key'            => 'agenda_event_date',
+		'orderby'             => array(
+			'meta_value' => 'ASC',
+			'date'       => 'DESC',
+		),
+		'order'               => 'ASC',
 		'no_found_rows'       => true,
 	);
 	if ( ! empty( $agenda_term_ids ) ) {
@@ -1701,7 +1761,9 @@ function ugm_render_agenda_column_html( $title, $cat_slug ) {
 		while ( $agenda_q->have_posts() ) {
 			$agenda_q->the_post();
 			$agenda_items++;
-			$ts = (int) get_post_timestamp( get_the_ID() );
+			$ts = function_exists( 'ugm_get_agenda_event_timestamp' )
+				? ugm_get_agenda_event_timestamp( get_the_ID() )
+				: (int) get_post_timestamp( get_the_ID() );
 			echo '<article class="' . esc_attr( implode( ' ', get_post_class( 'desktop-agenda-card' ) ) ) . '">';
 			echo '<a class="desktop-agenda-card__date" href="' . esc_url( get_the_permalink() ) . '" aria-label="' . esc_attr__( 'Buka agenda', 'ugm-faculty' ) . '">';
 			echo '<span class="desktop-agenda-card__day">' . esc_html( wp_date( 'd', $ts ) ) . '</span>';
@@ -1709,7 +1771,10 @@ function ugm_render_agenda_column_html( $title, $cat_slug ) {
 			echo '</a>';
 			echo '<div class="desktop-agenda-card__body">';
 			echo '<h3 class="desktop-agenda-card__title"><a href="' . esc_url( get_the_permalink() ) . '">' . get_the_title() . '</a></h3>';
-			echo '<p class="desktop-agenda-card__meta">' . esc_html( get_the_author() ) . '</p>';
+			$agenda_location = function_exists( 'ugm_get_agenda_event_location' )
+				? ugm_get_agenda_event_location( get_the_ID() )
+				: trim( (string) get_post_meta( get_the_ID(), 'agenda_location', true ) );
+			echo '<p class="desktop-agenda-card__meta">' . esc_html( $agenda_location ) . '</p>';
 			echo '</div></article>';
 		}
 		echo ugm_render_partial_skeleton_items( 'agenda-card', max( 0, 3 - $agenda_items ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -2437,6 +2502,14 @@ add_filter( 'block_categories_all', function ( $categories ) {
 		'slug'  => 'ugm-sections',
 		'title' => __( 'UGM — Landing Page Sections', 'ugm-faculty' ),
 		'icon'  => 'layout',
+	), array(
+		'slug'  => 'ugm-agenda-page-sections',
+		'title' => __( 'UGM - Agenda Page Sections', 'ugm-faculty' ),
+		'icon'  => 'calendar',
+	), array(
+		'slug'  => 'ugm-announcement-page-sections',
+		'title' => __( 'UGM - Pengumuman Page Sections', 'ugm-faculty' ),
+		'icon'  => 'megaphone',
 	) );
 	return $categories;
 } );
@@ -2452,6 +2525,42 @@ add_action( 'enqueue_block_editor_assets', function () {
 		array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render' ),
 		ugm_get_asset_version( '/assets/js/blocks.js' ),
 		true
+	);
+
+	wp_enqueue_script(
+		'ugm-agenda-blocks',
+		get_template_directory_uri() . '/assets/js/agenda-blocks.js',
+		array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render', 'wp-plugins', 'wp-edit-post' ),
+		ugm_get_asset_version( '/assets/js/agenda-blocks.js' ),
+		true
+	);
+
+	wp_enqueue_script(
+		'ugm-announcement-blocks',
+		get_template_directory_uri() . '/assets/js/announcement-blocks.js',
+		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render', 'wp-plugins', 'wp-media-utils' ),
+		ugm_get_asset_version( '/assets/js/announcement-blocks.js' ),
+		true
+	);
+
+	wp_localize_script(
+		'ugm-agenda-blocks',
+		'ugmAgendaPageEditor',
+		array(
+			'defaultBlocks' => function_exists( 'ugm_get_default_agenda_page_blocks' )
+				? ugm_get_default_agenda_page_blocks()
+				: '',
+		)
+	);
+
+	wp_localize_script(
+		'ugm-announcement-blocks',
+		'ugmAnnouncementPageEditor',
+		array(
+			'defaultBlocks' => function_exists( 'ugm_get_default_announcement_page_blocks' )
+				? ugm_get_default_announcement_page_blocks()
+				: '',
+		)
 	);
 
 	wp_enqueue_style(
@@ -2476,9 +2585,23 @@ add_action( 'enqueue_block_editor_assets', function () {
 	);
 
 	wp_enqueue_style(
+		'ugm-editor-style-agenda-page',
+		get_template_directory_uri() . '/assets/css/agenda-page.css',
+		array( 'ugm-editor-style-base', 'ugm-editor-style-content' ),
+		ugm_get_asset_version( '/assets/css/agenda-page.css' )
+	);
+
+	wp_enqueue_style(
+		'ugm-editor-style-announcement-page',
+		get_template_directory_uri() . '/assets/css/announcement-page.css',
+		array( 'ugm-editor-style-base', 'ugm-editor-style-content' ),
+		ugm_get_asset_version( '/assets/css/announcement-page.css' )
+	);
+
+	wp_enqueue_style(
 		'ugm-editor-landing-preview',
 		get_template_directory_uri() . '/assets/css/landing-page-editor.css',
-		array( 'ugm-editor-style-base', 'ugm-editor-style-content' ),
+		array( 'ugm-editor-style-base', 'ugm-editor-style-content', 'ugm-editor-style-agenda-page', 'ugm-editor-style-announcement-page' ),
 		ugm_get_asset_version( '/assets/css/landing-page-editor.css' )
 	);
 } );
@@ -2519,6 +2642,20 @@ add_action( 'init', function () {
 		'description' => __( 'Hero + semua section halaman landing. Insert ke halaman yang menggunakan template Halaman Landing.', 'ugm-faculty' ),
 		'categories'  => array( 'ugm-landing' ),
 		'content'     => $landing_blocks,
+	) );
+
+	register_block_pattern( 'ugm/agenda-page-sections', array(
+		'title'       => __( 'Konten Halaman Agenda', 'ugm-faculty' ),
+		'description' => __( 'Daftar agenda lengkap dengan filter dan pagination. Insert ke halaman yang menggunakan template Agenda Page.', 'ugm-faculty' ),
+		'categories'  => array( 'ugm-landing' ),
+		'content'     => ugm_get_default_agenda_page_blocks(),
+	) );
+
+	register_block_pattern( 'ugm/announcement-page-sections', array(
+		'title'       => __( 'Konten Halaman Pengumuman', 'ugm-faculty' ),
+		'description' => __( 'Daftar pengumuman dengan sidebar berita dan agenda terbaru. Insert ke halaman yang menggunakan template Pengumuman Page.', 'ugm-faculty' ),
+		'categories'  => array( 'ugm-landing' ),
+		'content'     => ugm_get_default_announcement_page_blocks(),
 	) );
 } );
 

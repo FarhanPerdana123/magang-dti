@@ -18,7 +18,8 @@
 		! wp.editPost ||
 		! wp.element ||
 		! wp.data ||
-		! wp.components
+		! wp.components ||
+		! wp.blocks
 	) {
 		return;
 	}
@@ -28,11 +29,16 @@
 	var useEffect    = wp.element.useEffect;
 	var Fragment     = wp.element.Fragment;
 	var useSelect    = wp.data.useSelect;
+	var dispatch     = wp.data.dispatch;
 	var registerPlugin              = wp.plugins.registerPlugin;
 	var PluginDocumentSettingPanel  = wp.editPost.PluginDocumentSettingPanel;
 	var Button                      = wp.components.Button;
 
-	var LANDING_TEMPLATE = 'page-templates/template-landing-page.php';
+	var LANDING_TEMPLATES = [ 'page-templates/template-landing-page.php', 'landing-page' ];
+
+	function isLandingTemplate( template ) {
+		return LANDING_TEMPLATES.indexOf( template ) !== -1;
+	}
 
 	/* ------------------------------------------------------------------
 	 * Vanilla-DOM preview overlay
@@ -114,9 +120,28 @@
 			return ( post && post.link ) ? post.link : '';
 		} );
 
+		var blockCount = useSelect( function ( select ) {
+			return select( 'core/block-editor' ).getBlockCount();
+		} );
+
+		useEffect( function () {
+			if ( ! isLandingTemplate( template ) || blockCount > 0 ) {
+				return;
+			}
+
+			if ( ! window.ugmLandingPageEditor || ! ugmLandingPageEditor.defaultBlocks ) {
+				return;
+			}
+
+			var blocks = wp.blocks.parse( ugmLandingPageEditor.defaultBlocks );
+			if ( blocks && blocks.length ) {
+				dispatch( 'core/block-editor' ).insertBlocks( blocks );
+			}
+		}, [ template, blockCount ] );
+
 		/* Close the overlay when the user switches away from Landing template. */
 		useEffect( function () {
-			if ( template !== LANDING_TEMPLATE ) {
+			if ( ! isLandingTemplate( template ) ) {
 				closePreview();
 			}
 		}, [ template ] );
@@ -126,7 +151,7 @@
 			return function () { closePreview(); };
 		}, [] );
 
-		if ( template !== LANDING_TEMPLATE ) {
+		if ( ! isLandingTemplate( template ) ) {
 			return null;
 		}
 

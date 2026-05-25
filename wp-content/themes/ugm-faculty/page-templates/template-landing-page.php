@@ -18,11 +18,13 @@ get_header();
 //     .home-sections-triple for the 3-column desktop layout.
 //  3. Keep all other section blocks inside .home-content (max-width container).
 // Urutan block di editor Gutenberg tercermin langsung di frontend.
-if ( have_posts() && ( has_block( 'ugm/hero-section' ) || has_block( 'ugm/latest-news' ) ) ) {
+if ( have_posts() ) {
 	while ( have_posts() ) {
 		the_post();
 
-		$blocks       = parse_blocks( get_the_content() );
+		$post_content  = (string) get_the_content();
+		$has_ugm_block = false !== strpos( $post_content, '<!-- wp:ugm/' );
+		$blocks        = parse_blocks( $has_ugm_block ? $post_content : ugm_get_default_landing_page_blocks() );
 
 		// Blok-blok yang dikumpulkan dalam .home-sections-triple (grid 3 kolom).
 		$triple_names = array(
@@ -94,7 +96,7 @@ if ( have_posts() && ( has_block( 'ugm/hero-section' ) || has_block( 'ugm/latest
 			// ── home-sections-triple ──────────────────────────────────────────
 			$is_triple = in_array( $block['blockName'], $triple_names, true );
 			if ( $is_triple && ! $in_triple ) {
-				$content_html .= '<div class="home-sections-triple">';
+				$content_html .= '<div class="home-sections-triple row g-4 g-lg-5">';
 				$in_triple     = true;
 			} elseif ( ! $is_triple && $in_triple ) {
 				$content_html .= '</div><!-- /.home-sections-triple -->';
@@ -118,7 +120,7 @@ if ( have_posts() && ( has_block( 'ugm/hero-section' ) || has_block( 'ugm/latest
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo $hero_html; // Full-bleed (no container).
 			?>
-			<div class="home-content">
+			<div class="home-content container">
 				<?php
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $content_html;
@@ -443,8 +445,8 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 			<?php endif; ?>
 		</section>
 
-		<div class="home-sections-triple">
-		<section class="home-section section-academic" aria-labelledby="section-academic-title">
+		<div class="home-sections-triple row g-4 g-lg-5">
+		<section class="home-section section-academic col-12 col-lg-4" aria-labelledby="section-academic-title">
 			<header class="section-header">
 				<h2 id="section-academic-title" class="section-title">
 					<?php echo esc_html( $ugm_title_academic ); ?>
@@ -610,7 +612,7 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 			<a class="section-arrow-link" href="<?php echo esc_url( $academic_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua berita akademik', 'ugm-faculty' ); ?>">&#8594;</a>
 		</section>
 
-		<section class="home-section section-profile" aria-labelledby="section-profile-title">
+		<section class="home-section section-profile col-12 col-lg-4" aria-labelledby="section-profile-title">
 			<header class="section-header">
 				<h2 id="section-profile-title" class="section-title">
 					<?php echo esc_html( $ugm_title_profile ); ?>
@@ -775,7 +777,7 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 			<a class="section-arrow-link" href="<?php echo esc_url( $profile_archive_link ); ?>" aria-label="<?php esc_attr_e( 'Lihat semua profile', 'ugm-faculty' ); ?>">&#8594;</a>
 		</section>
 
-		<section class="home-section section-achievement" aria-labelledby="section-achievement-title">
+		<section class="home-section section-achievement col-12 col-lg-4" aria-labelledby="section-achievement-title">
 			<header class="section-header">
 				<h2 id="section-achievement-title" class="section-title">
 					<?php echo esc_html( $ugm_title_achievement ); ?>
@@ -1094,8 +1096,12 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 				'posts_per_page'      => $agenda_posts_count,
 				'ignore_sticky_posts' => true,
 				'post_status'         => 'publish',
-				'orderby'             => 'date',
-				'order'               => 'DESC',
+				'meta_key'            => 'agenda_event_date',
+				'orderby'             => array(
+					'meta_value' => 'ASC',
+					'date'       => 'DESC',
+				),
+				'order'               => 'ASC',
 				'no_found_rows'       => true,
 			);
 
@@ -1116,7 +1122,9 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 						<?php while ( $agenda_query->have_posts() ) : ?>
 							<?php
 							$agenda_query->the_post();
-							$agenda_timestamp = (int) get_post_timestamp( get_the_ID() );
+							$agenda_timestamp = function_exists( 'ugm_get_agenda_event_timestamp' )
+								? ugm_get_agenda_event_timestamp( get_the_ID() )
+								: (int) get_post_timestamp( get_the_ID() );
 							?>
 							<article <?php post_class( 'desktop-agenda-card' ); ?>>
 								<a class="desktop-agenda-card__date" href="<?php the_permalink(); ?>" aria-label="<?php esc_attr_e( 'Buka agenda', 'ugm-faculty' ); ?>">

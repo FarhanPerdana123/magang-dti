@@ -360,6 +360,7 @@
 			imageId:     { type: 'integer', default: 0 },
 			imageUrl:    { type: 'string',  default: '' },
 			mediaType:   { type: 'string',  default: 'image' },
+			slideImages: { type: 'array',   default: [] },
 			videoId:     { type: 'integer', default: 0 },
 			videoUrl:    { type: 'string',  default: '' },
 			title:       { type: 'string',  default: '' },
@@ -387,10 +388,11 @@
 							value: attrs.mediaType || 'image',
 							options: [
 								{ label: __( 'Gambar', 'ugm-faculty' ), value: 'image' },
+								{ label: __( 'Slider Gambar', 'ugm-faculty' ), value: 'slider' },
 								{ label: __( 'Video', 'ugm-faculty' ), value: 'video' },
 							],
 							onChange: function ( v ) { setAttr( { mediaType: v } ); },
-							help: __( 'Video akan berjalan otomatis dengan mode muted dan loop.', 'ugm-faculty' ),
+							help: __( 'Slider gambar akan berjalan otomatis. Video akan berjalan otomatis dengan mode muted dan loop.', 'ugm-faculty' ),
 						} ),
 						( attrs.mediaType || 'image' ) === 'video'
 							? el(
@@ -479,6 +481,86 @@
 								},
 							} )
 						)
+							: null
+						,
+						( attrs.mediaType || 'image' ) === 'slider'
+							? el(
+								MediaUploadCheck,
+								null,
+								el( MediaUpload, {
+									onSelect: function ( mediaItems ) {
+										var items = Array.isArray( mediaItems ) ? mediaItems : [ mediaItems ];
+										var slides = items
+											.filter( function ( media ) { return media && media.url; } )
+											.map( function ( media ) {
+												return {
+													id:  media.id || 0,
+													url: media.url || '',
+												};
+											} );
+
+										setAttr( {
+											mediaType: 'slider',
+											slideImages: slides,
+											imageId: slides.length ? slides[0].id : attrs.imageId,
+											imageUrl: slides.length ? slides[0].url : attrs.imageUrl,
+										} );
+									},
+									allowedTypes: [ 'image' ],
+									multiple: true,
+									gallery: true,
+									value: ( attrs.slideImages || [] ).map( function ( image ) { return image.id; } ),
+									render: function ( ref ) {
+										var slideImages = attrs.slideImages || [];
+										return el(
+											'div',
+											{ style: { marginBottom: '8px' } },
+											slideImages.length
+												? el(
+													'div',
+													{
+														style: {
+															display: 'grid',
+															gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+															gap: '6px',
+															marginBottom: '8px',
+														},
+													},
+													slideImages.map( function ( image, index ) {
+														return el( 'img', {
+															key: index,
+															src: image.url,
+															alt: '',
+															style: {
+																width: '100%',
+																aspectRatio: '16 / 9',
+																objectFit: 'cover',
+																borderRadius: '4px',
+															},
+														} );
+													} )
+												)
+												: el( 'p', { style: { color: '#999', marginBottom: '6px' } },
+													__( 'Belum ada gambar slider. Pilih beberapa gambar dari Media Library.', 'ugm-faculty' )
+												),
+											el( Button, {
+												onClick: ref.open,
+												isSecondary: true,
+												style: { marginRight: '6px' },
+											}, slideImages.length
+												? __( 'Ganti Gambar Slider', 'ugm-faculty' )
+												: __( 'Pilih Gambar Slider', 'ugm-faculty' )
+											),
+											slideImages.length
+												? el( Button, {
+													onClick: function () { setAttr( { slideImages: [] } ); },
+													isDestructive: true,
+												}, __( 'Hapus', 'ugm-faculty' ) )
+												: null
+										);
+									},
+								} )
+							)
 							: null
 					),
 					el(

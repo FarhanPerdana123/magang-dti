@@ -30,6 +30,9 @@ if ( ! class_exists( 'UGM_Faculty_Theme' ) ) {
 			'customizer.php',
 			'security.php',
 			'landing-page-meta.php',
+			'landing-page.php',
+			'agenda-page.php',
+			'announcement-page.php',
 			'blocks.php',
 		);
 

@@ -61,6 +61,8 @@ function ugm_enqueue_assets() {
 		'header',
 		'hero',
 		'content',
+		'agenda-page',
+		'announcement-page',
 		'footer',
 	);
 
@@ -96,6 +98,14 @@ function ugm_enqueue_assets() {
 			get_template_directory_uri() . '/assets/js/faculty-slider.js',
 			array(),
 			ugm_get_asset_version( '/assets/js/faculty-slider.js' ),
+			true
+		);
+
+		wp_enqueue_script(
+			'ugm-landing-scroll-reveal',
+			get_template_directory_uri() . '/assets/js/landing-scroll-reveal.js',
+			array(),
+			ugm_get_asset_version( '/assets/js/landing-scroll-reveal.js' ),
 			true
 		);
 	}
@@ -134,9 +144,19 @@ function ugm_enqueue_editor_assets() {
 	wp_enqueue_script(
 		'ugm-landing-page-editor',
 		get_template_directory_uri() . '/assets/js/landing-page-editor.js',
-		array( 'wp-plugins', 'wp-edit-post', 'wp-element', 'wp-data', 'wp-components' ),
+		array( 'wp-plugins', 'wp-edit-post', 'wp-element', 'wp-data', 'wp-components', 'wp-blocks', 'wp-block-editor' ),
 		ugm_get_asset_version( '/assets/js/landing-page-editor.js' ),
 		true
+	);
+
+	wp_localize_script(
+		'ugm-landing-page-editor',
+		'ugmLandingPageEditor',
+		array(
+			'defaultBlocks' => function_exists( 'ugm_get_default_landing_page_blocks' )
+				? ugm_get_default_landing_page_blocks()
+				: '',
+		)
 	);
 
 	wp_enqueue_style(

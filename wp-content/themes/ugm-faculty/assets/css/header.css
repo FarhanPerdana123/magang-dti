@@ -1,6 +1,6 @@
 /* Header / Navbar */
 .site-header {
-	position: relative;
+	position: sticky;
 	top: 0;
 	left: 0;
 	right: 0;
@@ -10,6 +10,22 @@
 	box-shadow: none;
 	transition: background-color 220ms ease, color 220ms ease, box-shadow 220ms ease;
 	--header-surface: var(--color-primary-900);
+}
+
+.admin-bar .site-header {
+	top: 32px;
+}
+
+@media (max-width: 782px) {
+	.admin-bar .site-header {
+		top: 46px;
+	}
+}
+
+@media (max-width: 600px) {
+	.admin-bar .site-header {
+		top: 0;
+	}
 }
 
 .site-header__inner {
