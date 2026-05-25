@@ -176,7 +176,7 @@ function ugm_render_landing_page_meta_box( $post ) {
 
 	<?php if ( $is_landing ) : ?>
 		<p class="ugm-meta-hint">
-			<?php esc_html_e( 'Judul: label tampilan. Slug Kategori: kategori WordPress yang ditampilkan (kosongkan = default).', 'ugm-faculty' ); ?>
+			<?php esc_html_e( 'Judul: label tampilan. Slug Kategori: kategori WordPress yang ditampilkan; bisa lebih dari satu slug dipisah koma (kosongkan = default).', 'ugm-faculty' ); ?>
 		</p>
 		<?php foreach ( $sections as $section ) : ?>
 			<div class="ugm-meta-section">
@@ -196,7 +196,7 @@ function ugm_render_landing_page_meta_box( $post ) {
 								placeholder="<?php echo esc_attr( $field['default'] ); ?>"
 							/>
 							<?php if ( $is_slug ) : ?>
-								<span class="ugm-meta-slug-hint"><?php esc_html_e( 'Slug kategori WordPress, bukan judul. Contoh: prestasi', 'ugm-faculty' ); ?></span>
+								<span class="ugm-meta-slug-hint"><?php esc_html_e( 'Slug kategori WordPress, bukan judul. Bisa lebih dari satu dipisah koma. Contoh: prestasi, profile', 'ugm-faculty' ); ?></span>
 							<?php endif; ?>
 						</div>
 					<?php endforeach; ?>

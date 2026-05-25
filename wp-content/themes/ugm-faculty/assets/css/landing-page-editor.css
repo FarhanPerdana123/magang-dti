@@ -23,6 +23,19 @@
 	background: #efefef;
 }
 
+/* Device visibility helpers (used by Gutenberg blocks) */
+@media (max-width: 900px) {
+	.editor-styles-wrapper .ugm-only-desktop {
+		display: none !important;
+	}
+}
+
+@media (min-width: 901px) {
+	.editor-styles-wrapper .ugm-only-mobile {
+		display: none !important;
+	}
+}
+
 .editor-visual-editor,
 .editor-visual-editor__post-title-wrapper,
 .block-editor-writing-flow,
@@ -193,6 +206,91 @@
 .editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .section-title {
 	font-size: 1.35rem;
 	line-height: 1.25;
+}
+
+/* Desktop preview: mimic .home-sections-triple frontend styles */
+@media (min-width: 901px) {
+	.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .home-section,
+	.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .home-section,
+	.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .home-section {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .section-header,
+	.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .section-header,
+	.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .section-header {
+		margin-bottom: 12px;
+	}
+
+	.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .section-title,
+	.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .section-title,
+	.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .section-title {
+		font-size: clamp(1.35rem, 1.45vw, 1.75rem);
+	}
+
+	.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .section-line,
+	.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .section-line,
+	.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .section-line {
+		flex: 0 0 clamp(110px, 9vw, 160px);
+		background: #d4a017;
+	}
+
+	.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .portal-card .card-title,
+	.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .portal-card .card-title,
+	.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .portal-card .card-title {
+		font-size: 1.04rem;
+	}
+
+	.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .portal-card .card-excerpt,
+	.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .portal-card .card-excerpt,
+	.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .portal-card .card-excerpt,
+	.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .portal-list-card .card-excerpt,
+	.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .portal-list-card .card-excerpt,
+	.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .portal-list-card .card-excerpt {
+		display: none;
+	}
+
+	.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .portal-column__list,
+	.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .portal-column__list,
+	.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .portal-column__list {
+		gap: 6px;
+	}
+
+	.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .portal-list-card,
+	.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .portal-list-card,
+	.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .portal-list-card {
+		grid-template-columns: 78px minmax(0, 1fr);
+		background: transparent;
+		border: 0;
+		border-top: 1px solid var(--home-border);
+		padding: 8px 0 0;
+	}
+
+	.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .portal-list-card .card-kicker,
+	.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .portal-list-card .card-kicker,
+	.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .portal-list-card .card-kicker {
+		font-size: 0.64rem;
+	}
+
+	.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .portal-list-card .card-title,
+	.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .portal-list-card .card-title,
+	.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .portal-list-card .card-title {
+		font-size: 0.9rem;
+	}
+
+	.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .portal-list-card .card-date,
+	.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .portal-list-card .card-date,
+	.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .portal-list-card .card-date {
+		font-size: 0.64rem;
+	}
+
+	.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .section-arrow-link,
+	.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"] .section-arrow-link,
+	.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"] .section-arrow-link {
+		margin-top: auto;
+		padding-top: 10px;
+	}
 }
 
 .editor-styles-wrapper .wp-block[data-type="ugm/academic-news"] .portal-card__media,

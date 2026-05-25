@@ -456,9 +456,9 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 			$academic_news_count = max( 1, absint( get_theme_mod( 'ugm_academic_news_count', 3 ) ) );
 			$academic_news_mode  = get_theme_mod( 'ugm_academic_news_mode', 'auto' );
 			$academic_news_args  = array();
-			$education_category    = get_category_by_slug( $ugm_cat_academic );
-			$education_cat_id      = $education_category ? (int) $education_category->term_id : 0;
-			$academic_archive_link = $education_cat_id > 0 ? get_category_link( $education_cat_id ) : home_url( '/category/' . $ugm_cat_academic . '/' );
+			$academic_cat_slugs  = ugm_parse_category_slug_list( $ugm_cat_academic, array( 'pendidikan' ) );
+			$academic_cat_ids    = ugm_resolve_multiple_slugs_to_ids( $academic_cat_slugs );
+			$academic_archive_link = ugm_get_category_archive_url_from_slugs( $academic_cat_slugs );
 
 			if ( 'manual' === $academic_news_mode ) {
 				$manual_academic_ids = array_values(
@@ -485,29 +485,30 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 						'no_found_rows'       => true,
 					);
 
-					if ( $education_cat_id > 0 ) {
-						$academic_news_args['cat'] = $education_cat_id;
+					if ( ! empty( $academic_cat_ids ) ) {
+						$academic_news_args['category__in'] = $academic_cat_ids;
 					} else {
-						$academic_news_args['category_name'] = 'pendidikan';
+						// Kategori tidak ditemukan → paksa hasil kosong agar tidak menampilkan semua post.
+						$academic_news_args = array( 'post__in' => array( 0 ) );
 					}
 				}
 			}
 
 			if ( empty( $academic_news_args ) ) {
-				$academic_news_args = array(
-					'post_type'           => 'post',
-					'posts_per_page'      => $academic_news_count,
-					'ignore_sticky_posts' => true,
-					'post_status'         => 'publish',
-					'orderby'             => 'date',
-					'order'               => 'DESC',
-					'no_found_rows'       => true,
-				);
-
-				if ( $education_cat_id > 0 ) {
-					$academic_news_args['cat'] = $education_cat_id;
+				if ( ! empty( $academic_cat_ids ) ) {
+					$academic_news_args = array(
+						'post_type'           => 'post',
+						'posts_per_page'      => $academic_news_count,
+						'ignore_sticky_posts' => true,
+						'post_status'         => 'publish',
+						'orderby'             => 'date',
+						'order'               => 'DESC',
+						'no_found_rows'       => true,
+						'category__in'        => $academic_cat_ids,
+					);
 				} else {
-					$academic_news_args['category_name'] = 'pendidikan';
+					// Kategori tidak ditemukan → paksa hasil kosong agar tidak menampilkan semua post.
+					$academic_news_args = array( 'post__in' => array( 0 ) );
 				}
 			}
 
@@ -543,6 +544,10 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 						$post = $academic_featured; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 						setup_postdata( $post );
 						$academic_featured_label = $get_academic_category_label();
+						$academic_featured_excerpt = trim( wp_strip_all_tags( get_the_excerpt() ) );
+						if ( '' === $academic_featured_excerpt ) {
+							$academic_featured_excerpt = wp_trim_words( wp_strip_all_tags( get_the_content( null, false ) ), 30, '...' );
+						}
 						?>
 						<article <?php post_class( 'portal-card portal-card--featured' ); ?>>
 							<?php if ( has_post_thumbnail() ) : ?>
@@ -557,6 +562,9 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 							<div class="portal-card__body">
 								<p class="card-kicker"><?php echo esc_html( $academic_featured_label ); ?></p>
 								<h3 class="card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+								<?php if ( '' !== $academic_featured_excerpt ) : ?>
+									<p class="card-excerpt card-excerpt--mobile"><?php echo esc_html( $academic_featured_excerpt ); ?></p>
+								<?php endif; ?>
 								<p class="card-date"><?php echo esc_html( get_the_date( 'j F Y, H.i' ) ); ?></p>
 							</div>
 						</article>
@@ -568,6 +576,10 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 								$post = $academic_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 								setup_postdata( $post );
 								$academic_label = $get_academic_category_label();
+								$academic_excerpt = trim( wp_strip_all_tags( get_the_excerpt() ) );
+								if ( '' === $academic_excerpt ) {
+									$academic_excerpt = wp_trim_words( wp_strip_all_tags( get_the_content( null, false ) ), 30, '...' );
+								}
 								?>
 								<article <?php post_class( 'portal-list-card' ); ?>>
 									<?php if ( has_post_thumbnail() ) : ?>
@@ -580,6 +592,9 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 									<div class="portal-list-card__body">
 										<p class="card-kicker"><?php echo esc_html( $academic_label ); ?></p>
 										<h3 class="card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+										<?php if ( '' !== $academic_excerpt ) : ?>
+											<p class="card-excerpt card-excerpt--mobile"><?php echo esc_html( $academic_excerpt ); ?></p>
+										<?php endif; ?>
 										<p class="card-date"><?php echo esc_html( get_the_date( 'j F Y, H.i' ) ); ?></p>
 									</div>
 								</article>
@@ -607,16 +622,9 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 			$profile_news_count   = max( 1, absint( get_theme_mod( 'ugm_profile_news_count', 3 ) ) );
 			$profile_news_mode    = get_theme_mod( 'ugm_profile_news_mode', 'auto' );
 			$profile_news_args    = array();
-			$profile_root         = get_category_by_slug( $ugm_cat_profile );
-
-			$profile_term_ids     = array();
-			$profile_archive_link = home_url( '/category/' . $ugm_cat_profile . '/' );
-
-			if ( $profile_root ) {
-				$profile_root_id = (int) $profile_root->term_id;
-				$profile_term_ids = ugm_get_category_tree_ids( $profile_root_id );
-				$profile_archive_link = get_category_link( $profile_root_id );
-			}
+			$profile_cat_slugs    = ugm_parse_category_slug_list( $ugm_cat_profile, array( 'profile' ) );
+			$profile_term_ids     = ugm_resolve_multiple_slugs_to_ids( $profile_cat_slugs );
+			$profile_archive_link = ugm_get_category_archive_url_from_slugs( $profile_cat_slugs );
 
 			if ( 'manual' === $profile_news_mode ) {
 				$manual_profile_ids = array_values(
@@ -663,7 +671,7 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 						'category__in'        => $profile_term_ids,
 					);
 				} else {
-					// Kategori 'profile'/'profil' tidak ada di WordPress →
+					// Kategori tidak ada di WordPress →
 					// paksa hasil kosong agar tidak menampilkan semua post.
 					$profile_news_args = array( 'post__in' => array( 0 ) );
 				}
@@ -701,6 +709,10 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 						$post = $profile_featured; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 						setup_postdata( $post );
 						$profile_featured_label = $get_profile_category_label();
+						$profile_featured_excerpt = trim( wp_strip_all_tags( get_the_excerpt() ) );
+						if ( '' === $profile_featured_excerpt ) {
+							$profile_featured_excerpt = wp_trim_words( wp_strip_all_tags( get_the_content( null, false ) ), 30, '...' );
+						}
 						?>
 						<article <?php post_class( 'portal-card portal-card--featured' ); ?>>
 							<?php if ( has_post_thumbnail() ) : ?>
@@ -715,6 +727,9 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 							<div class="portal-card__body">
 								<p class="card-kicker"><?php echo esc_html( $profile_featured_label ); ?></p>
 								<h3 class="card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+								<?php if ( '' !== $profile_featured_excerpt ) : ?>
+									<p class="card-excerpt card-excerpt--mobile"><?php echo esc_html( $profile_featured_excerpt ); ?></p>
+								<?php endif; ?>
 								<p class="card-date"><?php echo esc_html( get_the_date( 'j F Y, H.i' ) ); ?></p>
 							</div>
 						</article>
@@ -726,6 +741,10 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 								$post = $profile_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 								setup_postdata( $post );
 								$profile_label = $get_profile_category_label();
+								$profile_excerpt = trim( wp_strip_all_tags( get_the_excerpt() ) );
+								if ( '' === $profile_excerpt ) {
+									$profile_excerpt = wp_trim_words( wp_strip_all_tags( get_the_content( null, false ) ), 30, '...' );
+								}
 								?>
 								<article <?php post_class( 'portal-list-card' ); ?>>
 									<?php if ( has_post_thumbnail() ) : ?>
@@ -738,6 +757,9 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 									<div class="portal-list-card__body">
 										<p class="card-kicker"><?php echo esc_html( $profile_label ); ?></p>
 										<h3 class="card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+										<?php if ( '' !== $profile_excerpt ) : ?>
+											<p class="card-excerpt card-excerpt--mobile"><?php echo esc_html( $profile_excerpt ); ?></p>
+										<?php endif; ?>
 										<p class="card-date"><?php echo esc_html( get_the_date( 'j F Y, H.i' ) ); ?></p>
 									</div>
 								</article>
@@ -765,15 +787,9 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 			$achievement_news_count  = max( 1, absint( get_theme_mod( 'ugm_achievement_news_count', 3 ) ) );
 			$achievement_news_mode   = get_theme_mod( 'ugm_achievement_news_mode', 'auto' );
 			$achievement_news_args   = array();
-			$achievement_root         = get_category_by_slug( $ugm_cat_achievement );
-			$achievement_term_ids     = array();
-			$achievement_archive_link = home_url( '/category/' . $ugm_cat_achievement . '/' );
-
-			if ( $achievement_root ) {
-				$achievement_root_id = (int) $achievement_root->term_id;
-				$achievement_term_ids = ugm_get_category_tree_ids( $achievement_root_id );
-				$achievement_archive_link = get_category_link( $achievement_root_id );
-			}
+			$achievement_cat_slugs   = ugm_parse_category_slug_list( $ugm_cat_achievement, array( 'prestasi' ) );
+			$achievement_term_ids     = ugm_resolve_multiple_slugs_to_ids( $achievement_cat_slugs );
+			$achievement_archive_link = ugm_get_category_archive_url_from_slugs( $achievement_cat_slugs );
 
 			if ( 'manual' === $achievement_news_mode ) {
 				$manual_achievement_ids = array_values(
@@ -803,7 +819,7 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 					if ( ! empty( $achievement_term_ids ) ) {
 						$achievement_news_args['category__in'] = $achievement_term_ids;
 					} else {
-						$achievement_news_args['category_name'] = 'prestasi';
+						$achievement_news_args = array( 'post__in' => array( 0 ) );
 					}
 				}
 			}
@@ -869,6 +885,10 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 						$post = $achievement_featured; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 						setup_postdata( $post );
 						$achievement_featured_label = $get_achievement_category_label();
+						$achievement_featured_excerpt = trim( wp_strip_all_tags( get_the_excerpt() ) );
+						if ( '' === $achievement_featured_excerpt ) {
+							$achievement_featured_excerpt = wp_trim_words( wp_strip_all_tags( get_the_content( null, false ) ), 30, '...' );
+						}
 						?>
 						<article <?php post_class( 'portal-card portal-card--featured' ); ?>>
 							<?php if ( has_post_thumbnail() ) : ?>
@@ -883,6 +903,9 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 							<div class="portal-card__body">
 								<p class="card-kicker"><?php echo esc_html( $achievement_featured_label ); ?></p>
 								<h3 class="card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+								<?php if ( '' !== $achievement_featured_excerpt ) : ?>
+									<p class="card-excerpt card-excerpt--mobile"><?php echo esc_html( $achievement_featured_excerpt ); ?></p>
+								<?php endif; ?>
 								<p class="card-date"><?php echo esc_html( get_the_date( 'j F Y, H.i' ) ); ?></p>
 							</div>
 						</article>
@@ -894,6 +917,10 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 								$post = $achievement_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 								setup_postdata( $post );
 								$achievement_label = $get_achievement_category_label();
+								$achievement_excerpt = trim( wp_strip_all_tags( get_the_excerpt() ) );
+								if ( '' === $achievement_excerpt ) {
+									$achievement_excerpt = wp_trim_words( wp_strip_all_tags( get_the_content( null, false ) ), 30, '...' );
+								}
 								?>
 								<article <?php post_class( 'portal-list-card' ); ?>>
 									<?php if ( has_post_thumbnail() ) : ?>
@@ -906,6 +933,9 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 									<div class="portal-list-card__body">
 										<p class="card-kicker"><?php echo esc_html( $achievement_label ); ?></p>
 										<h3 class="card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+										<?php if ( '' !== $achievement_excerpt ) : ?>
+											<p class="card-excerpt card-excerpt--mobile"><?php echo esc_html( $achievement_excerpt ); ?></p>
+										<?php endif; ?>
 										<p class="card-date"><?php echo esc_html( get_the_date( 'j F Y, H.i' ) ); ?></p>
 									</div>
 								</article>

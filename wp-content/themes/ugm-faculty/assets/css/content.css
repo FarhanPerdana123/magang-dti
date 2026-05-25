@@ -1,19 +1,55 @@
-﻿/* Front page content layout (after hero) */
+/* =============================================================================
+ * content.css — UGM Faculty Theme: Landing Page Content Styles
+ *
+ * DAFTAR ISI (gunakan Ctrl+F untuk navigasi cepat):
+ *   § 1. Variabel & Layout Dasar
+ *   § 2. Skeleton Loader
+ *   § 3. Card Placeholder & Card Dasar
+ *   § 4. Section: Highlight Informasi (Berita Terbaru)
+ *   § 5. Grid 3 Kolom (Informasi Akademik / Informasi Umum / Pencapaian)
+ *   § 6. Portal Column & List Cards
+ *   § 7. Academic Cards
+ *   § 8. Section: Struktur Akademik (Faculty Slider)
+ *   § 9. Section: Event & Agenda + Fasilitas Kampus (Desktop)
+ *   § 10. Section: Highlight Konten (Featured Category Columns)
+ *   § 11. Section: Daftar Kategori
+ *   § 12. Section: E-Magazine
+ *   § 13. Section: Media Video
+ *   § 14. Section: Layanan Pilihan (Template Links)
+ *   § 15. Responsive Mobile Overrides
+ * ============================================================================= */
+
+
+/* =============================================================================
+ * § 1. VARIABEL & LAYOUT DASAR
+ * ============================================================================= */
+
+/**
+ * Variabel lokal yang berlaku di dalam .ugm-home.
+ * Gunakan variabel ini bila membuat komponen baru di dalam landing page,
+ * bukan nilai warna/spacing hardcoded.
+ *
+ * Untuk warna global tema (primary, neutral, dll.) lihat base.css.
+ */
 .ugm-home {
-	--home-gap-16: 16px;
-	--home-gap-24: 24px;
-	--home-border: #d6dbe0;
-	--home-muted: #6d7782;
-	--home-surface: #ffffff;
-	--home-placeholder: #e4e7eb;
-	--home-title: var(--color-primary-900);
-	--home-section-space: 40px;
-	--home-section-space-desktop: 56px;
+	/* Spacing */
+	--home-gap-16:              16px;
+	--home-gap-24:              24px;
+	--home-section-space:       40px;   /* jarak antar section di mobile */
+	--home-section-space-desktop: 56px; /* jarak antar section di desktop */
+
+	/* Warna komponen */
+	--home-border:              #d6dbe0;
+	--home-muted:               #6d7782;
+	--home-surface:             #ffffff;
+	--home-placeholder:         #e4e7eb; /* bg placeholder gambar */
+	--home-title:               var(--color-primary-900);
 
 	font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 	background: #efefef;
 }
 
+/* Wrapper konten utama landing page — setara Bootstrap .container */
 .home-content {
 	width: min(100% - 2rem, 1200px);
 	margin-inline: auto;
@@ -27,10 +63,29 @@
 	}
 }
 
+/* Setiap block section landing page dibungkus .home-section */
 .home-section {
 	position: relative;
 	margin-bottom: var(--home-section-space);
 }
+
+/* ── Visibility helpers untuk Gutenberg block ─────────────────────────────── */
+/* Sembunyikan block desktop di mobile */
+@media (max-width: 900px) {
+	.ugm-only-desktop {
+		display: none !important;
+	}
+}
+
+/* Sembunyikan block mobile di desktop */
+@media (min-width: 901px) {
+	.ugm-only-mobile {
+		display: none !important;
+	}
+}
+
+
+/* ── Section header (judul + garis dekoratif) ─────────────────────────────── */
 
 .section-header {
 	display: flex;
@@ -43,6 +98,7 @@
 	justify-content: center;
 }
 
+/* Varian: garis aksen warna emas */
 .section-header--accent .section-line {
 	background: #d4a017;
 }
@@ -57,12 +113,14 @@
 	white-space: nowrap;
 }
 
+/* Garis horizontal di samping judul section */
 .section-line {
 	flex: 1 1 auto;
 	height: 1px;
 	background: #8792a0;
 }
 
+/* Pesan saat section tidak memiliki konten */
 .section-empty {
 	margin: 0;
 	padding: 16px;
@@ -71,19 +129,35 @@
 	color: var(--home-muted);
 }
 
+
+
+/* =============================================================================
+ * § 2. SKELETON LOADER
+ * Animasi shimmer yang ditampilkan saat konten sedang di-load (SSR preview).
+ * Semua class skeleton diawali dengan .ugm-skeleton- atau --skeleton suffix.
+ * ============================================================================= */
+
+/* ── Variabel warna skeleton ─────────────────────────────────────────────── */
 .ugm-empty-skeleton {
 	position: relative;
 	min-width: 0;
-	--ugm-skeleton-base: #d7dde5;
-	--ugm-skeleton-mid: #eef2f6;
-	--ugm-skeleton-edge: #c5ced8;
-	--ugm-skeleton-panel: #f7f9fb;
+	--ugm-skeleton-base:  #d7dde5;  /* warna gelap */
+	--ugm-skeleton-mid:   #eef2f6;  /* warna terang (titik kilap) */
+	--ugm-skeleton-edge:  #c5ced8;  /* warna tepi */
+	--ugm-skeleton-panel: #f7f9fb;  /* bg panel/kartu skeleton */
 }
 
+/* ── Elemen dasar: .ugm-skeleton-box & .ugm-skeleton-line ───────────────── */
+/* Box = blok persegi panjang (gambar/media) | Line = baris teks */
 .ugm-skeleton-box,
 .ugm-skeleton-line {
 	display: block;
-	background: linear-gradient(90deg, var(--ugm-skeleton-base) 0%, var(--ugm-skeleton-mid) 50%, var(--ugm-skeleton-base) 100%);
+	background: linear-gradient(
+		90deg,
+		var(--ugm-skeleton-base) 0%,
+		var(--ugm-skeleton-mid)  50%,
+		var(--ugm-skeleton-base) 100%
+	);
 	background-size: 200% 100%;
 	animation: ugm-skeleton-shimmer 1.8s linear infinite;
 	box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.18);
@@ -103,17 +177,10 @@
 	margin-top: 10px;
 }
 
-.ugm-skeleton-line--short {
-	width: 32%;
-}
-
-.ugm-skeleton-line--medium {
-	width: 56%;
-}
-
-.ugm-skeleton-line--wide {
-	width: 84%;
-}
+/* ── Varian lebar .ugm-skeleton-line ─────────────────────────────────────── */
+.ugm-skeleton-line--short  { width: 32%; }
+.ugm-skeleton-line--medium { width: 56%; }
+.ugm-skeleton-line--wide   { width: 84%; }
 
 .ugm-skeleton-line--title {
 	width: 72%;
@@ -125,6 +192,7 @@
 	height: 8px;
 }
 
+/* Varian posisi spesifik per section */
 .ugm-skeleton-line--facility-title {
 	position: absolute;
 	left: 18px;
@@ -146,6 +214,18 @@
 	margin-inline: auto;
 }
 
+/* ── Varian aspect-ratio .ugm-skeleton-box ───────────────────────────────── */
+.ugm-skeleton-box--media           { aspect-ratio: 16 / 9; }
+.ugm-skeleton-box--thumb           { aspect-ratio: 16 / 10; }
+.ugm-skeleton-box--poster,
+.ugm-skeleton-box--magazine        { aspect-ratio: 3 / 4; }
+.ugm-skeleton-box--mini-thumb      { aspect-ratio: 1 / 1; }
+.ugm-skeleton-box--featured-category { aspect-ratio: 4 / 5; }
+.ugm-skeleton-box--faculty         { aspect-ratio: 16 / 6.2; }
+.ugm-skeleton-box--agenda-date     { aspect-ratio: 1 / 1; border-radius: 10px; }
+.ugm-skeleton-box--facility        { width: 100%; height: 100%; aspect-ratio: auto; }
+
+/* ── Skeleton layout: News & Portal ─────────────────────────────────────── */
 .ugm-skeleton-news,
 .ugm-skeleton-portal,
 .ugm-skeleton-featured-category {
@@ -175,6 +255,7 @@
 	margin-top: 14px;
 }
 
+/* News card & list item — layout grid 2 kolom (thumb | teks) */
 .ugm-skeleton-card--news,
 .ugm-skeleton-list-item {
 	display: grid;
@@ -201,42 +282,7 @@
 	border-top: 1px solid var(--home-border);
 }
 
-.ugm-skeleton-box--media {
-	aspect-ratio: 16 / 9;
-}
-
-.ugm-skeleton-box--thumb {
-	aspect-ratio: 16 / 10;
-}
-
-.ugm-skeleton-box--poster,
-.ugm-skeleton-box--magazine {
-	aspect-ratio: 3 / 4;
-}
-
-.ugm-skeleton-box--mini-thumb {
-	aspect-ratio: 1 / 1;
-}
-
-.ugm-skeleton-box--featured-category {
-	aspect-ratio: 4 / 5;
-}
-
-.ugm-skeleton-box--faculty {
-	aspect-ratio: 16 / 6.2;
-}
-
-.ugm-skeleton-box--agenda-date {
-	aspect-ratio: 1 / 1;
-	border-radius: 10px;
-}
-
-.ugm-skeleton-box--facility {
-	width: 100%;
-	height: 100%;
-	aspect-ratio: auto;
-}
-
+/* ── Skeleton layout: Kategori ───────────────────────────────────────────── */
 .category-grid--skeleton {
 	display: grid;
 	grid-template-columns: 1fr;
@@ -248,6 +294,7 @@
 	border-bottom: 1px solid var(--home-border);
 }
 
+/* ── Skeleton layout: Struktur Akademik (Faculty Slider) ─────────────────── */
 .faculty-card__image--skeleton {
 	position: absolute;
 	inset: 0;
@@ -277,6 +324,7 @@
 	box-shadow: inset 0 0 0 1px rgba(197, 206, 216, 0.45);
 }
 
+/* ── Skeleton layout: Fasilitas Kampus (desktop) ─────────────────────────── */
 .desktop-facility-card--skeleton {
 	margin: 0;
 	padding: 0;
@@ -303,6 +351,7 @@
 	pointer-events: none;
 }
 
+/* ── Skeleton layout: Event & Agenda (desktop) ───────────────────────────── */
 .desktop-agenda-list--skeleton {
 	display: grid;
 	grid-template-columns: 1fr;
@@ -319,6 +368,7 @@
 	background: var(--ugm-skeleton-panel);
 }
 
+/* ── Skeleton layout: Grid 2 kolom (Fasilitas & Majalah) ────────────────── */
 .desktop-facility-grid--skeleton,
 .majalah-grid--skeleton {
 	display: grid;
@@ -326,16 +376,20 @@
 	gap: 12px;
 }
 
+/* ── Animasi shimmer ─────────────────────────────────────────────────────── */
 @keyframes ugm-skeleton-shimmer {
-	0% {
-		background-position: 200% 0;
-	}
-
-	100% {
-		background-position: -200% 0;
-	}
+	0%   { background-position:  200% 0; }
+	100% { background-position: -200% 0; }
 }
 
+
+
+/* =============================================================================
+ * § 3. CARD PLACEHOLDER & CARD DASAR
+ * Komponen teks/media yang dipakai ulang di seluruh card landing page.
+ * ============================================================================= */
+
+/* Placeholder gambar saat post tidak punya featured image */
 .card-placeholder {
 	display: flex;
 	align-items: center;
@@ -354,6 +408,9 @@
 	text-transform: uppercase;
 }
 
+/* ── Tipografi card ───────────────────────────────────────────────────────── */
+
+/* Judul post di dalam card */
 .card-title {
 	margin: 0;
 	font-size: 1rem;
@@ -373,6 +430,7 @@
 	text-decoration: underline;
 }
 
+/* Label kategori kecil di atas judul */
 .card-kicker {
 	margin: 0 0 8px;
 	font-size: 0.72rem;
@@ -382,6 +440,7 @@
 	color: var(--color-primary-800);
 }
 
+/* Ringkasan / excerpt post */
 .card-excerpt {
 	margin-top: 8px;
 	font-size: 0.9rem;
@@ -391,14 +450,14 @@
 	word-break: break-word;
 }
 
-.card-excerpt > :first-child {
-	margin-top: 0;
+.card-excerpt > :first-child { margin-top: 0; }
+.card-excerpt > :last-child  { margin-bottom: 0; }
+
+.card-excerpt--mobile {
+	display: none;
 }
 
-.card-excerpt > :last-child {
-	margin-bottom: 0;
-}
-
+/* Batasi excerpt 5 baris di section kolom */
 .section-academic .card-excerpt,
 .section-profile .card-excerpt,
 .section-achievement .card-excerpt {
@@ -408,6 +467,7 @@
 	overflow: hidden;
 }
 
+/* Tanggal publikasi */
 .card-date {
 	margin: 8px 0 0;
 	font-size: 0.78rem;
@@ -416,17 +476,24 @@
 	word-break: break-word;
 }
 
-/* Berita Terbaru desktop style */
+
+/* =============================================================================
+ * § 4. SECTION: HIGHLIGHT INFORMASI (Berita Terbaru)
+ * Layout: featured card besar (kiri 2/3) + list card kecil (kanan 1/3).
+ * ============================================================================= */
+
 .section-header--news {
 	align-items: center;
 	gap: 10px;
 }
 
+/* Garis emas pendek khas section berita */
 .section-news .section-line {
 	flex: 0 0 92px;
 	background: #d4a017;
 }
 
+/* Tombol "Lihat Semua" di pojok kanan header */
 .section-view-all {
 	margin-left: auto;
 	display: inline-flex;
@@ -446,6 +513,7 @@
 	color: var(--color-primary-700);
 }
 
+/* Grid utama: featured (2fr) | list (1fr) */
 .news-layout {
 	display: grid;
 	grid-template-columns: 2fr 1fr;
@@ -453,15 +521,12 @@
 }
 
 @media (max-width: 900px) {
-	.news-layout {
-		grid-template-columns: 1fr;
-	}
+	.news-layout { grid-template-columns: 1fr; }
 }
 
-.news-area {
-	min-width: 0;
-}
+.news-area { min-width: 0; }
 
+/* ── Featured card (gambar besar + teks) ─────────────────────────────────── */
 .news-featured {
 	display: grid;
 	background: var(--home-surface);
@@ -489,9 +554,7 @@
 	justify-content: center;
 }
 
-.news-featured__body {
-	padding: 12px 14px 14px;
-}
+.news-featured__body    { padding: 12px 14px 14px; }
 
 .section-news .card-kicker {
 	margin-bottom: 6px;
@@ -518,10 +581,8 @@
 	overflow: hidden;
 }
 
-.news-list {
-	display: grid;
-	gap: var(--home-gap-16);
-}
+/* ── Grid card kecil (sisi kanan) ────────────────────────────────────────── */
+.news-list { display: grid; gap: var(--home-gap-16); }
 
 .news-grid-card {
 	background: var(--home-surface);
@@ -551,10 +612,9 @@
 	justify-content: center;
 }
 
-.news-grid-card__body {
-	padding: 10px 12px 12px;
-}
+.news-grid-card__body { padding: 10px 12px 12px; }
 
+/* Skeleton state */
 .news-grid-card--skeleton,
 .portal-list-card--skeleton {
 	background: var(--ugm-skeleton-panel);
@@ -576,7 +636,13 @@
 	overflow: hidden;
 }
 
-/* Grid 3 kolom: Berita Akademik, Profile, Prestasi */
+
+/* =============================================================================
+ * § 5. GRID 3 KOLOM (Informasi Akademik / Informasi Umum / Pencapaian)
+ * Dipakai saat 3 block section diletakkan berdampingan di editor.
+ * ============================================================================= */
+
+/* Grid 3 kolom: Informasi Akademik, Informasi Umum, Pencapaian */
 .home-sections-triple {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
@@ -584,20 +650,22 @@
 }
 
 @media (max-width: 900px) {
-	.home-sections-triple {
-		grid-template-columns: 1fr;
-	}
+	.home-sections-triple { grid-template-columns: 1fr; }
 }
 
-.home-sections-triple .home-section {
-	margin-bottom: 0;
-}
+/* Hilangkan margin bawah di dalam grid — sudah digantikan gap */
+.home-sections-triple .home-section { margin-bottom: 0; }
 
-.portal-column {
-	display: grid;
-	gap: 10px;
-}
 
+/* =============================================================================
+ * § 6. PORTAL COLUMN & LIST CARDS
+ * Dipakai di kolom kanan Highlight Informasi dan section triple.
+ * portal-card = kartu gambar besar atas | portal-list-card = thumb kecil kiri
+ * ============================================================================= */
+
+.portal-column { display: grid; gap: 10px; }
+
+/* ── Portal card (gambar 16:10 + body) ───────────────────────────────────── */
 .portal-card {
 	background: var(--home-surface);
 	border: 1px solid var(--home-border);
@@ -624,13 +692,9 @@
 	justify-content: center;
 }
 
-.portal-card__body {
-	padding: 10px 12px 12px;
-}
+.portal-card__body { padding: 10px 12px 12px; }
 
-.portal-card .card-kicker {
-	margin-bottom: 6px;
-}
+.portal-card .card-kicker { margin-bottom: 6px; }
 
 .portal-card .card-title {
 	font-size: 1.03rem;
@@ -641,10 +705,8 @@
 	overflow: hidden;
 }
 
-.portal-column__list {
-	display: grid;
-	gap: 8px;
-}
+/* ── Portal list card (thumb kiri 84px + teks kanan) ─────────────────────── */
+.portal-column__list { display: grid; gap: 8px; }
 
 .portal-list-card {
 	display: grid;
@@ -675,9 +737,7 @@
 	background: linear-gradient(135deg, #dfe5ea 0%, #cfd8e1 100%);
 }
 
-.portal-list-card__body {
-	min-width: 0;
-}
+.portal-list-card__body { min-width: 0; }
 
 .portal-list-card .card-kicker {
 	margin-bottom: 3px;
@@ -698,7 +758,14 @@
 	font-size: 0.66rem;
 }
 
-/* Berita Akademik: stack vertikal dengan gambar di atas */
+
+/* =============================================================================
+ * § 7. ACADEMIC CARDS & LIST CARDS
+ * academic-card  = gambar 16:9 di atas, teks di bawah (Informasi Akademik)
+ * list-card      = thumb kotak kiri, teks kanan (Informasi Umum / Pencapaian)
+ * ============================================================================= */
+
+/* ── Academic card (grid 2 kolom di dalam section) ───────────────────────── */
 .academic-stack {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -711,14 +778,13 @@
 	overflow: hidden;
 }
 
-.academic-card .card-placeholder {
+.academic-card .card-placeholder,
+.academic-card .card-image {
 	width: 100%;
 	aspect-ratio: 16 / 9;
 }
 
 .academic-card .card-image {
-	width: 100%;
-	aspect-ratio: 16 / 9;
 	overflow: hidden;
 	background: var(--home-placeholder);
 }
@@ -729,15 +795,10 @@
 	object-fit: cover;
 }
 
-.academic-card__content {
-	padding: 12px;
-}
+.academic-card__content  { padding: 12px; }
+.academic-card .card-kicker { margin-bottom: 6px; }
 
-.academic-card .card-kicker {
-	margin-bottom: 6px;
-}
-
-/* Profile + Prestasi: list vertikal */
+/* ── List card (thumb kiri 82px + teks kanan) — Informasi Umum & Pencapaian */
 .list-cards {
 	display: grid;
 	grid-template-columns: 1fr;
@@ -766,19 +827,16 @@
 	object-fit: cover;
 }
 
-.list-card .card-kicker {
-	margin-bottom: 4px;
-}
+.list-card .card-kicker { margin-bottom: 4px; }
 
-/* List card reverse - gambar di kanan (untuk Prestasi) */
+/* Varian: gambar di kanan (dipakai di section Pencapaian) */
 .list-card--reverse {
 	grid-template-columns: minmax(0, 1fr) 82px;
 }
 
-.list-card--reverse .list-card__content {
-	order: -1;
-}
+.list-card--reverse .list-card__content { order: -1; }
 
+/* Tombol panah "→" di pojok kanan bawah section */
 .section-arrow-link {
 	display: block;
 	width: max-content;
@@ -790,6 +848,19 @@
 	text-decoration: none;
 }
 
+.section-arrow-link--latest-news {
+	display: none;
+}
+
+
+
+/* =============================================================================
+ * § 8. SECTION: STRUKTUR AKADEMIK (Faculty Slider)
+ * Slider horizontal berisi kartu-kartu fakultas/sekolah.
+ * Digerakkan oleh faculty-slider.js menggunakan scroll-snap.
+ * ============================================================================= */
+
+/* Overline kecil di atas judul section (mis. "Seputar UGM") */
 .section-overline {
 	margin: 0 0 8px;
 	font-size: 1.55rem;
@@ -799,22 +870,22 @@
 	color: #8fa2b3;
 }
 
-.section-header--faculty {
-	margin-bottom: 14px;
-}
-
+/* Header section dengan garis emas clamp */
+.section-header--faculty           { margin-bottom: 14px; }
 .section-header--faculty .section-line {
 	flex: 0 0 clamp(120px, 18vw, 200px);
 	background: #d4a017;
 }
 
-/* Fakultas: slider grid */
+/* ── Wrapper & slider scroll ─────────────────────────────────────────────── */
+/* Wrapper: padding kiri-kanan untuk tombol navigasi */
 .faculty-slider-wrapper {
 	position: relative;
 	padding: 0 20px;
 	overflow: hidden;
 }
 
+/* Slider: horizontal scroll-snap (JS menggeser via scrollLeft) */
 .faculty-slider {
 	display: grid;
 	grid-auto-flow: column;
@@ -826,10 +897,9 @@
 	scroll-behavior: smooth;
 }
 
-.faculty-slider::-webkit-scrollbar {
-	display: none;
-}
+.faculty-slider::-webkit-scrollbar { display: none; }
 
+/* Satu "halaman" slider berisi grid kartu */
 .faculty-page {
 	display: grid;
 	grid-template-columns: 1fr;
@@ -839,6 +909,7 @@
 	box-sizing: border-box;
 }
 
+/* ── Faculty card ────────────────────────────────────────────────────────── */
 .faculty-card {
 	position: relative;
 	height: 122px;
@@ -846,7 +917,7 @@
 	overflow: hidden;
 }
 
-/* Link wrapper for static faculty items (ugm/faculty-list block). */
+/* Link yang membungkus seluruh kartu (ugm/faculty-list block) */
 .faculty-card__link {
 	display: block;
 	position: absolute;
@@ -855,11 +926,13 @@
 	color: inherit;
 }
 
+/* Efek zoom gambar saat hover */
 .faculty-card__link:hover .faculty-card__image {
 	transform: scale(1.04);
 	transition: transform 0.3s ease;
 }
 
+/* Gambar latar kartu (background-image via inline style) */
 .faculty-card__image {
 	position: absolute;
 	inset: 0;
@@ -869,6 +942,7 @@
 	background-repeat: no-repeat;
 }
 
+/* Overlay transparan — hanya untuk positioning judul di bawah */
 .faculty-card__overlay {
 	position: absolute;
 	inset: 0;
@@ -879,6 +953,7 @@
 	background: transparent;
 }
 
+/* Strip judul di bagian bawah kartu */
 .faculty-card__title {
 	position: relative;
 	margin: 0;
@@ -896,6 +971,7 @@
 	text-align: center;
 }
 
+/* Aksen vertikal kuning di sisi kiri strip judul */
 .faculty-card__title::before {
 	content: "";
 	position: absolute;
@@ -907,7 +983,7 @@
 	border-radius: 0;
 }
 
-/* Navigation arrows */
+/* ── Tombol navigasi slider (prev / next) ────────────────────────────────── */
 .faculty-nav {
 	position: absolute;
 	top: 50%;
@@ -929,27 +1005,12 @@
 	transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-.faculty-nav:hover {
-	background: #ffffff;
-	color: #1f2f43;
-	border-color: #9eacbb;
-}
+.faculty-nav:hover    { background: #ffffff; color: #1f2f43; border-color: #9eacbb; }
+.faculty-nav:disabled { opacity: 0.55; cursor: not-allowed; color: #8a97a5; }
+.faculty-nav--prev    { left: 0; }
+.faculty-nav--next    { right: 0; }
 
-.faculty-nav:disabled {
-	opacity: 0.55;
-	cursor: not-allowed;
-	color: #8a97a5;
-}
-
-.faculty-nav--prev {
-	left: 0;
-}
-
-.faculty-nav--next {
-	right: 0;
-}
-
-/* Pagination dots */
+/* ── Pagination dots ─────────────────────────────────────────────────────── */
 .faculty-pagination {
 	display: flex;
 	justify-content: center;
@@ -966,35 +1027,34 @@
 	cursor: pointer;
 }
 
-.pagination-dot.active {
-	background: var(--color-primary-900);
-}
+.pagination-dot.active { background: var(--color-primary-900); }
 
-/* Agenda + Fasilitas (desktop only) */
-.section-campus-desktop {
-	display: none;
-}
 
-.section-campus-desktop__agenda {
-	position: relative;
-}
+/* =============================================================================
+ * § 9. SECTION: EVENT & AGENDA + FASILITAS KAMPUS (Desktop)
+ * Dua kolom berdampingan, hanya tampil di desktop (display:none di mobile).
+ * Kiri: daftar agenda dengan date badge | Kanan: grid 2x2 gambar fasilitas.
+ * ============================================================================= */
 
+/* Wrapper utama — tersembunyi di mobile, ditampilkan di media query desktop */
+.section-campus-desktop          { display: none; }
+.section-campus-desktop__agenda  { position: relative; }
+
+/* Kedua kolom minimal-width 0 agar tidak overflow grid */
 .section-campus-desktop__agenda,
-.section-campus-desktop__facility {
-	min-width: 0;
-}
+.section-campus-desktop__facility { min-width: 0; }
 
+/* Garis emas pendek di header agenda dan fasilitas */
 .section-header--desktop-agenda .section-line,
 .section-header--desktop-facility .section-line {
 	flex: 0 0 clamp(110px, 14vw, 170px);
 	background: #d4a017;
 }
 
-.desktop-agenda-list {
-	display: grid;
-	gap: 12px;
-}
+/* ── Agenda list ─────────────────────────────────────────────────────────── */
+.desktop-agenda-list { display: grid; gap: 12px; }
 
+/* Tiap item: date badge (58px) + body teks */
 .desktop-agenda-card {
 	display: grid;
 	grid-template-columns: 58px minmax(0, 1fr);
@@ -1002,6 +1062,7 @@
 	align-items: start;
 }
 
+/* Date badge — kotak biru dengan angka hari besar + nama bulan kecil */
 .desktop-agenda-card__date {
 	display: flex;
 	flex-direction: column;
@@ -1014,11 +1075,7 @@
 	text-decoration: none;
 }
 
-.desktop-agenda-card__day {
-	font-size: 1.5rem;
-	font-weight: 700;
-	line-height: 1;
-}
+.desktop-agenda-card__day   { font-size: 1.5rem; font-weight: 700; line-height: 1; }
 
 .desktop-agenda-card__month {
 	margin-top: 3px;
@@ -1029,9 +1086,7 @@
 	letter-spacing: 0.02em;
 }
 
-.desktop-agenda-card__body {
-	min-width: 0;
-}
+.desktop-agenda-card__body  { min-width: 0; }
 
 .desktop-agenda-card__title {
 	margin: 0;
@@ -1040,22 +1095,13 @@
 	font-weight: 600;
 }
 
-.desktop-agenda-card__title a {
-	color: var(--color-primary-900);
-	text-decoration: none;
-}
-
+.desktop-agenda-card__title a { color: var(--color-primary-900); text-decoration: none; }
 .desktop-agenda-card__title a:hover,
-.desktop-agenda-card__title a:focus-visible {
-	text-decoration: underline;
-}
+.desktop-agenda-card__title a:focus-visible { text-decoration: underline; }
 
-.desktop-agenda-card__meta {
-	margin: 6px 0 0;
-	font-size: 0.7rem;
-	color: #5b6672;
-}
+.desktop-agenda-card__meta { margin: 6px 0 0; font-size: 0.7rem; color: #5b6672; }
 
+/* Tombol panah "→" di pojok kanan */
 .desktop-agenda-arrow {
 	display: inline-flex;
 	align-items: center;
@@ -1070,29 +1116,21 @@
 	text-decoration: none;
 }
 
-.section-header--desktop-facility {
-	margin-bottom: 12px;
-}
+/* ── Fasilitas Kampus grid ───────────────────────────────────────────────── */
+.section-header--desktop-facility  { margin-bottom: 12px; }
+.section-view-all--desktop-facility { font-size: 0.68rem; }
 
-.section-view-all--desktop-facility {
-	font-size: 0.68rem;
-}
-
+/* Grid 2×2 kartu fasilitas */
 .desktop-facility-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 10px;
 }
 
-.desktop-facility-card {
-	margin: 0;
-}
+.desktop-facility-card          { margin: 0; }
+.desktop-facility-card__link    { display: block; text-decoration: none; }
 
-.desktop-facility-card__link {
-	display: block;
-	text-decoration: none;
-}
-
+/* Media: gambar latar dengan overlay gradient gelap di bawah */
 .desktop-facility-card__media {
 	position: relative;
 	height: 100%;
@@ -1122,6 +1160,7 @@
 	color: #fff;
 }
 
+/* Judul di atas overlay gradient */
 .desktop-facility-card__title {
 	position: absolute;
 	left: 12px;
@@ -1134,37 +1173,40 @@
 	color: #fff;
 }
 
-/* Featured category columns */
-.section-featured-categories {
-	margin-bottom: var(--home-section-space);
-}
 
+/* =============================================================================
+ * § 10. SECTION: HIGHLIGHT KONTEN (Featured Category Columns)
+ * Tiga kolom berdampingan, masing-masing menampilkan satu post unggulan
+ * dari kategori tertentu. Bisa dipakai versi lama (grid) atau versi mandiri.
+ * ============================================================================= */
+
+/* Wrapper section lama (ugm/featured-categories) */
+.section-featured-categories { margin-bottom: var(--home-section-space); }
+
+/* Grid 3 kolom */
 .featured-category-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 16px;
 }
 
+/* Satu kolom: flex column agar kartu bisa stretch penuh */
 .featured-category-column {
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
 }
 
-.featured-category-column .section-header {
-	margin-bottom: 12px;
-}
+.featured-category-column .section-header { margin-bottom: 12px; }
+.featured-category-column .section-line   { flex: 1 1 auto; background: #d4a017; }
 
-.featured-category-column .section-line {
-	flex: 1 1 auto;
-	background: #d4a017;
-}
-
+/* ── Featured category card (gambar latar + overlay teks) ────────────────── */
 .featured-category-card {
 	position: relative;
 	flex: 1 1 auto;
 }
 
+/* Link utama yang membungkus gambar + teks */
 .featured-category-card__link {
 	position: relative;
 	display: block;
@@ -1175,6 +1217,7 @@
 	overflow: hidden;
 }
 
+/* Gambar & placeholder sama-sama fill seluruh link */
 .featured-category-card__media,
 .featured-category-card__placeholder {
 	position: absolute;
@@ -1196,13 +1239,20 @@
 	background: linear-gradient(180deg, #24507b 0%, #101922 100%);
 }
 
+/* Gradient overlay gelap dari atas ke bawah */
 .featured-category-card__link::after {
 	content: "";
 	position: absolute;
 	inset: 0;
-	background: linear-gradient(180deg, rgba(10, 16, 24, 0.08) 0%, rgba(10, 16, 24, 0.5) 52%, rgba(10, 16, 24, 0.92) 100%);
+	background: linear-gradient(
+		180deg,
+		rgba(10, 16, 24, 0.08) 0%,
+		rgba(10, 16, 24, 0.50) 52%,
+		rgba(10, 16, 24, 0.92) 100%
+	);
 }
 
+/* Konten teks di atas overlay */
 .featured-category-card__overlay {
 	position: absolute;
 	right: 0;
@@ -1220,6 +1270,7 @@
 	color: #fff;
 }
 
+/* Excerpt, meta, dan CTA berbagi gaya dasar yang sama */
 .featured-category-card__excerpt,
 .featured-category-card__meta,
 .featured-category-card__cta {
@@ -1248,34 +1299,37 @@
 	text-underline-offset: 2px;
 }
 
-.featured-category-column .section-arrow-link {
-	margin-top: 10px;
-	padding-top: 0;
-}
+.featured-category-column .section-arrow-link { margin-top: 10px; padding-top: 0; }
 
-/* Kolom sorotan kategori mandiri (ugm/featured-category-column) di dalam .home-sections-triple */
+/* ── Versi mandiri (ugm/featured-category-column block) ──────────────────── */
+/* Dipakai di dalam .home-sections-triple agar tinggi menyamakan grid */
 .section-featured-category-col {
 	display: flex;
 	flex-direction: column;
 	margin-bottom: 0;
 }
 
-.section-featured-category-col .featured-category-column {
-	flex: 1 1 auto;
-}
+.section-featured-category-col .featured-category-column { flex: 1 1 auto; }
 
-/* Pastikan .home-sections-triple di mana ada kolom sorotan juga punya gap yg sesuai */
-.home-sections-triple:has(.section-featured-category-col) {
-	gap: 16px;
-}
+/* Sesuaikan gap triple grid jika ada kolom sorotan */
+.home-sections-triple:has(.section-featured-category-col) { gap: 16px; }
 
 
-/* Kategori */
+/* =============================================================================
+ * § 11. SECTION: DAFTAR KATEGORI
+ * Menampilkan hierarki kategori WordPress.
+ * Mobile: accordion <details> | Desktop: dropdown panel.
+ * ============================================================================= */
+
+/* Garis emas pendek di header kategori */
 .section-category .section-line {
 	flex: 0 0 clamp(110px, 14vw, 170px);
 	background: #d4a017;
 }
 
+/* ── Mobile: accordion collapsible ──────────────────────────────────────── */
+
+/* Wrapper luar (<details>) */
 .category-mobile-list {
 	display: block;
 	margin: 0 0 16px;
@@ -1284,6 +1338,7 @@
 	background: #f3f4f6;
 }
 
+/* Summary trigger (header accordion) */
 .category-mobile-list__trigger {
 	display: flex;
 	align-items: center;
@@ -1294,9 +1349,7 @@
 	list-style: none;
 }
 
-.category-mobile-list__trigger::-webkit-details-marker {
-	display: none;
-}
+.category-mobile-list__trigger::-webkit-details-marker { display: none; }
 
 .category-mobile-list__label {
 	font-size: 0.92rem;
@@ -1305,6 +1358,7 @@
 	line-height: 1;
 }
 
+/* Ikon hamburger → X saat terbuka */
 .category-mobile-list__icon {
 	display: inline-flex;
 	flex-direction: column;
@@ -1323,17 +1377,10 @@
 	transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.category-mobile-list[open] .category-mobile-list__icon span:nth-child(1) {
-	transform: translateY(6px) rotate(45deg);
-}
-
-.category-mobile-list[open] .category-mobile-list__icon span:nth-child(2) {
-	opacity: 0;
-}
-
-.category-mobile-list[open] .category-mobile-list__icon span:nth-child(3) {
-	transform: translateY(-6px) rotate(-45deg);
-}
+/* Animasi X ketika [open] */
+.category-mobile-list[open] .category-mobile-list__icon span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.category-mobile-list[open] .category-mobile-list__icon span:nth-child(2) { opacity: 0; }
+.category-mobile-list[open] .category-mobile-list__icon span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
 .category-mobile-list__menu {
 	margin: 0;
@@ -1341,13 +1388,9 @@
 	list-style: none;
 }
 
-.category-mobile-group + .category-mobile-group {
-	margin-top: 0;
-}
-
-.category-mobile-group__details {
-	border-top: 1px solid #d5dbe2;
-}
+/* Grup kategori */
+.category-mobile-group + .category-mobile-group { margin-top: 0; }
+.category-mobile-group__details                 { border-top: 1px solid #d5dbe2; }
 
 .category-mobile-group__summary {
 	display: flex;
@@ -1359,10 +1402,9 @@
 	cursor: pointer;
 }
 
-.category-mobile-group__summary::-webkit-details-marker {
-	display: none;
-}
+.category-mobile-group__summary::-webkit-details-marker { display: none; }
 
+/* Highlight biru tua saat grup terbuka */
 .category-mobile-group__details[open] .category-mobile-group__summary {
 	padding-inline: 12px;
 	background: var(--color-primary-900);
@@ -1373,11 +1415,7 @@
 	color: #fff;
 }
 
-.category-mobile-group__meta {
-	display: block;
-	flex: 1 1 auto;
-	min-width: 0;
-}
+.category-mobile-group__meta { display: block; flex: 1 1 auto; min-width: 0; }
 
 .category-mobile-group__link {
 	display: flex;
@@ -1397,9 +1435,7 @@
 	border-top: 1px solid #d5dbe2;
 }
 
-.category-mobile-group__children li + li {
-	border-top: 1px solid #e2e7ed;
-}
+.category-mobile-group__children li + li { border-top: 1px solid #e2e7ed; }
 
 .category-mobile-group__children a {
 	display: block;
@@ -1424,6 +1460,7 @@
 	line-height: 1.2;
 }
 
+/* Chevron → / ↓ */
 .category-mobile-group__chevron {
 	position: relative;
 	display: inline-block;
@@ -1444,13 +1481,8 @@
 	transform: translate(-50%, -58%) rotate(45deg);
 }
 
-.category-mobile-group__details .category-mobile-group__chevron {
-	color: #1d2530;
-}
-
-.category-mobile-group__details[open] .category-mobile-group__chevron {
-	color: #fff;
-}
+.category-mobile-group__details .category-mobile-group__chevron         { color: #1d2530; }
+.category-mobile-group__details[open] .category-mobile-group__chevron   { color: #fff; }
 
 .category-mobile-group__details[open] .category-mobile-group__chevron::before {
 	transform: translate(-50%, -40%) rotate(225deg);
@@ -1460,6 +1492,7 @@
 	transform: translate(-62%, -50%) rotate(-45deg);
 }
 
+/* Hover underline */
 .category-mobile-group__link:hover .category-mobile-list__name,
 .category-mobile-group__link:focus-visible .category-mobile-list__name,
 .category-mobile-group__children a:hover .category-mobile-list__name,
@@ -1467,6 +1500,7 @@
 	text-decoration: underline;
 }
 
+/* ── Kategori card (versi desktop) ───────────────────────────────────────── */
 .category-grid {
 	display: grid;
 	grid-template-columns: 1fr;
@@ -1507,10 +1541,8 @@
 	margin-top: 10px;
 }
 
-.category-desktop-dropdown {
-	display: none;
-	margin-top: 10px;
-}
+/* ── Desktop dropdown panel ──────────────────────────────────────────────── */
+.category-desktop-dropdown          { display: none; margin-top: 10px; }
 
 .category-desktop-dropdown[open] {
 	display: flex;
@@ -1518,27 +1550,17 @@
 	align-items: stretch;
 }
 
-.category-desktop-dropdown summary {
-	list-style: none;
-	cursor: pointer;
-}
-
-.category-desktop-dropdown summary::-webkit-details-marker {
-	display: none;
-}
+.category-desktop-dropdown summary                       { list-style: none; cursor: pointer; }
+.category-desktop-dropdown summary::-webkit-details-marker { display: none; }
 
 .category-desktop-dropdown__arrow {
 	display: inline-block;
 	transition: transform 0.2s ease;
 }
 
-.category-desktop-dropdown[open] .category-desktop-dropdown__arrow {
-	transform: rotate(90deg);
-}
+.category-desktop-dropdown[open] .category-desktop-dropdown__arrow { transform: rotate(90deg); }
 
-.category-desktop-dropdown__panel {
-	padding-top: 18px;
-}
+.category-desktop-dropdown__panel { padding-top: 18px; }
 
 .category-desktop-dropdown__grid {
 	display: grid;
@@ -1546,44 +1568,45 @@
 	gap: 0 24px;
 }
 
-.category-card--dropdown {
-	padding: 12px 0 10px;
-}
+.category-card--dropdown { padding: 12px 0 10px; }
 
-/* Majalah Kabar Digital */
+
+
+/* =============================================================================
+ * § 12. SECTION: E-MAGAZINE (Majalah Digital)
+ * Grid sampul majalah dengan gambar 3:4 (portrait) dan judul overlay.
+ * ============================================================================= */
+
+/* Wrapper section (z-index tinggi agar tidak tertutup section lain) */
 .section-magazine {
 	position: relative;
 	z-index: 20;
 }
 
+/* Container putih dengan padding */
 .section-majalah-digital {
 	padding: 12px 12px 20px;
 	background: #fff;
 }
 
+/* Header area: judul + tombol "Lihat Semua" */
 .section-majalah-digital__top {
 	display: grid;
 	gap: 10px;
 	margin-bottom: 14px;
 }
 
-.section-majalah-digital__intro {
-	min-width: 0;
-}
+.section-majalah-digital__intro { min-width: 0; }
 
-.section-header--majalah {
-	margin-bottom: 0;
-}
-
+/* Judul besar responsif */
+.section-header--majalah               { margin-bottom: 0; }
 .section-header--majalah .section-title {
 	font-size: clamp(1.5rem, 2.4vw, 2.2rem);
 	line-height: 1.1;
 	color: var(--color-primary-900);
 }
 
-.section-header--majalah .section-line {
-	flex: 0 1 88px;
-}
+.section-header--majalah .section-line { flex: 0 1 88px; }
 
 .section-majalah-digital__description {
 	margin: 0;
@@ -1598,15 +1621,15 @@
 	letter-spacing: 0.08em;
 }
 
+/* ── Grid majalah (versi lama, ugm/magazine-section) ────────────────────── */
+/* Mobile: 2 kolom | Tablet 600px+: 3 kolom | Desktop: 4 kolom */
 .magazine-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: var(--home-gap-16);
 }
 
-.magazine-card {
-	margin: 0;
-}
+.magazine-card       { margin: 0; }
 
 .magazine-card__link {
 	display: block;
@@ -1617,6 +1640,7 @@
 	pointer-events: auto;
 }
 
+/* Sampul majalah: portrait 3:4 */
 .magazine-card__thumb {
 	aspect-ratio: 3 / 4;
 	overflow: hidden;
@@ -1645,15 +1669,14 @@
 	color: var(--color-primary-900);
 }
 
+/* ── Grid majalah (versi baru, .section-majalah-digital) ────────────────── */
 .section-majalah-digital .majalah-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 12px;
 }
 
-.section-majalah-digital .majalah-card {
-	margin: 0;
-}
+.section-majalah-digital .majalah-card { margin: 0; }
 
 .section-majalah-digital .majalah-card__link {
 	position: relative;
@@ -1680,6 +1703,7 @@
 	transition: transform 0.3s ease;
 }
 
+/* Judul majalah: overlay gradient gelap di bagian bawah */
 .section-majalah-digital .majalah-card__title {
 	position: absolute;
 	right: 0;
@@ -1698,21 +1722,35 @@
 	word-break: break-word;
 }
 
-.section-majalah-digital .majalah-card__media--skeleton {
-	position: relative;
-}
-
+/* Skeleton state */
+.section-majalah-digital .majalah-card__media--skeleton { position: relative; }
 .section-majalah-digital .majalah-card__title--skeleton {
 	display: flex;
 	align-items: flex-end;
 	justify-content: center;
 }
 
+/* Efek zoom saat hover */
 .section-majalah-digital .majalah-card__link:hover .majalah-card__media img,
 .section-majalah-digital .majalah-card__link:focus-visible .majalah-card__media img {
 	transform: scale(1.04);
 }
 
+
+
+
+/* =============================================================================
+ * § 15. RESPONSIVE OVERRIDES (Media Queries)
+ * Mobile-first: default = mobile, override ke atas untuk tablet & desktop.
+ * Breakpoints:
+ *   480px  — tablet kecil (font & list card sedikit lebih besar)
+ *   600px  — tablet (grid 3 kolom untuk majalah & skeleton)
+ *   768px  — desktop (layout beralih ke multi-kolom, section-campus tampil)
+ *   1024px — desktop lebar (berita 2×2 grid, layout final)
+ *   max 767px — mobile-only overrides (urutan section, sembunyikan elemen)
+ * ============================================================================= */
+
+/* ── 480px: font & list card sedikit lebih besar ─────────────────────────── */
 @media (min-width: 480px) {
 	.section-title {
 		font-size: 1.45rem;
@@ -1731,6 +1769,8 @@
 	}
 }
 
+
+/* ── 600px: grid 3 kolom untuk majalah & skeleton ───────────────────────── */
 @media (min-width: 600px) {
 	.category-grid--skeleton,
 	.desktop-facility-grid--skeleton,
@@ -1747,7 +1787,10 @@
 	}
 }
 
-/* Desktop enhancement, tetap mobile-first */
+
+/* ── 768px: desktop — layout multi-kolom, section-campus aktif ───────────── */
+/* Mobile-first: semua section-campus-desktop tersembunyi di mobile (display:none)
+   dan baru ditampilkan di sini. */
 @media (min-width: 768px) {
 	.home-section {
 		margin-bottom: var(--home-section-space-desktop);
@@ -1995,6 +2038,90 @@
 		padding-top: 10px;
 	}
 
+	/* Jika block dipakai di Columns/Group tanpa wrapper .home-sections-triple,
+	   tetap pakai gaya desktop yang sama (match desain homepage). */
+	.section-academic,
+	.section-profile,
+	.section-achievement {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.section-academic .section-header,
+	.section-profile .section-header,
+	.section-achievement .section-header {
+		margin-bottom: 12px;
+	}
+
+	.section-academic .section-title,
+	.section-profile .section-title,
+	.section-achievement .section-title {
+		font-size: clamp(1.35rem, 1.45vw, 1.75rem);
+	}
+
+	.section-academic .section-line,
+	.section-profile .section-line,
+	.section-achievement .section-line {
+		flex: 0 0 clamp(110px, 9vw, 160px);
+		background: #d4a017;
+	}
+
+	.section-academic .portal-card .card-title,
+	.section-profile .portal-card .card-title,
+	.section-achievement .portal-card .card-title {
+		font-size: 1.04rem;
+	}
+
+	.section-academic .portal-card .card-excerpt,
+	.section-profile .portal-card .card-excerpt,
+	.section-achievement .portal-card .card-excerpt,
+	.section-academic .portal-list-card .card-excerpt,
+	.section-profile .portal-list-card .card-excerpt,
+	.section-achievement .portal-list-card .card-excerpt {
+		display: none;
+	}
+
+	.section-academic .portal-column__list,
+	.section-profile .portal-column__list,
+	.section-achievement .portal-column__list {
+		gap: 6px;
+	}
+
+	.section-academic .portal-list-card,
+	.section-profile .portal-list-card,
+	.section-achievement .portal-list-card {
+		grid-template-columns: 78px minmax(0, 1fr);
+		background: transparent;
+		border: 0;
+		border-top: 1px solid var(--home-border);
+		padding: 8px 0 0;
+	}
+
+	.section-academic .portal-list-card .card-kicker,
+	.section-profile .portal-list-card .card-kicker,
+	.section-achievement .portal-list-card .card-kicker {
+		font-size: 0.64rem;
+	}
+
+	.section-academic .portal-list-card .card-title,
+	.section-profile .portal-list-card .card-title,
+	.section-achievement .portal-list-card .card-title {
+		font-size: 0.9rem;
+	}
+
+	.section-academic .portal-list-card .card-date,
+	.section-profile .portal-list-card .card-date,
+	.section-achievement .portal-list-card .card-date {
+		font-size: 0.64rem;
+	}
+
+	.section-academic .section-arrow-link,
+	.section-profile .section-arrow-link,
+	.section-achievement .section-arrow-link {
+		margin-top: auto;
+		padding-top: 10px;
+	}
+
 	.featured-category-grid {
 		align-items: start;
 	}
@@ -2210,6 +2337,8 @@
 	}
 }
 
+
+/* ── 1024px: desktop lebar — layout berita 2×2, finalisasi grid ─────────── */
 @media (min-width: 1024px) {
 	.section-title {
 		font-size: 1.7rem;
@@ -2277,6 +2406,10 @@
 	}
 }
 
+
+/* ── max 767px: mobile-only overrides ───────────────────────────────────── */
+/* Mengatur urutan section, sembunyikan elemen desktop-only,
+   dan paksa layout slider ke mode mobile. */
 @media (max-width: 767px) {
 	.home-content {
 		display: flex;
@@ -2464,8 +2597,458 @@
 	.section-view-all--category:not(summary) {
 		display: none;
 	}
+
+	/* ── Section ordering — sesuai referensi mobile ─────────── */
+	/* Mobile: Berita Terbaru → Berita Akademik → Profil → Prestasi
+	   → Video → Kategori → Majalah */
+	.section-news            { order: 1; }
+	.home-sections-triple    { order: 2; }
+	.section-video           { order: 3; }
+	.section-featured-categories { order: 4; }
+	.section-faculty         { order: 5; }
+	.section-category        { order: 6; }
+	.section-majalah-digital { order: 7; }
+
+	/* Sembunyikan sections yang tidak ada di desain mobile */
+	.section-template-links  { display: none; }
+	.section-facility        { display: none; }
+	.section-agenda          { display: none; }
+
+	/* ── Triple sections stack vertikal di mobile ──────────── */
+	.home-sections-triple {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+	}
+
+	.home-sections-triple .home-section {
+		margin-bottom: 0;
+	}
+
+	/* ── Section headers ────────────────────────────────────── */
+	.section-title {
+		font-size: 1.1rem;
+		white-space: normal;
+	}
+
+	/* ── Portal card: full width di mobile ──────────────────── */
+	.portal-card__media {
+		aspect-ratio: 16 / 9;
+	}
+
+	/* ── Portal list card: horizontal thumbnail kiri ────────── */
+	.portal-list-card {
+		display: grid;
+		grid-template-columns: 80px minmax(0, 1fr);
+		gap: 8px;
+		align-items: start;
+	}
+
+	.portal-list-card__media {
+		aspect-ratio: 1 / 1;
+	}
+
+	/* ── Video section ──────────────────────────────────────── */
+	.section-video .video-embed-wrap {
+		aspect-ratio: 16 / 9;
+		width: 100%;
+	}
+
+	/* ── Kategori: accordion/list style ────────────────────── */
+	.section-category .section-header {
+		cursor: pointer;
+	}
+
+	/* ── Majalah: 2 kolom di mobile ─────────────────────────── */
+	.majalah-grid {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 8px;
+	}
+
+	/* ── Section spacing ────────────────────────────────────── */
+	.home-section {
+		margin-bottom: 24px;
+	}
 }
 
+@media (max-width: 767px) {
+	.ugm-home {
+		background: #fff;
+	}
+
+	.home-content {
+		padding: 18px 16px 24px;
+	}
+
+	.section-featured-categories,
+	.section-video {
+		display: none;
+	}
+
+	.section-news {
+		order: 1;
+	}
+
+	.home-sections-triple {
+		order: 2;
+		gap: 28px;
+	}
+
+	.section-faculty {
+		order: 3;
+	}
+
+	.section-category {
+		order: 4;
+	}
+
+	.section-majalah-digital {
+		order: 5;
+		padding: 0;
+		background: transparent;
+	}
+
+	.home-section {
+		margin-bottom: 28px;
+	}
+
+	.section-overline--faculty,
+	.section-news .section-view-all,
+	.section-majalah-digital .section-view-all {
+		display: none;
+	}
+
+	.section-header {
+		align-items: center;
+		gap: 12px;
+		margin-bottom: 14px;
+	}
+
+	.section-line,
+	.section-news .section-line,
+	.section-category .section-line,
+	.section-header--faculty .section-line,
+	.section-header--majalah .section-line,
+	.home-sections-triple .section-line {
+		flex: 1 1 auto;
+		background: #e2b321;
+	}
+
+	.section-news .section-title,
+	.section-academic .section-title,
+	.section-profile .section-title,
+	.section-faculty .section-title,
+	.section-category .section-title,
+	.section-majalah-digital .section-title {
+		font-size: clamp(1.35rem, 7vw, 2rem);
+		font-weight: 400;
+		line-height: 1.1;
+		color: #111;
+	}
+
+	.section-achievement .section-header {
+		justify-content: flex-end;
+	}
+
+	.section-achievement .section-line {
+		order: -1;
+	}
+
+	.section-achievement .section-title {
+		font-size: clamp(1.2rem, 6.5vw, 1.8rem);
+		font-weight: 400;
+		line-height: 1.1;
+		color: #111;
+	}
+
+	.news-featured {
+		border: 1px solid #d9dde3;
+		box-shadow: 0 2px 6px rgba(16, 25, 34, 0.08);
+	}
+
+	.news-featured__body {
+		padding: 12px 12px 14px;
+	}
+
+	.section-news .news-featured .card-title {
+		font-size: clamp(1rem, 5.6vw, 1.18rem);
+		line-height: 1.38;
+		font-weight: 500;
+	}
+
+	.section-news .news-featured__excerpt {
+		display: none;
+	}
+
+	.section-news .portal-list-card,
+	.section-news .news-grid-card,
+	.section-news .news-grid-card--side,
+	.section-news .news-grid-card--list {
+		display: grid;
+		grid-template-columns: 118px minmax(0, 1fr);
+		gap: 10px;
+		align-items: start;
+		padding: 0;
+		border: 1px solid #d9dde3;
+		background: #fff;
+		box-shadow: 0 2px 6px rgba(16, 25, 34, 0.08);
+	}
+
+	.section-news .portal-list-card__media,
+	.section-news .news-grid-card__media,
+	.section-news .news-grid-card--side .news-grid-card__media,
+	.section-news .news-grid-card--list .news-grid-card__media {
+		width: 118px;
+		aspect-ratio: 4 / 3;
+	}
+
+	.section-news .portal-list-card__body,
+	.section-news .news-grid-card__body {
+		padding: 10px 10px 10px 0;
+	}
+
+	.section-news .portal-list-card .card-title,
+	.section-news .news-grid-card .card-title {
+		font-size: 0.94rem;
+		line-height: 1.38;
+	}
+
+	.section-news .portal-list-card .card-excerpt,
+	.section-news .news-grid-card .card-excerpt {
+		display: none;
+	}
+
+	.section-news .news-area--list > :nth-child(n + 3),
+	.section-academic .portal-column__list > :nth-child(n + 2),
+	.section-profile .portal-column__list > :nth-child(n + 2),
+	.section-achievement .portal-column__list > :nth-child(n + 2) {
+		display: none;
+	}
+
+	.section-academic .portal-column {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 12px;
+		align-items: start;
+	}
+
+	.section-academic .portal-column__list {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 12px;
+	}
+
+	.section-academic .portal-card,
+	.section-academic .portal-list-card {
+		display: block;
+		padding: 0;
+		border: 1px solid #d9dde3;
+		background: #fff;
+		box-shadow: 0 2px 6px rgba(16, 25, 34, 0.08);
+	}
+
+	.section-academic .portal-card__media,
+	.section-academic .portal-list-card__media {
+		display: block;
+		width: 100%;
+		aspect-ratio: 16 / 11;
+	}
+
+	.section-academic .portal-card__body,
+	.section-academic .portal-list-card__body {
+		padding: 10px 10px 12px;
+	}
+
+	.section-academic .card-kicker,
+	.section-profile .card-kicker,
+	.section-achievement .card-kicker {
+		display: none;
+	}
+
+	.section-academic .card-title {
+		font-size: 0.92rem;
+		line-height: 1.4;
+		font-weight: 600;
+		color: var(--color-primary-900);
+	}
+
+	.section-academic .card-excerpt {
+		margin-top: 10px;
+		font-size: 0.82rem;
+		line-height: 1.38;
+		color: #183d63;
+		-webkit-line-clamp: 5;
+	}
+
+	.card-excerpt--mobile {
+		display: -webkit-box;
+	}
+
+	.section-academic .card-date {
+		margin-top: 12px;
+		font-size: 0.74rem;
+	}
+
+	.section-profile .portal-card,
+	.section-profile .portal-list-card {
+		display: grid;
+		grid-template-columns: 136px minmax(0, 1fr);
+		gap: 14px;
+		align-items: start;
+		padding: 12px;
+		border: 1px solid #d9dde3;
+		background: #fff;
+		box-shadow: 0 2px 6px rgba(16, 25, 34, 0.08);
+	}
+
+	.section-profile .portal-card__media,
+	.section-profile .portal-list-card__media {
+		width: 136px;
+		aspect-ratio: 4 / 3;
+	}
+
+	.section-profile .portal-card__body,
+	.section-profile .portal-list-card__body {
+		padding: 0;
+	}
+
+	.section-profile .card-title,
+	.section-achievement .card-title {
+		font-size: 0.94rem;
+		line-height: 1.42;
+		font-weight: 700;
+	}
+
+	.section-profile .card-excerpt,
+	.section-achievement .card-excerpt {
+		margin-top: 8px;
+		font-size: 0.82rem;
+		line-height: 1.34;
+		color: #183d63;
+		-webkit-line-clamp: 6;
+	}
+
+	.section-profile .card-date,
+	.section-achievement .card-date {
+		margin-top: 12px;
+		font-size: 0.74rem;
+	}
+
+	.section-achievement .portal-card,
+	.section-achievement .portal-list-card {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 138px;
+		gap: 12px;
+		align-items: start;
+		padding: 12px 12px 14px;
+		border: 1px solid #d9dde3;
+		background: #fff;
+		box-shadow: 0 2px 6px rgba(16, 25, 34, 0.08);
+	}
+
+	.section-achievement .portal-card__media,
+	.section-achievement .portal-list-card__media {
+		order: 2;
+		width: 138px;
+		aspect-ratio: 1 / 1;
+	}
+
+	.section-achievement .portal-card__body,
+	.section-achievement .portal-list-card__body {
+		order: 1;
+		padding: 0;
+		text-align: center;
+	}
+
+	.section-header--faculty {
+		gap: 12px;
+		margin-bottom: 14px;
+	}
+
+	.faculty-slider-wrapper {
+		padding: 0;
+		overflow: hidden;
+	}
+
+	.faculty-page {
+		gap: 10px;
+	}
+
+	.faculty-card {
+		aspect-ratio: 16 / 5.8;
+	}
+
+	.faculty-card__overlay {
+		align-items: flex-start;
+		padding: clamp(30px, 8vw, 42px) 0 0;
+	}
+
+	.faculty-card__title {
+		max-width: min(68%, 240px);
+		padding: 8px 14px 9px 12px;
+		font-size: clamp(0.8rem, 4.1vw, 0.98rem);
+	}
+
+	.faculty-nav {
+		width: 18px;
+		height: 36px;
+		font-size: 1.25rem;
+		background: rgba(240, 242, 245, 0.94);
+	}
+
+	.category-mobile-list {
+		margin: 0;
+		border-top: 1px solid #b8c3cf;
+		border-bottom: 1px solid #e1e6ec;
+		background: #fff;
+	}
+
+	.category-mobile-list__trigger {
+		padding: 14px 18px;
+	}
+
+	.category-mobile-list__label {
+		font-size: 0.98rem;
+		font-weight: 400;
+		color: #111;
+	}
+
+	.category-mobile-list__menu {
+		padding: 0 18px 10px;
+	}
+
+	.section-majalah-digital__top {
+		margin-bottom: 16px;
+	}
+
+	.section-majalah-digital__description {
+		display: none;
+	}
+
+	.majalah-grid,
+	.section-majalah-digital .majalah-grid {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 14px;
+	}
+
+	.section-majalah-digital .majalah-card__title {
+		display: none;
+	}
+
+	.section-arrow-link,
+	.section-arrow-link--majalah {
+		margin-top: 10px;
+		padding-right: 2px;
+		font-size: 1.5rem;
+	}
+
+	.section-arrow-link--latest-news {
+		display: block;
+	}
+}
+
+
+/* ── 901px: desktop — news featured horizontal (image kiri, teks kanan) ─── */
 @media (min-width: 901px) {
 	.section-news {
 		margin-bottom: var(--home-section-space-desktop);
@@ -2567,7 +3150,13 @@
 		line-height: 1.35;
 	}
 }
-/* Single post */
+
+/* =============================================================================
+ * SINGLE POST, PAGE, & ARCHIVE
+ * Gaya untuk halaman artikel, halaman statis, dan arsip kategori.
+ * ============================================================================= */
+
+/* ── Single post ─────────────────────────────────────────────────────────── */
 .ugm-single {
 	background: var(--color-neutral-0);
 	color: var(--color-text);
@@ -2769,7 +3358,7 @@
 	}
 }
 
-/* Page template */
+/* ── Page template ───────────────────────────────────────────────────────── */
 .ugm-page {
 	background: var(--color-neutral-0);
 	color: var(--color-text);
@@ -2828,7 +3417,7 @@
 	}
 }
 
-/* Category archive */
+/* ── Category archive ───────────────────────────────────────────────────── */
 .ugm-archive {
 	background: #efefef;
 	color: #111a24;
@@ -2993,10 +3582,13 @@
 	}
 }
 
-/* ==========================================================================
- * Section Video
- * ========================================================================== */
+/* =============================================================================
+ * § 13. SECTION: MEDIA VIDEO
+ * Full-bleed section (latar biru tua, breakout dari .home-content).
+ * Layout: featured video kiri + daftar video kanan.
+ * ============================================================================= */
 
+/* Full-bleed: breakout dari container ke tepi layar */
 .section-video {
 	background: #083D62;
 	/* Full-bleed: breakout dari container ke tepi layar */
@@ -3236,7 +3828,7 @@
 	flex: 0 0 120px;
 }
 
-/* Desktop: featured left, list right */
+/* ── 768px: 2-kolom (featured kiri, list kanan) ─────────────────────────── */
 @media (min-width: 768px) {
 	.video-layout {
 		display: grid;
@@ -3283,6 +3875,7 @@
 	}
 }
 
+/* ── 1024px: perlebar kolom featured ────────────────────────────────────── */
 @media (min-width: 1024px) {
 	.video-layout {
 		grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
@@ -3301,3 +3894,229 @@
 		font-size: 0.93rem;
 	}
 }
+
+/* =============================================================================
+ * § 14. SECTION: LAYANAN PILIHAN (Template Links)
+ * Grid kartu layanan — latar navy gelap, ikon putih besar di kiri,
+ * teks tebal di kanan, aksen garis emas di bawah.
+ * Layout kartu: aspect-ratio 4:3, ikon kiri + teks kanan.
+ * ============================================================================= */
+
+.section-template-links {
+	/* Inherits standard .home-section spacing */
+}
+
+/* ── Grid ───────────────────────────────────────────────────── */
+.template-links-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 10px;
+}
+
+/*
+ * Center orphan cards in the last row — matches reference image:
+ * - 1 item alone in last row → center it (column 2 of 3)
+ * - 2 items in last row      → center the pair (columns 1–2 shifted)
+ */
+
+/* 1 orphan: item is at position 3n+1 AND is the last child */
+.template-links-grid .template-link-card:last-child:nth-child(3n + 1) {
+	grid-column: 2;
+}
+
+/* 2 orphans: shift both so they appear centered (cols 1 & 2 in 3-col grid) */
+.template-links-grid .template-link-card:nth-last-child(2):nth-child(3n + 1) {
+	grid-column: 1;
+}
+
+@media (max-width: 900px) {
+	.template-links-grid {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 8px;
+	}
+
+	/* In 2-col grid: 1 orphan → center it */
+	.template-links-grid .template-link-card:last-child:nth-child(2n + 1) {
+		grid-column: 1 / 3;
+		max-width: calc(50% - 4px);
+		justify-self: center;
+	}
+}
+
+/* ── MOBILE: Tautan Layanan tidak tampil di mobile ───────────── */
+/* Sesuai referensi desain mobile, section ini hanya untuk desktop */
+@media (max-width: 767px) {
+	.section-template-links {
+		display: none;
+	}
+}
+
+
+/* ── Card ── 4:3, icon-left + bold-text-right ─────────────── */
+.template-link-card {
+	position: relative;
+	display: block;
+	overflow: hidden;
+	text-decoration: none;
+	color: #fff;
+	background-color: #0b1e3d;
+	background-image: var(--tlc-bg, none), linear-gradient(160deg, #163769 0%, #0b1e3d 55%, #07132a 100%);
+	background-size: cover;
+	background-position: center;
+	/* 4:3 matches reference — tall enough for big typography */
+	aspect-ratio: 4 / 3;
+	border: none;
+	transition: transform 0.22s ease, box-shadow 0.22s ease;
+	cursor: pointer;
+	border-radius: 3px;
+}
+
+/* Gold bottom accent bar — matches reference thick gold line */
+.template-link-card::after {
+	content: '';
+	position: absolute;
+	inset: auto 0 0;
+	height: 6px;
+	background: #e0b437;
+	z-index: 3;
+}
+
+/* Lighter overlay so background campus photo is clearly visible */
+.template-link-card__bg {
+	position: absolute;
+	inset: 0;
+	/* Lighter than before: campus building clearly shows through */
+	background: linear-gradient(150deg,
+		rgba(7, 19, 42, 0.55) 0%,
+		rgba(7, 19, 42, 0.50) 100%);
+	z-index: 0;
+	pointer-events: none;
+}
+
+.template-link-card:hover,
+.template-link-card:focus-visible {
+	transform: translateY(-3px);
+	box-shadow: 0 10px 28px rgba(0, 0, 0, 0.50);
+	outline: 2px solid #e0b437;
+	outline-offset: 3px;
+}
+
+/* ── Inner — flex row: large icon LEFT, bold text RIGHT ─────── */
+.template-link-card__inner {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 16px;
+	padding: 18px 20px 24px;
+	height: 100%;
+	box-sizing: border-box;
+}
+
+/* ── Icon — large, prominent, white outline style ───────────── */
+.template-link-card__icon {
+	flex-shrink: 0;
+	width: 70px;
+	height: 70px;
+}
+
+.template-link-card__icon img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	/* White icon rendering */
+	filter: brightness(0) invert(1);
+}
+
+.template-link-card__icon--empty {
+	width: 56px;
+	height: 56px;
+	background: rgba(255, 255, 255, 0.12);
+	border-radius: 8px;
+}
+
+/* ── Text — large bold title + small sublabel ───────────────── */
+.template-link-card__text {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+	flex: 1;
+}
+
+.template-link-card__label {
+	display: block;
+	/* Large, prominent — matches "PPID UGM", "ASPIRASI" in reference */
+	font-size: clamp(1.1rem, 2.2vw, 1.65rem);
+	font-weight: 900;
+	line-height: 1.15;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #fff;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+	text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+}
+
+.template-link-card__sublabel {
+	display: block;
+	font-size: clamp(0.72rem, 1.1vw, 0.85rem);
+	line-height: 1.35;
+	color: rgba(255, 255, 255, 0.85);
+	overflow-wrap: anywhere;
+	word-break: break-word;
+	text-transform: none;
+	letter-spacing: 0;
+	font-weight: 400;
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+/* ── Skeleton ───────────────────────────────────────────────── */
+.template-link-card--skeleton {
+	pointer-events: none;
+	cursor: default;
+	background-image: linear-gradient(160deg, #1a3255 0%, #0d2240 60%, #091830 100%);
+}
+
+.template-link-card--skeleton::after {
+	background: #2a4060;
+}
+
+/* ── Responsive fine-tuning ─────────────────────────────────── */
+@media (max-width: 639px) {
+	.template-link-card__inner {
+		gap: 12px;
+		padding: 14px 16px 20px;
+	}
+
+	.template-link-card__icon {
+		width: 52px;
+		height: 52px;
+	}
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+	.template-link-card__icon {
+		width: 60px;
+		height: 60px;
+	}
+}
+
+@media (min-width: 1024px) {
+	.template-links-grid {
+		gap: 14px;
+	}
+
+	.template-link-card__inner {
+		padding: 22px 26px 28px;
+		gap: 20px;
+	}
+
+	.template-link-card__icon {
+		width: 78px;
+		height: 78px;
+	}
+}
+
