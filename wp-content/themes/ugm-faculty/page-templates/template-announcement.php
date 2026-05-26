@@ -15,9 +15,12 @@ get_header();
 			while ( have_posts() ) :
 				the_post();
 
-				$render_source = ugm_get_announcement_render_source( get_the_content() );
-
-				echo do_blocks( $render_source ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				$page_content = (string) get_the_content();
+				if ( '' !== trim( $page_content ) ) {
+					the_content();
+				} else {
+					echo do_blocks( ugm_get_announcement_render_source() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				}
 			endwhile;
 		else :
 			echo do_blocks( ugm_get_announcement_render_source() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

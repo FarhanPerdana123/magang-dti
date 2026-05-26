@@ -98,6 +98,52 @@ function ugm_get_default_agenda_page_blocks() {
 }
 
 /**
+ * Return the saved Site Editor block template for the Agenda page.
+ *
+ * @return string
+ */
+function ugm_get_agenda_block_template_content() {
+	if ( ! function_exists( 'get_block_template' ) ) {
+		return '';
+	}
+
+	$template = get_block_template( get_stylesheet() . '//agenda-page', 'wp_template' );
+	if ( ! $template || empty( $template->content ) || ! is_string( $template->content ) ) {
+		return '';
+	}
+
+	return trim( $template->content );
+}
+
+/**
+ * Resolve the block source that should be rendered by the PHP wrapper template.
+ *
+ * Pages using the Site Editor template slug should render the saved wp_template
+ * content, while pages using the legacy PHP template render their own content.
+ *
+ * @param string $page_content Page post_content.
+ * @param string $template_slug Page template slug/path.
+ * @return string
+ */
+function ugm_get_agenda_render_source( $page_content = '', $template_slug = '' ) {
+	$template_slug = (string) $template_slug;
+
+	if ( 'agenda-page' === $template_slug ) {
+		$template_content = ugm_get_agenda_block_template_content();
+		if ( '' !== $template_content && false !== strpos( $template_content, '<!-- wp:' ) ) {
+			return $template_content;
+		}
+	}
+
+	$page_content = (string) $page_content;
+	if ( false !== strpos( $page_content, '<!-- wp:' ) || '' !== trim( wp_strip_all_tags( strip_shortcodes( $page_content ) ) ) ) {
+		return $page_content;
+	}
+
+	return ugm_get_default_agenda_page_blocks();
+}
+
+/**
  * Check whether a template slug refers to an Agenda Page template variant.
  *
  * @param string $template Template slug/path.
@@ -441,6 +487,11 @@ function ugm_render_agenda_listing_card() {
 	$type_label = ugm_get_agenda_event_type_label( $post_id );
 	?>
 	<article id="post-<?php the_ID(); ?>" <?php post_class( 'ugm-agenda-card card h-100 rounded-0' ); ?>>
+		<?php /* Badge diposisikan di luar <a> agar menjadi anak langsung article */ ?>
+		<span class="ugm-agenda-card__date" aria-hidden="true">
+			<strong><?php echo esc_html( wp_date( 'd', $timestamp ) ); ?></strong>
+			<span><?php echo esc_html( strtoupper( wp_date( 'M', $timestamp ) ) ); ?></span>
+		</span>
 		<a class="ugm-agenda-card__media-link" href="<?php the_permalink(); ?>" aria-label="<?php the_title_attribute(); ?>">
 			<div class="ugm-agenda-card__media">
 				<?php if ( has_post_thumbnail() ) : ?>
@@ -448,10 +499,6 @@ function ugm_render_agenda_listing_card() {
 				<?php else : ?>
 					<div class="ugm-agenda-card__placeholder" aria-hidden="true"></div>
 				<?php endif; ?>
-				<span class="ugm-agenda-card__date" aria-hidden="true">
-					<strong><?php echo esc_html( wp_date( 'd', $timestamp ) ); ?></strong>
-					<span><?php echo esc_html( strtoupper( wp_date( 'M', $timestamp ) ) ); ?></span>
-				</span>
 			</div>
 		</a>
 		<div class="ugm-agenda-card__body card-body">
