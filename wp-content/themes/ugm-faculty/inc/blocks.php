@@ -2179,6 +2179,165 @@ register_block_type( 'ugm/template-links', array(
 ) );
 
 /* ==========================================================================
+ * 15. ugm/gallery-page - Halaman Galeri
+ * ========================================================================== */
+
+/**
+ * Resolve image markup for gallery cards.
+ *
+ * @param int    $post_id Post ID.
+ * @param string $size    Image size.
+ * @return string
+ */
+function ugm_render_gallery_image_markup( $post_id, $size = 'medium_large' ) {
+	if ( has_post_thumbnail( $post_id ) ) {
+		return get_the_post_thumbnail( $post_id, $size, array( 'loading' => 'lazy' ) );
+	}
+
+	return '<div class="ugm-gallery-placeholder" aria-hidden="true"><span>' . esc_html__( 'Galeri', 'ugm-faculty' ) . '</span></div>';
+}
+
+/**
+ * Render gallery page block.
+ *
+ * @param array $attrs Block attributes.
+ * @return string
+ */
+function ugm_render_block_gallery_page( $attrs ) {
+	$attrs = is_array( $attrs ) ? $attrs : array();
+
+	$title             = ugm_resolve_section_title( $attrs, __( 'Galeri', 'ugm-faculty' ), 'title' );
+	$breadcrumb_parent = isset( $attrs['breadcrumbParent'] ) ? trim( (string) $attrs['breadcrumbParent'] ) : __( 'Berita', 'ugm-faculty' );
+	$category_slug     = isset( $attrs['categorySlug'] ) ? trim( (string) $attrs['categorySlug'] ) : 'galeri';
+	$posts_per_page    = isset( $attrs['postsPerPage'] ) ? absint( $attrs['postsPerPage'] ) : 12;
+	$posts_per_page    = max( 3, min( 24, $posts_per_page ) );
+	$show_featured     = ! isset( $attrs['showFeatured'] ) || (bool) $attrs['showFeatured'];
+	$visibility_class  = ugm_block_visibility_class( $attrs );
+
+	$query_args = array(
+		'post_type'           => 'post',
+		'posts_per_page'      => $posts_per_page + ( $show_featured ? 1 : 0 ),
+		'ignore_sticky_posts' => true,
+		'post_status'         => 'publish',
+		'orderby'             => 'date',
+		'order'               => 'DESC',
+		'no_found_rows'       => true,
+	);
+
+	if ( '' !== $category_slug ) {
+		$term_ids = ugm_resolve_multiple_slugs_to_ids( ugm_parse_category_slug_list( $category_slug, array( 'galeri' ) ) );
+		if ( ! empty( $term_ids ) ) {
+			$query_args['category__in'] = $term_ids;
+		} else {
+			$query_args['post__in'] = array( 0 );
+		}
+	}
+
+	$gallery_query = new WP_Query( $query_args );
+	$posts         = $gallery_query->posts;
+	$featured_post = $show_featured && ! empty( $posts ) ? array_shift( $posts ) : null;
+
+	ob_start();
+	?>
+	<div class="ugm-gallery-page <?php echo esc_attr( $visibility_class ); ?>">
+		<section class="ugm-gallery-page__intro" aria-labelledby="ugm-gallery-title">
+			<div class="ugm-gallery-page__container">
+				<?php if ( '' !== $breadcrumb_parent || '' !== $title ) : ?>
+					<nav class="ugm-gallery-breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'ugm-faculty' ); ?>">
+						<?php if ( '' !== $breadcrumb_parent ) : ?>
+							<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php echo esc_html( $breadcrumb_parent ); ?></a>
+							<span aria-hidden="true">&#8250;</span>
+						<?php endif; ?>
+						<span aria-current="page"><?php echo esc_html( $title ); ?></span>
+					</nav>
+				<?php endif; ?>
+				<h1 id="ugm-gallery-title" class="ugm-gallery-page__title"><?php echo esc_html( $title ); ?></h1>
+			</div>
+		</section>
+
+		<?php if ( $featured_post instanceof WP_Post ) : ?>
+			<?php
+			$post = $featured_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			setup_postdata( $post );
+			$mosaic_posts = array_slice( array_merge( array( $featured_post ), $posts ), 0, 4 );
+			?>
+			<section class="ugm-gallery-featured" aria-labelledby="ugm-gallery-featured-title">
+				<div class="ugm-gallery-page__container ugm-gallery-featured__inner">
+					<div class="ugm-gallery-featured__copy">
+						<p class="ugm-gallery-featured__date"><?php echo esc_html( get_the_date( 'l, j F Y' ) ); ?></p>
+						<h2 id="ugm-gallery-featured-title" class="ugm-gallery-featured__title">
+							<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+						</h2>
+						<p class="ugm-gallery-featured__excerpt"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 18 ) ); ?></p>
+						<a class="ugm-gallery-featured__button" href="<?php the_permalink(); ?>"><?php esc_html_e( 'Selengkapnya', 'ugm-faculty' ); ?></a>
+					</div>
+
+					<div class="ugm-gallery-featured__mosaic" aria-hidden="true">
+						<?php foreach ( $mosaic_posts as $mosaic_post ) : ?>
+							<div class="ugm-gallery-featured__tile">
+								<?php echo ugm_render_gallery_image_markup( $mosaic_post->ID, 'medium_large' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							</div>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			</section>
+			<?php wp_reset_postdata(); ?>
+		<?php endif; ?>
+
+		<section class="ugm-gallery-list" aria-labelledby="ugm-gallery-list-title">
+			<div class="ugm-gallery-page__container">
+				<header class="ugm-gallery-list__header">
+					<h2 id="ugm-gallery-list-title" class="ugm-gallery-list__title"><?php echo esc_html( $title ); ?></h2>
+					<span class="ugm-gallery-list__line" aria-hidden="true"></span>
+				</header>
+
+				<?php if ( ! empty( $posts ) ) : ?>
+					<div class="ugm-gallery-grid">
+						<?php foreach ( $posts as $gallery_post ) : ?>
+							<?php
+							$post = $gallery_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+							setup_postdata( $post );
+							?>
+							<article <?php post_class( 'ugm-gallery-card' ); ?>>
+								<a class="ugm-gallery-card__media" href="<?php the_permalink(); ?>" aria-label="<?php echo esc_attr( get_the_title() ); ?>">
+									<?php echo ugm_render_gallery_image_markup( get_the_ID(), 'medium_large' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+								</a>
+								<div class="ugm-gallery-card__body">
+									<h3 class="ugm-gallery-card__title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+									<p class="ugm-gallery-card__date"><?php echo esc_html( get_the_date( 'l, j F Y' ) ); ?></p>
+								</div>
+							</article>
+						<?php endforeach; ?>
+						<?php wp_reset_postdata(); ?>
+					</div>
+				<?php else : ?>
+					<p class="section-empty"><?php esc_html_e( 'Belum ada konten galeri.', 'ugm-faculty' ); ?></p>
+				<?php endif; ?>
+			</div>
+		</section>
+	</div>
+	<?php
+
+	return ob_get_clean();
+}
+
+register_block_type( 'ugm/gallery-page', array(
+	'title'           => __( 'Halaman Galeri', 'ugm-faculty' ),
+	'description'     => __( 'Template halaman galeri dengan hero sorotan dan grid kartu galeri.', 'ugm-faculty' ),
+	'category'        => 'ugm-sections',
+	'render_callback' => 'ugm_render_block_gallery_page',
+	'supports'        => array( 'html' => false ),
+	'attributes'      => array(
+		'title'            => array( 'type' => 'string', 'default' => 'Galeri' ),
+		'breadcrumbParent' => array( 'type' => 'string', 'default' => 'Berita' ),
+		'categorySlug'     => array( 'type' => 'string', 'default' => 'galeri' ),
+		'postsPerPage'     => array( 'type' => 'integer', 'default' => 12 ),
+		'showFeatured'     => array( 'type' => 'boolean', 'default' => true ),
+		'visibility'       => array( 'type' => 'string', 'default' => 'all' ),
+	),
+) );
+
+/* ==========================================================================
  * Shared rendering helper: portal column (featured + list cards)
  * ========================================================================== */
 
@@ -2500,6 +2659,10 @@ add_action( 'init', function () {
 		'label' => __( 'UGM Landing Page', 'ugm-faculty' ),
 	) );
 
+	register_block_pattern_category( 'ugm-pages', array(
+		'label' => __( 'UGM Pages', 'ugm-faculty' ),
+	) );
+
 	$landing_blocks =
 		'<!-- wp:ugm/hero-section {"imageId":0,"imageUrl":"","title":"","description":""} /-->' . "\n" .
 		'<!-- wp:ugm/latest-news {"title":"Highlight Informasi"} /-->' . "\n" .
@@ -2519,6 +2682,12 @@ add_action( 'init', function () {
 		'description' => __( 'Hero + semua section halaman landing. Insert ke halaman yang menggunakan template Halaman Landing.', 'ugm-faculty' ),
 		'categories'  => array( 'ugm-landing' ),
 		'content'     => $landing_blocks,
+	) );
+	register_block_pattern( 'ugm/gallery-page-template', array(
+		'title'       => __( 'Template Halaman Galeri', 'ugm-faculty' ),
+		'description' => __( 'Breadcrumb, hero galeri, dan grid kartu galeri seperti halaman referensi.', 'ugm-faculty' ),
+		'categories'  => array( 'ugm-pages' ),
+		'content'     => '<!-- wp:ugm/gallery-page {"title":"Galeri","breadcrumbParent":"Berita","categorySlug":"galeri","postsPerPage":12,"showFeatured":true} /-->',
 	) );
 } );
 

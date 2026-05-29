@@ -1397,4 +1397,79 @@
 
 		save: function () { return null; },
 	} );
+
+	/* ugm/gallery-page - Halaman Galeri */
+	registerBlockType( 'ugm/gallery-page', {
+		title:       __( 'Halaman Galeri', 'ugm-faculty' ),
+		description: __( 'Template halaman galeri dengan hero sorotan dan grid kartu galeri.', 'ugm-faculty' ),
+		category:    'ugm-sections',
+		icon:        'format-gallery',
+		supports:    { html: false },
+		attributes: {
+			visibility:       { type: 'string', default: 'all' },
+			title:            { type: 'string', default: 'Galeri' },
+			breadcrumbParent: { type: 'string', default: 'Berita' },
+			categorySlug:     { type: 'string', default: 'galeri' },
+			postsPerPage:     { type: 'integer', default: 12 },
+			showFeatured:     { type: 'boolean', default: true },
+		},
+		edit: function ( props ) {
+			var attrs   = props.attributes;
+			var setAttr = props.setAttributes;
+
+			return el(
+				Fragment,
+				null,
+				el(
+					InspectorControls,
+					null,
+					el(
+						PanelBody,
+						{ title: __( 'Pengaturan Galeri', 'ugm-faculty' ), initialOpen: true },
+						renderVisibilityControl( attrs, setAttr ),
+						el( TextControl, {
+							label: __( 'Judul Halaman', 'ugm-faculty' ),
+							value: attrs.title || '',
+							onChange: function ( v ) { setAttr( { title: v } ); },
+						} ),
+						el( TextControl, {
+							label: __( 'Breadcrumb Parent', 'ugm-faculty' ),
+							value: attrs.breadcrumbParent || '',
+							onChange: function ( v ) { setAttr( { breadcrumbParent: v } ); },
+						} ),
+						renderCategoryChecklistControl(
+							attrs,
+							setAttr,
+							'categorySlug',
+							__( 'Kategori Galeri', 'ugm-faculty' ),
+							'galeri',
+							__( 'Pilih kategori sumber konten galeri. Default: galeri.', 'ugm-faculty' )
+						),
+						el( TextControl, {
+							label: __( 'Jumlah Item', 'ugm-faculty' ),
+							type: 'number',
+							min: 3,
+							max: 24,
+							value: attrs.postsPerPage || 12,
+							onChange: function ( v ) {
+								var next = parseInt( v, 10 );
+								setAttr( { postsPerPage: isNaN( next ) ? 12 : next } );
+							},
+						} ),
+						el( CheckboxControl, {
+							label: __( 'Tampilkan hero sorotan', 'ugm-faculty' ),
+							checked: attrs.showFeatured !== false,
+							onChange: function ( checked ) { setAttr( { showFeatured: checked } ); },
+						} )
+					)
+				),
+				el( ServerSideRender, {
+					block:      'ugm/gallery-page',
+					attributes: attrs,
+					httpMethod: 'POST',
+				} )
+			);
+		},
+		save: function () { return null; },
+	} );
 }() );
