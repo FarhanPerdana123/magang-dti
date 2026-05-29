@@ -321,6 +321,30 @@
 	margin: 0 auto var(--landing-editor-section-space);
 }
 
+.editor-styles-wrapper .wp-block[data-type="ugm/announcement-page"],
+.editor-styles-wrapper .wp-block[data-type="ugm/announcement-latest-news"],
+.editor-styles-wrapper .wp-block[data-type="ugm/announcement-latest-agenda"] {
+	display: block !important;
+	float: none !important;
+	clear: both !important;
+	position: relative !important;
+	inset: auto !important;
+	vertical-align: top !important;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/announcement-page"] {
+	width: 100% !important;
+	max-width: none !important;
+	margin: 0 !important;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/announcement-latest-news"],
+.editor-styles-wrapper .wp-block[data-type="ugm/announcement-latest-agenda"] {
+	width: 100% !important;
+	max-width: none !important;
+	margin: 0 !important;
+}
+
 .editor-styles-wrapper .wp-block[data-type="ugm/faculty-section"] .section-overline--faculty,
 .editor-styles-wrapper .wp-block[data-type="ugm/faculty-list"] .section-overline--faculty {
 	margin-top: 18px;
@@ -335,6 +359,86 @@
 		width: var(--landing-editor-content-width);
 		max-width: 1200px;
 		margin: 0 auto var(--landing-editor-section-space);
+	}
+}
+
+/* ================================
+   RESPONSIVE EDITOR HARDENING
+================================ */
+
+.editor-styles-wrapper .wp-block[data-type^="ugm/"] {
+	box-sizing: border-box;
+	min-width: 0;
+	container-type: inline-size;
+}
+
+.editor-styles-wrapper .wp-block[data-type^="ugm/"] * {
+	box-sizing: border-box;
+	min-width: 0;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .news-featured__title,
+.editor-styles-wrapper .wp-block[data-type^="ugm/"] .card-title,
+.editor-styles-wrapper .wp-block[data-type^="ugm/"] .section-title,
+.editor-styles-wrapper .wp-block[data-type^="ugm/"] .featured-category-card__title,
+.editor-styles-wrapper .wp-block[data-type^="ugm/"] .desktop-agenda-card__title,
+.editor-styles-wrapper .wp-block[data-type^="ugm/"] .template-link-card__label {
+	overflow-wrap: anywhere;
+}
+
+@container (max-width: 900px) {
+	.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .news-featured,
+	.editor-styles-wrapper .wp-block[data-type^="ugm/"] .news-featured {
+		grid-template-columns: 1fr !important;
+	}
+
+	.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .news-list,
+	.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .berita-list,
+	.editor-styles-wrapper .wp-block[data-type^="ugm/"] .featured-category-grid,
+	.editor-styles-wrapper .wp-block[data-type^="ugm/"] .desktop-facility-grid,
+	.editor-styles-wrapper .wp-block[data-type^="ugm/"] .template-links-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+	}
+
+	.editor-styles-wrapper .wp-block[data-type^="ugm/"] .section-campus-desktop {
+		grid-template-columns: 1fr !important;
+	}
+}
+
+@container (max-width: 640px) {
+	.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/academic-news"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/profile-section"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/achievement-section"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/featured-category-column"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/facility-section"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/faculty-section"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/faculty-list"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/agenda-section"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/agenda-only"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/facility-only"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/category-section"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/featured-categories"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/magazine-section"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/video-section"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/template-links"] {
+		width: 100% !important;
+		max-width: 100% !important;
+		margin-right: auto !important;
+		margin-left: auto !important;
+	}
+
+	.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .news-list,
+	.editor-styles-wrapper .wp-block[data-type="ugm/latest-news"] .berita-list,
+	.editor-styles-wrapper .wp-block[data-type^="ugm/"] .featured-category-grid,
+	.editor-styles-wrapper .wp-block[data-type^="ugm/"] .desktop-facility-grid,
+	.editor-styles-wrapper .wp-block[data-type^="ugm/"] .template-links-grid {
+		grid-template-columns: 1fr !important;
+	}
+
+	.editor-styles-wrapper .wp-block[data-type^="ugm/"] .portal-list-card,
+	.editor-styles-wrapper .wp-block[data-type^="ugm/"] .news-grid-card {
+		grid-template-columns: 1fr !important;
 	}
 }
 

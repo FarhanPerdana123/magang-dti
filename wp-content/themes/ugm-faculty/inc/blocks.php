@@ -622,6 +622,7 @@ function ugm_render_block_hero_section( $attrs ) {
 	$image_url = '';
 	$video_id  = isset( $attrs['videoId'] ) ? absint( $attrs['videoId'] ) : 0;
 	$video_url = '';
+	$slide_images = array();
 
 	if ( $image_id > 0 ) {
 		$image_url = (string) wp_get_attachment_image_url( $image_id, 'full' );
@@ -661,12 +662,66 @@ function ugm_render_block_hero_section( $attrs ) {
 		}
 	}
 
+	if ( ! $has_video && ! empty( $attrs['slideImages'] ) && is_array( $attrs['slideImages'] ) ) {
+		foreach ( $attrs['slideImages'] as $slide_image ) {
+			if ( ! is_array( $slide_image ) ) {
+				continue;
+			}
+
+			$slide_id  = isset( $slide_image['id'] ) ? absint( $slide_image['id'] ) : 0;
+			$slide_url = '';
+			if ( $slide_id > 0 ) {
+				$slide_url = (string) wp_get_attachment_image_url( $slide_id, 'full' );
+			}
+			if ( '' === $slide_url && ! empty( $slide_image['url'] ) ) {
+				$slide_url = esc_url_raw( (string) $slide_image['url'] );
+			}
+			if ( '' !== $slide_url ) {
+				$slide_images[] = array(
+					'id'  => $slide_id,
+					'url' => $slide_url,
+				);
+			}
+		}
+	}
+
+	if ( empty( $slide_images ) && '' !== $image_url ) {
+		$slide_images[] = array(
+			'id'  => $image_id,
+			'url' => $image_url,
+		);
+	}
+
+	$has_slider = ! $has_video && count( $slide_images ) > 1;
+	$hero_id    = $has_slider ? 'ugm-hero-slider-' . wp_unique_id() : '';
 	$title = isset( $attrs['title'] ) ? trim( (string) $attrs['title'] ) : '';
 	$desc  = isset( $attrs['description'] ) ? trim( (string) $attrs['description'] ) : '';
 
 	ob_start();
 	?>
-	<section class="hero <?php echo esc_attr( $visibility_class ); ?>" <?php echo ( $image_url && ! $has_video ) ? 'style="background-image: url(' . esc_url( $image_url ) . ');"' : ''; ?> aria-labelledby="hero-title">
+	<section class="hero <?php echo esc_attr( $visibility_class ); ?><?php echo $has_slider ? ' hero--slider ' . esc_attr( $hero_id ) : ''; ?>" <?php echo ( $image_url && ! $has_video && ! $has_slider ) ? 'style="background-image: url(' . esc_url( $image_url ) . ');"' : ''; ?> aria-labelledby="hero-title">
+		<?php if ( $has_slider ) : ?>
+			<style>
+				<?php
+				$slide_count    = count( $slide_images );
+				$animation_time = $slide_count * 8;
+				foreach ( $slide_images as $slide_index => $slide_image ) :
+					$delay = $slide_index * 8;
+					?>
+					.<?php echo esc_html( $hero_id ); ?> .hero__slide--<?php echo esc_html( (string) $slide_index ); ?> {
+						animation-delay: <?php echo esc_html( (string) $delay ); ?>s;
+					}
+				<?php endforeach; ?>
+				.<?php echo esc_html( $hero_id ); ?> .hero__slide {
+					animation-duration: <?php echo esc_html( (string) $animation_time ); ?>s;
+				}
+			</style>
+			<div class="hero__slides" aria-hidden="true">
+				<?php foreach ( $slide_images as $slide_index => $slide_image ) : ?>
+					<span class="hero__slide hero__slide--<?php echo esc_attr( (string) $slide_index ); ?>" style="background-image: url('<?php echo esc_url( $slide_image['url'] ); ?>');"></span>
+				<?php endforeach; ?>
+			</div>
+		<?php endif; ?>
 		<?php if ( $has_video ) : ?>
 			<video class="hero__video" autoplay muted loop playsinline preload="metadata" <?php echo $image_url ? 'poster="' . esc_url( $image_url ) . '"' : ''; ?> aria-hidden="true">
 				<source src="<?php echo esc_url( $video_url ); ?>" type="<?php echo esc_attr( $video_type ); ?>">
@@ -698,6 +753,7 @@ register_block_type( 'ugm/hero-section', array(
 		'imageId'     => array( 'type' => 'integer', 'default' => 0 ),
 		'imageUrl'    => array( 'type' => 'string',  'default' => '' ),
 		'mediaType'   => array( 'type' => 'string',  'default' => 'image' ),
+		'slideImages' => array( 'type' => 'array',   'default' => array() ),
 		'videoId'     => array( 'type' => 'integer', 'default' => 0 ),
 		'videoUrl'    => array( 'type' => 'string',  'default' => '' ),
 		'title'       => array( 'type' => 'string',  'default' => '' ),
@@ -1048,7 +1104,7 @@ function ugm_render_block_academic_news( $attrs ) {
 
 	ob_start();
 	$q = new WP_Query( $args );
-	echo '<section class="home-section section-academic ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-academic-title">';
+	echo '<section class="home-section section-academic col-12 col-lg-4 ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-academic-title">';
 	echo ugm_block_section_header( $title, 'block-academic-title' ); // phpcs:ignore
 	ugm_render_portal_column( $q, __( 'Belum ada berita akademik.', 'ugm-faculty' ) );
 	echo '<a class="section-arrow-link" href="' . esc_url( $archive ) . '" aria-label="' . esc_attr__( 'Lihat semua berita akademik', 'ugm-faculty' ) . '">&#8594;</a>';
@@ -1092,7 +1148,7 @@ function ugm_render_block_profile_section( $attrs ) {
 
 	ob_start();
 	$q = new WP_Query( $args );
-	echo '<section class="home-section section-profile ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-profile-title">';
+	echo '<section class="home-section section-profile col-12 col-lg-4 ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-profile-title">';
 	echo ugm_block_section_header( $title, 'block-profile-title' ); // phpcs:ignore
 	ugm_render_portal_column( $q, __( 'Belum ada konten profile.', 'ugm-faculty' ) );
 	echo '<a class="section-arrow-link" href="' . esc_url( $archive ) . '" aria-label="' . esc_attr__( 'Lihat semua profile', 'ugm-faculty' ) . '">&#8594;</a>';
@@ -1136,7 +1192,7 @@ function ugm_render_block_achievement_section( $attrs ) {
 
 	ob_start();
 	$q = new WP_Query( $args );
-	echo '<section class="home-section section-achievement ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-achievement-title">';
+	echo '<section class="home-section section-achievement col-12 col-lg-4 ' . esc_attr( $visibility_class ) . '" aria-labelledby="block-achievement-title">';
 	echo ugm_block_section_header( $title, 'block-achievement-title' ); // phpcs:ignore
 	ugm_render_portal_column( $q, __( 'Belum ada konten prestasi.', 'ugm-faculty' ) );
 	echo '<a class="section-arrow-link" href="' . esc_url( $archive ) . '" aria-label="' . esc_attr__( 'Lihat semua prestasi', 'ugm-faculty' ) . '">&#8594;</a>';
@@ -1660,11 +1716,11 @@ register_block_type( 'ugm/faculty-list', array(
 function ugm_render_agenda_column_html( $title, $cat_slug ) {
 	$agenda_term_ids = ugm_resolve_agenda_exclude_ids( $cat_slug );
 
-	$agenda_archive = home_url( '/' );
+	$agenda_archive = ugm_get_agenda_page_url();
 	if ( ! empty( $agenda_term_ids ) ) {
 		$first = reset( $agenda_term_ids );
 		$link  = get_category_link( $first );
-		if ( ! is_wp_error( $link ) ) {
+		if ( home_url( '/' ) === $agenda_archive && ! is_wp_error( $link ) ) {
 			$agenda_archive = $link;
 		}
 	}
@@ -1675,8 +1731,12 @@ function ugm_render_agenda_column_html( $title, $cat_slug ) {
 		'posts_per_page'      => $agenda_count,
 		'ignore_sticky_posts' => true,
 		'post_status'         => 'publish',
-		'orderby'             => 'date',
-		'order'               => 'DESC',
+		'meta_key'            => 'agenda_event_date',
+		'orderby'             => array(
+			'meta_value' => 'ASC',
+			'date'       => 'DESC',
+		),
+		'order'               => 'ASC',
 		'no_found_rows'       => true,
 	);
 	if ( ! empty( $agenda_term_ids ) ) {
@@ -1701,7 +1761,9 @@ function ugm_render_agenda_column_html( $title, $cat_slug ) {
 		while ( $agenda_q->have_posts() ) {
 			$agenda_q->the_post();
 			$agenda_items++;
-			$ts = (int) get_post_timestamp( get_the_ID() );
+			$ts = function_exists( 'ugm_get_agenda_event_timestamp' )
+				? ugm_get_agenda_event_timestamp( get_the_ID() )
+				: (int) get_post_timestamp( get_the_ID() );
 			echo '<article class="' . esc_attr( implode( ' ', get_post_class( 'desktop-agenda-card' ) ) ) . '">';
 			echo '<a class="desktop-agenda-card__date" href="' . esc_url( get_the_permalink() ) . '" aria-label="' . esc_attr__( 'Buka agenda', 'ugm-faculty' ) . '">';
 			echo '<span class="desktop-agenda-card__day">' . esc_html( wp_date( 'd', $ts ) ) . '</span>';
@@ -1709,7 +1771,10 @@ function ugm_render_agenda_column_html( $title, $cat_slug ) {
 			echo '</a>';
 			echo '<div class="desktop-agenda-card__body">';
 			echo '<h3 class="desktop-agenda-card__title"><a href="' . esc_url( get_the_permalink() ) . '">' . get_the_title() . '</a></h3>';
-			echo '<p class="desktop-agenda-card__meta">' . esc_html( get_the_author() ) . '</p>';
+			$agenda_location = function_exists( 'ugm_get_agenda_event_location' )
+				? ugm_get_agenda_event_location( get_the_ID() )
+				: trim( (string) get_post_meta( get_the_ID(), 'agenda_location', true ) );
+			echo '<p class="desktop-agenda-card__meta">' . esc_html( $agenda_location ) . '</p>';
 			echo '</div></article>';
 		}
 		echo ugm_render_partial_skeleton_items( 'agenda-card', max( 0, 3 - $agenda_items ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -2179,165 +2244,6 @@ register_block_type( 'ugm/template-links', array(
 ) );
 
 /* ==========================================================================
- * 15. ugm/gallery-page - Halaman Galeri
- * ========================================================================== */
-
-/**
- * Resolve image markup for gallery cards.
- *
- * @param int    $post_id Post ID.
- * @param string $size    Image size.
- * @return string
- */
-function ugm_render_gallery_image_markup( $post_id, $size = 'medium_large' ) {
-	if ( has_post_thumbnail( $post_id ) ) {
-		return get_the_post_thumbnail( $post_id, $size, array( 'loading' => 'lazy' ) );
-	}
-
-	return '<div class="ugm-gallery-placeholder" aria-hidden="true"><span>' . esc_html__( 'Galeri', 'ugm-faculty' ) . '</span></div>';
-}
-
-/**
- * Render gallery page block.
- *
- * @param array $attrs Block attributes.
- * @return string
- */
-function ugm_render_block_gallery_page( $attrs ) {
-	$attrs = is_array( $attrs ) ? $attrs : array();
-
-	$title             = ugm_resolve_section_title( $attrs, __( 'Galeri', 'ugm-faculty' ), 'title' );
-	$breadcrumb_parent = isset( $attrs['breadcrumbParent'] ) ? trim( (string) $attrs['breadcrumbParent'] ) : __( 'Berita', 'ugm-faculty' );
-	$category_slug     = isset( $attrs['categorySlug'] ) ? trim( (string) $attrs['categorySlug'] ) : 'galeri';
-	$posts_per_page    = isset( $attrs['postsPerPage'] ) ? absint( $attrs['postsPerPage'] ) : 12;
-	$posts_per_page    = max( 3, min( 24, $posts_per_page ) );
-	$show_featured     = ! isset( $attrs['showFeatured'] ) || (bool) $attrs['showFeatured'];
-	$visibility_class  = ugm_block_visibility_class( $attrs );
-
-	$query_args = array(
-		'post_type'           => 'post',
-		'posts_per_page'      => $posts_per_page + ( $show_featured ? 1 : 0 ),
-		'ignore_sticky_posts' => true,
-		'post_status'         => 'publish',
-		'orderby'             => 'date',
-		'order'               => 'DESC',
-		'no_found_rows'       => true,
-	);
-
-	if ( '' !== $category_slug ) {
-		$term_ids = ugm_resolve_multiple_slugs_to_ids( ugm_parse_category_slug_list( $category_slug, array( 'galeri' ) ) );
-		if ( ! empty( $term_ids ) ) {
-			$query_args['category__in'] = $term_ids;
-		} else {
-			$query_args['post__in'] = array( 0 );
-		}
-	}
-
-	$gallery_query = new WP_Query( $query_args );
-	$posts         = $gallery_query->posts;
-	$featured_post = $show_featured && ! empty( $posts ) ? array_shift( $posts ) : null;
-
-	ob_start();
-	?>
-	<div class="ugm-gallery-page <?php echo esc_attr( $visibility_class ); ?>">
-		<section class="ugm-gallery-page__intro" aria-labelledby="ugm-gallery-title">
-			<div class="ugm-gallery-page__container">
-				<?php if ( '' !== $breadcrumb_parent || '' !== $title ) : ?>
-					<nav class="ugm-gallery-breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'ugm-faculty' ); ?>">
-						<?php if ( '' !== $breadcrumb_parent ) : ?>
-							<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php echo esc_html( $breadcrumb_parent ); ?></a>
-							<span aria-hidden="true">&#8250;</span>
-						<?php endif; ?>
-						<span aria-current="page"><?php echo esc_html( $title ); ?></span>
-					</nav>
-				<?php endif; ?>
-				<h1 id="ugm-gallery-title" class="ugm-gallery-page__title"><?php echo esc_html( $title ); ?></h1>
-			</div>
-		</section>
-
-		<?php if ( $featured_post instanceof WP_Post ) : ?>
-			<?php
-			$post = $featured_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			setup_postdata( $post );
-			$mosaic_posts = array_slice( array_merge( array( $featured_post ), $posts ), 0, 4 );
-			?>
-			<section class="ugm-gallery-featured" aria-labelledby="ugm-gallery-featured-title">
-				<div class="ugm-gallery-page__container ugm-gallery-featured__inner">
-					<div class="ugm-gallery-featured__copy">
-						<p class="ugm-gallery-featured__date"><?php echo esc_html( get_the_date( 'l, j F Y' ) ); ?></p>
-						<h2 id="ugm-gallery-featured-title" class="ugm-gallery-featured__title">
-							<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-						</h2>
-						<p class="ugm-gallery-featured__excerpt"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 18 ) ); ?></p>
-						<a class="ugm-gallery-featured__button" href="<?php the_permalink(); ?>"><?php esc_html_e( 'Selengkapnya', 'ugm-faculty' ); ?></a>
-					</div>
-
-					<div class="ugm-gallery-featured__mosaic" aria-hidden="true">
-						<?php foreach ( $mosaic_posts as $mosaic_post ) : ?>
-							<div class="ugm-gallery-featured__tile">
-								<?php echo ugm_render_gallery_image_markup( $mosaic_post->ID, 'medium_large' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-							</div>
-						<?php endforeach; ?>
-					</div>
-				</div>
-			</section>
-			<?php wp_reset_postdata(); ?>
-		<?php endif; ?>
-
-		<section class="ugm-gallery-list" aria-labelledby="ugm-gallery-list-title">
-			<div class="ugm-gallery-page__container">
-				<header class="ugm-gallery-list__header">
-					<h2 id="ugm-gallery-list-title" class="ugm-gallery-list__title"><?php echo esc_html( $title ); ?></h2>
-					<span class="ugm-gallery-list__line" aria-hidden="true"></span>
-				</header>
-
-				<?php if ( ! empty( $posts ) ) : ?>
-					<div class="ugm-gallery-grid">
-						<?php foreach ( $posts as $gallery_post ) : ?>
-							<?php
-							$post = $gallery_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-							setup_postdata( $post );
-							?>
-							<article <?php post_class( 'ugm-gallery-card' ); ?>>
-								<a class="ugm-gallery-card__media" href="<?php the_permalink(); ?>" aria-label="<?php echo esc_attr( get_the_title() ); ?>">
-									<?php echo ugm_render_gallery_image_markup( get_the_ID(), 'medium_large' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-								</a>
-								<div class="ugm-gallery-card__body">
-									<h3 class="ugm-gallery-card__title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
-									<p class="ugm-gallery-card__date"><?php echo esc_html( get_the_date( 'l, j F Y' ) ); ?></p>
-								</div>
-							</article>
-						<?php endforeach; ?>
-						<?php wp_reset_postdata(); ?>
-					</div>
-				<?php else : ?>
-					<p class="section-empty"><?php esc_html_e( 'Belum ada konten galeri.', 'ugm-faculty' ); ?></p>
-				<?php endif; ?>
-			</div>
-		</section>
-	</div>
-	<?php
-
-	return ob_get_clean();
-}
-
-register_block_type( 'ugm/gallery-page', array(
-	'title'           => __( 'Halaman Galeri', 'ugm-faculty' ),
-	'description'     => __( 'Template halaman galeri dengan hero sorotan dan grid kartu galeri.', 'ugm-faculty' ),
-	'category'        => 'ugm-sections',
-	'render_callback' => 'ugm_render_block_gallery_page',
-	'supports'        => array( 'html' => false ),
-	'attributes'      => array(
-		'title'            => array( 'type' => 'string', 'default' => 'Galeri' ),
-		'breadcrumbParent' => array( 'type' => 'string', 'default' => 'Berita' ),
-		'categorySlug'     => array( 'type' => 'string', 'default' => 'galeri' ),
-		'postsPerPage'     => array( 'type' => 'integer', 'default' => 12 ),
-		'showFeatured'     => array( 'type' => 'boolean', 'default' => true ),
-		'visibility'       => array( 'type' => 'string', 'default' => 'all' ),
-	),
-) );
-
-/* ==========================================================================
  * Shared rendering helper: portal column (featured + list cards)
  * ========================================================================== */
 
@@ -2596,6 +2502,14 @@ add_filter( 'block_categories_all', function ( $categories ) {
 		'slug'  => 'ugm-sections',
 		'title' => __( 'UGM — Landing Page Sections', 'ugm-faculty' ),
 		'icon'  => 'layout',
+	), array(
+		'slug'  => 'ugm-agenda-page-sections',
+		'title' => __( 'UGM - Agenda Page Sections', 'ugm-faculty' ),
+		'icon'  => 'calendar',
+	), array(
+		'slug'  => 'ugm-announcement-page-sections',
+		'title' => __( 'UGM - Pengumuman Page Sections', 'ugm-faculty' ),
+		'icon'  => 'megaphone',
 	) );
 	return $categories;
 } );
@@ -2611,6 +2525,42 @@ add_action( 'enqueue_block_editor_assets', function () {
 		array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render' ),
 		ugm_get_asset_version( '/assets/js/blocks.js' ),
 		true
+	);
+
+	wp_enqueue_script(
+		'ugm-agenda-blocks',
+		get_template_directory_uri() . '/assets/js/agenda-blocks.js',
+		array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render', 'wp-plugins', 'wp-edit-post' ),
+		ugm_get_asset_version( '/assets/js/agenda-blocks.js' ),
+		true
+	);
+
+	wp_enqueue_script(
+		'ugm-announcement-blocks',
+		get_template_directory_uri() . '/assets/js/announcement-blocks.js',
+		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render', 'wp-plugins', 'wp-media-utils' ),
+		ugm_get_asset_version( '/assets/js/announcement-blocks.js' ),
+		true
+	);
+
+	wp_localize_script(
+		'ugm-agenda-blocks',
+		'ugmAgendaPageEditor',
+		array(
+			'defaultBlocks' => function_exists( 'ugm_get_default_agenda_page_blocks' )
+				? ugm_get_default_agenda_page_blocks()
+				: '',
+		)
+	);
+
+	wp_localize_script(
+		'ugm-announcement-blocks',
+		'ugmAnnouncementPageEditor',
+		array(
+			'defaultBlocks' => function_exists( 'ugm_get_default_announcement_page_blocks' )
+				? ugm_get_default_announcement_page_blocks()
+				: '',
+		)
 	);
 
 	wp_enqueue_style(
@@ -2635,9 +2585,23 @@ add_action( 'enqueue_block_editor_assets', function () {
 	);
 
 	wp_enqueue_style(
+		'ugm-editor-style-agenda-page',
+		get_template_directory_uri() . '/assets/css/agenda-page.css',
+		array( 'ugm-editor-style-base', 'ugm-editor-style-content' ),
+		ugm_get_asset_version( '/assets/css/agenda-page.css' )
+	);
+
+	wp_enqueue_style(
+		'ugm-editor-style-announcement-page',
+		get_template_directory_uri() . '/assets/css/announcement-page.css',
+		array( 'ugm-editor-style-base', 'ugm-editor-style-content' ),
+		ugm_get_asset_version( '/assets/css/announcement-page.css' )
+	);
+
+	wp_enqueue_style(
 		'ugm-editor-landing-preview',
 		get_template_directory_uri() . '/assets/css/landing-page-editor.css',
-		array( 'ugm-editor-style-base', 'ugm-editor-style-content' ),
+		array( 'ugm-editor-style-base', 'ugm-editor-style-content', 'ugm-editor-style-agenda-page', 'ugm-editor-style-announcement-page' ),
 		ugm_get_asset_version( '/assets/css/landing-page-editor.css' )
 	);
 } );
@@ -2683,11 +2647,26 @@ add_action( 'init', function () {
 		'categories'  => array( 'ugm-landing' ),
 		'content'     => $landing_blocks,
 	) );
+
 	register_block_pattern( 'ugm/gallery-page-template', array(
 		'title'       => __( 'Template Halaman Galeri', 'ugm-faculty' ),
 		'description' => __( 'Breadcrumb, hero galeri, dan grid kartu galeri seperti halaman referensi.', 'ugm-faculty' ),
 		'categories'  => array( 'ugm-pages' ),
 		'content'     => '<!-- wp:ugm/gallery-page {"title":"Galeri","breadcrumbParent":"Berita","categorySlug":"galeri","postsPerPage":12,"showFeatured":true} /-->',
+	) );
+
+	register_block_pattern( 'ugm/agenda-page-sections', array(
+		'title'       => __( 'Konten Halaman Agenda', 'ugm-faculty' ),
+		'description' => __( 'Daftar agenda lengkap dengan filter dan pagination. Insert ke halaman yang menggunakan template Agenda Page.', 'ugm-faculty' ),
+		'categories'  => array( 'ugm-landing' ),
+		'content'     => ugm_get_default_agenda_page_blocks(),
+	) );
+
+	register_block_pattern( 'ugm/announcement-page-sections', array(
+		'title'       => __( 'Konten Halaman Pengumuman', 'ugm-faculty' ),
+		'description' => __( 'Daftar pengumuman dengan sidebar berita dan agenda terbaru. Insert ke halaman yang menggunakan template Pengumuman Page.', 'ugm-faculty' ),
+		'categories'  => array( 'ugm-landing' ),
+		'content'     => ugm_get_default_announcement_page_blocks(),
 	) );
 } );
 

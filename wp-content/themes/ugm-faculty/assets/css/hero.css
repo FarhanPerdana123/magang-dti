@@ -22,6 +22,88 @@
 	object-position: center center;
 }
 
+.hero__slides,
+.hero__slide {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+}
+
+.hero__slides {
+	overflow: hidden;
+	background: #0b1b2b;
+}
+
+.hero__slide {
+	display: block;
+	background-size: cover;
+	background-position: center center;
+	background-repeat: no-repeat;
+	opacity: 0;
+	transform: translate3d(0, 0, 0);
+	transform-origin: center center;
+	animation-name: ugmHeroFade;
+	animation-timing-function: linear;
+	animation-iteration-count: infinite;
+	will-change: opacity, transform;
+	backface-visibility: hidden;
+}
+
+@-webkit-keyframes ugmHeroFade {
+	0% {
+		opacity: 1;
+	}
+
+	20% {
+		opacity: 1;
+	}
+
+	34% {
+		opacity: 0;
+	}
+
+	88% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+@keyframes ugmHeroFade {
+	0% {
+		opacity: 1;
+	}
+
+	20% {
+		opacity: 1;
+	}
+
+	34% {
+		opacity: 0;
+	}
+
+	88% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hero__slide {
+		animation: none !important;
+		transform: none;
+	}
+
+	.hero__slide:first-child {
+		opacity: 1;
+	}
+}
+
 .hero__overlay {
 	position: absolute;
 	inset: 0;
@@ -190,6 +272,10 @@
 /* Spacing for pages without hero */
 body:not(.home):not(.front-page) .site-content {
 	padding-top: var(--site-header-height);
+}
+
+body.single-post .site-content {
+	padding-top: clamp(28px, 3vw, 48px);
 }
 
 /* Front-page query routes (e.g. ?ugm_magazine_news=1) also have no hero. */

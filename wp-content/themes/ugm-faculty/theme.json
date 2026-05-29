@@ -99,6 +99,16 @@
 			"name": "single-berita",
 			"title": "Berita Detail",
 			"postTypes": [ "post" ]
+		},
+		{
+			"name": "agenda-page",
+			"title": "Agenda Page",
+			"postTypes": [ "page" ]
+		},
+		{
+			"name": "announcement-page",
+			"title": "Pengumuman Page",
+			"postTypes": [ "page" ]
 		}
 	],
 	"templateParts": [

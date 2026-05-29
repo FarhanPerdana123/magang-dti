@@ -237,7 +237,7 @@
 					item.appendChild(toggle);
 				}
 
-				submenu.hidden = true;
+				submenu.hidden = window.innerWidth < 900;
 				mobileDropdownToggles.push(toggle);
 
 				toggle.addEventListener('click', function (event) {

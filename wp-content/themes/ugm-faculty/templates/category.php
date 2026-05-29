@@ -9,6 +9,41 @@ get_header();
 
 $current_category = get_queried_object();
 $category_name    = $current_category instanceof WP_Term ? $current_category->name : __( 'Kategori', 'ugm-faculty' );
+
+if ( $current_category instanceof WP_Term && function_exists( 'ugm_render_block_agenda_list_page' ) ) {
+	$agenda_category_slugs = array( 'agenda', 'agenda-2', 'agenda-3', 'kegiatan', 'events', 'event' );
+	$is_agenda_category    = in_array( $current_category->slug, $agenda_category_slugs, true );
+
+	if ( ! $is_agenda_category ) {
+		foreach ( $agenda_category_slugs as $agenda_category_slug ) {
+			$agenda_category = get_category_by_slug( $agenda_category_slug );
+			if ( $agenda_category instanceof WP_Term && cat_is_ancestor_of( $agenda_category, $current_category ) ) {
+				$is_agenda_category = true;
+				break;
+			}
+		}
+	}
+
+	if ( $is_agenda_category ) :
+		?>
+		<main id="primary" class="site-main ugm-agenda-page">
+			<div class="ugm-agenda-page__container container">
+				<?php
+				echo ugm_render_block_agenda_list_page(
+					array(
+						'title'        => __( 'Agenda', 'ugm-faculty' ),
+						'categorySlug' => $current_category->slug,
+						'postsPerPage' => 12,
+					)
+				); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				?>
+			</div>
+		</main>
+		<?php
+		get_footer();
+		return;
+	endif;
+}
 ?>
 <main id="primary" class="site-main ugm-archive">
 	<div class="ugm-archive__container">

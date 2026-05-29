@@ -13,6 +13,19 @@ get_header();
 		$post_id        = get_the_ID();
 		$category_ids   = wp_get_post_categories( $post_id );
 		$primary_cat_id = ! empty( $category_ids ) ? (int) $category_ids[0] : 0;
+		$date_label     = get_the_date();
+		$date_datetime  = get_the_date( DATE_W3C );
+
+		if (
+			function_exists( 'ugm_is_agenda_post' )
+			&& function_exists( 'ugm_get_agenda_event_date_text' )
+			&& function_exists( 'ugm_get_agenda_event_timestamp' )
+			&& ugm_is_agenda_post( $post_id )
+			&& '' !== trim( (string) get_post_meta( $post_id, 'agenda_event_date', true ) )
+		) {
+			$date_label    = ugm_get_agenda_event_date_text( $post_id );
+			$date_datetime = wp_date( DATE_W3C, ugm_get_agenda_event_timestamp( $post_id ) );
+		}
 		?>
 		<article id="post-<?php the_ID(); ?>" <?php post_class( 'ugm-article' ); ?>>
 			<div class="ugm-article__container">
@@ -31,7 +44,7 @@ get_header();
 				<header class="ugm-article__header">
 					<?php the_title( '<h1 class="ugm-article__title">', '</h1>' ); ?>
 					<div class="ugm-article__meta">
-						<time datetime="<?php echo esc_attr( get_the_date( DATE_W3C ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
+						<time datetime="<?php echo esc_attr( $date_datetime ); ?>"><?php echo esc_html( $date_label ); ?></time>
 						<?php $categories_list = get_the_category_list( ', ' ); ?>
 						<?php if ( $categories_list ) : ?>
 							<span class="ugm-article__meta-sep" aria-hidden="true">|</span>
