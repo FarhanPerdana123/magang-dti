@@ -132,25 +132,29 @@ function ugm_render_empty_skeleton( $layout, $message = '', $args = array() ) {
 				</div>
 			</div>
 		<?php elseif ( 'portal-column' === $layout ) : ?>
-			<div class="ugm-skeleton-portal" aria-hidden="true">
-				<div class="ugm-skeleton-card ugm-skeleton-card--portal">
-					<span class="ugm-skeleton-box ugm-skeleton-box--poster"></span>
-					<div class="ugm-skeleton-card__body">
-						<span class="ugm-skeleton-line ugm-skeleton-line--short"></span>
-						<span class="ugm-skeleton-line"></span>
+			<div class="portal-column portal-column--skeleton" aria-hidden="true">
+				<article class="portal-card portal-card--featured portal-card--skeleton">
+					<div class="portal-card__media portal-card__media--skeleton">
+						<span class="ugm-skeleton-box ugm-skeleton-box--thumb"></span>
+					</div>
+					<div class="portal-card__body">
+						<span class="ugm-skeleton-line ugm-skeleton-line--title"></span>
+						<span class="ugm-skeleton-line ugm-skeleton-line--wide"></span>
 						<span class="ugm-skeleton-line ugm-skeleton-line--meta"></span>
 					</div>
-				</div>
-				<div class="ugm-skeleton-portal__list">
+				</article>
+				<div class="portal-column__list">
 					<?php for ( $i = 0; $i < 2; $i++ ) : ?>
-						<div class="ugm-skeleton-list-item">
-							<span class="ugm-skeleton-box ugm-skeleton-box--mini-thumb"></span>
-							<div class="ugm-skeleton-list-item__body">
-								<span class="ugm-skeleton-line ugm-skeleton-line--short"></span>
+						<article class="portal-list-card portal-list-card--skeleton">
+							<div class="portal-list-card__media portal-list-card__media--skeleton">
+								<span class="ugm-skeleton-box ugm-skeleton-box--mini-thumb"></span>
+							</div>
+							<div class="portal-list-card__body">
+								<span class="ugm-skeleton-line ugm-skeleton-line--title"></span>
 								<span class="ugm-skeleton-line"></span>
 								<span class="ugm-skeleton-line ugm-skeleton-line--meta"></span>
 							</div>
-						</div>
+						</article>
 					<?php endfor; ?>
 				</div>
 			</div>

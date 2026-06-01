@@ -26,6 +26,10 @@ remove_action( 'wp_head', 'wp_generator' );
  * @return string
  */
 function ugm_remove_version_from_assets( $src ) {
+	if ( strpos( $src, '/wp-content/themes/ugm-faculty/' ) !== false ) {
+		return $src;
+	}
+
 	if ( strpos( $src, 'ver=' ) !== false ) {
 		$src = remove_query_arg( 'ver', $src );
 	}

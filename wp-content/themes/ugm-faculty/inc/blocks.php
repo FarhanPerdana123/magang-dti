@@ -2510,6 +2510,10 @@ add_filter( 'block_categories_all', function ( $categories ) {
 		'slug'  => 'ugm-announcement-page-sections',
 		'title' => __( 'UGM - Pengumuman Page Sections', 'ugm-faculty' ),
 		'icon'  => 'megaphone',
+	), array(
+		'slug'  => 'ugm-gallery-page-sections',
+		'title' => __( 'UGM - Galeri Page Sections', 'ugm-faculty' ),
+		'icon'  => 'format-gallery',
 	) );
 	return $categories;
 } );
@@ -2543,6 +2547,14 @@ add_action( 'enqueue_block_editor_assets', function () {
 		true
 	);
 
+	wp_enqueue_script(
+		'ugm-gallery-blocks',
+		get_template_directory_uri() . '/assets/js/gallery-blocks.js',
+		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render', 'wp-plugins', 'wp-dom-ready' ),
+		ugm_get_asset_version( '/assets/js/gallery-blocks.js' ),
+		true
+	);
+
 	wp_localize_script(
 		'ugm-agenda-blocks',
 		'ugmAgendaPageEditor',
@@ -2559,6 +2571,16 @@ add_action( 'enqueue_block_editor_assets', function () {
 		array(
 			'defaultBlocks' => function_exists( 'ugm_get_default_announcement_page_blocks' )
 				? ugm_get_default_announcement_page_blocks()
+				: '',
+		)
+	);
+
+	wp_localize_script(
+		'ugm-gallery-blocks',
+		'ugmGalleryPageEditor',
+		array(
+			'defaultBlocks' => function_exists( 'ugm_get_default_gallery_page_blocks' )
+				? ugm_get_default_gallery_page_blocks()
 				: '',
 		)
 	);
@@ -2599,9 +2621,16 @@ add_action( 'enqueue_block_editor_assets', function () {
 	);
 
 	wp_enqueue_style(
+		'ugm-editor-style-gallery-page',
+		get_template_directory_uri() . '/assets/css/gallery-page.css',
+		array( 'ugm-editor-style-base', 'ugm-editor-style-content' ),
+		ugm_get_asset_version( '/assets/css/gallery-page.css' )
+	);
+
+	wp_enqueue_style(
 		'ugm-editor-landing-preview',
 		get_template_directory_uri() . '/assets/css/landing-page-editor.css',
-		array( 'ugm-editor-style-base', 'ugm-editor-style-content', 'ugm-editor-style-agenda-page', 'ugm-editor-style-announcement-page' ),
+		array( 'ugm-editor-style-base', 'ugm-editor-style-content', 'ugm-editor-style-agenda-page', 'ugm-editor-style-announcement-page', 'ugm-editor-style-gallery-page' ),
 		ugm_get_asset_version( '/assets/css/landing-page-editor.css' )
 	);
 } );
@@ -2623,19 +2652,9 @@ add_action( 'init', function () {
 		'label' => __( 'UGM Landing Page', 'ugm-faculty' ),
 	) );
 
-	$landing_blocks =
-		'<!-- wp:ugm/hero-section {"imageId":0,"imageUrl":"","title":"","description":""} /-->' . "\n" .
-		'<!-- wp:ugm/latest-news {"title":"Highlight Informasi"} /-->' . "\n" .
-		'<!-- wp:ugm/academic-news {"title":"Informasi Akademik"} /-->' . "\n" .
-		'<!-- wp:ugm/profile-section {"title":"Informasi Umum"} /-->' . "\n" .
-		'<!-- wp:ugm/achievement-section {"title":"Pencapaian"} /-->' . "\n" .
-		'<!-- wp:ugm/featured-categories /-->' . "\n" .
-		'<!-- wp:ugm/category-section {"title":"Kategori"} /-->' . "\n" .
-		'<!-- wp:ugm/faculty-section {"title":"Fakultas dan Sekolah"} /-->' . "\n" .
-		'<!-- wp:ugm/agenda-section {"title":"Event & Agenda"} /-->' . "\n" .
-		'<!-- wp:ugm/magazine-section /-->' . "\n" .
-		'<!-- wp:ugm/video-section {"title":"Media Video"} /-->' . "\n" .
-		'<!-- wp:ugm/template-links {"title":"Layanan Pilihan","items":[]} /-->';
+	$landing_blocks = function_exists( 'ugm_get_default_landing_page_blocks' )
+		? ugm_get_default_landing_page_blocks()
+		: '';
 
 	register_block_pattern( 'ugm/landing-page-sections', array(
 		'title'       => __( 'Konten Halaman Landing — Semua Section', 'ugm-faculty' ),
@@ -2831,6 +2850,9 @@ add_filter( 'default_content', function ( $content, $post ) {
 }, 10, 2 );
 
 add_action( 'admin_init', function () {
+	// Superseded by ugm_normalize_existing_landing_page_content().
+	return;
+
 	if ( get_option( 'ugm_landing_blocks_migrated_v4_featured_categories' ) ) {
 		return;
 	}
@@ -2873,6 +2895,9 @@ add_action( 'admin_init', function () {
 } );
 
 add_action( 'admin_init', function () {
+	// Superseded by ugm_normalize_existing_landing_page_content().
+	return;
+
 	if ( get_option( 'ugm_landing_blocks_migrated_v5_category_section' ) ) {
 		return;
 	}
@@ -2915,6 +2940,9 @@ add_action( 'admin_init', function () {
 } );
 
 add_action( 'admin_init', function () {
+	// Superseded by ugm_normalize_existing_landing_page_content().
+	return;
+
 	if ( get_option( 'ugm_landing_blocks_migrated_v6_remove_facility_section' ) ) {
 		return;
 	}
@@ -2956,6 +2984,9 @@ add_action( 'admin_init', function () {
  * ========================================================================== */
 
 add_action( 'admin_init', function () {
+	// Superseded by ugm_normalize_existing_landing_page_content().
+	return;
+
 	if ( get_option( 'ugm_landing_blocks_migrated_v7_video_section' ) ) {
 		return;
 	}
@@ -3014,6 +3045,9 @@ add_action( 'admin_init', function () {
  * ========================================================================== */
 
 add_action( 'admin_init', function () {
+	// Superseded by ugm_normalize_existing_landing_page_content().
+	return;
+
 	if ( get_option( 'ugm_landing_blocks_migrated_v8_split_featured_cols' ) ) {
 		return;
 	}
@@ -3103,6 +3137,9 @@ add_action( 'admin_init', function () {
  * ========================================================================== */
 
 add_action( 'admin_init', function () {
+	// Superseded by ugm_normalize_existing_landing_page_content().
+	return;
+
 	if ( get_option( 'ugm_landing_blocks_migrated_v9_template_links' ) ) {
 		return;
 	}

@@ -99,6 +99,11 @@
 			"name": "announcement-page",
 			"title": "Pengumuman Page",
 			"postTypes": [ "page" ]
+		},
+		{
+			"name": "gallery-page",
+			"title": "Galeri Page",
+			"postTypes": [ "page" ]
 		}
 	],
 	"templateParts": [

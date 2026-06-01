@@ -55,8 +55,17 @@ function ugm_get_announcement_block_template_content() {
 	return trim( $template->content );
 }
 
-function ugm_get_announcement_render_source( $page_content = '' ) {
+function ugm_get_announcement_render_source( $page_content = '', $template_slug = '' ) {
 	$page_content = (string) $page_content;
+	$template_slug = (string) $template_slug;
+
+	if ( 'announcement-page' === $template_slug ) {
+		$template_content = ugm_get_announcement_block_template_content();
+		if ( '' !== $template_content && false !== strpos( $template_content, 'ugm/announcement-page' ) ) {
+			return $template_content;
+		}
+	}
+
 	if ( false !== strpos( $page_content, '<!-- wp:' ) ) {
 		return $page_content;
 	}
@@ -72,6 +81,40 @@ function ugm_get_announcement_render_source( $page_content = '' ) {
 
 	return ugm_get_default_announcement_page_blocks();
 }
+
+function ugm_repair_announcement_block_template() {
+	if ( ! is_admin() ) {
+		return;
+	}
+
+	$template_posts = get_posts(
+		array(
+			'post_type'      => 'wp_template',
+			'post_status'    => array( 'publish', 'draft' ),
+			'name'           => 'announcement-page',
+			'posts_per_page' => 1,
+		)
+	);
+
+	foreach ( $template_posts as $template_post ) {
+		if ( ! $template_post instanceof WP_Post ) {
+			continue;
+		}
+
+		$content = (string) $template_post->post_content;
+		if ( false !== strpos( $content, 'ugm/announcement-page' ) ) {
+			continue;
+		}
+
+		wp_update_post(
+			array(
+				'ID'           => $template_post->ID,
+				'post_content' => ugm_get_default_announcement_page_blocks(),
+			)
+		);
+	}
+}
+add_action( 'admin_init', 'ugm_repair_announcement_block_template', 25 );
 
 function ugm_use_php_announcement_template_on_frontend( $template ) {
 	if ( is_admin() || ! is_page() ) {

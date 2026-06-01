@@ -15,11 +15,16 @@ get_header();
 			while ( have_posts() ) :
 				the_post();
 
-				$page_content = (string) get_the_content();
-				if ( '' !== trim( $page_content ) ) {
-					the_content();
+				$template_slug = (string) get_page_template_slug( get_the_ID() );
+				$page_content  = (string) get_the_content();
+				$render_source = function_exists( 'ugm_get_announcement_render_source' )
+					? ugm_get_announcement_render_source( $page_content, $template_slug )
+					: $page_content;
+
+				if ( '' !== trim( $render_source ) ) {
+					echo do_blocks( $render_source ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				} else {
-					echo do_blocks( ugm_get_announcement_render_source() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo do_blocks( ugm_get_default_announcement_page_blocks() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
 			endwhile;
 		else :

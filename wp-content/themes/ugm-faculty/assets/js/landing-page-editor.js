@@ -169,8 +169,8 @@
 				},
 
 				el( 'p', { className: 'ugm-landing-panel__desc' },
-					'Tampilan halaman ini dikendalikan sepenuhnya oleh template PHP. ' +
-					'Edit judul dan slug kategori melalui pengaturan block UGM di sidebar.'
+					'Block yang disimpan di editor ini menjadi sumber tampilan halaman. ' +
+					'Edit judul, kategori, gambar, dan item melalui pengaturan block UGM di sidebar.'
 				),
 
 				el(
