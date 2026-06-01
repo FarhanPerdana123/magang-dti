@@ -17,6 +17,7 @@
 		var searchPanel = document.getElementById('header-search-form');
 		var searchClose = header.querySelector('.header-search__close');
 		var mobileDropdownToggles = [];
+		var desktopMenuQuery = window.matchMedia ? window.matchMedia('(min-width: 1025px)') : null;
 
 		// Keep header state in sync with scroll position (front page transparent -> solid on scroll).
 		function updateScrollState() {
@@ -57,6 +58,19 @@
 		function setupMobileDropdowns() {
 			if (!nav) {
 				return;
+			}
+
+			function isDesktopMenu() {
+				return desktopMenuQuery ? desktopMenuQuery.matches : window.innerWidth >= 1025;
+			}
+
+			function closeDesktopHoverMenus(exceptItem) {
+				var hoveredItems = nav.querySelectorAll('.primary-menu__list > li.is-hovered');
+				hoveredItems.forEach(function (hoveredItem) {
+					if (hoveredItem !== exceptItem) {
+						hoveredItem.classList.remove('is-hovered');
+					}
+				});
 			}
 
 			var dropdownSeed = {
@@ -239,6 +253,21 @@
 
 				submenu.hidden = window.innerWidth < 900;
 				mobileDropdownToggles.push(toggle);
+
+				item.addEventListener('pointerenter', function () {
+					if (!isDesktopMenu()) {
+						return;
+					}
+					closeDesktopHoverMenus(item);
+					item.classList.add('is-hovered');
+				});
+
+				item.addEventListener('pointerleave', function () {
+					if (!isDesktopMenu()) {
+						return;
+					}
+					item.classList.remove('is-hovered');
+				});
 
 				toggle.addEventListener('click', function (event) {
 					event.preventDefault();

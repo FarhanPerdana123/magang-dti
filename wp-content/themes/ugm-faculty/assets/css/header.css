@@ -1120,10 +1120,10 @@
 		transition: opacity 160ms ease, transform 160ms ease, visibility 0s linear 160ms;
 	}
 
-	.primary-menu__list > li.menu-item-has-children:hover > .sub-menu,
-	.primary-menu__list > li.menu-item-has-children:focus-within > .sub-menu,
-	.primary-menu__list > li.page_item_has_children:hover > .sub-menu,
-	.primary-menu__list > li.page_item_has_children:focus-within > .sub-menu {
+	.primary-menu__list > li.menu-item-has-children.is-hovered > .sub-menu,
+	.primary-menu__list > li.page_item_has_children.is-hovered > .sub-menu,
+	.primary-menu__list > li.menu-item-has-children.is-open > .sub-menu,
+	.primary-menu__list > li.page_item_has_children.is-open > .sub-menu {
 		opacity: 1;
 		visibility: visible;
 		transform: translateY(0);
@@ -1233,10 +1233,10 @@
 		transform: translate(-50%, 8px);
 	}
 
-	.primary-menu__list > li.menu-item-has-children:hover > .sub-menu:not(:has(> li:nth-child(2))),
-	.primary-menu__list > li.menu-item-has-children:focus-within > .sub-menu:not(:has(> li:nth-child(2))),
-	.primary-menu__list > li.page_item_has_children:hover > .sub-menu:not(:has(> li:nth-child(2))),
-	.primary-menu__list > li.page_item_has_children:focus-within > .sub-menu:not(:has(> li:nth-child(2))) {
+	.primary-menu__list > li.menu-item-has-children.is-hovered > .sub-menu:not(:has(> li:nth-child(2))),
+	.primary-menu__list > li.page_item_has_children.is-hovered > .sub-menu:not(:has(> li:nth-child(2))),
+	.primary-menu__list > li.menu-item-has-children.is-open > .sub-menu:not(:has(> li:nth-child(2))),
+	.primary-menu__list > li.page_item_has_children.is-open > .sub-menu:not(:has(> li:nth-child(2))) {
 		transform: translate(-50%, 0);
 	}
 

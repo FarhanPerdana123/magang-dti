@@ -33,6 +33,7 @@ if ( ! class_exists( 'UGM_Faculty_Theme' ) ) {
 			'landing-page.php',
 			'agenda-page.php',
 			'announcement-page.php',
+			'gallery-page.php',
 			'blocks.php',
 			'berita-terbaru-blocks.php',
 			'single-berita-block.php',

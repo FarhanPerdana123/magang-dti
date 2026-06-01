@@ -22,9 +22,11 @@ if ( have_posts() ) {
 	while ( have_posts() ) {
 		the_post();
 
-		$post_content  = (string) get_the_content();
-		$has_ugm_block = false !== strpos( $post_content, '<!-- wp:ugm/' );
-		$blocks        = parse_blocks( $has_ugm_block ? $post_content : ugm_get_default_landing_page_blocks() );
+		$template_slug = (string) get_page_template_slug( get_the_ID() );
+		$post_content  = function_exists( 'ugm_get_landing_page_render_content' )
+			? ugm_get_landing_page_render_content( (string) get_the_content(), $template_slug )
+			: (string) get_the_content();
+		$blocks       = parse_blocks( $post_content );
 
 		// Blok-blok yang dikumpulkan dalam .home-sections-triple (grid 3 kolom).
 		$triple_names = array(
