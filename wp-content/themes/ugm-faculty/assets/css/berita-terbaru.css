@@ -597,9 +597,13 @@
 	background: #fff;
 }
 
+body:not(.home):not(.front-page) .site-content:has(.ugmbt-page) {
+	padding-top: 0;
+}
+
 .ugmbt-container {
 	width: min(100% - 32px, 930px);
-	padding-block: 14px 56px;
+	padding-block: 24px 56px;
 }
 
 .ugmbt-breadcrumb {
