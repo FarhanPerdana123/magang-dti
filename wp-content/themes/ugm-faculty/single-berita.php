@@ -249,13 +249,6 @@ function ugm_single_berita_render_post_list( WP_Query $query ): void {
 			</div>
 		</article>
 
-		<?php if ( comments_open() || get_comments_number() ) : ?>
-		<section class="ugmsb-comments">
-			<div class="ugmsb-container">
-				<?php comments_template(); ?>
-			</div>
-		</section>
-		<?php endif; ?>
 	<?php endwhile; ?>
 </main>
 

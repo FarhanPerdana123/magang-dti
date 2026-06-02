@@ -176,3 +176,60 @@ add_action(
 	20
 );
 
+/**
+ * Route posts using the "Berita Detail" template to the PHP template so the
+ * frontend uses the complete theme header/navigation.
+ *
+ * @param string $template Current template path.
+ * @return string
+ */
+function ugm_route_single_berita_template( $template ) {
+	if ( is_admin() || ! is_singular( 'post' ) ) {
+		return $template;
+	}
+
+	$post = get_queried_object();
+	if ( ! $post instanceof WP_Post ) {
+		$post = get_post();
+	}
+	if ( ! $post instanceof WP_Post ) {
+		return $template;
+	}
+
+	$template_meta = (string) get_post_meta( $post->ID, '_wp_page_template', true );
+	if ( ! in_array( $template_meta, array( 'single-berita', 'single-berita.php' ), true ) ) {
+		return $template;
+	}
+
+	$php_template = get_theme_file_path( 'single-berita.php' );
+	if ( file_exists( $php_template ) ) {
+		return $php_template;
+	}
+
+	return $template;
+}
+add_filter( 'template_include', 'ugm_route_single_berita_template', 1 );
+
+add_action(
+	'template_redirect',
+	static function () {
+		if ( is_admin() || ! is_singular( 'post' ) ) return;
+
+		$post = get_queried_object();
+		if ( ! $post instanceof WP_Post ) {
+			$post = get_post();
+		}
+		if ( ! $post instanceof WP_Post ) return;
+
+		$template_meta = (string) get_post_meta( $post->ID, '_wp_page_template', true );
+		if ( ! in_array( $template_meta, array( 'single-berita', 'single-berita.php' ), true ) ) return;
+
+		$php_template = get_theme_file_path( 'single-berita.php' );
+		if ( file_exists( $php_template ) ) {
+			include $php_template;
+			exit;
+		}
+	},
+	1
+);
+

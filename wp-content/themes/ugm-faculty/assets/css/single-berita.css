@@ -10,10 +10,14 @@
 	font-family: var(--font-family-body, 'Source Sans 3', 'Segoe UI', Arial, sans-serif);
 }
 
+body:has(.ugmsb-page) .site-content {
+	padding-top: 0 !important;
+}
+
 .ugmsb-container {
 	width: min(100% - 32px, 930px);
 	margin-inline: auto;
-	padding-block: 14px 56px;
+	padding-block: 10px 56px;
 }
 
 .ugmsb-breadcrumb {
