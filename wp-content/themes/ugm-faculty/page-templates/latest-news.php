@@ -38,6 +38,10 @@ if ( ! empty( $whitelist_ids ) ) {
 	}
 }
 
+if ( function_exists( 'ugm_apply_non_agenda_date_query' ) ) {
+	$query_args = ugm_apply_non_agenda_date_query( $query_args );
+}
+
 $latest_news_query = new WP_Query( $query_args );
 ?>
 <main id="primary" class="site-main ugm-archive">

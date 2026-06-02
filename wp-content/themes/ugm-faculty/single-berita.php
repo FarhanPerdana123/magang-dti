@@ -121,20 +121,30 @@ function ugm_single_berita_render_post_list( WP_Query $query ): void {
 			$related_args['category__in'] = $category_ids;
 		}
 
+		if ( function_exists( 'ugm_apply_non_agenda_date_query' ) ) {
+			$latest_args  = ugm_apply_non_agenda_date_query( $latest_args );
+			$related_args = ugm_apply_non_agenda_date_query( $related_args );
+		}
+
 		$latest_query  = new WP_Query( $latest_args );
 		$related_query = new WP_Query( $related_args );
-		$agenda_cpt    = post_type_exists( 'ugm_event' ) ? 'ugm_event' : 'post';
-		$agenda_query  = new WP_Query(
-			array(
-				'post_type'           => $agenda_cpt,
-				'posts_per_page'      => 1,
-				'post_status'         => 'publish',
-				'ignore_sticky_posts' => true,
-				'orderby'             => 'date',
-				'order'               => 'DESC',
-				'no_found_rows'       => true,
-			)
+		$agenda_args   = array(
+			'post_type'           => 'post',
+			'posts_per_page'      => 1,
+			'post_status'         => 'publish',
+			'ignore_sticky_posts' => true,
+			'meta_key'            => 'agenda_event_date',
+			'orderby'             => array(
+				'meta_value' => 'ASC',
+				'date'       => 'DESC',
+			),
+			'order'               => 'ASC',
+			'no_found_rows'       => true,
 		);
+		if ( function_exists( 'ugm_apply_agenda_date_query' ) ) {
+			$agenda_args = ugm_apply_agenda_date_query( $agenda_args );
+		}
+		$agenda_query = new WP_Query( $agenda_args );
 		?>
 
 		<article id="post-<?php the_ID(); ?>" <?php post_class( 'ugmsb-article' ); ?>>

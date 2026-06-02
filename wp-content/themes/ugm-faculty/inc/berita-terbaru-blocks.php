@@ -202,6 +202,10 @@ function ugmbt_make_query( string $cat_slug, int $count, array $extra = array() 
 		}
 	}
 
+	if ( function_exists( 'ugm_apply_non_agenda_date_query' ) ) {
+		$args = ugm_apply_non_agenda_date_query( $args );
+	}
+
 	return new WP_Query( $args );
 }
 
@@ -594,7 +598,7 @@ function ugmbt_render_block_sidebar_news( array $attrs ): string {
 		: __( 'Berita Terbaru', 'ugm-faculty' );
 	$count = max( 1, (int) ( $attrs['postsCount'] ?? 5 ) );
 
-	$q = new WP_Query( array(
+	$query_args = array(
 		'post_type'           => 'post',
 		'posts_per_page'      => $count,
 		'post_status'         => 'publish',
@@ -602,7 +606,11 @@ function ugmbt_render_block_sidebar_news( array $attrs ): string {
 		'orderby'             => 'date',
 		'order'               => 'DESC',
 		'no_found_rows'       => true,
-	) );
+	);
+	if ( function_exists( 'ugm_apply_non_agenda_date_query' ) ) {
+		$query_args = ugm_apply_non_agenda_date_query( $query_args );
+	}
+	$q = new WP_Query( $query_args );
 
 	ob_start();
 	?>
@@ -651,16 +659,23 @@ function ugmbt_render_block_sidebar_agenda( array $attrs ): string {
 	$agenda_url = ( isset( $attrs['agendaUrl'] ) && '' !== $attrs['agendaUrl'] )
 		? sanitize_text_field( $attrs['agendaUrl'] ) : '/agenda/';
 
-	$agenda_cpt = post_type_exists( 'ugm_event' ) ? 'ugm_event' : 'post';
-	$q          = new WP_Query( array(
-		'post_type'           => $agenda_cpt,
+	$query_args = array(
+		'post_type'           => 'post',
 		'posts_per_page'      => $count,
 		'post_status'         => 'publish',
 		'ignore_sticky_posts' => true,
-		'orderby'             => 'date',
-		'order'               => 'DESC',
+		'meta_key'            => 'agenda_event_date',
+		'orderby'             => array(
+			'meta_value' => 'ASC',
+			'date'       => 'DESC',
+		),
+		'order'               => 'ASC',
 		'no_found_rows'       => true,
-	) );
+	);
+	if ( function_exists( 'ugm_apply_agenda_date_query' ) ) {
+		$query_args = ugm_apply_agenda_date_query( $query_args );
+	}
+	$q = new WP_Query( $query_args );
 
 	ob_start();
 	?>
@@ -669,10 +684,15 @@ function ugmbt_render_block_sidebar_agenda( array $attrs ): string {
 		<?php if ( $q->have_posts() ) : ?>
 		<div class="ugmbt-agenda-list">
 			<?php while ( $q->have_posts() ) : $q->the_post(); ?>
+			<?php
+			$agenda_timestamp = function_exists( 'ugm_get_agenda_event_timestamp' )
+				? ugm_get_agenda_event_timestamp( get_the_ID() )
+				: (int) get_post_timestamp( get_the_ID() );
+			?>
 			<div class="ugmbt-agenda-item">
-				<div class="ugmbt-agenda-date" aria-label="<?php echo esc_attr( (string) get_the_date( 'j F Y' ) ); ?>">
-					<span class="ugmbt-agenda-date__day"><?php echo esc_html( (string) get_the_date( 'j' ) ); ?></span>
-					<span class="ugmbt-agenda-date__mon"><?php echo esc_html( (string) get_the_date( 'M' ) ); ?></span>
+				<div class="ugmbt-agenda-date" aria-label="<?php echo esc_attr( wp_date( 'j F Y', $agenda_timestamp ) ); ?>">
+					<span class="ugmbt-agenda-date__day"><?php echo esc_html( wp_date( 'j', $agenda_timestamp ) ); ?></span>
+					<span class="ugmbt-agenda-date__mon"><?php echo esc_html( wp_date( 'M', $agenda_timestamp ) ); ?></span>
 				</div>
 				<div class="ugmbt-agenda-body">
 					<a class="ugmbt-agenda-title" href="<?php the_permalink(); ?>"><?php the_title(); ?></a>

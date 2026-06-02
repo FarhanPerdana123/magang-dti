@@ -279,6 +279,88 @@ function ugm_get_agenda_event_timestamp( $post_id ) {
 }
 
 /**
+ * Build a meta query clause for posts that have a filled agenda start date.
+ *
+ * @return array
+ */
+function ugm_get_agenda_date_meta_query() {
+	return array(
+		'relation' => 'AND',
+		array(
+			'key'     => 'agenda_event_date',
+			'compare' => 'EXISTS',
+		),
+		array(
+			'key'     => 'agenda_event_date',
+			'value'   => '',
+			'compare' => '!=',
+		),
+	);
+}
+
+/**
+ * Build a meta query clause for posts that are not agenda posts.
+ *
+ * @return array
+ */
+function ugm_get_non_agenda_date_meta_query() {
+	return array(
+		'relation' => 'OR',
+		array(
+			'key'     => 'agenda_event_date',
+			'compare' => 'NOT EXISTS',
+		),
+		array(
+			'key'     => 'agenda_event_date',
+			'value'   => '',
+			'compare' => '=',
+		),
+	);
+}
+
+/**
+ * Append a meta query clause to existing WP_Query args.
+ *
+ * @param array $query_args Query args.
+ * @param array $clause     Meta query clause.
+ * @return array
+ */
+function ugm_append_meta_query_clause( array $query_args, array $clause ) {
+	if ( empty( $query_args['meta_query'] ) || ! is_array( $query_args['meta_query'] ) ) {
+		$query_args['meta_query'] = $clause;
+		return $query_args;
+	}
+
+	$query_args['meta_query'] = array(
+		'relation' => 'AND',
+		$query_args['meta_query'],
+		$clause,
+	);
+
+	return $query_args;
+}
+
+/**
+ * Restrict query args to agenda posts with a filled start date.
+ *
+ * @param array $query_args Query args.
+ * @return array
+ */
+function ugm_apply_agenda_date_query( array $query_args ) {
+	return ugm_append_meta_query_clause( $query_args, ugm_get_agenda_date_meta_query() );
+}
+
+/**
+ * Exclude posts that have a filled agenda start date.
+ *
+ * @param array $query_args Query args.
+ * @return array
+ */
+function ugm_apply_non_agenda_date_query( array $query_args ) {
+	return ugm_append_meta_query_clause( $query_args, ugm_get_non_agenda_date_meta_query() );
+}
+
+/**
  * Get the agenda event date text for card metadata.
  *
  * @param int $post_id Post ID.
@@ -342,19 +424,7 @@ function ugm_is_agenda_post( $post_id ) {
 		return false;
 	}
 
-	foreach ( get_the_category( $post_id ) as $category ) {
-		if ( in_array( $category->slug, array( 'agenda', 'agenda-2', 'agenda-3', 'kegiatan', 'events', 'event' ), true ) ) {
-			return true;
-		}
-	}
-
-	foreach ( array( 'agenda_event_date', 'agenda_location', 'agenda_event_type' ) as $meta_key ) {
-		if ( '' !== trim( (string) get_post_meta( $post_id, $meta_key, true ) ) ) {
-			return true;
-		}
-	}
-
-	return false;
+	return '' !== trim( (string) get_post_meta( $post_id, 'agenda_event_date', true ) );
 }
 
 /**
@@ -562,22 +632,32 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 		'paged'               => $paged,
 		'ignore_sticky_posts' => true,
 		'post_status'         => 'publish',
-		'orderby'             => 'date',
-		'order'               => 'DESC',
+		'meta_key'            => 'agenda_event_date',
+		'orderby'             => array(
+			'meta_value' => 'ASC',
+			'date'       => 'DESC',
+		),
+		'order'               => 'ASC',
 	);
+	$query_args = ugm_apply_agenda_date_query( $query_args );
 
 	if ( '' !== $keyword ) {
 		$query_args['s'] = $keyword;
 	}
 
-	if ( ! empty( $tax_ids ) ) {
+	if ( '' !== $category_pick || '' !== $type_pick ) {
 		$query_args['category__in'] = $tax_ids;
-	} else {
+		if ( empty( $tax_ids ) ) {
+			$query_args['post__in'] = array( 0 );
+		}
+	} elseif ( '' !== $category_slug && 'agenda' !== sanitize_key( $category_slug ) && ! empty( $tax_ids ) ) {
+		$query_args['category__in'] = $tax_ids;
+	} elseif ( '' !== $category_slug && 'agenda' !== sanitize_key( $category_slug ) && empty( $tax_ids ) ) {
 		$query_args['post__in'] = array( 0 );
 	}
 
 	if ( '' !== $location ) {
-		$query_args['meta_query'] = array(
+		$query_args = ugm_append_meta_query_clause( $query_args, array(
 			'relation' => 'OR',
 			array(
 				'key'     => 'agenda_location',
@@ -594,32 +674,37 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 				'value'   => $location,
 				'compare' => 'LIKE',
 			),
-		);
+		) );
 	}
 
 	if ( 'this-month' === $date_range ) {
-		$query_args['date_query'] = array(
+		$query_args = ugm_append_meta_query_clause( $query_args, array(
 			array(
-				'after'     => wp_date( 'Y-m-01 00:00:00' ),
-				'before'    => wp_date( 'Y-m-t 23:59:59' ),
-				'inclusive' => true,
+				'key'     => 'agenda_event_date',
+				'value'   => array( wp_date( 'Y-m-01' ), wp_date( 'Y-m-t' ) ),
+				'compare' => 'BETWEEN',
+				'type'    => 'DATE',
 			),
-		);
+		) );
 	} elseif ( 'upcoming' === $date_range ) {
-		$query_args['date_query'] = array(
+		$query_args = ugm_append_meta_query_clause( $query_args, array(
 			array(
-				'after'     => wp_date( 'Y-m-d 00:00:00' ),
-				'inclusive' => true,
+				'key'     => 'agenda_event_date',
+				'value'   => wp_date( 'Y-m-d' ),
+				'compare' => '>=',
+				'type'    => 'DATE',
 			),
-		);
+		) );
 		$query_args['order'] = 'ASC';
 	} elseif ( 'past' === $date_range ) {
-		$query_args['date_query'] = array(
+		$query_args = ugm_append_meta_query_clause( $query_args, array(
 			array(
-				'before'    => wp_date( 'Y-m-d 00:00:00' ),
-				'inclusive' => false,
+				'key'     => 'agenda_event_date',
+				'value'   => wp_date( 'Y-m-d' ),
+				'compare' => '<',
+				'type'    => 'DATE',
 			),
-		);
+		) );
 	}
 
 	$agenda_query = new WP_Query( $query_args );

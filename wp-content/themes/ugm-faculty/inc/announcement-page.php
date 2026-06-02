@@ -421,17 +421,21 @@ function ugm_render_block_announcement_latest_news( $attrs ) {
 	$title          = trim( (string) ( $attrs['title'] ?? __( 'Berita Terbaru', 'ugm-faculty' ) ) );
 	$posts_per_page = max( 1, min( 10, absint( $attrs['postsPerPage'] ?? 5 ) ) );
 	$agenda_ids     = ugm_announcement_term_ids_from_slugs( 'agenda,kegiatan,events,event' );
-	$posts          = get_posts(
-		array(
-			'post_type'           => 'post',
-			'posts_per_page'      => $posts_per_page,
-			'ignore_sticky_posts' => true,
-			'post_status'         => 'publish',
-			'orderby'             => 'date',
-			'order'               => 'DESC',
-			'category__not_in'    => $agenda_ids,
-		)
+	$query_args     = array(
+		'post_type'           => 'post',
+		'posts_per_page'      => $posts_per_page,
+		'ignore_sticky_posts' => true,
+		'post_status'         => 'publish',
+		'orderby'             => 'date',
+		'order'               => 'DESC',
 	);
+	if ( ! empty( $agenda_ids ) ) {
+		$query_args['category__not_in'] = $agenda_ids;
+	}
+	if ( function_exists( 'ugm_apply_non_agenda_date_query' ) ) {
+		$query_args = ugm_apply_non_agenda_date_query( $query_args );
+	}
+	$posts = get_posts( $query_args );
 
 	ob_start();
 	?>
@@ -457,17 +461,27 @@ function ugm_render_block_announcement_latest_agenda( $attrs ) {
 	$button_label   = trim( (string) ( $attrs['buttonLabel'] ?? __( 'Semua Agenda', 'ugm-faculty' ) ) );
 	$button_url     = trim( (string) ( $attrs['buttonUrl'] ?? '/agenda/' ) );
 	$agenda_ids     = ugm_announcement_term_ids_from_slugs( '' !== $category_slug ? $category_slug : 'agenda' );
-	$posts          = ! empty( $agenda_ids ) ? get_posts(
-		array(
-			'post_type'           => 'post',
-			'posts_per_page'      => max( $posts_per_page, 20 ),
-			'ignore_sticky_posts' => true,
-			'post_status'         => 'publish',
-			'orderby'             => 'date',
-			'order'               => 'DESC',
-			'category__in'        => $agenda_ids,
-		)
-	) : array();
+	$query_args     = array(
+		'post_type'           => 'post',
+		'posts_per_page'      => max( $posts_per_page, 20 ),
+		'ignore_sticky_posts' => true,
+		'post_status'         => 'publish',
+		'meta_key'            => 'agenda_event_date',
+		'orderby'             => array(
+			'meta_value' => 'DESC',
+			'date'       => 'DESC',
+		),
+		'order'               => 'DESC',
+	);
+	if ( function_exists( 'ugm_apply_agenda_date_query' ) ) {
+		$query_args = ugm_apply_agenda_date_query( $query_args );
+	}
+	if ( '' !== $category_slug && 'agenda' !== sanitize_key( $category_slug ) && ! empty( $agenda_ids ) ) {
+		$query_args['category__in'] = $agenda_ids;
+	} elseif ( '' !== $category_slug && 'agenda' !== sanitize_key( $category_slug ) && empty( $agenda_ids ) ) {
+		$query_args['post__in'] = array( 0 );
+	}
+	$posts = get_posts( $query_args );
 
 	if ( ! empty( $posts ) && function_exists( 'ugm_get_agenda_event_timestamp' ) ) {
 		usort(

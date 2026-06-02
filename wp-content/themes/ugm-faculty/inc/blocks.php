@@ -966,6 +966,9 @@ function ugm_render_block_latest_news( $attrs ) {
 			$args['post__in'] = array( 0 );
 		}
 	}
+	if ( function_exists( 'ugm_apply_non_agenda_date_query' ) ) {
+		$args = ugm_apply_non_agenda_date_query( $args );
+	}
 
 	$q = new WP_Query( $args );
 
@@ -1829,13 +1832,20 @@ function ugm_render_agenda_column_html( $title, $cat_slug ) {
 		'posts_per_page'      => $agenda_count,
 		'ignore_sticky_posts' => true,
 		'post_status'         => 'publish',
-		'orderby'             => 'date',
-		'order'               => 'DESC',
+		'meta_key'            => 'agenda_event_date',
+		'orderby'             => array(
+			'meta_value' => 'ASC',
+			'date'       => 'DESC',
+		),
+		'order'               => 'ASC',
 		'no_found_rows'       => true,
 	);
-	if ( ! empty( $agenda_term_ids ) ) {
+	if ( function_exists( 'ugm_apply_agenda_date_query' ) ) {
+		$agenda_args = ugm_apply_agenda_date_query( $agenda_args );
+	}
+	if ( '' !== trim( (string) $cat_slug ) && 'agenda' !== sanitize_key( $cat_slug ) && ! empty( $agenda_term_ids ) ) {
 		$agenda_args['category__in'] = $agenda_term_ids;
-	} else {
+	} elseif ( '' !== trim( (string) $cat_slug ) && 'agenda' !== sanitize_key( $cat_slug ) && empty( $agenda_term_ids ) ) {
 		$agenda_args['post__in'] = array( 0 );
 	}
 	$agenda_q = new WP_Query( $agenda_args );
@@ -1855,7 +1865,9 @@ function ugm_render_agenda_column_html( $title, $cat_slug ) {
 		while ( $agenda_q->have_posts() ) {
 			$agenda_q->the_post();
 			$agenda_items++;
-			$ts = (int) get_post_timestamp( get_the_ID() );
+			$ts = function_exists( 'ugm_get_agenda_event_timestamp' )
+				? ugm_get_agenda_event_timestamp( get_the_ID() )
+				: (int) get_post_timestamp( get_the_ID() );
 			echo '<article class="' . esc_attr( implode( ' ', get_post_class( 'desktop-agenda-card' ) ) ) . '">';
 			echo '<a class="desktop-agenda-card__date" href="' . esc_url( get_the_permalink() ) . '" aria-label="' . esc_attr__( 'Buka agenda', 'ugm-faculty' ) . '">';
 			echo '<span class="desktop-agenda-card__day">' . esc_html( wp_date( 'd', $ts ) ) . '</span>';

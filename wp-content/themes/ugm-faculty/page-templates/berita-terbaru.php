@@ -155,6 +155,9 @@ $main_cat_slug = '' !== $bt_featured_cat ? $bt_featured_cat : $bt_grid_cat;
 if ( '' !== $main_cat_slug ) {
 	$main_query_args['category__in'] = ugmbt_resolve_cat_ids( $main_cat_slug );
 }
+if ( function_exists( 'ugm_apply_non_agenda_date_query' ) ) {
+	$main_query_args = ugm_apply_non_agenda_date_query( $main_query_args );
+}
 
 $main_query = new WP_Query( $main_query_args );
 
@@ -224,27 +227,38 @@ for ( $section_idx = 0; $section_idx < $bt_sections_count; $section_idx++ ) {
 
 $sidebar_news_query = null;
 if ( $bt_has_sb_news ) {
-	$sidebar_news_query = new WP_Query( array(
+	$sidebar_news_args = array(
 		'post_type'      => 'post',
 		'posts_per_page' => $sb_news_count,
 		'post_status'    => 'publish',
 		'orderby'        => 'date',
 		'order'          => 'DESC',
 		'no_found_rows'  => true,
-	) );
+	);
+	if ( function_exists( 'ugm_apply_non_agenda_date_query' ) ) {
+		$sidebar_news_args = ugm_apply_non_agenda_date_query( $sidebar_news_args );
+	}
+	$sidebar_news_query = new WP_Query( $sidebar_news_args );
 }
 
 $sidebar_agenda_query = null;
 if ( $bt_has_sb_agenda ) {
-	$agenda_cpt = post_type_exists( 'ugm_event' ) ? 'ugm_event' : 'post';
-	$sidebar_agenda_query = new WP_Query( array(
-		'post_type'      => $agenda_cpt,
+	$sidebar_agenda_args = array(
+		'post_type'      => 'post',
 		'posts_per_page' => $sb_agenda_count,
 		'post_status'    => 'publish',
-		'orderby'        => 'date',
-		'order'          => 'DESC',
+		'meta_key'       => 'agenda_event_date',
+		'orderby'        => array(
+			'meta_value' => 'ASC',
+			'date'       => 'DESC',
+		),
+		'order'          => 'ASC',
 		'no_found_rows'  => true,
-	) );
+	);
+	if ( function_exists( 'ugm_apply_agenda_date_query' ) ) {
+		$sidebar_agenda_args = ugm_apply_agenda_date_query( $sidebar_agenda_args );
+	}
+	$sidebar_agenda_query = new WP_Query( $sidebar_agenda_args );
 }
 
 $all_categories = array();
@@ -518,10 +532,15 @@ function ugmbt_render_pagination( int $current_page, int $total_pages ): void {
 				<?php if ( $sidebar_agenda_query->have_posts() ) : ?>
 				<div class="ugmbt-agenda-list">
 					<?php while ( $sidebar_agenda_query->have_posts() ) : $sidebar_agenda_query->the_post(); ?>
+					<?php
+					$agenda_timestamp = function_exists( 'ugm_get_agenda_event_timestamp' )
+						? ugm_get_agenda_event_timestamp( get_the_ID() )
+						: (int) get_post_timestamp( get_the_ID() );
+					?>
 					<div class="ugmbt-agenda-item">
-						<div class="ugmbt-agenda-date" aria-label="<?php echo esc_attr( get_the_date( 'j F Y' ) ); ?>">
-							<span class="ugmbt-agenda-date__day"><?php echo esc_html( get_the_date( 'j' ) ); ?></span>
-							<span class="ugmbt-agenda-date__mon"><?php echo esc_html( get_the_date( 'M' ) ); ?></span>
+						<div class="ugmbt-agenda-date" aria-label="<?php echo esc_attr( wp_date( 'j F Y', $agenda_timestamp ) ); ?>">
+							<span class="ugmbt-agenda-date__day"><?php echo esc_html( wp_date( 'j', $agenda_timestamp ) ); ?></span>
+							<span class="ugmbt-agenda-date__mon"><?php echo esc_html( wp_date( 'M', $agenda_timestamp ) ); ?></span>
 						</div>
 						<div class="ugmbt-agenda-body">
 							<a class="ugmbt-agenda-title" href="<?php the_permalink(); ?>"><?php the_title(); ?></a>

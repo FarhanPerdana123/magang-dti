@@ -348,6 +348,9 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 					$latest_news_args['category__not_in'] = $ugm_latest_exclude_ids;
 				}
 			}
+			if ( function_exists( 'ugm_apply_non_agenda_date_query' ) ) {
+				$latest_news_args = ugm_apply_non_agenda_date_query( $latest_news_args );
+			}
 
 			$latest_news_query = new WP_Query( $latest_news_args );
 			?>
@@ -1106,9 +1109,14 @@ $ugm_latest_exclude_ids = array_unique( array_merge( $ugm_agenda_exclude_ids, $u
 				'order'               => 'ASC',
 				'no_found_rows'       => true,
 			);
+			if ( function_exists( 'ugm_apply_agenda_date_query' ) ) {
+				$agenda_query_args = ugm_apply_agenda_date_query( $agenda_query_args );
+			}
 
-			if ( ! empty( $agenda_term_ids ) ) {
+			if ( '' !== trim( (string) $ugm_cat_agenda ) && 'agenda' !== sanitize_key( $ugm_cat_agenda ) && ! empty( $agenda_term_ids ) ) {
 				$agenda_query_args['category__in'] = $agenda_term_ids;
+			} elseif ( '' !== trim( (string) $ugm_cat_agenda ) && 'agenda' !== sanitize_key( $ugm_cat_agenda ) && empty( $agenda_term_ids ) ) {
+				$agenda_query_args['post__in'] = array( 0 );
 			}
 
 			$agenda_query = new WP_Query( $agenda_query_args );
