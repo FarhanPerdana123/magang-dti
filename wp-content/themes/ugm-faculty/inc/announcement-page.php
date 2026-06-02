@@ -140,73 +140,6 @@ function ugm_announcement_page_body_class( $classes ) {
 }
 add_filter( 'body_class', 'ugm_announcement_page_body_class' );
 
-function ugm_populate_empty_announcement_page( $post_id ) {
-	$post_id = absint( $post_id );
-	if ( $post_id <= 0 || 'page' !== get_post_type( $post_id ) ) {
-		return false;
-	}
-
-	$post = get_post( $post_id );
-	if ( ! $post instanceof WP_Post || '' !== trim( (string) $post->post_content ) ) {
-		return false;
-	}
-
-	if ( ! ugm_is_announcement_page_template_slug( get_page_template_slug( $post_id ) ) ) {
-		return false;
-	}
-
-	wp_update_post(
-		array(
-			'ID'           => $post_id,
-			'post_content' => ugm_get_default_announcement_page_blocks(),
-		)
-	);
-
-	return true;
-}
-
-function ugm_seed_announcement_page_on_save( $post_id, $post, $update ) {
-	unset( $post, $update );
-
-	if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
-		return;
-	}
-
-	ugm_populate_empty_announcement_page( $post_id );
-}
-// Intentionally not hooked: empty pages must stay empty after users delete blocks.
-
-function ugm_seed_existing_empty_announcement_pages() {
-	if ( ! is_admin() ) {
-		return;
-	}
-
-	$pages = get_posts(
-		array(
-			'post_type'      => 'page',
-			'post_status'    => array( 'publish', 'draft', 'private', 'pending' ),
-			'posts_per_page' => -1,
-			'fields'         => 'ids',
-			'meta_query'     => array(
-				'relation' => 'OR',
-				array(
-					'key'   => '_wp_page_template',
-					'value' => 'page-templates/template-announcement.php',
-				),
-				array(
-					'key'   => '_wp_page_template',
-					'value' => 'announcement-page',
-				),
-			),
-		)
-	);
-
-	foreach ( $pages as $page_id ) {
-		ugm_populate_empty_announcement_page( $page_id );
-	}
-}
-// Intentionally not hooked: do not restore default blocks after users clear a page.
-
 function ugm_announcement_term_ids_from_slugs( $slug_attr ) {
 	$slugs = array_filter(
 		array_map(
@@ -480,36 +413,6 @@ function ugm_render_announcement_mobile_share_links( $attrs = array() ) {
 			<a class="ugm-announcement-mobile-share__<?php echo esc_attr( $key ); ?>" href="<?php echo esc_url( $link['url'] ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr( $link['label'] ); ?>"><?php echo esc_html( $link['text'] ); ?></a>
 		<?php endforeach; ?>
 	</div>
-	<?php
-}
-
-function ugm_render_announcement_mobile_related_news() {
-	$excluded_ids = ugm_announcement_term_ids_from_slugs( 'agenda,kegiatan,events,event,pengumuman' );
-	$posts        = get_posts(
-		array(
-			'post_type'           => 'post',
-			'posts_per_page'      => 3,
-			'ignore_sticky_posts' => true,
-			'post_status'         => 'publish',
-			'orderby'             => 'date',
-			'order'               => 'DESC',
-			'category__not_in'    => $excluded_ids,
-		)
-	);
-
-	if ( empty( $posts ) ) {
-		return;
-	}
-	?>
-	<section class="ugm-announcement-mobile-related">
-		<h2><?php esc_html_e( 'Berita Terkait', 'ugm-faculty' ); ?></h2>
-		<?php foreach ( $posts as $related_post ) : ?>
-			<article class="ugm-announcement-mobile-related__item">
-				<h3><a href="<?php echo esc_url( get_permalink( $related_post ) ); ?>"><?php echo esc_html( get_the_title( $related_post ) ); ?></a></h3>
-				<time datetime="<?php echo esc_attr( get_the_date( 'c', $related_post ) ); ?>"><?php echo esc_html( get_the_date( 'j F Y', $related_post ) ); ?></time>
-			</article>
-		<?php endforeach; ?>
-	</section>
 	<?php
 }
 

@@ -380,8 +380,7 @@ body:has(.ugm-announcement-page) .site-content {
 	display: none;
 }
 
-.ugm-announcement-mobile-share,
-.ugm-announcement-mobile-related {
+.ugm-announcement-mobile-share {
 	display: none;
 }
 
@@ -844,12 +843,6 @@ body:has(.ugm-announcement-page) .site-content {
 		background: #13b94f;
 	}
 
-	.ugm-announcement-mobile-related {
-		display: block;
-		margin-top: 10px;
-	}
-
-	.ugm-announcement-mobile-related h2,
 	.ugm-announcement-side-section h2 {
 		margin: 0 0 10px;
 		padding-bottom: 8px;
@@ -860,7 +853,6 @@ body:has(.ugm-announcement-page) .site-content {
 		line-height: 1.15;
 	}
 
-	.ugm-announcement-mobile-related h2::after,
 	.ugm-announcement-side-section h2::after {
 		width: 70px;
 		height: 1px;
@@ -868,13 +860,11 @@ body:has(.ugm-announcement-page) .site-content {
 		background: #e2b633;
 	}
 
-	.ugm-announcement-mobile-related__item,
 	.ugm-announcement-side-news {
 		padding: 12px 0;
 		border-bottom: 1px solid #edf0f2;
 	}
 
-	.ugm-announcement-mobile-related__item h3,
 	.ugm-announcement-side-news h3 {
 		margin: 0 0 4px;
 		color: #174d68;
@@ -883,12 +873,6 @@ body:has(.ugm-announcement-page) .site-content {
 		line-height: 1.28;
 	}
 
-	.ugm-announcement-mobile-related__item h3 a {
-		color: inherit;
-		text-decoration: none;
-	}
-
-	.ugm-announcement-mobile-related__item time,
 	.ugm-announcement-side-news time {
 		color: #b2b7bd;
 		font-size: 0.8rem;
@@ -1165,12 +1149,6 @@ body:has(.ugm-announcement-page) .site-content {
 		border-top: 1px solid #edf0f2 !important;
 	}
 
-	.editor-styles-wrapper .ugm-announcement-mobile-related {
-		display: block !important;
-		margin-top: 10px !important;
-	}
-
-	.editor-styles-wrapper .ugm-announcement-mobile-related h2,
 	.editor-styles-wrapper .ugm-announcement-side-section h2 {
 		margin: 0 0 10px !important;
 		padding-bottom: 8px !important;
@@ -1181,7 +1159,6 @@ body:has(.ugm-announcement-page) .site-content {
 	}
 
 	.editor-styles-wrapper .ugm-announcement-side-news h3,
-	.editor-styles-wrapper .ugm-announcement-mobile-related__item h3,
 	.editor-styles-wrapper .ugm-announcement-side-agenda h3 {
 		word-break: normal !important;
 		overflow-wrap: anywhere;

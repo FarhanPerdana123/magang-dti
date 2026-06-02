@@ -54,15 +54,9 @@ if ( ! class_exists( 'UGM_Faculty_Theme' ) ) {
 			$theme = wp_get_theme( get_template() );
 			$version = $theme ? $theme->get( 'Version' ) : '';
 			$this->define_constant( 'UGM_THEME_VERSION', $version ? $version : '1.0.0' );
-			$this->define_constant( 'UGM_THEME_NAME', get_template() );
 
 			$this->define_constant( 'UGM_THEME_DIR', get_template_directory() );
-			$this->define_constant( 'UGM_THEME_DIR_ASSETS', get_template_directory() . '/assets' );
 			$this->define_constant( 'UGM_THEME_DIR_INC', get_template_directory() . '/inc' );
-
-			$this->define_constant( 'UGM_THEME_URI', get_template_directory_uri() );
-			$this->define_constant( 'UGM_THEME_URI_ASSETS', get_template_directory_uri() . '/assets' );
-			$this->define_constant( 'UGM_THEME_URI_INC', get_template_directory_uri() . '/inc' );
 		}
 
 		/**

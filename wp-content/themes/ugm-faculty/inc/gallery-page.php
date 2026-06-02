@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function ugm_get_default_gallery_page_blocks() {
-	return '<!-- wp:ugm/gallery-page {"title":"Galeri","categorySlug":"galeri","postsPerPage":12} /-->';
+	return '<!-- wp:ugm/gallery-page {"title":"Galeri"} /-->';
 }
 
 function ugm_is_gallery_page_template_slug( $template ) {
@@ -231,55 +231,6 @@ function ugm_gallery_page_body_class( $classes ) {
 }
 add_filter( 'body_class', 'ugm_gallery_page_body_class' );
 
-function ugm_gallery_term_ids_from_slugs( $slug_attr ) {
-	$slugs = array_filter(
-		array_map(
-			'trim',
-			explode( ',', (string) $slug_attr )
-		)
-	);
-	$ids   = array();
-
-	foreach ( $slugs as $slug ) {
-		$term = get_category_by_slug( sanitize_title( $slug ) );
-		if ( $term instanceof WP_Term ) {
-			$ids[] = (int) $term->term_id;
-		}
-	}
-
-	return array_values( array_unique( array_filter( $ids ) ) );
-}
-
-function ugm_gallery_get_posts( $category_slug, $posts_per_page, $offset = 0 ) {
-	$args = array(
-		'post_type'           => 'post',
-		'post_status'         => 'publish',
-		'posts_per_page'      => max( 1, absint( $posts_per_page ) ),
-		'offset'              => max( 0, absint( $offset ) ),
-		'ignore_sticky_posts' => true,
-	);
-
-	$term_ids = ugm_gallery_term_ids_from_slugs( $category_slug );
-	if ( ! empty( $term_ids ) ) {
-		$args['category__in'] = $term_ids;
-	}
-
-	return get_posts( $args );
-}
-
-function ugm_gallery_card_image( $post_id, $size = 'medium_large' ) {
-	$post_id = absint( $post_id );
-	if ( has_post_thumbnail( $post_id ) ) {
-		return get_the_post_thumbnail( $post_id, $size, array( 'loading' => 'lazy', 'decoding' => 'async' ) );
-	}
-
-	return '<span class="ugm-gallery-placeholder" aria-hidden="true"></span>';
-}
-
-function ugm_gallery_card_date( $post_id ) {
-	return get_the_date( 'l, j F Y', $post_id );
-}
-
 /**
  * Normalize manually configured gallery cards.
  *
@@ -396,21 +347,13 @@ function ugm_render_block_gallery_page( $attrs ) {
 		is_array( $attrs ) ? $attrs : array(),
 		array(
 			'title'        => 'Galeri',
-			'categorySlug' => 'galeri',
-			'postsPerPage' => 12,
 			'buttonLabel'  => 'Selengkapnya',
 			'galleryItems' => array(),
 		)
 	);
 
 	$title          = trim( (string) $attrs['title'] );
-	$category_slug  = trim( (string) $attrs['categorySlug'] );
-	$posts_per_page = max( 1, absint( $attrs['postsPerPage'] ) );
 	$button_label   = trim( (string) $attrs['buttonLabel'] );
-	$hero_posts     = ugm_gallery_get_posts( $category_slug, 4, 0 );
-	$grid_posts     = ugm_gallery_get_posts( $category_slug, $posts_per_page, 0 );
-	$hero_post      = ! empty( $hero_posts ) && $hero_posts[0] instanceof WP_Post ? $hero_posts[0] : null;
-	$hero_images    = array_slice( $hero_posts, 0, 4 );
 	$manual_items   = ugm_gallery_manual_items( $attrs['galleryItems'] );
 	$detail_index   = max( 0, absint( get_query_var( 'ugm_gallery_item' ) ) - 1 );
 	$has_detail     = '' !== (string) get_query_var( 'ugm_gallery_item' ) && isset( $manual_items[ $detail_index ] );
@@ -436,7 +379,7 @@ function ugm_render_block_gallery_page( $attrs ) {
 		$hero_slides[] = array(
 			'item'       => null,
 			'item_index' => 0,
-			'images'     => $hero_images,
+			'images'     => array(),
 		);
 	}
 
@@ -466,15 +409,10 @@ function ugm_render_block_gallery_page( $attrs ) {
 								<h2><?php echo esc_html( '' !== $manual_hero['title'] ? $manual_hero['title'] : $title ); ?></h2>
 								<?php if ( '' !== $manual_hero['description'] ) : ?><p><?php echo esc_html( wp_trim_words( $manual_hero['description'], 18, '...' ) ); ?></p><?php endif; ?>
 								<?php if ( ! empty( $manual_hero['images'] ) ) : ?><a class="ugm-gallery-button" href="<?php echo esc_url( ugm_gallery_detail_url( $hero_item_index ) ); ?>"><?php echo esc_html( '' !== $button_label ? $button_label : __( 'Selengkapnya', 'ugm-faculty' ) ); ?></a><?php endif; ?>
-							<?php elseif ( $hero_post instanceof WP_Post ) : ?>
-								<time><?php echo esc_html( ugm_gallery_card_date( $hero_post->ID ) ); ?></time>
-								<h2><?php echo esc_html( get_the_title( $hero_post ) ); ?></h2>
-								<p><?php echo esc_html( wp_trim_words( get_the_excerpt( $hero_post ), 18, '...' ) ); ?></p>
-								<a class="ugm-gallery-button" href="<?php echo esc_url( get_permalink( $hero_post ) ); ?>"><?php echo esc_html( '' !== $button_label ? $button_label : __( 'Selengkapnya', 'ugm-faculty' ) ); ?></a>
 							<?php else : ?>
 								<time><?php echo esc_html( date_i18n( 'l, j F Y' ) ); ?></time>
 								<h2><?php esc_html_e( 'Belum ada galeri', 'ugm-faculty' ); ?></h2>
-								<p><?php esc_html_e( 'Tambahkan post dengan kategori galeri dan gambar unggulan untuk mengisi halaman ini.', 'ugm-faculty' ); ?></p>
+								<p><?php esc_html_e( 'Tambahkan kartu galeri manual melalui editor untuk mengisi halaman ini.', 'ugm-faculty' ); ?></p>
 							<?php endif; ?>
 						</div>
 					<?php endforeach; ?>
@@ -494,7 +432,7 @@ function ugm_render_block_gallery_page( $attrs ) {
 										<?php if ( is_string( $media_item ) && '' !== $media_item ) : ?>
 											<img src="<?php echo esc_url( $media_item ); ?>" alt="" loading="lazy" decoding="async">
 										<?php else : ?>
-											<?php echo $media_item instanceof WP_Post ? ugm_gallery_card_image( $media_item->ID, 'large' ) : '<span class="ugm-gallery-placeholder" aria-hidden="true"></span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+											<span class="ugm-gallery-placeholder" aria-hidden="true"></span>
 										<?php endif; ?>
 									</figure>
 								<?php endfor; ?>
@@ -536,18 +474,6 @@ function ugm_render_block_gallery_page( $attrs ) {
 							</div>
 						</article>
 					<?php endforeach; ?>
-				<?php elseif ( ! empty( $grid_posts ) ) : ?>
-					<?php foreach ( $grid_posts as $gallery_post ) : ?>
-						<article class="ugm-gallery-card">
-							<a class="ugm-gallery-card__media" href="<?php echo esc_url( get_permalink( $gallery_post ) ); ?>">
-								<?php echo ugm_gallery_card_image( $gallery_post->ID, 'medium_large' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-							</a>
-							<div class="ugm-gallery-card__body">
-								<h3><a href="<?php echo esc_url( get_permalink( $gallery_post ) ); ?>"><?php echo esc_html( get_the_title( $gallery_post ) ); ?></a></h3>
-								<time><?php echo esc_html( strtoupper( ugm_gallery_card_date( $gallery_post->ID ) ) ); ?></time>
-							</div>
-						</article>
-					<?php endforeach; ?>
 				<?php else : ?>
 					<?php for ( $i = 0; $i < 6; $i++ ) : ?>
 						<article class="ugm-gallery-card ugm-gallery-card--skeleton" aria-hidden="true">
@@ -576,8 +502,6 @@ function ugm_register_gallery_page_blocks() {
 			'category'        => 'ugm-gallery-page-sections',
 			'attributes'      => array(
 				'title'        => array( 'type' => 'string', 'default' => 'Galeri' ),
-				'categorySlug' => array( 'type' => 'string', 'default' => 'galeri' ),
-				'postsPerPage' => array( 'type' => 'number', 'default' => 12 ),
 				'buttonLabel'  => array( 'type' => 'string', 'default' => 'Selengkapnya' ),
 				'galleryItems' => array( 'type' => 'array', 'default' => array() ),
 			),

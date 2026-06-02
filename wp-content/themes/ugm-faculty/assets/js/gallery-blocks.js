@@ -163,18 +163,6 @@
 					onChange: function ( value ) { setAttr( { title: value } ); },
 				} ),
 				el( TextControl, {
-					label: __( 'Slug Kategori', 'ugm-faculty' ),
-					help: __( 'Gunakan koma untuk beberapa kategori. Contoh: galeri, fasilitas.', 'ugm-faculty' ),
-					value: attrs.categorySlug || '',
-					onChange: function ( value ) { setAttr( { categorySlug: value } ); },
-				} ),
-				el( TextControl, {
-					label: __( 'Jumlah Kartu Otomatis', 'ugm-faculty' ),
-					type: 'number',
-					value: attrs.postsPerPage || 12,
-					onChange: function ( value ) { setAttr( { postsPerPage: parseInt( value, 10 ) || 12 } ); },
-				} ),
-				el( TextControl, {
 					label: __( 'Label Tombol Hero', 'ugm-faculty' ),
 					value: attrs.buttonLabel || '',
 					onChange: function ( value ) { setAttr( { buttonLabel: value } ); },
@@ -232,8 +220,6 @@
 		supports:    { html: false, multiple: false },
 		attributes: {
 			title:        { type: 'string', default: 'Galeri' },
-			categorySlug: { type: 'string', default: 'galeri' },
-			postsPerPage: { type: 'number', default: 12 },
 			buttonLabel:  { type: 'string', default: 'Selengkapnya' },
 			galleryItems: { type: 'array', default: [] },
 		},

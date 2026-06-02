@@ -25,38 +25,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Helper: enqueue theme CSS for SSR block previews in the editor REST requests.
- * Called once per page load, not per block.
- */
-function ugm_blocks_maybe_enqueue_styles() {
-	static $done = false;
-	if ( $done ) {
-		return;
-	}
-	$done = true;
-	// Ensure block previews inherit theme styles inside the Site Editor iframe.
-	if ( function_exists( 'wp_enqueue_style' ) ) {
-		wp_enqueue_style( 'ugm-style' );
-
-		// Load key front-end modules so skeleton previews (including Video) render
-		// properly in the editor/Site Editor SSR iframe.
-		$css_modules = array( 'base', 'content' );
-		foreach ( $css_modules as $css_module ) {
-			$handle          = 'ugm-style-' . $css_module;
-			$module_rel_path = '/assets/css/' . $css_module . '.css';
-			$src             = get_template_directory_uri() . $module_rel_path;
-
-			wp_enqueue_style(
-				$handle,
-				$src,
-				array( 'ugm-style' ),
-				function_exists( 'ugm_get_asset_version' ) ? ugm_get_asset_version( $module_rel_path ) : UGM_THEME_VERSION
-			);
-		}
-	}
-}
-
 /* --------------------------------------------------------------------------
  * Section helper shared across blocks
  * -------------------------------------------------------------------------- */
