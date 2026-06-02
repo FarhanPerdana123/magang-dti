@@ -5,7 +5,7 @@
  * @package ugm-faculty
  */
 
-if ( ( ! is_front_page() && ! is_page_template( 'page-templates/template-landing-page.php' ) ) || '1' === get_query_var( 'ugm_latest_news' ) ) {
+if ( ! is_page_template( array( 'page-templates/template-landing-page.php', 'landing-page' ) ) || '1' === get_query_var( 'ugm_latest_news' ) ) {
 	return;
 }
 

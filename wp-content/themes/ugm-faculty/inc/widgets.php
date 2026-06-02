@@ -26,42 +26,42 @@ function ugm_footer_widgets_init() {
 
 	// ── 1. Footer — Social Media Icons ────────────────────────────────────
 	// Baris ikon sosial di paling atas footer.
-	// Gunakan widget "Custom HTML" dengan markup <ul class="ugm-footer__social">...
+	// Gunakan block "Footer - Social Media".
 	register_sidebar(
 		array_merge(
 			$shared_args,
 			array(
 				'name'        => esc_html__( 'Footer — Social Media', 'ugm-faculty' ),
 				'id'          => 'footer-social-widget',
-				'description' => esc_html__( 'Baris ikon sosial di atas footer. Gunakan widget Custom HTML dengan class ugm-footer__social.', 'ugm-faculty' ),
+				'description' => esc_html__( 'Tambahkan block "Footer - Social Media", lalu ubah URL akun jika diperlukan.', 'ugm-faculty' ),
 			)
 		)
 	);
 
 	// ── 2. Footer — Brand / Logo ──────────────────────────────────────────
 	// Logo dan nama institusi di bawah ikon sosial.
-	// Gunakan widget "Custom HTML" dengan markup <div class="ugm-footer__brand">...
+	// Gunakan block "Footer - Brand / Logo".
 	register_sidebar(
 		array_merge(
 			$shared_args,
 			array(
 				'name'        => esc_html__( 'Footer — Brand / Logo', 'ugm-faculty' ),
 				'id'          => 'footer-brand-widget',
-				'description' => esc_html__( 'Logo dan nama institusi. Gunakan widget Image atau Custom HTML dengan class ugm-footer__brand.', 'ugm-faculty' ),
+				'description' => esc_html__( 'Tambahkan block "Footer - Brand / Logo". Logo bawaan dapat diganti dari Media Library.', 'ugm-faculty' ),
 			)
 		)
 	);
 
 	// ── 3. Footer — Kontak & Alamat ───────────────────────────────────────
 	// Alamat dan daftar info kontak (E, P, F, WA).
-	// Gunakan widget "Custom HTML" dengan markup <p class="ugm-footer__text--address"> dan <ul class="ugm-footer__contact-list">...
+	// Gunakan block "Footer - Kontak & Alamat".
 	register_sidebar(
 		array_merge(
 			$shared_args,
 			array(
 				'name'        => esc_html__( 'Footer — Kontak & Alamat', 'ugm-faculty' ),
 				'id'          => 'footer-contact-widget',
-				'description' => esc_html__( 'Alamat dan info kontak institusi. Gunakan widget Custom HTML dengan class ugm-footer__text--address dan ugm-footer__contact-list.', 'ugm-faculty' ),
+				'description' => esc_html__( 'Tambahkan block "Footer - Kontak & Alamat", lalu isi form alamat dan kontak.', 'ugm-faculty' ),
 			)
 		)
 	);
@@ -122,14 +122,14 @@ function ugm_footer_widgets_init() {
 
 	// ── 8. Footer — Banner Bawah ──────────────────────────────────────────
 	// Banner gambar di bagian paling bawah footer (sebelum copyright).
-	// Gunakan widget "Image" atau "Custom HTML" dengan markup <img>.
+	// Gunakan block "Footer - Banner Bawah".
 	register_sidebar(
 		array_merge(
 			$shared_args,
 			array(
 				'name'        => esc_html__( 'Footer — Banner Bawah', 'ugm-faculty' ),
 				'id'          => 'footer-banner-widget',
-				'description' => esc_html__( 'Gambar panorama/banner di bawah footer. Gunakan widget Image atau Custom HTML dengan tag <img>.', 'ugm-faculty' ),
+				'description' => esc_html__( 'Tambahkan block "Footer - Banner Bawah". Banner bawaan dapat diganti dari Media Library.', 'ugm-faculty' ),
 			)
 		)
 	);

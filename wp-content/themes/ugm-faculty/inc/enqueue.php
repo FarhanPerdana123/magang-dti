@@ -87,13 +87,10 @@ function ugm_enqueue_assets() {
 		true
 	);
 
-	// Load faculty slider on the front page and on pages using the landing template.
-	$is_front_landing    = is_front_page()
-		&& '1' !== get_query_var( 'ugm_latest_news' )
-		&& '1' !== get_query_var( 'ugm_magazine_news' );
-	$is_landing_template = is_page_template( 'page-templates/template-landing-page.php' );
+	// Load landing-page scripts only when the Landing Page template is selected.
+	$is_landing_template = is_page_template( array( 'page-templates/template-landing-page.php', 'landing-page' ) );
 
-	if ( $is_front_landing || $is_landing_template ) {
+	if ( $is_landing_template ) {
 		wp_enqueue_script(
 			'ugm-faculty-slider',
 			get_template_directory_uri() . '/assets/js/faculty-slider.js',
@@ -107,6 +104,16 @@ function ugm_enqueue_assets() {
 			get_template_directory_uri() . '/assets/js/landing-scroll-reveal.js',
 			array(),
 			ugm_get_asset_version( '/assets/js/landing-scroll-reveal.js' ),
+			true
+		);
+	}
+
+	if ( is_page_template( array( 'page-templates/template-gallery.php', 'gallery-page' ) ) ) {
+		wp_enqueue_script(
+			'ugm-gallery-slider',
+			get_template_directory_uri() . '/assets/js/gallery-slider.js',
+			array(),
+			ugm_get_asset_version( '/assets/js/gallery-slider.js' ),
 			true
 		);
 	}

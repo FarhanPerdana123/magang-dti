@@ -196,6 +196,98 @@
 		};
 	}
 
+	function makeFooterFieldsEdit( blockName, panelTitle, fields ) {
+		return function ( props ) {
+			var attrs   = props.attributes;
+			var setAttr = props.setAttributes;
+
+			return el(
+				Fragment,
+				null,
+				el(
+					InspectorControls,
+					null,
+					el(
+						PanelBody,
+						{ title: panelTitle, initialOpen: true },
+						fields.map( function ( field ) {
+							var Control = 'textarea' === field.type ? TextareaControl : TextControl;
+							return el( Control, {
+								key: field.key,
+								label: field.label,
+								value: attrs[ field.key ] || '',
+								rows: field.rows || 3,
+								onChange: function ( value ) {
+									var patch = {};
+									patch[ field.key ] = value;
+									setAttr( patch );
+								},
+							} );
+						} )
+					)
+				),
+				el( ServerSideRender, {
+					block: blockName,
+					attributes: attrs,
+					httpMethod: 'POST',
+				} )
+			);
+		};
+	}
+
+	function makeFooterImageEdit( blockName, label ) {
+		return function ( props ) {
+			var attrs   = props.attributes;
+			var setAttr = props.setAttributes;
+
+			return el(
+				Fragment,
+				null,
+				el(
+					InspectorControls,
+					null,
+					el(
+						PanelBody,
+						{ title: label, initialOpen: true },
+						el(
+							MediaUploadCheck,
+							null,
+							el( MediaUpload, {
+								allowedTypes: [ 'image' ],
+								value: attrs.imageId || 0,
+								onSelect: function ( image ) {
+									setAttr( { imageId: image.id || 0, imageUrl: image.url || '' } );
+								},
+								render: function ( ref ) {
+									return el( Button, { onClick: ref.open, isSecondary: true },
+										attrs.imageUrl ? __( 'Ganti gambar', 'ugm-faculty' ) : __( 'Pilih gambar', 'ugm-faculty' )
+									);
+								},
+							} )
+						),
+						attrs.imageUrl
+							? el( Button, {
+								onClick: function () { setAttr( { imageId: 0, imageUrl: '' } ); },
+								isDestructive: true,
+								style: { marginLeft: '8px' },
+							}, __( 'Gunakan gambar bawaan', 'ugm-faculty' ) )
+							: null,
+						el( TextControl, {
+							label: __( 'Teks alternatif gambar', 'ugm-faculty' ),
+							value: attrs.alt || '',
+							onChange: function ( value ) { setAttr( { alt: value } ); },
+						} )
+					)
+				),
+				el( ServerSideRender, {
+					block: blockName,
+					attributes: attrs,
+					httpMethod: 'POST',
+				} )
+			);
+		};
+	}
+
 	function makeFeaturedCategoriesEdit() {
 		return function ( props ) {
 			var attrs   = props.attributes;
@@ -791,6 +883,84 @@
 	} );
 
 	/* ugm/agenda-only — Agenda Kegiatan mandiri */
+	registerBlockType( 'ugm/footer-social', {
+		title: __( 'Footer - Social Media', 'ugm-faculty' ),
+		description: __( 'Ikon dan tautan media sosial untuk area widget footer.', 'ugm-faculty' ),
+		category: 'widgets',
+		icon: 'share',
+		supports: { html: false, multiple: false },
+		attributes: {
+			instagramUrl: { type: 'string', default: 'https://www.instagram.com/' },
+			youtubeUrl: { type: 'string', default: 'https://www.youtube.com/' },
+			facebookUrl: { type: 'string', default: 'https://www.facebook.com/' },
+			xUrl: { type: 'string', default: 'https://x.com/' },
+			linkedinUrl: { type: 'string', default: 'https://www.linkedin.com/' },
+			tiktokUrl: { type: 'string', default: 'https://www.tiktok.com/' },
+		},
+		edit: makeFooterFieldsEdit( 'ugm/footer-social', __( 'Tautan Media Sosial', 'ugm-faculty' ), [
+			{ key: 'instagramUrl', label: 'Instagram URL' },
+			{ key: 'youtubeUrl', label: 'YouTube URL' },
+			{ key: 'facebookUrl', label: 'Facebook URL' },
+			{ key: 'xUrl', label: 'X URL' },
+			{ key: 'linkedinUrl', label: 'LinkedIn URL' },
+			{ key: 'tiktokUrl', label: 'TikTok URL' },
+		] ),
+		save: function () { return null; },
+	} );
+
+	registerBlockType( 'ugm/footer-brand', {
+		title: __( 'Footer - Brand / Logo', 'ugm-faculty' ),
+		description: __( 'Logo institusi untuk area widget footer.', 'ugm-faculty' ),
+		category: 'widgets',
+		icon: 'format-image',
+		supports: { html: false, multiple: false },
+		attributes: {
+			imageId: { type: 'integer', default: 0 },
+			imageUrl: { type: 'string', default: '' },
+			alt: { type: 'string', default: 'Universitas Gadjah Mada' },
+		},
+		edit: makeFooterImageEdit( 'ugm/footer-brand', __( 'Logo Institusi', 'ugm-faculty' ) ),
+		save: function () { return null; },
+	} );
+
+	registerBlockType( 'ugm/footer-contact', {
+		title: __( 'Footer - Kontak & Alamat', 'ugm-faculty' ),
+		description: __( 'Alamat, email, telepon, faks, dan WhatsApp institusi.', 'ugm-faculty' ),
+		category: 'widgets',
+		icon: 'location',
+		supports: { html: false, multiple: false },
+		attributes: {
+			address: { type: 'string', default: 'Bulaksumur, Caturtunggal, Kec. Depok,\nKabupaten Sleman, Daerah Istimewa\nYogyakarta 55281' },
+			email: { type: 'string', default: 'info@ugm.ac.id' },
+			phone: { type: 'string', default: '+62(274)588688' },
+			fax: { type: 'string', default: '+62(274)565223' },
+			whatsapp: { type: 'string', default: '+628112869988' },
+		},
+		edit: makeFooterFieldsEdit( 'ugm/footer-contact', __( 'Kontak Institusi', 'ugm-faculty' ), [
+			{ key: 'address', label: __( 'Alamat', 'ugm-faculty' ), type: 'textarea', rows: 4 },
+			{ key: 'email', label: __( 'Email', 'ugm-faculty' ) },
+			{ key: 'phone', label: __( 'Telepon', 'ugm-faculty' ) },
+			{ key: 'fax', label: __( 'Faks', 'ugm-faculty' ) },
+			{ key: 'whatsapp', label: __( 'WhatsApp', 'ugm-faculty' ) },
+		] ),
+		save: function () { return null; },
+	} );
+
+	registerBlockType( 'ugm/footer-banner', {
+		title: __( 'Footer - Banner Bawah', 'ugm-faculty' ),
+		description: __( 'Gambar panorama di bagian paling bawah footer.', 'ugm-faculty' ),
+		category: 'widgets',
+		icon: 'format-gallery',
+		supports: { html: false, multiple: false },
+		attributes: {
+			imageId: { type: 'integer', default: 0 },
+			imageUrl: { type: 'string', default: '' },
+			alt: { type: 'string', default: 'Kampus Universitas Gadjah Mada' },
+		},
+		edit: makeFooterImageEdit( 'ugm/footer-banner', __( 'Banner Bawah', 'ugm-faculty' ) ),
+		save: function () { return null; },
+	} );
+
 	registerBlockType( 'ugm/agenda-only', {
 		title:       __( 'Event & Agenda', 'ugm-faculty' ),
 		description: __( 'Menampilkan daftar agenda kegiatan. Bisa dipindah terpisah dari Fasilitas Kampus.', 'ugm-faculty' ),
