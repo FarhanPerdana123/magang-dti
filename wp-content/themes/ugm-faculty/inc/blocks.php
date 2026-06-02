@@ -25,38 +25,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Helper: enqueue theme CSS for SSR block previews in the editor REST requests.
- * Called once per page load, not per block.
- */
-function ugm_blocks_maybe_enqueue_styles() {
-	static $done = false;
-	if ( $done ) {
-		return;
-	}
-	$done = true;
-	// Ensure block previews inherit theme styles inside the Site Editor iframe.
-	if ( function_exists( 'wp_enqueue_style' ) ) {
-		wp_enqueue_style( 'ugm-style' );
-
-		// Load key front-end modules so skeleton previews (including Video) render
-		// properly in the editor/Site Editor SSR iframe.
-		$css_modules = array( 'base', 'content' );
-		foreach ( $css_modules as $css_module ) {
-			$handle          = 'ugm-style-' . $css_module;
-			$module_rel_path = '/assets/css/' . $css_module . '.css';
-			$src             = get_template_directory_uri() . $module_rel_path;
-
-			wp_enqueue_style(
-				$handle,
-				$src,
-				array( 'ugm-style' ),
-				function_exists( 'ugm_get_asset_version' ) ? ugm_get_asset_version( $module_rel_path ) : UGM_THEME_VERSION
-			);
-		}
-	}
-}
-
 /* --------------------------------------------------------------------------
  * Section helper shared across blocks
  * -------------------------------------------------------------------------- */
@@ -750,6 +718,192 @@ register_block_type( 'ugm/site-footer', array(
 	'supports'        => array( 'html' => false ),
 	'attributes'      => array(
 		'visibility' => array( 'type' => 'string', 'default' => 'all' ),
+	),
+) );
+
+/* ==========================================================================
+ * Footer widget blocks
+ * ========================================================================== */
+
+/**
+ * Render the footer social-media widget block.
+ *
+ * @param array $attrs Block attributes.
+ * @return string
+ */
+function ugm_render_block_footer_social( $attrs ) {
+	$social_items = array(
+		array( 'label' => 'Instagram', 'attr' => 'instagramUrl', 'icon' => 'Component Instagram.png' ),
+		array( 'label' => 'YouTube', 'attr' => 'youtubeUrl', 'icon' => 'Component YouTube.png' ),
+		array( 'label' => 'Facebook', 'attr' => 'facebookUrl', 'icon' => 'Component Facebook.png' ),
+		array( 'label' => 'X', 'attr' => 'xUrl', 'icon' => 'Component Twitter.png' ),
+		array( 'label' => 'LinkedIn', 'attr' => 'linkedinUrl', 'icon' => 'Component LinkedIn.png' ),
+		array( 'label' => 'TikTok', 'attr' => 'tiktokUrl', 'icon' => 'Component TikTok.png' ),
+	);
+
+	ob_start();
+	?>
+	<ul class="ugm-footer__social" aria-label="<?php esc_attr_e( 'Social media', 'ugm-faculty' ); ?>">
+		<?php foreach ( $social_items as $social_item ) : ?>
+			<?php $social_url = esc_url( (string) ( $attrs[ $social_item['attr'] ] ?? '' ) ); ?>
+			<?php if ( '' !== $social_url ) : ?>
+				<li class="ugm-footer__social-item">
+					<a class="ugm-footer__social-link" href="<?php echo esc_url( $social_url ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr( $social_item['label'] ); ?>">
+						<img class="ugm-footer__social-icon" src="<?php echo esc_url( get_theme_file_uri( 'assets/images/' . $social_item['icon'] ) ); ?>" alt="" loading="lazy">
+					</a>
+				</li>
+			<?php endif; ?>
+		<?php endforeach; ?>
+	</ul>
+	<?php
+	return ob_get_clean();
+}
+
+register_block_type( 'ugm/footer-social', array(
+	'title'           => __( 'Footer - Social Media', 'ugm-faculty' ),
+	'description'     => __( 'Ikon dan tautan media sosial untuk area widget footer.', 'ugm-faculty' ),
+	'category'        => 'widgets',
+	'render_callback' => 'ugm_render_block_footer_social',
+	'supports'        => array( 'html' => false, 'multiple' => false ),
+	'attributes'      => array(
+		'instagramUrl' => array( 'type' => 'string', 'default' => 'https://www.instagram.com/' ),
+		'youtubeUrl'   => array( 'type' => 'string', 'default' => 'https://www.youtube.com/' ),
+		'facebookUrl'  => array( 'type' => 'string', 'default' => 'https://www.facebook.com/' ),
+		'xUrl'         => array( 'type' => 'string', 'default' => 'https://x.com/' ),
+		'linkedinUrl'  => array( 'type' => 'string', 'default' => 'https://www.linkedin.com/' ),
+		'tiktokUrl'    => array( 'type' => 'string', 'default' => 'https://www.tiktok.com/' ),
+	),
+) );
+
+/**
+ * Resolve a selected media image with a bundled theme-asset fallback.
+ *
+ * @param array  $attrs         Block attributes.
+ * @param string $id_key        Attachment ID attribute.
+ * @param string $url_key       Image URL attribute.
+ * @param string $fallback_path Relative theme asset path.
+ * @param string $size          Image size.
+ * @return string
+ */
+function ugm_resolve_footer_widget_image( $attrs, $id_key, $url_key, $fallback_path, $size = 'full' ) {
+	$image_id  = absint( $attrs[ $id_key ] ?? 0 );
+	$image_url = $image_id > 0 ? (string) wp_get_attachment_image_url( $image_id, $size ) : '';
+
+	if ( '' === $image_url && ! empty( $attrs[ $url_key ] ) ) {
+		$image_url = esc_url_raw( (string) $attrs[ $url_key ] );
+	}
+
+	if ( '' === $image_url && file_exists( get_theme_file_path( $fallback_path ) ) ) {
+		$image_url = get_theme_file_uri( $fallback_path );
+	}
+
+	return $image_url;
+}
+
+/**
+ * Render the footer brand/logo widget block.
+ *
+ * @param array $attrs Block attributes.
+ * @return string
+ */
+function ugm_render_block_footer_brand( $attrs ) {
+	$image_url = ugm_resolve_footer_widget_image( $attrs, 'imageId', 'imageUrl', 'assets/images/Footer.png', 'medium' );
+	if ( '' === $image_url ) {
+		return '';
+	}
+
+	return '<img class="ugm-footer__brand-img" src="' . esc_url( $image_url ) . '" alt="' . esc_attr( (string) ( $attrs['alt'] ?? '' ) ) . '" loading="lazy">';
+}
+
+register_block_type( 'ugm/footer-brand', array(
+	'title'           => __( 'Footer - Brand / Logo', 'ugm-faculty' ),
+	'description'     => __( 'Logo institusi untuk area widget footer.', 'ugm-faculty' ),
+	'category'        => 'widgets',
+	'render_callback' => 'ugm_render_block_footer_brand',
+	'supports'        => array( 'html' => false, 'multiple' => false ),
+	'attributes'      => array(
+		'imageId'  => array( 'type' => 'integer', 'default' => 0 ),
+		'imageUrl' => array( 'type' => 'string', 'default' => '' ),
+		'alt'      => array( 'type' => 'string', 'default' => 'Universitas Gadjah Mada' ),
+	),
+) );
+
+/**
+ * Render the footer contact widget block.
+ *
+ * @param array $attrs Block attributes.
+ * @return string
+ */
+function ugm_render_block_footer_contact( $attrs ) {
+	$address   = trim( (string) ( $attrs['address'] ?? '' ) );
+	$email     = sanitize_email( (string) ( $attrs['email'] ?? '' ) );
+	$phone     = trim( (string) ( $attrs['phone'] ?? '' ) );
+	$fax       = trim( (string) ( $attrs['fax'] ?? '' ) );
+	$whatsapp  = trim( (string) ( $attrs['whatsapp'] ?? '' ) );
+	$phone_url = preg_replace( '/[^0-9+]/', '', $phone );
+
+	ob_start();
+	?>
+	<div class="ugm-footer-contact">
+		<?php if ( '' !== $address ) : ?>
+			<p class="ugm-footer-contact__address">
+				<span class="ugm-footer-contact__pin" aria-hidden="true">
+					<svg viewBox="0 0 24 24" width="11" height="15" fill="#e63a2e" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C7.6 0 4 3.6 4 8c0 5.4 8 16 8 16s8-10.6 8-16c0-4.4-3.6-8-8-8zm0 11c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3z"/></svg>
+				</span>
+				<span><?php echo wp_kses_post( nl2br( esc_html( $address ), false ) ); ?></span>
+			</p>
+		<?php endif; ?>
+		<p class="ugm-footer-contact__info">
+			<?php if ( '' !== $email ) : ?>E: <a href="mailto:<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $email ); ?></a><?php endif; ?>
+			<?php if ( '' !== $phone ) : ?>&nbsp;|&nbsp; P: <a href="tel:<?php echo esc_attr( $phone_url ); ?>"><?php echo esc_html( $phone ); ?></a><?php endif; ?>
+			<?php if ( '' !== $fax ) : ?>&nbsp;|&nbsp; F: <?php echo esc_html( $fax ); ?><?php endif; ?>
+			<?php if ( '' !== $whatsapp ) : ?>&nbsp;|&nbsp; WA: <?php echo esc_html( $whatsapp ); ?><?php endif; ?>
+		</p>
+	</div>
+	<?php
+	return ob_get_clean();
+}
+
+register_block_type( 'ugm/footer-contact', array(
+	'title'           => __( 'Footer - Kontak & Alamat', 'ugm-faculty' ),
+	'description'     => __( 'Alamat, email, telepon, faks, dan WhatsApp institusi.', 'ugm-faculty' ),
+	'category'        => 'widgets',
+	'render_callback' => 'ugm_render_block_footer_contact',
+	'supports'        => array( 'html' => false, 'multiple' => false ),
+	'attributes'      => array(
+		'address'  => array( 'type' => 'string', 'default' => "Bulaksumur, Caturtunggal, Kec. Depok,\nKabupaten Sleman, Daerah Istimewa\nYogyakarta 55281" ),
+		'email'    => array( 'type' => 'string', 'default' => 'info@ugm.ac.id' ),
+		'phone'    => array( 'type' => 'string', 'default' => '+62(274)588688' ),
+		'fax'      => array( 'type' => 'string', 'default' => '+62(274)565223' ),
+		'whatsapp' => array( 'type' => 'string', 'default' => '+628112869988' ),
+	),
+) );
+
+/**
+ * Render the footer bottom-banner widget block.
+ *
+ * @param array $attrs Block attributes.
+ * @return string
+ */
+function ugm_render_block_footer_banner( $attrs ) {
+	$image_url = ugm_resolve_footer_widget_image( $attrs, 'imageId', 'imageUrl', 'assets/images/Image Footer.png' );
+	if ( '' === $image_url ) {
+		return '';
+	}
+
+	return '<img src="' . esc_url( $image_url ) . '" alt="' . esc_attr( (string) ( $attrs['alt'] ?? '' ) ) . '" loading="lazy">';
+}
+
+register_block_type( 'ugm/footer-banner', array(
+	'title'           => __( 'Footer - Banner Bawah', 'ugm-faculty' ),
+	'description'     => __( 'Gambar panorama di bagian paling bawah footer.', 'ugm-faculty' ),
+	'category'        => 'widgets',
+	'render_callback' => 'ugm_render_block_footer_banner',
+	'supports'        => array( 'html' => false, 'multiple' => false ),
+	'attributes'      => array(
+		'imageId'  => array( 'type' => 'integer', 'default' => 0 ),
+		'imageUrl' => array( 'type' => 'string', 'default' => '' ),
+		'alt'      => array( 'type' => 'string', 'default' => 'Kampus Universitas Gadjah Mada' ),
 	),
 ) );
 
@@ -2453,17 +2607,53 @@ add_action( 'enqueue_block_editor_assets', function () {
 	wp_enqueue_script(
 		'ugm-blocks',
 		get_template_directory_uri() . '/assets/js/blocks.js',
-		array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render' ),
+		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render' ),
 		ugm_get_asset_version( '/assets/js/blocks.js' ),
+		true
+	);
+
+	wp_enqueue_script(
+		'ugm-agenda-blocks',
+		get_template_directory_uri() . '/assets/js/agenda-blocks.js',
+		array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render', 'wp-plugins', 'wp-edit-post' ),
+		ugm_get_asset_version( '/assets/js/agenda-blocks.js' ),
+		true
+	);
+
+	wp_enqueue_script(
+		'ugm-announcement-blocks',
+		get_template_directory_uri() . '/assets/js/announcement-blocks.js',
+		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render', 'wp-plugins', 'wp-media-utils' ),
+		ugm_get_asset_version( '/assets/js/announcement-blocks.js' ),
 		true
 	);
 
 	wp_enqueue_script(
 		'ugm-gallery-blocks',
 		get_template_directory_uri() . '/assets/js/gallery-blocks.js',
-		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render', 'wp-plugins', 'wp-dom-ready' ),
+		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-compose', 'wp-data', 'wp-hooks', 'wp-server-side-render' ),
 		ugm_get_asset_version( '/assets/js/gallery-blocks.js' ),
 		true
+	);
+
+	wp_localize_script(
+		'ugm-agenda-blocks',
+		'ugmAgendaPageEditor',
+		array(
+			'defaultBlocks' => function_exists( 'ugm_get_default_agenda_page_blocks' )
+				? ugm_get_default_agenda_page_blocks()
+				: '',
+		)
+	);
+
+	wp_localize_script(
+		'ugm-announcement-blocks',
+		'ugmAnnouncementPageEditor',
+		array(
+			'defaultBlocks' => function_exists( 'ugm_get_default_announcement_page_blocks' )
+				? ugm_get_default_announcement_page_blocks()
+				: '',
+		)
 	);
 
 	wp_localize_script(
@@ -2498,6 +2688,20 @@ add_action( 'enqueue_block_editor_assets', function () {
 	);
 
 	wp_enqueue_style(
+		'ugm-editor-style-agenda-page',
+		get_template_directory_uri() . '/assets/css/agenda-page.css',
+		array( 'ugm-editor-style-base', 'ugm-editor-style-content' ),
+		ugm_get_asset_version( '/assets/css/agenda-page.css' )
+	);
+
+	wp_enqueue_style(
+		'ugm-editor-style-announcement-page',
+		get_template_directory_uri() . '/assets/css/announcement-page.css',
+		array( 'ugm-editor-style-base', 'ugm-editor-style-content' ),
+		ugm_get_asset_version( '/assets/css/announcement-page.css' )
+	);
+
+	wp_enqueue_style(
 		'ugm-editor-style-gallery-page',
 		get_template_directory_uri() . '/assets/css/gallery-page.css',
 		array( 'ugm-editor-style-base', 'ugm-editor-style-content' ),
@@ -2507,7 +2711,7 @@ add_action( 'enqueue_block_editor_assets', function () {
 	wp_enqueue_style(
 		'ugm-editor-landing-preview',
 		get_template_directory_uri() . '/assets/css/landing-page-editor.css',
-		array( 'ugm-editor-style-base', 'ugm-editor-style-content', 'ugm-editor-style-gallery-page' ),
+		array( 'ugm-editor-style-base', 'ugm-editor-style-content', 'ugm-editor-style-agenda-page', 'ugm-editor-style-announcement-page', 'ugm-editor-style-gallery-page' ),
 		ugm_get_asset_version( '/assets/css/landing-page-editor.css' )
 	);
 } );

@@ -16,6 +16,11 @@ $_ugm_front_tpl_slug = $_ugm_page_on_front > 0
 	? (string) get_page_template_slug( $_ugm_page_on_front )
 	: '';
 
+if ( 'landing-page' === $_ugm_front_tpl_slug ) {
+	require get_theme_file_path( 'page-templates/template-landing-page.php' );
+	return;
+}
+
 if ( '' !== $_ugm_front_tpl_slug ) {
 	$_ugm_custom_tpl = get_theme_file_path( $_ugm_front_tpl_slug );
 

@@ -1,11 +1,12 @@
 <?php
 /**
- * Front page template.
+ * Default front page template.
  *
- * Uses the full PHP landing page template so the homepage and the Landing Page
- * preview share one hardcoded layout system.
+ * Keep the initial theme state empty. Rich homepage content is rendered only
+ * after a page with an explicit page template is assigned as the front page.
  *
  * @package ugm-faculty
  */
 
-require get_theme_file_path( 'page-templates/template-landing-page.php' );
+get_header();
+get_footer();

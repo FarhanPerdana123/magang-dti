@@ -112,7 +112,7 @@ function ugm_enqueue_assets() {
 	$is_front_landing    = is_front_page()
 		&& '1' !== get_query_var( 'ugm_latest_news' )
 		&& '1' !== get_query_var( 'ugm_magazine_news' );
-	$is_landing_template = is_page_template( 'page-templates/template-landing-page.php' );
+	$is_landing_template = is_page_template( array( 'page-templates/template-landing-page.php', 'landing-page' ) );
 
 	if ( $is_front_landing || $is_landing_template ) {
 		wp_enqueue_script(
@@ -128,6 +128,16 @@ function ugm_enqueue_assets() {
 			get_template_directory_uri() . '/assets/js/landing-scroll-reveal.js',
 			array(),
 			ugm_get_asset_version( '/assets/js/landing-scroll-reveal.js' ),
+			true
+		);
+	}
+
+	if ( is_page_template( array( 'page-templates/template-gallery.php', 'gallery-page' ) ) ) {
+		wp_enqueue_script(
+			'ugm-gallery-slider',
+			get_template_directory_uri() . '/assets/js/gallery-slider.js',
+			array(),
+			ugm_get_asset_version( '/assets/js/gallery-slider.js' ),
 			true
 		);
 	}
