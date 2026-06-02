@@ -34,6 +34,7 @@ if ( ! class_exists( 'UGM_Faculty_Theme' ) ) {
 			'agenda-page.php',
 			'announcement-page.php',
 			'gallery-page.php',
+			'management-page.php',
 			'blocks.php',
 		);
 

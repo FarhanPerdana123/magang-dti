@@ -9,6 +9,7 @@
 	var registerBlockType = wp.blocks.registerBlockType;
 	var el                = wp.element.createElement;
 	var Fragment          = wp.element.Fragment;
+	var useEffect         = wp.element.useEffect;
 	var __                = wp.i18n.__;
 	var ServerSideRender  = wp.serverSideRender;
 	var InspectorControls = wp.blockEditor.InspectorControls;
@@ -21,6 +22,71 @@
 	var useSelect         = wp.data.useSelect;
 	var dispatch          = wp.data.dispatch;
 	var createHigherOrderComponent = wp.compose.createHigherOrderComponent;
+
+	function hasManagementPageBlocks( content ) {
+		return content.indexOf( '<!-- wp:ugm/management-hero' ) !== -1 ||
+			content.indexOf( '<!-- wp:ugm/management-section' ) !== -1 ||
+			content.indexOf( '<!-- wp:ugm/study-program-section' ) !== -1;
+	}
+
+	function GalleryTemplateSeeder() {
+		var state = useSelect( function ( select ) {
+			var editor = select( 'core/editor' );
+
+			return {
+				template: editor.getEditedPostAttribute( 'template' ),
+				content: editor.getEditedPostAttribute( 'content' ) || '',
+			};
+		} );
+
+		useEffect( function () {
+			if ( state.template !== 'gallery-page' && state.template !== 'page-templates/template-gallery.php' ) {
+				return;
+			}
+
+			var patch = {};
+			if (
+				( ! state.content.trim() || hasManagementPageBlocks( state.content ) ) &&
+				window.ugmGalleryPageEditor &&
+				ugmGalleryPageEditor.defaultBlocks
+			) {
+				patch.content = ugmGalleryPageEditor.defaultBlocks;
+			}
+
+			if ( Object.keys( patch ).length ) {
+				dispatch( 'core/editor' ).editPost( patch );
+			}
+		}, [ state.template, state.content ] );
+
+		return null;
+	}
+
+	function findGalleryBlock( candidateBlocks ) {
+		var galleryBlock = null;
+
+		candidateBlocks.some( function ( block ) {
+			if ( block.name === 'ugm/gallery-page' ) {
+				galleryBlock = block;
+				return true;
+			}
+
+			galleryBlock = Array.isArray( block.innerBlocks ) ? findGalleryBlock( block.innerBlocks ) : null;
+			return galleryBlock !== null;
+		} );
+
+		return galleryBlock;
+	}
+
+	function updateGalleryBlock( candidateBlocks, patch ) {
+		return candidateBlocks.some( function ( block ) {
+			if ( block.name === 'ugm/gallery-page' ) {
+				block.attributes = Object.assign( {}, block.attributes, patch );
+				return true;
+			}
+
+			return Array.isArray( block.innerBlocks ) && updateGalleryBlock( block.innerBlocks, patch );
+		} );
+	}
 
 	function galleryItemsControl( attrs, setAttr ) {
 		var items = Array.isArray( attrs.galleryItems ) ? attrs.galleryItems : [];
@@ -125,32 +191,50 @@
 		);
 	}
 
-	function findGalleryBlock( candidateBlocks ) {
-		var galleryBlock = null;
+	var withGalleryPostContentControls = createHigherOrderComponent( function ( BlockEdit ) {
+		return function ( props ) {
+			var state = useSelect( function ( select ) {
+				var editor = select( 'core/editor' );
+				var blockEditor = select( 'core/block-editor' );
+				var settings = blockEditor.getSettings();
 
-		candidateBlocks.some( function ( block ) {
-			if ( block.name === 'ugm/gallery-page' ) {
-				galleryBlock = block;
-				return true;
+				return {
+					template:                 editor.getEditedPostAttribute( 'template' ),
+					content:                  editor.getEditedPostAttribute( 'content' ) || '',
+					isGalleryTemplatePreview: !! settings.isPreviewMode && blockEditor.getBlocks().some( function ( block ) {
+						return block.name === 'ugm/gallery-template-preview';
+					} ),
+				};
+			} );
+			var galleryBlock = findGalleryBlock( wp.blocks.parse( state.content ) );
+
+			function setAttr( patch ) {
+				var nextBlocks = wp.blocks.parse( state.content );
+				if ( updateGalleryBlock( nextBlocks, patch ) ) {
+					dispatch( 'core/editor' ).editPost( { content: wp.blocks.serialize( nextBlocks ) } );
+				}
 			}
 
-			galleryBlock = Array.isArray( block.innerBlocks ) ? findGalleryBlock( block.innerBlocks ) : null;
-			return galleryBlock !== null;
-		} );
+			return state.isGalleryTemplatePreview && props.name === 'core/post-content'
+				? null
+				: el(
+					Fragment,
+					null,
+					el( BlockEdit, props ),
+					props.name === 'core/post-content' &&
+						( state.template === 'gallery-page' || state.template === 'page-templates/template-gallery.php' ) &&
+						galleryBlock
+						? el( InspectorControls, null, gallerySectionControls( galleryBlock.attributes, setAttr ) )
+						: null
+				);
+		};
+	}, 'withGalleryPostContentControls' );
 
-		return galleryBlock;
-	}
-
-	function updateGalleryBlock( candidateBlocks, patch ) {
-		return candidateBlocks.some( function ( block ) {
-			if ( block.name === 'ugm/gallery-page' ) {
-				block.attributes = Object.assign( {}, block.attributes, patch );
-				return true;
-			}
-
-			return Array.isArray( block.innerBlocks ) && updateGalleryBlock( block.innerBlocks, patch );
-		} );
-	}
+	wp.hooks.addFilter(
+		'editor.BlockEdit',
+		'ugm-faculty/gallery-post-content-controls',
+		withGalleryPostContentControls
+	);
 
 	function gallerySectionControls( attrs, setAttr ) {
 		return [
@@ -175,42 +259,6 @@
 			),
 		];
 	}
-
-	var withGalleryPostContentControls = createHigherOrderComponent( function ( BlockEdit ) {
-		return function ( props ) {
-			var state = useSelect( function ( select ) {
-				var editor = select( 'core/editor' );
-
-				return {
-					template: editor.getEditedPostAttribute( 'template' ),
-					content: editor.getEditedPostAttribute( 'content' ) || '',
-				};
-			} );
-			var galleryBlock = findGalleryBlock( wp.blocks.parse( state.content ) );
-
-			function setAttr( patch ) {
-				var nextBlocks = wp.blocks.parse( state.content );
-				if ( updateGalleryBlock( nextBlocks, patch ) ) {
-					dispatch( 'core/editor' ).editPost( { content: wp.blocks.serialize( nextBlocks ) } );
-				}
-			}
-
-			return el(
-				Fragment,
-				null,
-				el( BlockEdit, props ),
-				props.name === 'core/post-content' && state.template === 'page-templates/template-gallery.php' && galleryBlock
-					? el( InspectorControls, null, gallerySectionControls( galleryBlock.attributes, setAttr ) )
-					: null
-			);
-		};
-	}, 'withGalleryPostContentControls' );
-
-	wp.hooks.addFilter(
-		'editor.BlockEdit',
-		'ugm-faculty/gallery-post-content-controls',
-		withGalleryPostContentControls
-	);
 
 	registerBlockType( 'ugm/gallery-page', {
 		title:       __( 'Galeri Page', 'ugm-faculty' ),
@@ -246,5 +294,35 @@
 			return null;
 		},
 	} );
+
+	registerBlockType( 'ugm/gallery-template-preview', {
+		title:    __( 'Galeri Page Template Preview', 'ugm-faculty' ),
+		category: 'ugm-gallery-page-sections',
+		supports: {
+			html:     false,
+			inserter: false,
+		},
+		edit: function () {
+			var isPreviewMode = useSelect( function ( select ) {
+				return !! select( 'core/block-editor' ).getSettings().isPreviewMode;
+			}, [] );
+
+			return isPreviewMode
+				? el( ServerSideRender, {
+					block:      'ugm/gallery-page',
+					attributes: { title: 'Galeri' },
+				} )
+				: null;
+		},
+		save: function () {
+			return null;
+		},
+	} );
+
+	if ( wp.plugins && wp.plugins.registerPlugin ) {
+		wp.plugins.registerPlugin( 'ugm-gallery-page-seeder', {
+			render: GalleryTemplateSeeder,
+		} );
+	}
 
 }() );

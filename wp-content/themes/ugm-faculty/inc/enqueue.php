@@ -64,6 +64,7 @@ function ugm_enqueue_assets() {
 		'agenda-page',
 		'announcement-page',
 		'gallery-page',
+		'management-page',
 		'footer',
 	);
 

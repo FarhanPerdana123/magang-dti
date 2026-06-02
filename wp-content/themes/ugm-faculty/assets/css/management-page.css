@@ -1,0 +1,233 @@
+.ugm-management-page {
+	background: #fff;
+	color: #113f5d;
+}
+
+body.ugm-is-management-page .site-content,
+body:has(.ugm-management-page) .site-content {
+	padding-top: 0 !important;
+}
+
+.ugm-management-page__hero {
+	display: grid;
+	width: 100vw;
+	min-height: 150px;
+	place-items: center;
+	margin-left: calc(50% - 50vw);
+	margin-bottom: 34px;
+	padding: 18px 20px;
+	background: #dceef6;
+}
+
+.ugm-management-page__hero h1 {
+	margin: 0;
+	color: #06456b;
+	font-size: clamp(1rem, 2vw, 1.18rem);
+	font-weight: 700;
+	text-align: center;
+}
+
+.ugm-management-page__container {
+	width: min(100% - 32px, 1120px);
+	margin: 0 auto;
+	padding: 0 0 64px;
+}
+
+.editor-styles-wrapper .ugm-management-page__hero {
+	width: 100%;
+	margin-left: 0;
+}
+
+.ugm-management-section,
+.ugm-study-program-section {
+	margin-bottom: 64px;
+}
+
+.ugm-management-section__heading {
+	margin-bottom: 24px;
+}
+
+.ugm-management-section__heading h2,
+.ugm-study-program > h3 {
+	margin: 0;
+	background: #074a73;
+	color: #fff;
+	font-weight: 600;
+}
+
+.ugm-management-section__heading h2 {
+	width: min(100%, 390px);
+	padding: 8px 24px;
+	font-size: 1.65rem;
+}
+
+.ugm-management-section__leader {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 56px;
+}
+
+.ugm-management-section__team {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 42px;
+}
+
+.ugm-management-person {
+	max-width: 270px;
+	margin: 0 auto;
+}
+
+.ugm-management-person__photo {
+	aspect-ratio: 0.78;
+	overflow: hidden;
+	background: #e6eef2;
+}
+
+.ugm-management-person__photo img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.ugm-management-person__photo span {
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(135deg, #edf4f7, #c9dce5);
+}
+
+.ugm-management-person__info {
+	position: relative;
+	z-index: 1;
+	width: calc(100% - 24px);
+	min-height: 88px;
+	margin: -26px auto 0;
+	padding: 10px 12px;
+	background: #074a73;
+	color: #fff;
+	text-align: center;
+}
+
+.ugm-management-person__info h3 {
+	margin: 0;
+	color: inherit;
+	font-size: 1rem;
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+.ugm-management-person__info p {
+	margin: 10px 0 0;
+	font-size: 0.76rem;
+	line-height: 1.35;
+}
+
+.ugm-study-program-list {
+	display: grid;
+	gap: 34px;
+}
+
+.ugm-study-program > h3 {
+	width: min(100%, 390px);
+	padding: 7px 22px;
+	border-left: 4px solid #f8c400;
+	font-size: 1.08rem;
+}
+
+.ugm-study-program__people {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	column-gap: 48px;
+	row-gap: 32px;
+	padding: 20px 0 0;
+}
+
+.ugm-management-person--program {
+	display: grid;
+	grid-template-columns: 166px minmax(0, 1fr);
+	align-items: start;
+	max-width: none;
+	margin: 0;
+}
+
+.ugm-management-person--program .ugm-management-person__photo {
+	aspect-ratio: 1;
+	border: 2px solid #074a73;
+}
+
+.ugm-management-person--program .ugm-management-person__info {
+	z-index: 2;
+	width: calc(100% + 12px);
+	min-height: 0;
+	margin: 0 0 0 16px;
+	padding: 0 0 0 0;
+	background: transparent;
+	color: #06456b;
+	text-align: left;
+}
+
+.ugm-management-person--program .ugm-management-person__info h3 {
+	margin: -2px 0 10px;
+	padding: 0;
+	color: #06456b;
+	font-size: 1.08rem;
+	font-weight: 700;
+	line-height: 1.2;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.ugm-management-person--program .ugm-management-person__info p {
+	width: calc(100% + 28px);
+	margin: 0 0 0 -28px;
+	padding: 7px 14px 7px 28px;
+	background: #074a73;
+	color: #fff;
+	font-size: 0.78rem;
+	line-height: 1.35;
+}
+
+.ugm-management-empty {
+	padding: 18px;
+	border: 1px dashed #88a9ba;
+	background: #f5fafc;
+	color: #4b6d7e;
+}
+
+@media (max-width: 780px) {
+	.ugm-management-section__team,
+	.ugm-study-program__people {
+		grid-template-columns: 1fr;
+	}
+
+	.ugm-management-section__team {
+		gap: 28px;
+	}
+
+	.ugm-study-program__people {
+		padding-inline: 0;
+	}
+}
+
+@media (max-width: 440px) {
+	.ugm-management-person--program {
+		grid-template-columns: 118px minmax(0, 1fr);
+	}
+
+	.ugm-management-person--program .ugm-management-person__info {
+		margin-left: 12px;
+	}
+
+	.ugm-management-person--program .ugm-management-person__info h3 {
+		font-size: 0.96rem;
+	}
+
+	.ugm-management-person--program .ugm-management-person__info p {
+		width: calc(100% + 20px);
+		margin-left: -20px;
+		padding-left: 20px;
+		font-size: 0.7rem;
+	}
+}
