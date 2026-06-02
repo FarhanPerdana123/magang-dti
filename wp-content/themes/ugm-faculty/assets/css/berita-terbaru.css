@@ -617,6 +617,7 @@ body:not(.home):not(.front-page) .site-content:has(.ugmbt-page) {
 	margin: 0 0 22px;
 	padding-bottom: 6px;
 	border-bottom: 2px solid #f6b900;
+	font-family: var(--font-family-body);
 	font-size: 24px;
 	line-height: 1.15;
 }

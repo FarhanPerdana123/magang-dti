@@ -12,6 +12,15 @@
 	justify-content: center;
 }
 
+.hero,
+.hero * {
+	font-family: var(--font-family-hero-sans);
+}
+
+.hero__title {
+	font-family: var(--font-family-brand);
+}
+
 .hero__video {
 	position: absolute;
 	inset: 0;

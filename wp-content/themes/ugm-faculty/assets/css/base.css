@@ -27,9 +27,10 @@
 	--color-focus-ring: #0a4169;
 
 	/* Typography system */
-	--font-family-heading: "Montserrat", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-	--font-family-body: "Source Sans 3", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+	--font-family-heading: "Albert Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+	--font-family-body: "Open Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 	--font-family-brand: "Gama Serif", "Times New Roman", serif;
+	--font-family-hero-sans: "Gama Sans", "Source Sans 3", "Segoe UI", Arial, sans-serif;
 	--line-height-body: 1.65;
 	--line-height-heading: 1.3;
 
@@ -102,6 +103,24 @@ body {
 
 body.no-scroll {
 	overflow: hidden;
+}
+
+:where(
+	b,
+	strong,
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6,
+	button,
+	.button,
+	.wp-element-button,
+	.menu-item,
+	.site-title
+) {
+	font-family: var(--font-family-heading);
 }
 
 img {
