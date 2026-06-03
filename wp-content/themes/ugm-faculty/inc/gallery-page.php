@@ -13,6 +13,11 @@ function ugm_get_default_gallery_page_blocks() {
 	return '<!-- wp:ugm/gallery-page {"title":"Galeri"} /-->';
 }
 
+function ugm_get_gallery_block_template_blocks() {
+	return '<!-- wp:ugm/gallery-template-preview /-->' . "\n" .
+		'<!-- wp:post-content /-->';
+}
+
 function ugm_is_gallery_page_template_slug( $template ) {
 	return in_array(
 		(string) $template,
@@ -24,32 +29,16 @@ function ugm_is_gallery_page_template_slug( $template ) {
 	);
 }
 
-function ugm_get_gallery_block_template_content() {
-	if ( ! function_exists( 'get_block_template' ) ) {
-		return '';
-	}
-
-	$template = get_block_template( get_stylesheet() . '//gallery-page', 'wp_template' );
-	if ( ! $template || empty( $template->content ) || ! is_string( $template->content ) ) {
-		return '';
-	}
-
-	return trim( $template->content );
-}
-
 function ugm_get_gallery_render_source( $page_content = '', $template_slug = '' ) {
-	$page_content  = (string) $page_content;
-	$template_slug = (string) $template_slug;
+	$page_content = (string) $page_content;
+	unset( $template_slug );
+
+	if ( function_exists( 'ugm_has_management_page_blocks' ) && ugm_has_management_page_blocks( $page_content ) ) {
+		return ugm_get_default_gallery_page_blocks();
+	}
 
 	if ( false !== strpos( $page_content, '<!-- wp:' ) || '' !== trim( wp_strip_all_tags( strip_shortcodes( $page_content ) ) ) ) {
 		return $page_content;
-	}
-
-	if ( 'gallery-page' === $template_slug ) {
-		$template_content = ugm_get_gallery_block_template_content();
-		if ( '' !== $template_content && false !== strpos( $template_content, 'ugm/gallery-page' ) ) {
-			return $template_content;
-		}
 	}
 
 	return ugm_get_default_gallery_page_blocks();
@@ -143,37 +132,6 @@ function ugm_seed_existing_empty_gallery_pages() {
 }
 add_action( 'admin_init', 'ugm_seed_existing_empty_gallery_pages' );
 
-/**
- * Move pages away from the Site Editor template slug.
- *
- * The PHP page template keeps the gallery block in normal page content, so
- * editors can select the block and change its inspector controls directly.
- *
- * @return void
- */
-function ugm_migrate_gallery_pages_to_php_template() {
-	if ( ! is_admin() ) {
-		return;
-	}
-
-	$pages = get_posts(
-		array(
-			'post_type'      => 'page',
-			'post_status'    => array( 'publish', 'draft', 'private', 'pending' ),
-			'posts_per_page' => -1,
-			'fields'         => 'ids',
-			'meta_key'       => '_wp_page_template',
-			'meta_value'     => 'gallery-page',
-		)
-	);
-
-	foreach ( $pages as $page_id ) {
-		ugm_populate_empty_gallery_page( $page_id );
-		update_post_meta( $page_id, '_wp_page_template', 'page-templates/template-gallery.php' );
-	}
-}
-add_action( 'admin_init', 'ugm_migrate_gallery_pages_to_php_template', 30 );
-
 function ugm_repair_gallery_block_template() {
 	if ( ! is_admin() ) {
 		return;
@@ -193,14 +151,14 @@ function ugm_repair_gallery_block_template() {
 			continue;
 		}
 
-		if ( false !== strpos( (string) $template_post->post_content, 'ugm/gallery-page' ) ) {
+		if ( ugm_get_gallery_block_template_blocks() === trim( (string) $template_post->post_content ) ) {
 			continue;
 		}
 
 		wp_update_post(
 			array(
 				'ID'           => $template_post->ID,
-				'post_content' => ugm_get_default_gallery_page_blocks(),
+				'post_content' => ugm_get_gallery_block_template_blocks(),
 			)
 		);
 	}
@@ -505,6 +463,14 @@ function ugm_register_gallery_page_blocks() {
 				'buttonLabel'  => array( 'type' => 'string', 'default' => 'Selengkapnya' ),
 				'galleryItems' => array( 'type' => 'array', 'default' => array() ),
 			),
+		)
+	);
+
+	register_block_type(
+		'ugm/gallery-template-preview',
+		array(
+			'api_version'     => 2,
+			'render_callback' => '__return_empty_string',
 		)
 	);
 }

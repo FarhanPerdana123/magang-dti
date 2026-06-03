@@ -2604,6 +2604,14 @@ add_filter( 'block_categories_all', function ( $categories ) {
 		'title' => __( 'UGM — Landing Page Sections', 'ugm-faculty' ),
 		'icon'  => 'layout',
 	), array(
+		'slug'  => 'ugm-agenda-page-sections',
+		'title' => __( 'UGM - Agenda Page Sections', 'ugm-faculty' ),
+		'icon'  => 'calendar',
+	), array(
+		'slug'  => 'ugm-announcement-page-sections',
+		'title' => __( 'UGM - Pengumuman Page Sections', 'ugm-faculty' ),
+		'icon'  => 'megaphone',
+	), array(
 		'slug'  => 'ugm-gallery-page-sections',
 		'title' => __( 'UGM - Galeri Page Sections', 'ugm-faculty' ),
 		'icon'  => 'format-gallery',
@@ -2643,9 +2651,19 @@ add_action( 'enqueue_block_editor_assets', function () {
 	wp_enqueue_script(
 		'ugm-gallery-blocks',
 		get_template_directory_uri() . '/assets/js/gallery-blocks.js',
-		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-compose', 'wp-data', 'wp-hooks', 'wp-server-side-render' ),
+		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-compose', 'wp-data', 'wp-hooks', 'wp-plugins', 'wp-server-side-render' ),
 		ugm_get_asset_version( '/assets/js/gallery-blocks.js' ),
 		true
+	);
+
+	wp_localize_script(
+		'ugm-gallery-blocks',
+		'ugmGalleryPageEditor',
+		array(
+			'defaultBlocks' => function_exists( 'ugm_get_default_gallery_page_blocks' )
+				? ugm_get_default_gallery_page_blocks()
+				: '',
+		)
 	);
 
 	wp_localize_script(
@@ -2775,6 +2793,7 @@ add_action( 'init', function () {
 		'categories'  => array( 'ugm-pages' ),
 		'content'     => '<!-- wp:ugm/gallery-page {"title":"Galeri","breadcrumbParent":"Berita","categorySlug":"galeri","postsPerPage":12,"showFeatured":true} /-->',
 	) );
+
 } );
 
 /* ==========================================================================
