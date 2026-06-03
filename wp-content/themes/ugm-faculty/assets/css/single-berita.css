@@ -272,8 +272,17 @@ body:has(.ugmsb-page) .site-content {
 }
 
 .ugmsb-post-list li {
-	padding: 10px 0;
+	padding: 12px 0;
 	border-bottom: 1px solid #dde4eb;
+}
+
+.ugmsb-post-list li:first-child {
+	padding-top: 0;
+}
+
+.ugmsb-post-list li:last-child {
+	border-bottom: 0;
+	padding-bottom: 0;
 }
 
 .ugmsb-post-list a {
@@ -303,7 +312,12 @@ body:has(.ugmsb-page) .site-content {
 }
 
 .ugmsb-widget {
-	margin-bottom: 30px;
+	clear: both;
+	margin-bottom: 36px;
+}
+
+.ugmsb-widget + .ugmsb-widget {
+	padding-top: 2px;
 }
 
 .ugmsb-widget .ugmsb-post-list a {
@@ -311,13 +325,29 @@ body:has(.ugmsb-page) .site-content {
 	line-height: 1.3;
 }
 
+.ugmsb-sidebar .ugmsb-post-list li {
+	padding: 12px 0;
+	border-top: 0;
+	border-bottom: 1px solid #dde4eb;
+}
+
+.ugmsb-sidebar .ugmsb-post-list li:first-child {
+	padding-top: 0;
+}
+
+.ugmsb-sidebar .ugmsb-post-list li:last-child {
+	padding-bottom: 0;
+	border-bottom: 0;
+}
+
 .ugmsb-agenda {
 	display: grid;
 	grid-template-columns: 52px minmax(0, 1fr);
 	gap: 13px;
 	align-items: start;
-	padding: 13px 0 16px;
-	border-top: 1px solid #dde4eb;
+	padding: 18px 0 18px;
+	margin-bottom: 20px;
+	border-bottom: 1px solid #dde4eb;
 }
 
 .ugmsb-agenda__date {
@@ -348,15 +378,33 @@ body:has(.ugmsb-page) .site-content {
 	text-decoration: none;
 }
 
-.ugmsb-agenda__button {
-	float: right;
-	margin-top: 10px;
+.ugmsb-agenda-actions {
+	display: flex;
+	clear: both;
+	justify-content: flex-end;
+	width: 100%;
+	margin: 20px 0 0;
+}
+
+.ugmsb-agenda-link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 38px;
 	padding: 9px 18px;
 	background: #004266;
 	color: #fff;
 	font-size: 11px;
 	font-weight: 700;
+	line-height: 1.2;
 	text-decoration: none;
+	white-space: nowrap;
+}
+
+.ugmsb-widget--agenda {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 48px;
 }
 
 .ugmsb-comments {
@@ -461,11 +509,11 @@ body:has(.ugmsb-page) .site-content {
 	}
 
 	.ugmsb-widget {
-		margin-bottom: 26px;
+		margin-bottom: 32px;
 	}
 
 	.ugmsb-post-list li {
-		padding: 10px 0;
+		padding: 12px 0;
 	}
 
 	.ugmsb-post-list a,
@@ -476,9 +524,8 @@ body:has(.ugmsb-page) .site-content {
 
 	.ugmsb-agenda {
 		grid-template-columns: 54px minmax(0, 1fr);
+		padding: 18px 0;
+		margin-bottom: 18px;
 	}
 
-	.ugmsb-agenda__button {
-		margin-top: 8px;
-	}
 }

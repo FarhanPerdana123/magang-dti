@@ -614,7 +614,7 @@ function ugmbt_render_block_sidebar_news( array $attrs ): string {
 
 	ob_start();
 	?>
-	<section class="ugmbt-widget">
+	<section class="ugmbt-widget ugmbt-widget--news">
 		<h2 class="ugmbt-widget__title"><?php echo esc_html( $title ); ?></h2>
 		<?php if ( $q->have_posts() ) : ?>
 		<ul class="ugmbt-news-list" role="list">
@@ -679,7 +679,7 @@ function ugmbt_render_block_sidebar_agenda( array $attrs ): string {
 
 	ob_start();
 	?>
-	<section class="ugmbt-widget">
+	<section class="ugmbt-widget ugmbt-widget--agenda">
 		<h2 class="ugmbt-widget__title"><?php echo esc_html( $title ); ?></h2>
 		<?php if ( $q->have_posts() ) : ?>
 		<div class="ugmbt-agenda-list">
@@ -744,7 +744,7 @@ function ugmbt_render_block_sidebar_categories( array $attrs ): string {
 
 	ob_start();
 	?>
-	<section class="ugmbt-widget">
+	<section class="ugmbt-widget ugmbt-widget--categories">
 		<h2 class="ugmbt-widget__title"><?php echo esc_html( $title ); ?></h2>
 		<?php if ( ! empty( $cats ) ) : ?>
 		<ul class="ugmbt-cat-list" role="list">

@@ -244,7 +244,9 @@ function ugm_single_berita_render_post_list( WP_Query $query ): void {
 								<a class="ugmsb-agenda__title" href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
 							</div>
 							<?php endwhile; wp_reset_postdata(); ?>
-							<a class="ugmsb-agenda__button" href="<?php echo esc_url( home_url( '/agenda/' ) ); ?>"><?php esc_html_e( 'Semua Agenda', 'ugm-faculty' ); ?> &rarr;</a>
+							<div class="ugmsb-agenda-actions">
+								<a class="ugmsb-agenda-link" href="<?php echo esc_url( home_url( '/agenda/' ) ); ?>"><?php esc_html_e( 'Semua Agenda', 'ugm-faculty' ); ?> &rarr;</a>
+							</div>
 						</section>
 						<?php endif; ?>
 					</aside>

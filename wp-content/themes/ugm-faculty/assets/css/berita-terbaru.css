@@ -350,8 +350,9 @@
 /* ── Sidebar Widget ───────────────────────────────────────────────────────── */
 .ugmbt-widget {
 	background: transparent;
-	margin-bottom: 20px;
+	margin-bottom: 30px;
 	padding: 0;
+	clear: both;
 }
 
 .ugmbt-widget__title {
@@ -372,15 +373,19 @@
 }
 
 .ugmbt-news-list li {
-	padding: 8px 0;
+	padding: 10px 0;
 	border-bottom: 1px solid var(--ugmbt-border);
 	font-size: 12.5px;
 	line-height: 1.45;
 }
 
+.ugmbt-news-list li:first-child {
+	padding-top: 0;
+}
+
 .ugmbt-news-list li:last-child {
 	border-bottom: none;
-	padding-bottom: 0;
+	padding-bottom: 10px;
 }
 
 .ugmbt-news-list a {
@@ -403,13 +408,13 @@
 .ugmbt-agenda-item {
 	display: flex;
 	gap: 12px;
-	padding: 10px 0;
+	padding: 14px 0;
 	border-bottom: 1px solid var(--ugmbt-border);
 	align-items: flex-start;
 }
 
 .ugmbt-agenda-item:last-child {
-	border-bottom: none;
+	border-bottom: 1px solid var(--ugmbt-border);
 }
 
 .ugmbt-agenda-date {
@@ -451,8 +456,9 @@
 
 /* Tombol Semua Agenda */
 .ugmbt-btn-agenda {
-	display: inline-block;
-	margin-top: 12px;
+	display: flex;
+	width: fit-content;
+	margin: 18px 0 0 auto;
 	padding: 7px 16px;
 	background: var(--ugmbt-navy);
 	color: #fff;
@@ -461,12 +467,22 @@
 	border-radius: var(--ugmbt-radius);
 	text-decoration: none;
 	transition: background 0.18s;
+	clear: both;
 }
 
 .ugmbt-btn-agenda:hover,
 .ugmbt-btn-agenda:focus-visible {
 	background: var(--ugmbt-navy-dark);
 	color: #fff;
+}
+
+.ugmbt-widget--agenda {
+	margin-bottom: 38px;
+}
+
+.ugmbt-widget--categories {
+	clear: both;
+	margin-top: 0;
 }
 
 /* Sidebar: Kategori */
@@ -715,13 +731,6 @@ body:not(.home):not(.front-page) .site-content:has(.ugmbt-page) {
 	line-height: 1.2;
 }
 
-.ugmbt-widget::after {
-	content: "";
-	display: block;
-	border-bottom: 1px solid #dde4eb;
-	transform: translateY(-11px);
-}
-
 .ugmbt-news-list li,
 .ugmbt-agenda-item,
 .ugmbt-cat-list li {
@@ -729,14 +738,24 @@ body:not(.home):not(.front-page) .site-content:has(.ugmbt-page) {
 }
 
 .ugmbt-news-list li {
-	padding: 9px 0;
+	padding: 10px 0;
 	font-size: 12px;
 	line-height: 1.35;
 }
 
+.ugmbt-news-list li:first-child {
+	padding-top: 0;
+}
+
+.ugmbt-news-list li:last-child {
+	border-bottom: 1px solid #dde4eb;
+	padding-bottom: 10px;
+}
+
 .ugmbt-agenda-item {
 	gap: 12px;
-	padding: 12px 0;
+	padding: 16px 0 14px;
+	border-bottom: 1px solid #dde4eb;
 }
 
 .ugmbt-agenda-date {
@@ -757,10 +776,22 @@ body:not(.home):not(.front-page) .site-content:has(.ugmbt-page) {
 }
 
 .ugmbt-btn-agenda {
-	float: right;
-	margin-top: 14px;
+	float: none;
+	display: flex;
+	width: fit-content;
+	margin: 22px 0 0 auto;
 	border-radius: 0;
 	padding: 9px 18px;
+	clear: both;
+}
+
+.ugmbt-widget--agenda {
+	margin-bottom: 42px;
+}
+
+.ugmbt-widget--categories {
+	clear: both;
+	margin-top: 0;
 }
 
 .ugmbt-cat-list li {
