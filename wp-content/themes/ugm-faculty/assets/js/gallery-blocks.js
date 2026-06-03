@@ -15,6 +15,7 @@
 	var InspectorControls = wp.blockEditor.InspectorControls;
 	var MediaUpload       = wp.blockEditor.MediaUpload;
 	var MediaUploadCheck  = wp.blockEditor.MediaUploadCheck;
+	var store             = wp.blockEditor.store;
 	var PanelBody         = wp.components.PanelBody;
 	var TextControl       = wp.components.TextControl;
 	var TextareaControl   = wp.components.TextareaControl;
@@ -197,10 +198,12 @@
 				var editor = select( 'core/editor' );
 				var blockEditor = select( 'core/block-editor' );
 				var settings = blockEditor.getSettings();
+				var galleryEditorBlock = findGalleryBlock( blockEditor.getBlocks() );
 
 				return {
 					template:                 editor.getEditedPostAttribute( 'template' ),
 					content:                  editor.getEditedPostAttribute( 'content' ) || '',
+					galleryClientId:          galleryEditorBlock ? galleryEditorBlock.clientId : '',
 					isGalleryTemplatePreview: !! settings.isPreviewMode && blockEditor.getBlocks().some( function ( block ) {
 						return block.name === 'ugm/gallery-template-preview';
 					} ),
@@ -209,6 +212,10 @@
 			var galleryBlock = findGalleryBlock( wp.blocks.parse( state.content ) );
 
 			function setAttr( patch ) {
+				if ( state.galleryClientId ) {
+					dispatch( store ).updateBlockAttributes( state.galleryClientId, patch );
+				}
+
 				var nextBlocks = wp.blocks.parse( state.content );
 				if ( updateGalleryBlock( nextBlocks, patch ) ) {
 					dispatch( 'core/editor' ).editPost( { content: wp.blocks.serialize( nextBlocks ) } );

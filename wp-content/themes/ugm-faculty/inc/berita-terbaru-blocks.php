@@ -777,6 +777,11 @@ register_block_type( 'ugm/bt-sidebar-categories', array(
 	),
 ) );
 
+register_block_type( 'ugm/berita-terbaru-template-preview', array(
+	'api_version'     => 2,
+	'render_callback' => '__return_empty_string',
+) );
+
 /* ==========================================================================
  * Block Pattern: Halaman Berita Terbaru Lengkap
  * ========================================================================== */

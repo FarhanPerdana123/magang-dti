@@ -1650,4 +1650,93 @@
 		save: function () { return null; },
 	} );
 
+	registerBlockType( 'ugm/berita-terbaru-template-preview', {
+		title:    __( 'Berita Terbaru Template Preview', 'ugm-faculty' ),
+		category: 'ugm-berita-terbaru',
+		supports: {
+			html:     false,
+			inserter: false,
+		},
+		edit: function () {
+			var isPreviewMode = useSelect( function ( select ) {
+				return !! select( 'core/block-editor' ).getSettings().isPreviewMode;
+			}, [] );
+
+			if ( ! isPreviewMode ) {
+				return null;
+			}
+
+			return el(
+				Fragment,
+				null,
+				el( 'style', null, '.editor-styles-wrapper .wp-block[data-type="ugm/berita-terbaru-template-preview"] ~ .wp-block[data-type="core/post-content"]{display:none!important;}' ),
+				el(
+					'main',
+					{ className: 'site-main ugmbt-page ugmbt-template-preview' },
+					el(
+						'div',
+						{ className: 'ugmbt-container' },
+						el(
+							'nav',
+							{ className: 'ugmbt-breadcrumb', 'aria-label': __( 'Breadcrumb', 'ugm-faculty' ) },
+							el( 'span', null, __( 'Berita', 'ugm-faculty' ) ),
+							el( 'span', { 'aria-hidden': 'true' }, '›' ),
+							el( 'span', { 'aria-current': 'page' }, __( 'Berita Terbaru', 'ugm-faculty' ) )
+						),
+						el( 'h1', { className: 'ugmbt-page-title' }, __( 'Berita Terbaru', 'ugm-faculty' ) ),
+						el(
+							'div',
+							{ className: 'ugmbt-layout' },
+							el(
+								'div',
+								{ className: 'ugmbt-main' },
+								el( ServerSideRender, {
+									block: 'ugm/bt-news-section',
+									attributes: {
+										sectionsCount: 2,
+										postsPerRow: 3,
+										categorySlug: '',
+									},
+									httpMethod: 'POST',
+								} )
+							),
+							el(
+								'aside',
+								{ className: 'ugmbt-sidebar', 'aria-label': __( 'Sidebar', 'ugm-faculty' ) },
+								el( ServerSideRender, {
+									block: 'ugm/bt-sidebar-promo',
+									attributes: {
+										buttonText: 'UGM Peduli Bencana - Update',
+										buttonUrl: '/peduli-bencana/',
+									},
+									httpMethod: 'POST',
+								} ),
+								el( ServerSideRender, {
+									block: 'ugm/bt-sidebar-news',
+									attributes: {
+										widgetTitle: 'Berita Terbaru',
+										postsCount: 5,
+									},
+									httpMethod: 'POST',
+								} ),
+								el( ServerSideRender, {
+									block: 'ugm/bt-sidebar-agenda',
+									attributes: {
+										widgetTitle: 'Agenda Terbaru',
+										postsCount: 3,
+										agendaUrl: '/agenda/',
+									},
+									httpMethod: 'POST',
+								} )
+							)
+						)
+					)
+				)
+			);
+		},
+		save: function () {
+			return null;
+		},
+	} );
+
 }() );
