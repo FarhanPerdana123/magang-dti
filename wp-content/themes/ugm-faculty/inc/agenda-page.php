@@ -229,14 +229,20 @@ function ugm_get_landing_agenda_section_title( $fallback = 'Agenda' ) {
  */
 function ugm_register_agenda_post_meta() {
 	$meta_fields = array(
-		'agenda_event_date',
-		'agenda_event_time',
-		'agenda_event_end_date',
-		'agenda_location',
-		'agenda_event_type',
+		'agenda_event_date'      => 'sanitize_text_field',
+		'agenda_event_time'      => 'sanitize_text_field',
+		'agenda_event_end_date'  => 'sanitize_text_field',
+		'agenda_location'        => 'sanitize_text_field',
+		'agenda_event_type'      => 'sanitize_text_field',
+		'ugm_penulis'            => 'sanitize_text_field',
+		'ugm_editor'             => 'sanitize_text_field',
+		'ugm_foto'               => 'sanitize_text_field',
+		'ugm_facebook_url'       => 'esc_url_raw',
+		'ugm_twitter_url'        => 'esc_url_raw',
+		'ugm_whatsapp_url'       => 'esc_url_raw',
 	);
 
-	foreach ( $meta_fields as $meta_key ) {
+	foreach ( $meta_fields as $meta_key => $sanitize_callback ) {
 		register_post_meta(
 			'post',
 			$meta_key,
@@ -245,7 +251,7 @@ function ugm_register_agenda_post_meta() {
 					return current_user_can( 'edit_posts' );
 				},
 				'default'           => '',
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => $sanitize_callback,
 				'show_in_rest'      => true,
 				'single'            => true,
 				'type'              => 'string',

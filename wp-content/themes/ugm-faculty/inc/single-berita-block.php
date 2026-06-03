@@ -25,24 +25,27 @@ function ugmsb_primary_category( int $post_id ): ?WP_Term {
 }
 
 function ugmsb_share_links( int $post_id ): array {
-	$url   = rawurlencode( (string) get_permalink( $post_id ) );
-	$title = rawurlencode( (string) get_the_title( $post_id ) );
+	$url             = rawurlencode( (string) get_permalink( $post_id ) );
+	$title           = rawurlencode( (string) get_the_title( $post_id ) );
+	$facebook_url    = trim( (string) get_post_meta( $post_id, 'ugm_facebook_url', true ) );
+	$twitter_url     = trim( (string) get_post_meta( $post_id, 'ugm_twitter_url', true ) );
+	$whatsapp_url    = trim( (string) get_post_meta( $post_id, 'ugm_whatsapp_url', true ) );
+	$facebook_share  = 'https://www.facebook.com/sharer/sharer.php?u=' . $url;
+	$twitter_share   = 'https://twitter.com/intent/tweet?url=' . $url . '&text=' . $title;
+	$whatsapp_share  = 'https://api.whatsapp.com/send?text=' . $title . '%20' . $url;
 
 	return array(
 		'facebook' => array(
 			'label' => __( 'Facebook', 'ugm-faculty' ),
-			'url'   => 'https://www.facebook.com/sharer/sharer.php?u=' . $url,
-			'text'  => 'f',
+			'url'   => '' !== $facebook_url ? $facebook_url : $facebook_share,
 		),
 		'twitter'  => array(
 			'label' => __( 'Twitter', 'ugm-faculty' ),
-			'url'   => 'https://twitter.com/intent/tweet?url=' . $url . '&text=' . $title,
-			'text'  => 't',
+			'url'   => '' !== $twitter_url ? $twitter_url : $twitter_share,
 		),
 		'whatsapp' => array(
 			'label' => __( 'WhatsApp', 'ugm-faculty' ),
-			'url'   => 'https://api.whatsapp.com/send?text=' . $title . '%20' . $url,
-			'text'  => 'wa',
+			'url'   => '' !== $whatsapp_url ? $whatsapp_url : $whatsapp_share,
 		),
 	);
 }
@@ -56,11 +59,10 @@ function ugmsb_render_share( array $links, string $modifier = '' ): string {
 	$output = '<div class="' . esc_attr( $class ) . '" aria-label="' . esc_attr__( 'Bagikan artikel', 'ugm-faculty' ) . '">';
 	foreach ( $links as $network => $link ) {
 		$output .= sprintf(
-			'<a class="ugmsb-share__link ugmsb-share__link--%1$s" href="%2$s" target="_blank" rel="noopener noreferrer" aria-label="%3$s">%4$s</a>',
+			'<a class="ugmsb-share__link ugmsb-share__link--%1$s" href="%2$s" target="_blank" rel="noopener noreferrer" aria-label="%3$s"><span class="ugmsb-share__icon" aria-hidden="true"></span></a>',
 			esc_attr( $network ),
 			esc_url( $link['url'] ),
-			esc_attr( $link['label'] ),
-			esc_html( $link['text'] )
+			esc_attr( $link['label'] )
 		);
 	}
 	$output .= '</div>';

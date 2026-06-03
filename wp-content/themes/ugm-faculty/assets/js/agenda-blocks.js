@@ -112,11 +112,19 @@
 			return select( 'core/editor' ).getCurrentPostType();
 		}, [] );
 
+		var template = useSelect( function ( select ) {
+			return select( 'core/editor' ).getEditedPostAttribute( 'template' ) || '';
+		}, [] );
+
 		var meta = useSelect( function ( select ) {
 			return select( 'core/editor' ).getEditedPostAttribute( 'meta' ) || {};
 		}, [] );
 
-		if ( ! PluginDocumentSettingPanel || postType !== 'post' ) {
+		if (
+			! PluginDocumentSettingPanel ||
+			postType !== 'post' ||
+			[ 'single-berita', 'single-berita.php' ].indexOf( template ) !== -1
+		) {
 			return null;
 		}
 
@@ -165,6 +173,84 @@
 				help: __( 'Contoh: Workshop, Webinar, Kuliah Umum, Pelatihan.', 'ugm-faculty' ),
 				value: meta.agenda_event_type || '',
 				onChange: function ( value ) { updateMeta( 'agenda_event_type', value ); },
+			} )
+		);
+	}
+
+	function BeritaDetailPostMetaPanel() {
+		var postType = useSelect( function ( select ) {
+			return select( 'core/editor' ).getCurrentPostType();
+		}, [] );
+
+		var template = useSelect( function ( select ) {
+			return select( 'core/editor' ).getEditedPostAttribute( 'template' ) || '';
+		}, [] );
+
+		var meta = useSelect( function ( select ) {
+			return select( 'core/editor' ).getEditedPostAttribute( 'meta' ) || {};
+		}, [] );
+
+		if (
+			! PluginDocumentSettingPanel ||
+			postType !== 'post' ||
+			[ 'single-berita', 'single-berita.php' ].indexOf( template ) === -1
+		) {
+			return null;
+		}
+
+		function updateMeta( key, value ) {
+			var nextMeta = {};
+			Object.keys( meta ).forEach( function ( metaKey ) {
+				nextMeta[ metaKey ] = meta[ metaKey ];
+			} );
+			nextMeta[ key ] = value;
+
+			dispatch( 'core/editor' ).editPost( { meta: nextMeta } );
+		}
+
+		return el(
+			PluginDocumentSettingPanel,
+			{
+				name: 'ugm-berita-detail-meta',
+				title: __( 'Kredit Berita', 'ugm-faculty' ),
+				className: 'ugm-berita-detail-meta-panel',
+			},
+			el( TextControl, {
+				label: __( 'Penulis', 'ugm-faculty' ),
+				value: meta.ugm_penulis || '',
+				onChange: function ( value ) { updateMeta( 'ugm_penulis', value ); },
+			} ),
+			el( TextControl, {
+				label: __( 'Editor', 'ugm-faculty' ),
+				value: meta.ugm_editor || '',
+				onChange: function ( value ) { updateMeta( 'ugm_editor', value ); },
+			} ),
+			el( TextControl, {
+				label: __( 'Foto', 'ugm-faculty' ),
+				help: __( 'Isi nama fotografer atau sumber foto.', 'ugm-faculty' ),
+				value: meta.ugm_foto || '',
+				onChange: function ( value ) { updateMeta( 'ugm_foto', value ); },
+			} ),
+			el( TextControl, {
+				label: __( 'Link Facebook', 'ugm-faculty' ),
+				type: 'url',
+				help: __( 'Kosongkan untuk memakai link share otomatis.', 'ugm-faculty' ),
+				value: meta.ugm_facebook_url || '',
+				onChange: function ( value ) { updateMeta( 'ugm_facebook_url', value ); },
+			} ),
+			el( TextControl, {
+				label: __( 'Link Twitter/X', 'ugm-faculty' ),
+				type: 'url',
+				help: __( 'Kosongkan untuk memakai link share otomatis.', 'ugm-faculty' ),
+				value: meta.ugm_twitter_url || '',
+				onChange: function ( value ) { updateMeta( 'ugm_twitter_url', value ); },
+			} ),
+			el( TextControl, {
+				label: __( 'Link WhatsApp', 'ugm-faculty' ),
+				type: 'url',
+				help: __( 'Kosongkan untuk memakai link share otomatis.', 'ugm-faculty' ),
+				value: meta.ugm_whatsapp_url || '',
+				onChange: function ( value ) { updateMeta( 'ugm_whatsapp_url', value ); },
 			} )
 		);
 	}
@@ -229,7 +315,14 @@
 		} );
 
 		wp.plugins.registerPlugin( 'ugm-agenda-post-meta', {
-			render: AgendaPostMetaPanel,
+			render: function () {
+				return el(
+					Fragment,
+					null,
+					el( AgendaPostMetaPanel ),
+					el( BeritaDetailPostMetaPanel )
+				);
+			},
 		} );
 	}
 }() );

@@ -2635,7 +2635,7 @@ add_action( 'enqueue_block_editor_assets', function () {
 	wp_enqueue_script(
 		'ugm-agenda-blocks',
 		get_template_directory_uri() . '/assets/js/agenda-blocks.js',
-		array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render', 'wp-plugins', 'wp-edit-post' ),
+		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render', 'wp-plugins', 'wp-edit-post' ),
 		ugm_get_asset_version( '/assets/js/agenda-blocks.js' ),
 		true
 	);
