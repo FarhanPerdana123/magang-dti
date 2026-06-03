@@ -102,44 +102,131 @@
 	margin-bottom: 10px;
 }
 
+.ugm-footer__brand-link {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.45rem;
+	color: #ffffff;
+	text-decoration: none;
+}
+
 .ugm-footer__brand-img {
 	display: block;
 	width: auto;
-	max-width: 220px;
-	height: auto;
+	max-width: 4rem;
+	height: 3.4rem;
+	object-fit: contain;
+	flex: 0 0 auto;
+}
+
+.ugm-footer__brand-text-stack {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.2rem;
+	text-align: center;
+	min-width: 0;
+}
+
+.ugm-footer__brand-text-line {
+	display: block;
+	font-family: var(--font-family-brand);
+	font-size: 0.82rem;
+	font-weight: 700;
+	line-height: 1.08;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #ffffff;
+	white-space: normal;
 }
 
 /* ══ KONTAK & ALAMAT ══════════════════════════════════════════════════════ */
 
 .ugm-footer__wrap--contact {
+	margin-top: 0.35rem;
 	margin-bottom: 12px;
 }
 
+.ugm-footer-contact {
+	width: min(100%, 720px);
+	margin-inline: auto;
+	color: #ffffff;
+}
+
+.ugm-footer-contact__item {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.55rem;
+	color: #ffffff;
+	text-decoration: none;
+}
+
 .ugm-footer-contact__address {
-	display: flex;
-	align-items: flex-start;
-	gap: 5px;
-	font-size: 0.78rem;
-	line-height: 1.4;
-	color: rgba(255, 255, 255, 0.85);
-	margin: 0 0 8px;
+	width: 100%;
+	font-size: clamp(0.84rem, 2.2vw, 1.04rem);
+	line-height: 1.62;
+	margin: 0 0 0.95rem;
+	text-align: center;
+	letter-spacing: 0;
 }
 
-.ugm-footer-contact__pin {
+.ugm-footer-contact__address-text {
+	display: inline;
+	max-width: 34rem;
+}
+
+.ugm-footer-contact__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	flex: 0 0 auto;
-	margin-top: 1px;
+	width: 1.12rem;
+	height: 1.12rem;
+	color: #ffffff;
+	object-fit: contain;
 }
 
-.ugm-footer-contact__pin svg {
+.ugm-footer-contact__icon svg {
 	display: block;
+	width: 100%;
+	height: 100%;
+	fill: currentColor;
 }
 
-/* Kontak info (<p class="ugm-footer-contact__info">) */
-.ugm-footer-contact__info {
-	font-size: 0.78rem;
-	color: rgba(255, 255, 255, 0.85);
-	margin: 0;
-	line-height: 1.6;
+.ugm-footer-contact__icon--address {
+	width: 0.95rem;
+	height: 0.95rem;
+	align-self: flex-start;
+	margin-top: 0.38rem;
+}
+
+.ugm-footer-contact__icon--email {
+	width: 1.55rem;
+	height: 1.2rem;
+}
+
+.ugm-footer-contact__icon--whatsapp {
+	width: 1.35rem;
+	height: 1.35rem;
+}
+
+.ugm-footer-contact__links {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 0.58rem 1.7rem;
+	font-size: clamp(0.82rem, 2.15vw, 1rem);
+	line-height: 1.25;
+}
+
+.ugm-footer-contact__link:hover,
+.ugm-footer-contact__link:focus-visible {
+	color: #ffffff;
+	opacity: 0.86;
 }
 
 /* Fallback jika tetap pakai <ul> */
@@ -290,24 +377,33 @@
 	/* Brand — centered via margin auto */
 	.ugm-footer__wrap--brand { margin-bottom: 20px; }
 
+	.ugm-footer__brand-link {
+		gap: 0.55rem;
+	}
+
 	.ugm-footer__brand-img {
-		max-width: 300px;
+		max-width: 4.8rem;
+		height: 4rem;
 		margin-left: auto;
 		margin-right: auto;
 	}
 
-	/* Contact — centered */
-	.ugm-footer__wrap--contact { margin-bottom: 20px; }
-
-	.ugm-footer-contact__address {
-		justify-content: center;
-		font-size: 0.9rem;
-		margin-bottom: 10px;
+	.ugm-footer__brand-text-line {
+		font-size: 0.95rem;
 	}
 
-	.ugm-footer-contact__info {
-		font-size: 0.9rem;
-		text-align: center;
+	/* Contact — centered */
+	.ugm-footer__wrap--contact {
+		margin-top: 0.2rem;
+		margin-bottom: 20px;
+	}
+
+	.ugm-footer-contact__address {
+		margin-bottom: 1rem;
+	}
+
+	.ugm-footer-contact__links {
+		gap: 0.58rem 2.2rem;
 	}
 
 	/* Fallback <ul> kontak: horizontal dengan separator | */

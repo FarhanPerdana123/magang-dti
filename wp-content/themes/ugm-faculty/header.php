@@ -30,38 +30,7 @@ $is_magazine_news_route = '1' === get_query_var( 'ugm_magazine_news' );
 $is_landing_template    = is_page_template( array( 'page-templates/template-landing-page.php', 'landing-page' ) );
 $is_front_landing       = $is_landing_template && ! $is_latest_news_route && ! $is_magazine_news_route;
 $front_route_no_hero    = is_front_page() && ! $is_front_landing;
-$header_social_icons    = array(
-	array(
-		'label' => __( 'Instagram', 'ugm-faculty' ),
-		'file'  => 'Component Instagram.png',
-		'url'   => get_theme_mod( 'ugm_social_instagram_url', 'https://www.instagram.com/' ),
-	),
-	array(
-		'label' => __( 'YouTube', 'ugm-faculty' ),
-		'file'  => 'Component YouTube.png',
-		'url'   => get_theme_mod( 'ugm_social_youtube_url', 'https://www.youtube.com/' ),
-	),
-	array(
-		'label' => __( 'Facebook', 'ugm-faculty' ),
-		'file'  => 'Component Facebook.png',
-		'url'   => get_theme_mod( 'ugm_social_facebook_url', 'https://www.facebook.com/' ),
-	),
-	array(
-		'label' => __( 'X', 'ugm-faculty' ),
-		'file'  => 'Component Twitter.png',
-		'url'   => get_theme_mod( 'ugm_social_x_url', 'https://x.com/' ),
-	),
-	array(
-		'label' => __( 'LinkedIn', 'ugm-faculty' ),
-		'file'  => 'Component LinkedIn.png',
-		'url'   => get_theme_mod( 'ugm_social_linkedin_url', 'https://www.linkedin.com/' ),
-	),
-	array(
-		'label' => __( 'TikTok', 'ugm-faculty' ),
-		'file'  => 'Component TikTok.png',
-		'url'   => get_theme_mod( 'ugm_social_tiktok_url', 'https://www.tiktok.com/' ),
-	),
-);
+$header_social_icons    = function_exists( 'ugm_get_footer_social_items' ) ? ugm_get_footer_social_items() : array();
 $header_quick_links     = array(
 	array(
 		'label' => __( 'Email', 'ugm-faculty' ),

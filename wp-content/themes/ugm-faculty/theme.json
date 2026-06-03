@@ -104,6 +104,11 @@
 			"name": "gallery-page",
 			"title": "Galeri Page",
 			"postTypes": [ "page" ]
+		},
+		{
+			"name": "agenda-post",
+			"title": "Agenda",
+			"postTypes": [ "post" ]
 		}
 	],
 	"templateParts": [

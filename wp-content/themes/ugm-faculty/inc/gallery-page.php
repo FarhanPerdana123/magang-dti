@@ -13,6 +13,10 @@ function ugm_get_default_gallery_page_blocks() {
 	return '<!-- wp:ugm/gallery-page {"title":"Galeri"} /-->';
 }
 
+function ugm_has_gallery_page_block( $content ) {
+	return false !== strpos( (string) $content, '<!-- wp:ugm/gallery-page' );
+}
+
 function ugm_get_gallery_block_template_blocks() {
 	return '<!-- wp:ugm/gallery-template-preview /-->' . "\n" .
 		'<!-- wp:post-content /-->';
@@ -31,9 +35,12 @@ function ugm_is_gallery_page_template_slug( $template ) {
 
 function ugm_get_gallery_render_source( $page_content = '', $template_slug = '' ) {
 	$page_content = (string) $page_content;
-	unset( $template_slug );
 
 	if ( function_exists( 'ugm_has_management_page_blocks' ) && ugm_has_management_page_blocks( $page_content ) ) {
+		return ugm_get_default_gallery_page_blocks();
+	}
+
+	if ( ugm_is_gallery_page_template_slug( $template_slug ) && ! ugm_has_gallery_page_block( $page_content ) ) {
 		return ugm_get_default_gallery_page_blocks();
 	}
 
@@ -57,11 +64,21 @@ function ugm_populate_empty_gallery_page( $post_id ) {
 	}
 
 	$post = get_post( $post_id );
-	if ( ! $post instanceof WP_Post || '' !== trim( (string) $post->post_content ) ) {
+	if ( ! $post instanceof WP_Post ) {
 		return false;
 	}
 
 	if ( ! ugm_is_gallery_page_template_slug( get_page_template_slug( $post_id ) ) ) {
+		return false;
+	}
+
+	$content         = (string) $post->post_content;
+	$has_text        = '' !== trim( wp_strip_all_tags( strip_shortcodes( $content ) ) );
+	$should_populate = '' === trim( $content )
+		|| ( ! ugm_has_gallery_page_block( $content ) && ! $has_text )
+		|| ( function_exists( 'ugm_has_management_page_blocks' ) && ugm_has_management_page_blocks( $content ) );
+
+	if ( ! $should_populate ) {
 		return false;
 	}
 
@@ -76,6 +93,114 @@ function ugm_populate_empty_gallery_page( $post_id ) {
 
 	return true;
 }
+
+/**
+ * Check whether the page content only contains the Gallery Page block.
+ *
+ * @param string $content Page content.
+ * @return bool
+ */
+function ugm_content_is_only_gallery_page_block( $content ) {
+	$blocks      = parse_blocks( (string) $content );
+	$has_gallery = false;
+
+	foreach ( $blocks as $block ) {
+		$block_name = $block['blockName'] ?? null;
+
+		if ( in_array( $block_name, array( 'ugm/gallery-page', 'ugm/gallery-template-preview' ), true ) ) {
+			$has_gallery = true;
+			continue;
+		}
+
+		$inner_html = trim( wp_strip_all_tags( (string) ( $block['innerHTML'] ?? '' ) ) );
+		if ( null === $block_name && '' === $inner_html ) {
+			continue;
+		}
+
+		return false;
+	}
+
+	return $has_gallery;
+}
+
+/**
+ * Remove the auto-seeded Gallery block when the page is switched away from the
+ * Gallery template.
+ *
+ * @param int     $post_id Page ID.
+ * @param WP_Post $post    Post object.
+ * @param bool    $update  Whether this is an update.
+ * @return void
+ */
+function ugm_clear_gallery_page_on_default_template( $post_id, $post, $update ) {
+	unset( $update );
+
+	if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) || 'page' !== get_post_type( $post_id ) ) {
+		return;
+	}
+
+	if ( ugm_is_gallery_page_template_slug( get_page_template_slug( $post_id ) ) ) {
+		return;
+	}
+
+	$content = $post instanceof WP_Post ? (string) $post->post_content : (string) get_post_field( 'post_content', $post_id );
+	if ( ! ugm_content_is_only_gallery_page_block( $content ) ) {
+		return;
+	}
+
+	remove_action( 'save_post_page', 'ugm_clear_gallery_page_on_default_template', 25 );
+	wp_update_post(
+		array(
+			'ID'           => $post_id,
+			'post_content' => '',
+		)
+	);
+	add_action( 'save_post_page', 'ugm_clear_gallery_page_on_default_template', 25, 3 );
+}
+add_action( 'save_post_page', 'ugm_clear_gallery_page_on_default_template', 25, 3 );
+
+/**
+ * Remove leaked Gallery blocks from the global "Pages" block template.
+ *
+ * @return void
+ */
+function ugm_repair_default_page_template_gallery_leak() {
+	if ( ! is_admin() ) {
+		return;
+	}
+
+	$page_templates = get_posts(
+		array(
+			'post_type'      => 'wp_template',
+			'post_status'    => array( 'publish', 'draft' ),
+			'name'           => 'page',
+			'posts_per_page' => 1,
+		)
+	);
+
+	foreach ( $page_templates as $template_post ) {
+		if ( ! $template_post instanceof WP_Post ) {
+			continue;
+		}
+
+		$template_content = (string) $template_post->post_content;
+		if (
+			! ugm_content_is_only_gallery_page_block( $template_content ) &&
+			false === strpos( $template_content, '<!-- wp:ugm/gallery-page' ) &&
+			false === strpos( $template_content, '<!-- wp:ugm/gallery-template-preview' )
+		) {
+			continue;
+		}
+
+		wp_update_post(
+			array(
+				'ID'           => $template_post->ID,
+				'post_content' => '<!-- wp:post-content {"layout":{"type":"default"}} /-->',
+			)
+		);
+	}
+}
+add_action( 'admin_init', 'ugm_repair_default_page_template_gallery_leak', 26 );
 
 /**
  * Seed Gallery Page content after its template is selected.
@@ -451,18 +576,24 @@ function ugm_render_block_gallery_page( $attrs ) {
 	return ob_get_clean();
 }
 
+function ugm_get_gallery_page_block_attributes() {
+	return array(
+		'title'        => array( 'type' => 'string', 'default' => 'Galeri' ),
+		'buttonLabel'  => array( 'type' => 'string', 'default' => 'Selengkapnya' ),
+		'galleryItems' => array( 'type' => 'array', 'default' => array() ),
+	);
+}
+
 function ugm_register_gallery_page_blocks() {
+	$attributes = ugm_get_gallery_page_block_attributes();
+
 	register_block_type(
 		'ugm/gallery-page',
 		array(
 			'api_version'     => 2,
 			'render_callback' => 'ugm_render_block_gallery_page',
 			'category'        => 'ugm-gallery-page-sections',
-			'attributes'      => array(
-				'title'        => array( 'type' => 'string', 'default' => 'Galeri' ),
-				'buttonLabel'  => array( 'type' => 'string', 'default' => 'Selengkapnya' ),
-				'galleryItems' => array( 'type' => 'array', 'default' => array() ),
-			),
+			'attributes'      => $attributes,
 		)
 	);
 
@@ -470,7 +601,8 @@ function ugm_register_gallery_page_blocks() {
 		'ugm/gallery-template-preview',
 		array(
 			'api_version'     => 2,
-			'render_callback' => '__return_empty_string',
+			'render_callback' => 'ugm_render_block_gallery_page',
+			'attributes'      => $attributes,
 		)
 	);
 }

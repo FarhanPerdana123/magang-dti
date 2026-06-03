@@ -288,6 +288,133 @@
 		};
 	}
 
+	function makeFooterBrandEdit() {
+		return function ( props ) {
+			return el(
+				Fragment,
+				null,
+				el(
+					InspectorControls,
+					null,
+					el(
+						PanelBody,
+						{ title: __( 'Logo Institusi', 'ugm-faculty' ), initialOpen: true },
+						el( 'p', null,
+							__( 'Block ini mengikuti logo dan teks dari Customizer > UGM Branding. Hapus block ini dari area widget footer jika tidak ingin menampilkannya.', 'ugm-faculty' )
+						)
+					)
+				),
+				el( ServerSideRender, {
+					block: 'ugm/footer-brand',
+					attributes: props.attributes,
+					httpMethod: 'POST',
+				} )
+			);
+		};
+	}
+
+	function makeFooterContactEdit() {
+		return function ( props ) {
+			var attrs   = props.attributes;
+			var setAttr = props.setAttributes;
+
+			function renderIconControl( label, idKey, urlKey ) {
+				return el(
+					'div',
+					{ style: { marginTop: '12px' } },
+					el( 'p', { style: { fontSize: '12px', fontWeight: '600', margin: '0 0 6px' } }, label ),
+					attrs[ urlKey ]
+						? el( 'img', {
+							src: attrs[ urlKey ],
+							alt: '',
+							style: {
+								display: 'block',
+								width: '34px',
+								height: '34px',
+								objectFit: 'contain',
+								marginBottom: '6px',
+								background: '#0b4b72',
+							},
+						} )
+						: null,
+					el(
+						MediaUploadCheck,
+						null,
+						el( MediaUpload, {
+							allowedTypes: [ 'image' ],
+							value: attrs[ idKey ] || 0,
+							onSelect: function ( image ) {
+								var patch = {};
+								patch[ idKey ] = image.id || 0;
+								patch[ urlKey ] = image.url || '';
+								setAttr( patch );
+							},
+							render: function ( ref ) {
+								return el( Button, { onClick: ref.open, isSecondary: true, isSmall: true },
+									attrs[ urlKey ] ? __( 'Ganti ikon', 'ugm-faculty' ) : __( 'Pilih ikon', 'ugm-faculty' )
+								);
+							},
+						} )
+					),
+					attrs[ urlKey ]
+						? el( Button, {
+							onClick: function () {
+								var patch = {};
+								patch[ idKey ] = 0;
+								patch[ urlKey ] = '';
+								setAttr( patch );
+							},
+							isDestructive: true,
+							isSmall: true,
+							style: { marginLeft: '6px' },
+						}, __( 'Gunakan ikon bawaan', 'ugm-faculty' ) )
+						: null
+				);
+			}
+
+			return el(
+				Fragment,
+				null,
+				el(
+					InspectorControls,
+					null,
+					el(
+						PanelBody,
+						{ title: __( 'Kontak Institusi', 'ugm-faculty' ), initialOpen: true },
+						el( TextareaControl, {
+							label: __( 'Alamat', 'ugm-faculty' ),
+							value: attrs.address || '',
+							rows: 4,
+							onChange: function ( value ) { setAttr( { address: value } ); },
+						} ),
+						el( TextControl, {
+							label: __( 'Email', 'ugm-faculty' ),
+							value: attrs.email || '',
+							onChange: function ( value ) { setAttr( { email: value } ); },
+						} ),
+						el( TextControl, {
+							label: __( 'WhatsApp', 'ugm-faculty' ),
+							value: attrs.whatsapp || '',
+							onChange: function ( value ) { setAttr( { whatsapp: value } ); },
+						} )
+					),
+					el(
+						PanelBody,
+						{ title: __( 'Ikon Kontak', 'ugm-faculty' ), initialOpen: false },
+						renderIconControl( __( 'Ikon Alamat', 'ugm-faculty' ), 'addressIconId', 'addressIconUrl' ),
+						renderIconControl( __( 'Ikon Email', 'ugm-faculty' ), 'emailIconId', 'emailIconUrl' ),
+						renderIconControl( __( 'Ikon WhatsApp', 'ugm-faculty' ), 'whatsappIconId', 'whatsappIconUrl' )
+					)
+				),
+				el( ServerSideRender, {
+					block: 'ugm/footer-contact',
+					attributes: attrs,
+					httpMethod: 'POST',
+				} )
+			);
+		};
+	}
+
 	function makeFeaturedCategoriesEdit() {
 		return function ( props ) {
 			var attrs   = props.attributes;
@@ -910,7 +1037,7 @@
 
 	registerBlockType( 'ugm/footer-brand', {
 		title: __( 'Footer - Brand / Logo', 'ugm-faculty' ),
-		description: __( 'Logo institusi untuk area widget footer.', 'ugm-faculty' ),
+		description: __( 'Logo dan teks institusi yang mengikuti UGM Branding.', 'ugm-faculty' ),
 		category: 'widgets',
 		icon: 'format-image',
 		supports: { html: false, multiple: false },
@@ -919,7 +1046,7 @@
 			imageUrl: { type: 'string', default: '' },
 			alt: { type: 'string', default: 'Universitas Gadjah Mada' },
 		},
-		edit: makeFooterImageEdit( 'ugm/footer-brand', __( 'Logo Institusi', 'ugm-faculty' ) ),
+		edit: makeFooterBrandEdit(),
 		save: function () { return null; },
 	} );
 
@@ -935,14 +1062,14 @@
 			phone: { type: 'string', default: '+62(274)588688' },
 			fax: { type: 'string', default: '+62(274)565223' },
 			whatsapp: { type: 'string', default: '+628112869988' },
+			addressIconId: { type: 'integer', default: 0 },
+			addressIconUrl: { type: 'string', default: '' },
+			emailIconId: { type: 'integer', default: 0 },
+			emailIconUrl: { type: 'string', default: '' },
+			whatsappIconId: { type: 'integer', default: 0 },
+			whatsappIconUrl: { type: 'string', default: '' },
 		},
-		edit: makeFooterFieldsEdit( 'ugm/footer-contact', __( 'Kontak Institusi', 'ugm-faculty' ), [
-			{ key: 'address', label: __( 'Alamat', 'ugm-faculty' ), type: 'textarea', rows: 4 },
-			{ key: 'email', label: __( 'Email', 'ugm-faculty' ) },
-			{ key: 'phone', label: __( 'Telepon', 'ugm-faculty' ) },
-			{ key: 'fax', label: __( 'Faks', 'ugm-faculty' ) },
-			{ key: 'whatsapp', label: __( 'WhatsApp', 'ugm-faculty' ) },
-		] ),
+		edit: makeFooterContactEdit(),
 		save: function () { return null; },
 	} );
 

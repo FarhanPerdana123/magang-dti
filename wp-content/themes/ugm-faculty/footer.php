@@ -53,16 +53,18 @@
 			gap: 10px;
 		}
 		/* ── BRAND: logo + teks di tengah (horizontal) ── */
-		#colophon .ugm-footer__brand {
+		#colophon .ugm-footer__brand,
+		#colophon .ugm-footer__brand-link {
 			display: flex !important;
+			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			gap: 12px;
+			gap: 8px;
 		}
 		#colophon .ugm-footer__brand-img {
 			display: block;
 			width: auto;
-			height: 60px;
+			height: 54px;
 			flex-shrink: 0;
 		}
 		/* ── CONTACT: alamat dan info di tengah ── */

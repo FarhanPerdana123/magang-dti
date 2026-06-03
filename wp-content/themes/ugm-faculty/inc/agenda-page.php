@@ -74,6 +74,27 @@ function ugm_use_php_agenda_template_on_frontend( $template ) {
 add_filter( 'template_include', 'ugm_use_php_agenda_template_on_frontend', 20 );
 
 /**
+ * Frontend: render posts using the Agenda post template through the PHP single template.
+ *
+ * @param string $template Resolved template path.
+ * @return string
+ */
+function ugm_use_php_agenda_post_template_on_frontend( $template ) {
+	if ( is_admin() || ! is_singular( 'post' ) ) {
+		return $template;
+	}
+
+	$post_id = (int) get_queried_object_id();
+	if ( $post_id <= 0 || ! ugm_is_agenda_post_template_slug( get_page_template_slug( $post_id ) ) ) {
+		return $template;
+	}
+
+	$php_template = get_theme_file_path( 'page-templates/template-post-agenda.php' );
+	return file_exists( $php_template ) ? $php_template : $template;
+}
+add_filter( 'template_include', 'ugm_use_php_agenda_post_template_on_frontend', 21 );
+
+/**
  * Add a stable body class for agenda pages.
  *
  * @param string[] $classes Body classes.
@@ -155,6 +176,25 @@ function ugm_is_agenda_page_template_slug( $template ) {
 		array(
 			'page-templates/template-agenda.php',
 			'agenda-page',
+		),
+		true
+	);
+}
+
+/**
+ * Check whether a template slug refers to an Agenda Post template.
+ *
+ * @param string $template Template slug/path.
+ * @return bool
+ */
+function ugm_is_agenda_post_template_slug( $template ) {
+	return in_array(
+		(string) $template,
+		array(
+			'page-templates/template-post-agenda.php',
+			'template-post-agenda.php',
+			'post-agenda',
+			'agenda-post',
 		),
 		true
 	);
@@ -340,6 +380,10 @@ function ugm_is_agenda_post( $post_id ) {
 	$post_id = absint( $post_id );
 	if ( $post_id <= 0 || 'post' !== get_post_type( $post_id ) ) {
 		return false;
+	}
+
+	if ( ugm_is_agenda_post_template_slug( get_page_template_slug( $post_id ) ) ) {
+		return true;
 	}
 
 	foreach ( get_the_category( $post_id ) as $category ) {
