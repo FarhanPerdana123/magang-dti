@@ -581,11 +581,21 @@ function ugm_render_agenda_listing_card() {
 			<h2 class="ugm-agenda-card__title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
 			<ul class="ugm-agenda-card__meta list-unstyled">
 				<li>
-					<span class="ugm-agenda-card__meta-icon" aria-hidden="true">&#9711;</span>
+					<span class="ugm-agenda-card__meta-icon" aria-hidden="true">
+						<svg viewBox="0 0 24 24" focusable="false">
+							<circle cx="12" cy="12" r="9"></circle>
+							<path d="M12 7v5l3 2"></path>
+						</svg>
+					</span>
 					<?php echo esc_html( $date_text ); ?>
 				</li>
 				<li>
-					<span class="ugm-agenda-card__meta-icon" aria-hidden="true">&#9906;</span>
+					<span class="ugm-agenda-card__meta-icon" aria-hidden="true">
+						<svg viewBox="0 0 24 24" focusable="false">
+							<path d="M12 21s6-5.35 6-11a6 6 0 0 0-12 0c0 5.65 6 11 6 11z"></path>
+							<circle cx="12" cy="10" r="2"></circle>
+						</svg>
+					</span>
 					<?php echo esc_html( $location ); ?>
 				</li>
 			</ul>
@@ -613,24 +623,8 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 		$keyword = sanitize_text_field( wp_unslash( $_GET['agenda_keyword_mobile'] ) );
 	}
 
-	$location      = isset( $_GET['agenda_location'] ) ? sanitize_text_field( wp_unslash( $_GET['agenda_location'] ) ) : '';
-	$date_range    = isset( $_GET['agenda_date_range'] ) ? sanitize_key( wp_unslash( $_GET['agenda_date_range'] ) ) : '';
-	$category_pick = isset( $_GET['agenda_category'] ) ? sanitize_key( wp_unslash( $_GET['agenda_category'] ) ) : '';
-	$type_pick     = isset( $_GET['agenda_type'] ) ? sanitize_key( wp_unslash( $_GET['agenda_type'] ) ) : '';
-
 	$agenda_term_ids = ugm_resolve_agenda_exclude_ids( $category_slug );
 	$tax_ids         = $agenda_term_ids;
-
-	foreach ( array( $category_pick, $type_pick ) as $picked_slug ) {
-		if ( '' === $picked_slug ) {
-			continue;
-		}
-
-		$picked_ids = ugm_resolve_multiple_slugs_to_ids( array( $picked_slug ) );
-		if ( ! empty( $picked_ids ) ) {
-			$tax_ids = empty( $tax_ids ) ? $picked_ids : array_values( array_intersect( $tax_ids, $picked_ids ) );
-		}
-	}
 
 	$query_args = array(
 		'post_type'           => 'post',
@@ -651,78 +645,14 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 		$query_args['s'] = $keyword;
 	}
 
-	if ( '' !== $category_pick || '' !== $type_pick ) {
-		$query_args['category__in'] = $tax_ids;
-		if ( empty( $tax_ids ) ) {
-			$query_args['post__in'] = array( 0 );
-		}
-	} elseif ( '' !== $category_slug && 'agenda' !== sanitize_key( $category_slug ) && ! empty( $tax_ids ) ) {
+	if ( '' !== $category_slug && 'agenda' !== sanitize_key( $category_slug ) && ! empty( $tax_ids ) ) {
 		$query_args['category__in'] = $tax_ids;
 	} elseif ( '' !== $category_slug && 'agenda' !== sanitize_key( $category_slug ) && empty( $tax_ids ) ) {
 		$query_args['post__in'] = array( 0 );
 	}
 
-	if ( '' !== $location ) {
-		$query_args = ugm_append_meta_query_clause( $query_args, array(
-			'relation' => 'OR',
-			array(
-				'key'     => 'agenda_location',
-				'value'   => $location,
-				'compare' => 'LIKE',
-			),
-			array(
-				'key'     => '_agenda_location',
-				'value'   => $location,
-				'compare' => 'LIKE',
-			),
-			array(
-				'key'     => 'location',
-				'value'   => $location,
-				'compare' => 'LIKE',
-			),
-		) );
-	}
-
-	if ( 'this-month' === $date_range ) {
-		$query_args = ugm_append_meta_query_clause( $query_args, array(
-			array(
-				'key'     => 'agenda_event_date',
-				'value'   => array( wp_date( 'Y-m-01' ), wp_date( 'Y-m-t' ) ),
-				'compare' => 'BETWEEN',
-				'type'    => 'DATE',
-			),
-		) );
-	} elseif ( 'upcoming' === $date_range ) {
-		$query_args = ugm_append_meta_query_clause( $query_args, array(
-			array(
-				'key'     => 'agenda_event_date',
-				'value'   => wp_date( 'Y-m-d' ),
-				'compare' => '>=',
-				'type'    => 'DATE',
-			),
-		) );
-		$query_args['order'] = 'ASC';
-	} elseif ( 'past' === $date_range ) {
-		$query_args = ugm_append_meta_query_clause( $query_args, array(
-			array(
-				'key'     => 'agenda_event_date',
-				'value'   => wp_date( 'Y-m-d' ),
-				'compare' => '<',
-				'type'    => 'DATE',
-			),
-		) );
-	}
-
 	$agenda_query = new WP_Query( $query_args );
 	$breadcrumb_label = ugm_get_landing_agenda_section_title( $title );
-	$category_options = ! empty( $agenda_term_ids ) ? get_categories(
-		array(
-			'include'    => $agenda_term_ids,
-			'hide_empty' => false,
-			'orderby'    => 'name',
-			'order'      => 'ASC',
-		)
-	) : array();
 
 	ob_start();
 	?>
@@ -739,48 +669,14 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 		</header>
 
 		<form class="ugm-agenda-filter" action="<?php echo esc_url( get_permalink() ); ?>" method="get">
-			<div class="ugm-agenda-filter__mobile input-group">
-				<input class="form-control" type="search" name="agenda_keyword_mobile" value="<?php echo esc_attr( $keyword ); ?>" placeholder="<?php esc_attr_e( 'Pencarian Agenda...', 'ugm-faculty' ); ?>">
-				<button class="btn btn-warning" type="submit" aria-label="<?php esc_attr_e( 'Cari agenda', 'ugm-faculty' ); ?>">
+			<div class="ugm-agenda-filter__search input-group">
+				<input class="form-control" type="search" name="agenda_keyword" value="<?php echo esc_attr( $keyword ); ?>" placeholder="<?php esc_attr_e( 'Pencarian Agenda...', 'ugm-faculty' ); ?>">
+				<button class="btn" type="submit" aria-label="<?php esc_attr_e( 'Cari agenda', 'ugm-faculty' ); ?>">
 					<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
 						<path d="M10.8 4.5a6.3 6.3 0 1 1 0 12.6 6.3 6.3 0 0 1 0-12.6zm0-3a9.3 9.3 0 0 0-7.33 15.02 9.3 9.3 0 0 0 12.02 1.08l4.45 4.46 2.12-2.12-4.46-4.45A9.3 9.3 0 0 0 10.8 1.5z"/>
 					</svg>
 				</button>
 			</div>
-
-			<div class="row g-3">
-				<div class="col-12 col-md-4">
-					<input class="form-control" type="search" name="agenda_keyword" value="<?php echo esc_attr( $keyword ); ?>" placeholder="<?php esc_attr_e( 'Kata kunci', 'ugm-faculty' ); ?>">
-				</div>
-				<div class="col-12 col-md-4">
-					<input class="form-control" type="text" name="agenda_location" value="<?php echo esc_attr( $location ); ?>" placeholder="<?php esc_attr_e( 'Lokasi', 'ugm-faculty' ); ?>">
-				</div>
-				<div class="col-12 col-md-4">
-					<select class="form-select" name="agenda_date_range" onchange="this.form.submit()">
-						<option value=""><?php esc_html_e( 'Select Date Range', 'ugm-faculty' ); ?></option>
-						<option value="upcoming" <?php selected( $date_range, 'upcoming' ); ?>><?php esc_html_e( 'Upcoming', 'ugm-faculty' ); ?></option>
-						<option value="this-month" <?php selected( $date_range, 'this-month' ); ?>><?php esc_html_e( 'This Month', 'ugm-faculty' ); ?></option>
-						<option value="past" <?php selected( $date_range, 'past' ); ?>><?php esc_html_e( 'Past', 'ugm-faculty' ); ?></option>
-					</select>
-				</div>
-				<div class="col-12 col-md-6">
-					<select class="form-select" name="agenda_category" onchange="this.form.submit()">
-						<option value=""><?php esc_html_e( 'Choose an Event Category', 'ugm-faculty' ); ?></option>
-						<?php foreach ( $category_options as $term ) : ?>
-							<option value="<?php echo esc_attr( $term->slug ); ?>" <?php selected( $category_pick, $term->slug ); ?>><?php echo esc_html( $term->name ); ?></option>
-						<?php endforeach; ?>
-					</select>
-				</div>
-				<div class="col-12 col-md-6">
-					<select class="form-select" name="agenda_type" onchange="this.form.submit()">
-						<option value=""><?php esc_html_e( 'Choose an Event Type', 'ugm-faculty' ); ?></option>
-						<?php foreach ( $category_options as $term ) : ?>
-							<option value="<?php echo esc_attr( $term->slug ); ?>" <?php selected( $type_pick, $term->slug ); ?>><?php echo esc_html( $term->name ); ?></option>
-						<?php endforeach; ?>
-					</select>
-				</div>
-			</div>
-			<noscript><button class="btn btn-primary mt-3" type="submit"><?php esc_html_e( 'Terapkan Filter', 'ugm-faculty' ); ?></button></noscript>
 		</form>
 
 		<h2 class="ugm-agenda-page__subheading"><?php esc_html_e( 'Acara-acara', 'ugm-faculty' ); ?></h2>
@@ -806,11 +702,7 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 						'next_text' => '&#8594;',
 						'add_args'  => array_filter(
 							array(
-								'agenda_keyword'    => $keyword,
-								'agenda_location'   => $location,
-								'agenda_date_range' => $date_range,
-								'agenda_category'   => $category_pick,
-								'agenda_type'       => $type_pick,
+								'agenda_keyword' => $keyword,
 							)
 						),
 					)
