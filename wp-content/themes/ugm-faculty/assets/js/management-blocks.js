@@ -31,6 +31,74 @@
 	var dispatch                   = wp.data.dispatch;
 	var createHigherOrderComponent = wp.compose.createHigherOrderComponent;
 
+	function isManagementTemplate( template ) {
+		return template === 'management-page' ||
+			template === 'page-templates/template-management.php';
+	}
+
+	function getEditorRenderingMode( select ) {
+		var editor = select( 'core/editor' );
+
+		return editor && typeof editor.getRenderingMode === 'function'
+			? editor.getRenderingMode()
+			: '';
+	}
+
+	function hasManagementBlock( blocks ) {
+		return !! (
+			findBlock( blocks, 'ugm/management-hero' ) ||
+			findBlock( blocks, 'ugm/management-section' ) ||
+			findBlock( blocks, 'ugm/study-program-section' )
+		);
+	}
+
+	function isManagementBlockName( blockName ) {
+		return blockName === 'ugm/management-hero' ||
+			blockName === 'ugm/management-section' ||
+			blockName === 'ugm/study-program-section';
+	}
+
+	function removeManagementBlocks( blocks ) {
+		return ( Array.isArray( blocks ) ? blocks : [] ).filter( function ( block ) {
+			return ! isManagementBlockName( block.name );
+		} ).map( function ( block ) {
+			if ( Array.isArray( block.innerBlocks ) && block.innerBlocks.length ) {
+				block = Object.assign( {}, block );
+				block.innerBlocks = removeManagementBlocks( block.innerBlocks );
+			}
+			return block;
+		} );
+	}
+
+	function isEmptyEditorBlock( block ) {
+		if ( ! block ) { return true; }
+		if ( block.name === 'core/paragraph' ) {
+			return ! ( block.attributes && block.attributes.content && String( block.attributes.content ).trim() );
+		}
+		return false;
+	}
+
+	function hasOnlyEmptyEditorBlocks( blocks ) {
+		blocks = Array.isArray( blocks ) ? blocks : [];
+		return blocks.length === 0 || blocks.every( isEmptyEditorBlock );
+	}
+
+	function hasMeaningfulContent( content ) {
+		content = String( content || '' );
+		if (
+			content.indexOf( '<!-- wp:ugm/management-hero' ) !== -1 ||
+			content.indexOf( '<!-- wp:ugm/management-section' ) !== -1 ||
+			content.indexOf( '<!-- wp:ugm/study-program-section' ) !== -1
+		) {
+			return true;
+		}
+
+		return content.replace( /<!--[\s\S]*?-->/g, '' )
+			.replace( /<[^>]+>/g, '' )
+			.replace( /&nbsp;/g, ' ' )
+			.trim() !== '';
+	}
+
 	/* ------------------------------------------------------------------
 	 * Template Seeder — seed blok default ke halaman manajemen kosong
 	 * (sama persis dengan AgendaTemplateSeeder / GalleryTemplateSeeder)
@@ -38,26 +106,66 @@
 	function ManagementTemplateSeeder() {
 		var state = useSelect( function ( select ) {
 			var editor = select( 'core/editor' );
+			var blockEditor = select( 'core/block-editor' );
 			return {
-				template:   editor.getEditedPostAttribute( 'template' ),
-				content:    editor.getEditedPostAttribute( 'content' ) || '',
-				blockCount: select( 'core/block-editor' ).getBlockCount(),
+				template: editor.getEditedPostAttribute( 'template' ),
+				content:  editor.getEditedPostAttribute( 'content' ) || '',
+				blocks:   blockEditor.getBlocks(),
 			};
 		} );
 
 		useEffect( function () {
-			var isManagement =
-				state.template === 'management-page' ||
-				state.template === 'page-templates/template-management.php';
+			if ( ! isManagementTemplate( state.template ) ) {
+				var contentBlocks = wp.blocks.parse( state.content || '' );
+				if ( hasManagementBlock( contentBlocks ) ) {
+					dispatch( 'core/editor' ).editPost( {
+						content: wp.blocks.serialize( removeManagementBlocks( contentBlocks ) ).trim(),
+					} );
+				}
 
-			if ( ! isManagement ) { return; }
+				if ( hasManagementBlock( state.blocks ) ) {
+					var postContentBlock = findBlock( state.blocks, 'core/post-content' );
+					if ( postContentBlock ) {
+						dispatch( 'core/block-editor' ).replaceInnerBlocks(
+							postContentBlock.clientId,
+							removeManagementBlocks( postContentBlock.innerBlocks || [] ),
+							false
+						);
+					} else {
+						dispatch( 'core/block-editor' ).resetBlocks( removeManagementBlocks( state.blocks ) );
+					}
+				}
+				return;
+			}
+
 			if ( ! window.ugmManagementPageEditor || ! ugmManagementPageEditor.defaultBlocks ) { return; }
 
-			if ( ! state.content.trim() || state.blockCount === 0 ) {
-				var blocks = wp.blocks.parse( ugmManagementPageEditor.defaultBlocks );
-				if ( blocks && blocks.length ) {
-					dispatch( 'core/block-editor' ).insertBlocks( blocks );
+			var defaultBlocks = wp.blocks.parse( ugmManagementPageEditor.defaultBlocks );
+			if ( ! defaultBlocks || ! defaultBlocks.length ) { return; }
+
+			var postContent = findBlock( state.blocks, 'core/post-content' );
+			if ( postContent ) {
+				var innerBlocks = Array.isArray( postContent.innerBlocks ) ? postContent.innerBlocks : [];
+				if ( ! hasManagementBlock( innerBlocks ) && hasOnlyEmptyEditorBlocks( innerBlocks ) ) {
+					dispatch( 'core/block-editor' ).replaceInnerBlocks(
+						postContent.clientId,
+						defaultBlocks,
+						false
+					);
+					dispatch( 'core/editor' ).editPost( {
+						content: ugmManagementPageEditor.defaultBlocks,
+					} );
 				}
+				return;
+			}
+
+			if ( ! hasMeaningfulContent( state.content ) ) {
+				if ( ! hasManagementBlock( state.blocks ) ) {
+					dispatch( 'core/block-editor' ).insertBlocks( defaultBlocks );
+				}
+				dispatch( 'core/editor' ).editPost( {
+					content: ugmManagementPageEditor.defaultBlocks,
+				} );
 				return;
 			}
 
@@ -65,7 +173,7 @@
 			if ( upgraded !== state.content ) {
 				dispatch( 'core/editor' ).editPost( { content: upgraded } );
 			}
-		}, [ state.template, state.content, state.blockCount ] );
+		}, [ state.template, state.content, state.blocks ] );
 
 		return null;
 	}
@@ -441,6 +549,58 @@
 		withManagementContentControls
 	);
 
+	var withManagementTemplateVisibility = createHigherOrderComponent( function ( BlockListBlock ) {
+		return function ( props ) {
+			var state = useSelect( function ( select ) {
+				var editor = select( 'core/editor' );
+
+				return {
+					template:      editor.getEditedPostAttribute( 'template' ),
+					renderingMode: getEditorRenderingMode( select ),
+				};
+			}, [] );
+
+			if (
+				props.name === 'ugm/management-template-preview' &&
+				isManagementTemplate( state.template )
+			) {
+				return null;
+			}
+
+			if (
+				isManagementBlockName( props.name ) &&
+				isManagementTemplate( state.template ) &&
+				state.renderingMode === 'post-only'
+			) {
+				return null;
+			}
+
+			return el( BlockListBlock, props );
+		};
+	}, 'withManagementTemplateVisibility' );
+
+	wp.hooks.addFilter(
+		'editor.BlockListBlock',
+		'ugm-faculty/management-template-visibility',
+		withManagementTemplateVisibility
+	);
+
+	function useManagementRenderState( attrs ) {
+		var state = useSelect( function ( select ) {
+			var editor = select( 'core/editor' );
+
+			return {
+				template:      editor.getEditedPostAttribute( 'template' ) || '',
+				renderingMode: getEditorRenderingMode( select ),
+			};
+		}, [] );
+
+		return {
+			isVisible:  isManagementTemplate( state.template ) && state.renderingMode !== 'post-only',
+			attributes: Object.assign( {}, attrs, { _templateSlug: state.template } ),
+		};
+	}
+
 	registerBlockType( 'ugm/management-hero', {
 		title:       __( 'Hero Manajemen', 'ugm-faculty' ),
 		description: __( 'Hero halaman manajemen yang dikelola manual.', 'ugm-faculty' ),
@@ -448,17 +608,23 @@
 		icon:        'cover-image',
 		supports:    { html: false, multiple: false },
 		attributes:  {
-			title:      { type: 'string', default: 'Manajemen Organisasi' },
-			background: { type: 'string', default: '#dceef6' },
+			title:         { type: 'string', default: 'Manajemen Organisasi' },
+			background:    { type: 'string', default: '#dceef6' },
+			_templateSlug: { type: 'string', default: '' },
 		},
 		edit: function ( props ) {
 			var attrs   = props.attributes;
 			var setAttr = props.setAttributes;
+			var renderState = useManagementRenderState( attrs );
+			if ( ! renderState.isVisible ) {
+				return null;
+			}
+
 			return el(
 				Fragment,
 				null,
 				el( InspectorControls, null, managementHeroControls( attrs, setAttr ) ),
-				el( ServerSideRender, { block: 'ugm/management-hero', attributes: attrs, httpMethod: 'POST' } )
+				el( ServerSideRender, { block: 'ugm/management-hero', attributes: renderState.attributes, httpMethod: 'POST' } )
 			);
 		},
 		save: function () { return null; },
@@ -471,17 +637,23 @@
 		icon:        'groups',
 		supports:    { html: false, multiple: false },
 		attributes:  {
-			title:  { type: 'string', default: 'Manajemen Fakultas' },
-			people: { type: 'array',  default: [] },
+			title:         { type: 'string', default: 'Manajemen Fakultas' },
+			people:        { type: 'array',  default: [] },
+			_templateSlug: { type: 'string', default: '' },
 		},
 		edit: function ( props ) {
 			var attrs   = props.attributes;
 			var setAttr = props.setAttributes;
+			var renderState = useManagementRenderState( attrs );
+			if ( ! renderState.isVisible ) {
+				return null;
+			}
+
 			return el(
 				Fragment,
 				null,
 				el( InspectorControls, null, managementSectionControls( attrs, setAttr ) ),
-				el( ServerSideRender, { block: 'ugm/management-section', attributes: attrs, httpMethod: 'POST' } )
+				el( ServerSideRender, { block: 'ugm/management-section', attributes: renderState.attributes, httpMethod: 'POST' } )
 			);
 		},
 		save: function () { return null; },
@@ -494,21 +666,44 @@
 		icon:        'welcome-learn-more',
 		supports:    { html: false, multiple: false },
 		attributes:  {
-			title:    { type: 'string', default: 'Program Studi' },
-			programs: { type: 'array',  default: [] },
+			title:         { type: 'string', default: 'Program Studi' },
+			programs:      { type: 'array',  default: [] },
+			_templateSlug: { type: 'string', default: '' },
 		},
 		edit: function ( props ) {
 			var attrs   = props.attributes;
 			var setAttr = props.setAttributes;
+			var renderState = useManagementRenderState( attrs );
+			if ( ! renderState.isVisible ) {
+				return null;
+			}
+
 			return el(
 				Fragment,
 				null,
 				el( InspectorControls, null, studyProgramSectionControls( attrs, setAttr ) ),
-				el( ServerSideRender, { block: 'ugm/study-program-section', attributes: attrs, httpMethod: 'POST' } )
+				el( ServerSideRender, { block: 'ugm/study-program-section', attributes: renderState.attributes, httpMethod: 'POST' } )
 			);
 		},
 		save: function () { return null; },
 		} );
+
+	registerBlockType( 'ugm/management-template-preview', {
+		title:    __( 'Manajemen Page Template Preview', 'ugm-faculty' ),
+		category: 'ugm-management-page-sections',
+		supports: {
+			html:     false,
+			inserter: false,
+		},
+		edit: function () {
+			return el( ServerSideRender, {
+				block:      'ugm/management-template-preview',
+				attributes: {},
+				httpMethod: 'POST',
+			} );
+		},
+		save: function () { return null; },
+	} );
 
 	/* ------------------------------------------------------------------
 	 * registerPlugin — seed blok ke konten kosong (pola agenda/gallery)

@@ -33,11 +33,43 @@
 		return content.indexOf( '<!-- wp:ugm/gallery-page' ) !== -1;
 	}
 
+	function isGalleryPageTemplate( template ) {
+		return template === 'gallery-page' || template === 'page-templates/template-gallery.php';
+	}
+
+	function getEditorRenderingMode( select ) {
+		var editor = select( 'core/editor' );
+
+		return editor && typeof editor.getRenderingMode === 'function'
+			? editor.getRenderingMode()
+			: '';
+	}
+
 	function hasGalleryPageBlockInTree( candidateBlocks ) {
 		return candidateBlocks.some( function ( block ) {
 			return block.name === 'ugm/gallery-page' ||
 				( Array.isArray( block.innerBlocks ) && hasGalleryPageBlockInTree( block.innerBlocks ) );
 		} );
+	}
+
+	function findBlockByName( candidateBlocks, blockName ) {
+		var found = null;
+
+		( candidateBlocks || [] ).some( function ( block ) {
+			if ( block.name === blockName ) {
+				found = block;
+				return true;
+			}
+
+			found = Array.isArray( block.innerBlocks ) ? findBlockByName( block.innerBlocks, blockName ) : null;
+			return found !== null;
+		} );
+
+		return found;
+	}
+
+	function hasOnlyEmptyEditorBlocks( candidateBlocks ) {
+		return ! candidateBlocks.length || candidateBlocks.every( isEmptyEditorBlock );
 	}
 
 	function hasMeaningfulContent( content ) {
@@ -46,6 +78,18 @@
 			.replace( /<[^>]+>/g, '' )
 			.replace( /&nbsp;/g, ' ' )
 			.trim() !== '';
+	}
+
+	function hasEditablePageContent( content ) {
+		var blocks = wp.blocks.parse( content || '' );
+
+		if ( ! blocks.length ) {
+			return false;
+		}
+
+		return blocks.some( function ( block ) {
+			return ! isEmptyEditorBlock( block );
+		} );
 	}
 
 	function isEmptyEditorBlock( block ) {
@@ -89,7 +133,7 @@
 		} );
 
 		useEffect( function () {
-			if ( state.template !== 'gallery-page' && state.template !== 'page-templates/template-gallery.php' ) {
+			if ( ! isGalleryPageTemplate( state.template ) ) {
 				if ( hasOnlyGalleryPageBlocks( wp.blocks.parse( state.content || '' ) ) ) {
 					if ( hasOnlyGalleryPageBlocks( state.blocks ) ) {
 						dispatch( 'core/block-editor' ).resetBlocks( [] );
@@ -115,20 +159,17 @@
 				return;
 			}
 
-			var defaultBlocks = wp.blocks.parse( ugmGalleryPageEditor.defaultBlocks );
-			if ( ! defaultBlocks || ! defaultBlocks.length ) {
+			if ( hasEditablePageContent( state.content ) ) {
 				return;
 			}
 
-			var clientIds = state.blocks.map( function ( block ) {
-				return block.clientId;
-			} );
+			var defaultBlocks = wp.blocks.parse( ugmGalleryPageEditor.defaultBlocks );
+			var postContentBlock = findBlockByName( state.blocks, 'core/post-content' );
 
-			if ( clientIds.length ) {
-				dispatch( 'core/block-editor' ).replaceBlocks( clientIds, defaultBlocks );
-			} else {
-				dispatch( 'core/block-editor' ).insertBlocks( defaultBlocks );
+			if ( postContentBlock && hasOnlyEmptyEditorBlocks( postContentBlock.innerBlocks || [] ) ) {
+				dispatch( 'core/block-editor' ).replaceInnerBlocks( postContentBlock.clientId, defaultBlocks, true );
 			}
+
 			dispatch( 'core/editor' ).editPost( { content: ugmGalleryPageEditor.defaultBlocks } );
 		}, [ state.template, state.content, state.blocks ] );
 
@@ -289,7 +330,7 @@
 				null,
 				el( BlockEdit, props ),
 				props.name === 'core/post-content' &&
-					( state.template === 'gallery-page' || state.template === 'page-templates/template-gallery.php' ) &&
+					isGalleryPageTemplate( state.template ) &&
 					galleryBlock
 					? el( InspectorControls, null, gallerySectionControls( galleryBlock.attributes, setAttr ) )
 					: null
@@ -303,27 +344,40 @@
 		withGalleryPostContentControls
 	);
 
-	var withHiddenGalleryTemplatePreview = createHigherOrderComponent( function ( BlockListBlock ) {
+	var withGalleryTemplateVisibility = createHigherOrderComponent( function ( BlockListBlock ) {
 		return function ( props ) {
-			var template = useSelect( function ( select ) {
-				return select( 'core/editor' ).getEditedPostAttribute( 'template' );
+			var state = useSelect( function ( select ) {
+				var editor = select( 'core/editor' );
+
+				return {
+					template: editor.getEditedPostAttribute( 'template' ),
+					renderingMode: getEditorRenderingMode( select ),
+				};
 			}, [] );
+			var isGalleryTemplate = isGalleryPageTemplate( state.template );
 
 			if (
 				props.name === 'ugm/gallery-template-preview' &&
-				( template === 'gallery-page' || template === 'page-templates/template-gallery.php' )
+				isGalleryTemplate
+			) {
+				return null;
+			}
+
+			if (
+				props.name === 'ugm/gallery-page' &&
+				( ! isGalleryTemplate || state.renderingMode === 'post-only' )
 			) {
 				return null;
 			}
 
 			return el( BlockListBlock, props );
 		};
-	}, 'withHiddenGalleryTemplatePreview' );
+	}, 'withGalleryTemplateVisibility' );
 
 	wp.hooks.addFilter(
 		'editor.BlockListBlock',
-		'ugm-faculty/hide-gallery-template-preview',
-		withHiddenGalleryTemplatePreview
+		'ugm-faculty/gallery-template-visibility',
+		withGalleryTemplateVisibility
 	);
 
 	function gallerySectionControls( attrs, setAttr ) {

@@ -33,6 +33,53 @@ function ugm_is_gallery_page_template_slug( $template ) {
 	);
 }
 
+/**
+ * Resolve the page ID currently being rendered by a Gallery block.
+ *
+ * @param WP_Block|null $block Block instance passed to the render callback.
+ * @return int
+ */
+function ugm_get_gallery_render_post_id( $block = null ) {
+	if ( $block instanceof WP_Block && ! empty( $block->context['postId'] ) ) {
+		return absint( $block->context['postId'] );
+	}
+
+	$queried_id = absint( get_queried_object_id() );
+	if ( $queried_id > 0 && 'page' === get_post_type( $queried_id ) ) {
+		return $queried_id;
+	}
+
+	$post_id = absint( get_the_ID() );
+	if ( $post_id > 0 && 'page' === get_post_type( $post_id ) ) {
+		return $post_id;
+	}
+
+	return 0;
+}
+
+/**
+ * Check whether the Gallery block is being rendered for a page using the
+ * Gallery Page template. This protects both frontend the_content() and
+ * Gutenberg server-side previews from leaked Gallery blocks in normal pages.
+ *
+ * @param WP_Block|null $block Block instance passed to the render callback.
+ * @return bool
+ */
+function ugm_should_render_gallery_page_block( $block = null ) {
+	$post_id = ugm_get_gallery_render_post_id( $block );
+
+	if (
+		defined( 'REST_REQUEST' ) &&
+		REST_REQUEST &&
+		$post_id > 0 &&
+		current_user_can( 'edit_post', $post_id )
+	) {
+		return true;
+	}
+
+	return $post_id > 0 && ugm_is_gallery_page_template_slug( get_page_template_slug( $post_id ) );
+}
+
 function ugm_get_gallery_render_source( $page_content = '', $template_slug = '' ) {
 	$page_content = (string) $page_content;
 
@@ -124,6 +171,52 @@ function ugm_content_is_only_gallery_page_block( $content ) {
 }
 
 /**
+ * Remove Gallery Page blocks from parsed block trees while preserving other
+ * page content.
+ *
+ * @param array[] $blocks Parsed blocks.
+ * @return array[]
+ */
+function ugm_filter_gallery_page_blocks( $blocks ) {
+	$filtered = array();
+
+	foreach ( is_array( $blocks ) ? $blocks : array() as $block ) {
+		$block_name = $block['blockName'] ?? null;
+
+		if ( in_array( $block_name, array( 'ugm/gallery-page', 'ugm/gallery-template-preview' ), true ) ) {
+			continue;
+		}
+
+		if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+			$block['innerBlocks'] = ugm_filter_gallery_page_blocks( $block['innerBlocks'] );
+		}
+
+		$filtered[] = $block;
+	}
+
+	return $filtered;
+}
+
+/**
+ * Strip Gallery Page blocks from saved content.
+ *
+ * @param string $content Page content.
+ * @return string
+ */
+function ugm_remove_gallery_page_blocks_from_content( $content ) {
+	$content = (string) $content;
+
+	if (
+		false === strpos( $content, '<!-- wp:ugm/gallery-page' ) &&
+		false === strpos( $content, '<!-- wp:ugm/gallery-template-preview' )
+	) {
+		return $content;
+	}
+
+	return trim( serialize_blocks( ugm_filter_gallery_page_blocks( parse_blocks( $content ) ) ) );
+}
+
+/**
  * Remove the auto-seeded Gallery block when the page is switched away from the
  * Gallery template.
  *
@@ -144,7 +237,8 @@ function ugm_clear_gallery_page_on_default_template( $post_id, $post, $update ) 
 	}
 
 	$content = $post instanceof WP_Post ? (string) $post->post_content : (string) get_post_field( 'post_content', $post_id );
-	if ( ! ugm_content_is_only_gallery_page_block( $content ) ) {
+	$cleaned = ugm_remove_gallery_page_blocks_from_content( $content );
+	if ( $cleaned === $content ) {
 		return;
 	}
 
@@ -152,12 +246,39 @@ function ugm_clear_gallery_page_on_default_template( $post_id, $post, $update ) 
 	wp_update_post(
 		array(
 			'ID'           => $post_id,
-			'post_content' => '',
+			'post_content' => $cleaned,
 		)
 	);
 	add_action( 'save_post_page', 'ugm_clear_gallery_page_on_default_template', 25, 3 );
 }
 add_action( 'save_post_page', 'ugm_clear_gallery_page_on_default_template', 25, 3 );
+
+/**
+ * REST saves update the page template meta after wp_update_post(), so the
+ * save_post hook can still see the old template. Run once more after the REST
+ * controller has persisted the selected template.
+ *
+ * @param WP_Post         $post     Inserted or updated post object.
+ * @param WP_REST_Request $request  Request object.
+ * @param bool            $creating Whether the post was created.
+ * @return void
+ */
+function ugm_clear_gallery_page_after_rest_save( $post, $request, $creating ) {
+	unset( $request, $creating );
+
+	if ( ! $post instanceof WP_Post || 'page' !== $post->post_type ) {
+		return;
+	}
+
+	if ( ugm_is_gallery_page_template_slug( get_page_template_slug( $post->ID ) ) ) {
+		ugm_populate_empty_gallery_page( $post->ID );
+		return;
+	}
+
+	ugm_clear_gallery_page_on_default_template( $post->ID, get_post( $post->ID ), true );
+}
+add_action( 'rest_after_insert_page', 'ugm_clear_gallery_page_after_rest_save', 20, 3 );
+
 
 /**
  * Remove leaked Gallery blocks from the global "Pages" block template.
@@ -425,7 +546,21 @@ function ugm_render_gallery_detail( $title, $item, $item_index ) {
 	return ob_get_clean();
 }
 
-function ugm_render_block_gallery_page( $attrs ) {
+function ugm_render_block_gallery_page( $attrs, $content = '', $block = null ) {
+	unset( $content );
+
+	if ( ! ugm_should_render_gallery_page_block( $block ) ) {
+		return '';
+	}
+
+	return ugm_render_gallery_page_markup( $attrs );
+}
+
+function ugm_render_block_gallery_template_preview( $attrs ) {
+	return ugm_render_gallery_page_markup( $attrs );
+}
+
+function ugm_render_gallery_page_markup( $attrs ) {
 	$attrs = wp_parse_args(
 		is_array( $attrs ) ? $attrs : array(),
 		array(
@@ -594,6 +729,7 @@ function ugm_register_gallery_page_blocks() {
 			'render_callback' => 'ugm_render_block_gallery_page',
 			'category'        => 'ugm-gallery-page-sections',
 			'attributes'      => $attributes,
+			'uses_context'    => array( 'postId', 'postType' ),
 		)
 	);
 
@@ -601,8 +737,9 @@ function ugm_register_gallery_page_blocks() {
 		'ugm/gallery-template-preview',
 		array(
 			'api_version'     => 2,
-			'render_callback' => 'ugm_render_block_gallery_page',
+			'render_callback' => 'ugm_render_block_gallery_template_preview',
 			'attributes'      => $attributes,
+			'uses_context'    => array( 'postId', 'postType' ),
 		)
 	);
 }
