@@ -120,11 +120,11 @@
 			return select( 'core/editor' ).getEditedPostAttribute( 'meta' ) || {};
 		}, [] );
 
-		if (
-			! PluginDocumentSettingPanel ||
-			postType !== 'post' ||
-			[ 'single-berita', 'single-berita.php' ].indexOf( template ) !== -1
-		) {
+		if ( ! PluginDocumentSettingPanel || postType !== 'post' ) {
+			return null;
+		}
+
+		if ( [ 'page-templates/template-post-agenda.php', 'template-post-agenda.php', 'post-agenda', 'agenda-post' ].indexOf( template ) === -1 ) {
 			return null;
 		}
 

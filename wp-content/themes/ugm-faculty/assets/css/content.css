@@ -3509,6 +3509,11 @@
 	margin-inline: auto;
 }
 
+.ugm-single--agenda-template .ugm-article__container {
+	padding-top: clamp(2rem, 5vw, 4rem);
+	padding-bottom: clamp(2.5rem, 6vw, 5rem);
+}
+
 .ugm-breadcrumb {
 	margin: 1.5rem 0 1rem;
 	font-size: 0.9rem;

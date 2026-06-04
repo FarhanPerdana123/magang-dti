@@ -53,16 +53,18 @@
 			gap: 10px;
 		}
 		/* ── BRAND: logo + teks di tengah (horizontal) ── */
-		#colophon .ugm-footer__brand {
+		#colophon .ugm-footer__brand,
+		#colophon .ugm-footer__brand-link {
 			display: flex !important;
+			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			gap: 12px;
+			gap: 8px;
 		}
 		#colophon .ugm-footer__brand-img {
 			display: block;
 			width: auto;
-			height: 60px;
+			height: 54px;
 			flex-shrink: 0;
 		}
 		/* ── CONTACT: alamat dan info di tengah ── */
@@ -128,7 +130,11 @@
 
 		<?php
 		// Cek apakah ada minimal satu widget bagian atas yang aktif.
-		$has_top = is_active_sidebar( 'footer-social-widget' )
+		$has_footer_social_fallback = function_exists( 'ugm_render_block_footer_social' );
+		$has_footer_brand_fallback  = function_exists( 'ugm_render_block_footer_brand' );
+		$has_top = $has_footer_social_fallback
+			|| $has_footer_brand_fallback
+			|| is_active_sidebar( 'footer-social-widget' )
 			|| is_active_sidebar( 'footer-brand-widget' )
 			|| is_active_sidebar( 'footer-contact-widget' )
 			|| is_active_sidebar( 'footer-nav-widget' )
@@ -141,15 +147,27 @@
 			<div class="ugm-footer__top" style="padding-top:20px;padding-bottom:8px;">
 				<div class="ugm-footer__container" style="padding-left:14px;padding-right:14px;">
 
-					<?php if ( is_active_sidebar( 'footer-social-widget' ) ) : ?>
+					<?php if ( is_active_sidebar( 'footer-social-widget' ) || $has_footer_social_fallback ) : ?>
 						<div class="ugm-footer__wrap ugm-footer__wrap--social">
-							<?php dynamic_sidebar( 'footer-social-widget' ); ?>
+							<?php
+							if ( is_active_sidebar( 'footer-social-widget' ) ) {
+								dynamic_sidebar( 'footer-social-widget' );
+							} elseif ( $has_footer_social_fallback ) {
+								echo ugm_render_block_footer_social( array() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							}
+							?>
 						</div>
 					<?php endif; ?>
 
-					<?php if ( is_active_sidebar( 'footer-brand-widget' ) ) : ?>
+					<?php if ( is_active_sidebar( 'footer-brand-widget' ) || $has_footer_brand_fallback ) : ?>
 						<div class="ugm-footer__wrap ugm-footer__wrap--brand">
-							<?php dynamic_sidebar( 'footer-brand-widget' ); ?>
+							<?php
+							if ( is_active_sidebar( 'footer-brand-widget' ) ) {
+								dynamic_sidebar( 'footer-brand-widget' );
+							} elseif ( $has_footer_brand_fallback ) {
+								echo ugm_render_block_footer_brand( array() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							}
+							?>
 						</div>
 					<?php endif; ?>
 

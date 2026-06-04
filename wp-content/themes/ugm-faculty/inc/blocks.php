@@ -726,30 +726,125 @@ register_block_type( 'ugm/site-footer', array(
  * ========================================================================== */
 
 /**
+ * Get the footer social-media field definitions.
+ *
+ * @return array[]
+ */
+function ugm_get_footer_social_definitions() {
+	return array(
+		array( 'label' => __( 'Instagram', 'ugm-faculty' ), 'attr' => 'instagramUrl', 'icon' => 'Component Instagram.png', 'default' => 'https://www.instagram.com/' ),
+		array( 'label' => __( 'YouTube', 'ugm-faculty' ), 'attr' => 'youtubeUrl', 'icon' => 'Component YouTube.png', 'default' => 'https://www.youtube.com/' ),
+		array( 'label' => __( 'Facebook', 'ugm-faculty' ), 'attr' => 'facebookUrl', 'icon' => 'Component Facebook.png', 'default' => 'https://www.facebook.com/' ),
+		array( 'label' => __( 'X', 'ugm-faculty' ), 'attr' => 'xUrl', 'icon' => 'Component Twitter.png', 'default' => 'https://x.com/' ),
+		array( 'label' => __( 'LinkedIn', 'ugm-faculty' ), 'attr' => 'linkedinUrl', 'icon' => 'Component LinkedIn.png', 'default' => 'https://www.linkedin.com/' ),
+		array( 'label' => __( 'TikTok', 'ugm-faculty' ), 'attr' => 'tiktokUrl', 'icon' => 'Component TikTok.png', 'default' => 'https://www.tiktok.com/' ),
+	);
+}
+
+/**
+ * Recursively find the first footer-social block in a parsed block tree.
+ *
+ * @param array[] $blocks Parsed blocks.
+ * @return array|null
+ */
+function ugm_find_footer_social_block_attrs( $blocks ) {
+	foreach ( $blocks as $block ) {
+		if ( 'ugm/footer-social' === ( $block['blockName'] ?? '' ) ) {
+			return is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+		}
+
+		if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+			$attrs = ugm_find_footer_social_block_attrs( $block['innerBlocks'] );
+			if ( null !== $attrs ) {
+				return $attrs;
+			}
+		}
+	}
+
+	return null;
+}
+
+/**
+ * Read the footer-social block attributes from the footer social widget area.
+ *
+ * @return array|null
+ */
+function ugm_get_footer_social_widget_attrs() {
+	$sidebars_widgets = get_option( 'sidebars_widgets', array() );
+	$widget_ids       = $sidebars_widgets['footer-social-widget'] ?? array();
+	$block_widgets    = get_option( 'widget_block', array() );
+
+	if ( ! is_array( $widget_ids ) || ! is_array( $block_widgets ) ) {
+		return null;
+	}
+
+	foreach ( $widget_ids as $widget_id ) {
+		if ( ! preg_match( '/^block-(\d+)$/', (string) $widget_id, $matches ) ) {
+			continue;
+		}
+
+		$content = (string) ( $block_widgets[ (int) $matches[1] ]['content'] ?? '' );
+		if ( '' === $content || false === strpos( $content, 'ugm/footer-social' ) ) {
+			continue;
+		}
+
+		$attrs = ugm_find_footer_social_block_attrs( parse_blocks( $content ) );
+		if ( null !== $attrs ) {
+			return $attrs;
+		}
+	}
+
+	return null;
+}
+
+/**
+ * Resolve social media items using footer-social block settings as source.
+ *
+ * @param array|null $attrs Optional block attributes. If null, read widget settings.
+ * @return array[]
+ */
+function ugm_get_footer_social_items( $attrs = null ) {
+	if ( null === $attrs ) {
+		$attrs = ugm_get_footer_social_widget_attrs();
+	}
+
+	$attrs = is_array( $attrs ) ? $attrs : array();
+	$items = array();
+
+	foreach ( ugm_get_footer_social_definitions() as $definition ) {
+		$url = array_key_exists( $definition['attr'], $attrs )
+			? (string) $attrs[ $definition['attr'] ]
+			: (string) $definition['default'];
+
+		$items[] = array(
+			'label' => $definition['label'],
+			'file'  => $definition['icon'],
+			'icon'  => $definition['icon'],
+			'url'   => $url,
+		);
+	}
+
+	return $items;
+}
+
+/**
  * Render the footer social-media widget block.
  *
  * @param array $attrs Block attributes.
  * @return string
  */
 function ugm_render_block_footer_social( $attrs ) {
-	$social_items = array(
-		array( 'label' => 'Instagram', 'attr' => 'instagramUrl', 'icon' => 'Component Instagram.png' ),
-		array( 'label' => 'YouTube', 'attr' => 'youtubeUrl', 'icon' => 'Component YouTube.png' ),
-		array( 'label' => 'Facebook', 'attr' => 'facebookUrl', 'icon' => 'Component Facebook.png' ),
-		array( 'label' => 'X', 'attr' => 'xUrl', 'icon' => 'Component Twitter.png' ),
-		array( 'label' => 'LinkedIn', 'attr' => 'linkedinUrl', 'icon' => 'Component LinkedIn.png' ),
-		array( 'label' => 'TikTok', 'attr' => 'tiktokUrl', 'icon' => 'Component TikTok.png' ),
-	);
+	$social_items = ugm_get_footer_social_items( $attrs );
 
 	ob_start();
 	?>
 	<ul class="ugm-footer__social" aria-label="<?php esc_attr_e( 'Social media', 'ugm-faculty' ); ?>">
 		<?php foreach ( $social_items as $social_item ) : ?>
-			<?php $social_url = esc_url( (string) ( $attrs[ $social_item['attr'] ] ?? '' ) ); ?>
+			<?php $social_url = esc_url( (string) ( $social_item['url'] ?? '' ) ); ?>
 			<?php if ( '' !== $social_url ) : ?>
 				<li class="ugm-footer__social-item">
 					<a class="ugm-footer__social-link" href="<?php echo esc_url( $social_url ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr( $social_item['label'] ); ?>">
-						<img class="ugm-footer__social-icon" src="<?php echo esc_url( get_theme_file_uri( 'assets/images/' . $social_item['icon'] ) ); ?>" alt="" loading="lazy">
+						<img class="ugm-footer__social-icon" src="<?php echo esc_url( get_theme_file_uri( 'assets/images/' . $social_item['file'] ) ); ?>" alt="" loading="lazy">
 					</a>
 				</li>
 			<?php endif; ?>
@@ -807,12 +902,60 @@ function ugm_resolve_footer_widget_image( $attrs, $id_key, $url_key, $fallback_p
  * @return string
  */
 function ugm_render_block_footer_brand( $attrs ) {
-	$image_url = ugm_resolve_footer_widget_image( $attrs, 'imageId', 'imageUrl', 'assets/images/Footer.png', 'medium' );
+	$light_logo_id  = absint( get_theme_mod( 'ugm_logo_light' ) );
+	$dark_logo_id   = absint( get_theme_mod( 'ugm_logo_dark' ) );
+	$custom_logo_id = absint( get_theme_mod( 'custom_logo' ) );
+	$home_url       = home_url( '/' );
+
+	$image_url = $light_logo_id ? (string) wp_get_attachment_image_url( $light_logo_id, 'full' ) : '';
+	if ( '' === $image_url && $dark_logo_id ) {
+		$image_url = (string) wp_get_attachment_image_url( $dark_logo_id, 'full' );
+	}
+	if ( '' === $image_url && $custom_logo_id ) {
+		$image_url = (string) wp_get_attachment_image_url( $custom_logo_id, 'full' );
+	}
 	if ( '' === $image_url ) {
+		$image_url = ugm_resolve_footer_widget_image( array(), 'imageId', 'imageUrl', 'assets/images/Footer.png', 'medium' );
+	}
+
+	$branding_lines = array_values(
+		array_filter(
+			array(
+				trim( (string) get_theme_mod( 'ugm_branding_line_1', 'UNIVERSITAS' ) ),
+				trim( (string) get_theme_mod( 'ugm_branding_line_2', 'GADJAH MADA' ) ),
+				trim( (string) get_theme_mod( 'ugm_branding_line_3', '' ) ),
+			),
+			static function ( $line ) {
+				return '' !== $line;
+			}
+		)
+	);
+
+	if ( '' === $image_url && empty( $branding_lines ) ) {
 		return '';
 	}
 
-	return '<img class="ugm-footer__brand-img" src="' . esc_url( $image_url ) . '" alt="' . esc_attr( (string) ( $attrs['alt'] ?? '' ) ) . '" loading="lazy">';
+	$alt = trim( (string) ( $attrs['alt'] ?? '' ) );
+	if ( '' === $alt ) {
+		$alt = get_bloginfo( 'name' );
+	}
+
+	ob_start();
+	?>
+	<a class="ugm-footer__brand-link" href="<?php echo esc_url( $home_url ); ?>" rel="home" aria-label="<?php esc_attr_e( 'Home', 'ugm-faculty' ); ?>">
+		<?php if ( '' !== $image_url ) : ?>
+			<img class="ugm-footer__brand-img" src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $alt ); ?>" loading="lazy">
+		<?php endif; ?>
+		<?php if ( ! empty( $branding_lines ) ) : ?>
+			<span class="ugm-footer__brand-text-stack">
+				<?php foreach ( $branding_lines as $branding_line ) : ?>
+					<span class="ugm-footer__brand-text-line"><?php echo esc_html( $branding_line ); ?></span>
+				<?php endforeach; ?>
+			</span>
+		<?php endif; ?>
+	</a>
+	<?php
+	return (string) ob_get_clean();
 }
 
 register_block_type( 'ugm/footer-brand', array(
@@ -835,30 +978,69 @@ register_block_type( 'ugm/footer-brand', array(
  * @return string
  */
 function ugm_render_block_footer_contact( $attrs ) {
-	$address   = trim( (string) ( $attrs['address'] ?? '' ) );
-	$email     = sanitize_email( (string) ( $attrs['email'] ?? '' ) );
-	$phone     = trim( (string) ( $attrs['phone'] ?? '' ) );
-	$fax       = trim( (string) ( $attrs['fax'] ?? '' ) );
-	$whatsapp  = trim( (string) ( $attrs['whatsapp'] ?? '' ) );
-	$phone_url = preg_replace( '/[^0-9+]/', '', $phone );
+	$address  = trim( (string) ( $attrs['address'] ?? '' ) );
+	$email    = sanitize_email( (string) ( $attrs['email'] ?? '' ) );
+	$whatsapp = trim( (string) ( $attrs['whatsapp'] ?? '' ) );
+	$wa_url   = preg_replace( '/[^0-9]/', '', $whatsapp );
+
+	$contact_icons = array(
+		'address'  => array(
+			'id'       => absint( $attrs['addressIconId'] ?? 0 ),
+			'url'      => esc_url_raw( (string) ( $attrs['addressIconUrl'] ?? '' ) ),
+			'class'    => 'ugm-footer-contact__icon--address',
+			'fallback' => '<svg viewBox="0 0 24 24" role="presentation" focusable="false"><path d="M12 2C8.2 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.2-7-7-7zm0 9.4A2.4 2.4 0 1 1 12 6a2.4 2.4 0 0 1 0 4.8z"/></svg>',
+		),
+		'email'    => array(
+			'id'       => absint( $attrs['emailIconId'] ?? 0 ),
+			'url'      => esc_url_raw( (string) ( $attrs['emailIconUrl'] ?? '' ) ),
+			'class'    => 'ugm-footer-contact__icon--email',
+			'fallback' => '<svg viewBox="0 0 24 24" role="presentation" focusable="false"><path d="M2 5h20v14H2V5zm2.1 2 7.9 6.2L19.9 7H4.1zm-.1 10h16V8.9l-8 6.3-8-6.3V17z"/></svg>',
+		),
+		'whatsapp' => array(
+			'id'       => absint( $attrs['whatsappIconId'] ?? 0 ),
+			'url'      => esc_url_raw( (string) ( $attrs['whatsappIconUrl'] ?? '' ) ),
+			'class'    => 'ugm-footer-contact__icon--whatsapp',
+			'fallback' => '<svg viewBox="0 0 24 24" role="presentation" focusable="false"><path d="M12 2a9.8 9.8 0 0 0-8.5 14.8L2.4 22l5.3-1.3A9.9 9.9 0 1 0 12 2zm0 2a7.9 7.9 0 0 1 0 15.8 8 8 0 0 1-4-.9l-.4-.2-2.4.6.5-2.3-.3-.4A7.9 7.9 0 0 1 12 4zm-3.1 3.8c-.2 0-.5.1-.7.4-.2.3-.8.8-.8 2s.8 2.3.9 2.5c.1.2 1.6 2.6 4 3.5 2 .8 2.4.6 2.8.6.4 0 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1l-.6-.3-1.6-.8c-.2-.1-.4-.1-.6.2l-.7.9c-.1.2-.3.2-.5.1-.3-.1-1.1-.4-2-1.2-.7-.7-1.2-1.4-1.4-1.7-.1-.2 0-.4.1-.5l.4-.5.2-.4c.1-.2.1-.3 0-.5l-.8-1.8c-.2-.2-.3-.2-.5-.2z"/></svg>',
+		),
+	);
+
+	$render_icon = static function ( $key ) use ( $contact_icons ) {
+		$icon = $contact_icons[ $key ];
+		$url  = $icon['id'] ? (string) wp_get_attachment_image_url( $icon['id'], 'thumbnail' ) : '';
+		if ( '' === $url && '' !== $icon['url'] ) {
+			$url = $icon['url'];
+		}
+
+		if ( '' !== $url ) {
+			return '<img class="ugm-footer-contact__icon ' . esc_attr( $icon['class'] ) . '" src="' . esc_url( $url ) . '" alt="" loading="lazy" decoding="async">';
+		}
+
+		return '<span class="ugm-footer-contact__icon ' . esc_attr( $icon['class'] ) . '" aria-hidden="true">' . $icon['fallback'] . '</span>';
+	};
 
 	ob_start();
 	?>
 	<div class="ugm-footer-contact">
 		<?php if ( '' !== $address ) : ?>
-			<p class="ugm-footer-contact__address">
-				<span class="ugm-footer-contact__pin" aria-hidden="true">
-					<svg viewBox="0 0 24 24" width="11" height="15" fill="#e63a2e" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C7.6 0 4 3.6 4 8c0 5.4 8 16 8 16s8-10.6 8-16c0-4.4-3.6-8-8-8zm0 11c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3z"/></svg>
-				</span>
-				<span><?php echo wp_kses_post( nl2br( esc_html( $address ), false ) ); ?></span>
+			<p class="ugm-footer-contact__address ugm-footer-contact__item">
+				<?php echo $render_icon( 'address' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<span class="ugm-footer-contact__address-text"><?php echo wp_kses_post( nl2br( esc_html( $address ), false ) ); ?></span>
 			</p>
 		<?php endif; ?>
-		<p class="ugm-footer-contact__info">
-			<?php if ( '' !== $email ) : ?>E: <a href="mailto:<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $email ); ?></a><?php endif; ?>
-			<?php if ( '' !== $phone ) : ?>&nbsp;|&nbsp; P: <a href="tel:<?php echo esc_attr( $phone_url ); ?>"><?php echo esc_html( $phone ); ?></a><?php endif; ?>
-			<?php if ( '' !== $fax ) : ?>&nbsp;|&nbsp; F: <?php echo esc_html( $fax ); ?><?php endif; ?>
-			<?php if ( '' !== $whatsapp ) : ?>&nbsp;|&nbsp; WA: <?php echo esc_html( $whatsapp ); ?><?php endif; ?>
-		</p>
+		<div class="ugm-footer-contact__links">
+			<?php if ( '' !== $email ) : ?>
+				<a class="ugm-footer-contact__link ugm-footer-contact__item" href="mailto:<?php echo esc_attr( $email ); ?>">
+					<?php echo $render_icon( 'email' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<span><?php echo esc_html( $email ); ?></span>
+				</a>
+			<?php endif; ?>
+			<?php if ( '' !== $whatsapp ) : ?>
+				<a class="ugm-footer-contact__link ugm-footer-contact__item" href="<?php echo esc_url( '' !== $wa_url ? 'https://wa.me/' . $wa_url : '#' ); ?>" target="_blank" rel="noopener noreferrer">
+					<?php echo $render_icon( 'whatsapp' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<span><?php echo esc_html( $whatsapp ); ?></span>
+				</a>
+			<?php endif; ?>
+		</div>
 	</div>
 	<?php
 	return ob_get_clean();
@@ -876,6 +1058,12 @@ register_block_type( 'ugm/footer-contact', array(
 		'phone'    => array( 'type' => 'string', 'default' => '+62(274)588688' ),
 		'fax'      => array( 'type' => 'string', 'default' => '+62(274)565223' ),
 		'whatsapp' => array( 'type' => 'string', 'default' => '+628112869988' ),
+		'addressIconId'  => array( 'type' => 'integer', 'default' => 0 ),
+		'addressIconUrl' => array( 'type' => 'string', 'default' => '' ),
+		'emailIconId'    => array( 'type' => 'integer', 'default' => 0 ),
+		'emailIconUrl'   => array( 'type' => 'string', 'default' => '' ),
+		'whatsappIconId'  => array( 'type' => 'integer', 'default' => 0 ),
+		'whatsappIconUrl' => array( 'type' => 'string', 'default' => '' ),
 	),
 ) );
 
@@ -1817,11 +2005,11 @@ register_block_type( 'ugm/faculty-list', array(
 function ugm_render_agenda_column_html( $title, $cat_slug ) {
 	$agenda_term_ids = ugm_resolve_agenda_exclude_ids( $cat_slug );
 
-	$agenda_archive = home_url( '/' );
+	$agenda_archive = function_exists( 'ugm_get_agenda_page_url' ) ? ugm_get_agenda_page_url() : home_url( '/' );
 	if ( ! empty( $agenda_term_ids ) ) {
 		$first = reset( $agenda_term_ids );
 		$link  = get_category_link( $first );
-		if ( ! is_wp_error( $link ) ) {
+		if ( home_url( '/' ) === $agenda_archive && ! is_wp_error( $link ) ) {
 			$agenda_archive = $link;
 		}
 	}
@@ -1875,7 +2063,10 @@ function ugm_render_agenda_column_html( $title, $cat_slug ) {
 			echo '</a>';
 			echo '<div class="desktop-agenda-card__body">';
 			echo '<h3 class="desktop-agenda-card__title"><a href="' . esc_url( get_the_permalink() ) . '">' . get_the_title() . '</a></h3>';
-			echo '<p class="desktop-agenda-card__meta">' . esc_html( get_the_author() ) . '</p>';
+			$agenda_location = function_exists( 'ugm_get_agenda_event_location' )
+				? ugm_get_agenda_event_location( get_the_ID() )
+				: trim( (string) get_post_meta( get_the_ID(), 'agenda_location', true ) );
+			echo '<p class="desktop-agenda-card__meta">' . esc_html( $agenda_location ) . '</p>';
 			echo '</div></article>';
 		}
 		echo ugm_render_partial_skeleton_items( 'agenda-card', max( 0, 3 - $agenda_items ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
