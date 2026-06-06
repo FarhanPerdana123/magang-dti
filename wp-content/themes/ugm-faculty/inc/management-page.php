@@ -12,7 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 function ugm_get_default_management_page_blocks() {
 	return '<!-- wp:ugm/management-hero {"title":"Manajemen Organisasi","background":"#dceef6"} /-->' . "\n" .
 		'<!-- wp:ugm/management-section {"title":"Manajemen Fakultas"} /-->' . "\n" .
-		'<!-- wp:ugm/study-program-section {"title":"Program Studi"} /-->';
+		'<!-- wp:ugm/study-program-section {"title":"Program Studi"} /-->' . "\n" .
+		'<!-- wp:ugm/management-share-section {"title":"Share This Page"} /-->';
 }
 
 function ugm_get_management_block_template_blocks() {
@@ -25,7 +26,8 @@ function ugm_has_management_page_blocks( $page_content ) {
 
 	return false !== strpos( $page_content, '<!-- wp:ugm/management-hero' ) ||
 		false !== strpos( $page_content, '<!-- wp:ugm/management-section' ) ||
-		false !== strpos( $page_content, '<!-- wp:ugm/study-program-section' );
+		false !== strpos( $page_content, '<!-- wp:ugm/study-program-section' ) ||
+		false !== strpos( $page_content, '<!-- wp:ugm/management-share-section' );
 }
 
 function ugm_management_content_has_visible_content( $page_content ) {
@@ -105,7 +107,7 @@ function ugm_filter_management_page_blocks( $blocks ) {
 	foreach ( is_array( $blocks ) ? $blocks : array() as $block ) {
 		$block_name = $block['blockName'] ?? null;
 
-		if ( in_array( $block_name, array( 'ugm/management-hero', 'ugm/management-section', 'ugm/study-program-section' ), true ) ) {
+		if ( in_array( $block_name, array( 'ugm/management-hero', 'ugm/management-section', 'ugm/study-program-section', 'ugm/management-share-section' ), true ) ) {
 			continue;
 		}
 
@@ -125,7 +127,8 @@ function ugm_remove_management_page_blocks_from_content( $content ) {
 	if (
 		false === strpos( $content, '<!-- wp:ugm/management-hero' ) &&
 		false === strpos( $content, '<!-- wp:ugm/management-section' ) &&
-		false === strpos( $content, '<!-- wp:ugm/study-program-section' )
+		false === strpos( $content, '<!-- wp:ugm/study-program-section' ) &&
+		false === strpos( $content, '<!-- wp:ugm/management-share-section' )
 	) {
 		return $content;
 	}
@@ -153,6 +156,10 @@ function ugm_get_management_block_template_content() {
 function ugm_get_management_render_source( $page_content = '', $template_slug = '' ) {
 	$page_content = ugm_upgrade_management_page_blocks( $page_content );
 	$template_slug = (string) $template_slug;
+
+	if ( ugm_has_management_page_blocks( $page_content ) ) {
+		return $page_content;
+	}
 
 	if ( 'management-page' === $template_slug ) {
 		$template_content = ugm_get_management_block_template_content();
@@ -509,8 +516,9 @@ function ugm_render_block_management_hero( $attrs, $content = '', $block = null 
 		return '';
 	}
 
-	$title      = trim( wp_strip_all_tags( (string) ( $attrs['title'] ?? __( 'Manajemen Organisasi', 'ugm-faculty' ) ) ) );
-	$background = sanitize_hex_color( (string) ( $attrs['background'] ?? '#dceef6' ) );
+	$title                = trim( wp_strip_all_tags( (string) ( $attrs['title'] ?? __( 'Manajemen Organisasi', 'ugm-faculty' ) ) ) );
+	$background           = sanitize_hex_color( (string) ( $attrs['background'] ?? '#dceef6' ) );
+	$background_image_url = esc_url_raw( (string) ( $attrs['backgroundImageUrl'] ?? '' ) );
 
 	if ( '' === $title ) {
 		$title = __( 'Manajemen Organisasi', 'ugm-faculty' );
@@ -520,9 +528,14 @@ function ugm_render_block_management_hero( $attrs, $content = '', $block = null 
 		$background = '#dceef6';
 	}
 
+	$hero_style = 'background-color: ' . $background . ';';
+	if ( '' !== $background_image_url ) {
+		$hero_style .= ' background-image: url(' . esc_url( $background_image_url ) . ');';
+	}
+
 	ob_start();
 	?>
-	<header class="ugm-management-page__hero" style="background-color: <?php echo esc_attr( $background ); ?>;">
+	<header class="ugm-management-page__hero" style="<?php echo esc_attr( $hero_style ); ?>">
 		<h1><?php echo esc_html( $title ); ?></h1>
 	</header>
 	<?php
@@ -627,6 +640,98 @@ function ugm_render_block_study_program_section( $attrs, $content = '', $block =
 	return ob_get_clean();
 }
 
+function ugm_render_block_management_share_section( $attrs, $content = '', $block = null ) {
+	unset( $content );
+
+	if ( ! ugm_should_render_management_page_block( $attrs, $block ) ) {
+		return '';
+	}
+
+	$title = trim( wp_strip_all_tags( (string) ( $attrs['title'] ?? __( 'Share This Page', 'ugm-faculty' ) ) ) );
+	if ( '' === $title ) {
+		$title = __( 'Share This Page', 'ugm-faculty' );
+	}
+
+	$page_url   = get_permalink();
+	$page_title = get_the_title();
+	if ( ! $page_url ) {
+		$page_url = home_url( add_query_arg( array(), $GLOBALS['wp']->request ?? '' ) );
+	}
+
+	$encoded_url   = rawurlencode( $page_url );
+	$encoded_title = rawurlencode( wp_strip_all_tags( $page_title ) );
+	$default_links = array(
+		array(
+			'class' => 'facebook',
+			'label' => __( 'Facebook', 'ugm-faculty' ),
+			'icon'  => 'f',
+			'url'   => 'https://www.facebook.com/sharer/sharer.php?u=' . $encoded_url,
+		),
+		array(
+			'class' => 'twitter',
+			'label' => __( 'Twitter', 'ugm-faculty' ),
+			'icon'  => 't',
+			'url'   => 'https://twitter.com/intent/tweet?url=' . $encoded_url . '&text=' . $encoded_title,
+		),
+		array(
+			'class' => 'linkedin',
+			'label' => __( 'LinkedIn', 'ugm-faculty' ),
+			'icon'  => 'in',
+			'url'   => 'https://www.linkedin.com/shareArticle?mini=true&url=' . $encoded_url . '&title=' . $encoded_title,
+		),
+		array(
+			'class' => 'whatsapp',
+			'label' => __( 'WhatsApp', 'ugm-faculty' ),
+			'icon'  => 'wa',
+			'url'   => 'https://api.whatsapp.com/send?text=' . $encoded_title . '%20' . $encoded_url,
+		),
+		array(
+			'class' => 'email',
+			'label' => __( 'Email', 'ugm-faculty' ),
+			'icon'  => '@',
+			'url'   => 'mailto:?subject=' . $encoded_title . '&body=' . $encoded_url,
+		),
+	);
+	$custom_links  = is_array( $attrs['links'] ?? null ) ? $attrs['links'] : array();
+	$links         = array();
+
+	foreach ( $default_links as $index => $default_link ) {
+		$custom = isset( $custom_links[ $index ] ) && is_array( $custom_links[ $index ] ) ? $custom_links[ $index ] : array();
+		$label  = trim( wp_strip_all_tags( (string) ( $custom['label'] ?? $default_link['label'] ) ) );
+		$icon   = trim( wp_strip_all_tags( (string) ( $custom['icon'] ?? $default_link['icon'] ) ) );
+		$icon_url = esc_url_raw( (string) ( $custom['iconUrl'] ?? '' ) );
+		$url    = trim( (string) ( $custom['url'] ?? '' ) );
+
+		$links[] = array(
+			'class'   => $default_link['class'],
+			'label'   => '' !== $label ? $label : $default_link['label'],
+			'icon'    => '' !== $icon ? $icon : $default_link['icon'],
+			'iconUrl' => $icon_url,
+			'url'     => '' !== $url ? $url : $default_link['url'],
+		);
+	}
+
+	ob_start();
+	?>
+	<section class="ugm-management-share" aria-label="<?php echo esc_attr( $title ); ?>">
+		<span class="ugm-management-share__label"><?php echo esc_html( $title ); ?></span>
+		<div class="ugm-management-share__links">
+			<?php foreach ( $links as $link ) : ?>
+				<a class="ugm-management-share__button ugm-management-share__button--<?php echo esc_attr( $link['class'] ); ?>" href="<?php echo esc_url( $link['url'] ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr( $link['label'] ); ?>">
+					<?php if ( '' !== $link['iconUrl'] ) : ?>
+						<img src="<?php echo esc_url( $link['iconUrl'] ); ?>" alt="" loading="lazy" decoding="async">
+					<?php else : ?>
+						<?php echo esc_html( $link['icon'] ); ?>
+					<?php endif; ?>
+				</a>
+			<?php endforeach; ?>
+		</div>
+	</section>
+	<?php
+
+	return ob_get_clean();
+}
+
 function ugm_render_block_management_template_preview() {
 	$template_attr = array( '_templateSlug' => 'management-page' );
 
@@ -656,6 +761,14 @@ function ugm_render_block_management_template_preview() {
 				'programs' => array(),
 			)
 		)
+	) .
+	ugm_render_block_management_share_section(
+		array_merge(
+			$template_attr,
+			array(
+				'title' => 'Share This Page',
+			)
+		)
 	);
 }
 
@@ -671,6 +784,8 @@ function ugm_register_management_page_blocks() {
 			'attributes'      => array(
 				'title'         => array( 'type' => 'string', 'default' => 'Manajemen Organisasi' ),
 				'background'    => array( 'type' => 'string', 'default' => '#dceef6' ),
+				'backgroundImageId' => array( 'type' => 'number', 'default' => 0 ),
+				'backgroundImageUrl' => array( 'type' => 'string', 'default' => '' ),
 				'_templateSlug' => array( 'type' => 'string', 'default' => '' ),
 			),
 		)
@@ -703,6 +818,22 @@ function ugm_register_management_page_blocks() {
 			'attributes'      => array(
 				'title'         => array( 'type' => 'string', 'default' => 'Program Studi' ),
 				'programs'      => array( 'type' => 'array',  'default' => array() ),
+				'_templateSlug' => array( 'type' => 'string', 'default' => '' ),
+			),
+		)
+	);
+
+	register_block_type(
+		'ugm/management-share-section',
+		array(
+			'api_version'     => 2,
+			'category'        => 'ugm-management-page-sections',
+			'render_callback' => 'ugm_render_block_management_share_section',
+			'uses_context'    => array( 'postId' ),
+			'supports'        => array( 'html' => false, 'multiple' => false ),
+			'attributes'      => array(
+				'title'         => array( 'type' => 'string', 'default' => 'Share This Page' ),
+				'links'         => array( 'type' => 'array', 'default' => array() ),
 				'_templateSlug' => array( 'type' => 'string', 'default' => '' ),
 			),
 		)
