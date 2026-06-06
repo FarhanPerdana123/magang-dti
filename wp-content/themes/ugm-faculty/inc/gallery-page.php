@@ -18,6 +18,29 @@ function ugm_get_gallery_block_template_blocks() {
 		'<!-- wp:post-content /-->';
 }
 
+function ugm_get_gallery_preview_items() {
+	return array(
+		array(
+			'title'       => 'Fakultas Seni Rupa dan Desain',
+			'date'        => 'Senin, 22 April 2024',
+			'description' => '',
+			'images'      => array(),
+		),
+		array(
+			'title'       => 'Fakultas Arsitektur Lanskap dan Teknologi Lingkungan',
+			'date'        => 'Senin, 22 April 2024',
+			'description' => '',
+			'images'      => array(),
+		),
+		array(
+			'title'       => 'Fakultas Teknologi Kebumian dan Energi',
+			'date'        => 'Senin, 22 April 2024',
+			'description' => '',
+			'images'      => array(),
+		),
+	);
+}
+
 function ugm_is_gallery_page_template_slug( $template ) {
 	return in_array(
 		(string) $template,
@@ -243,10 +266,16 @@ function ugm_gallery_manual_items( $items ) {
 function ugm_gallery_manual_card_image( $item ) {
 	$image_url = isset( $item['images'][0]['url'] ) ? (string) $item['images'][0]['url'] : '';
 	if ( '' === $image_url ) {
-		return '<span class="ugm-gallery-placeholder" aria-hidden="true"></span>';
+		return '<span class="ugm-gallery-card__sheet ugm-gallery-card__sheet--back" aria-hidden="true"><span class="ugm-gallery-placeholder"></span></span>' .
+			'<span class="ugm-gallery-card__sheet ugm-gallery-card__sheet--middle" aria-hidden="true"><span class="ugm-gallery-placeholder"></span></span>' .
+			'<span class="ugm-gallery-placeholder ugm-gallery-card__image" aria-hidden="true"></span>';
 	}
 
-	return '<img src="' . esc_url( $image_url ) . '" alt="" loading="lazy" decoding="async">';
+	$image = '<img src="' . esc_url( $image_url ) . '" alt="" loading="lazy" decoding="async">';
+
+	return '<span class="ugm-gallery-card__sheet ugm-gallery-card__sheet--back" aria-hidden="true">' . $image . '</span>' .
+		'<span class="ugm-gallery-card__sheet ugm-gallery-card__sheet--middle" aria-hidden="true">' . $image . '</span>' .
+		'<img class="ugm-gallery-card__image" src="' . esc_url( $image_url ) . '" alt="" loading="lazy" decoding="async">';
 }
 
 function ugm_gallery_detail_url( $item_index ) {
@@ -313,6 +342,9 @@ function ugm_render_block_gallery_page( $attrs ) {
 	$title          = trim( (string) $attrs['title'] );
 	$button_label   = trim( (string) $attrs['buttonLabel'] );
 	$manual_items   = ugm_gallery_manual_items( $attrs['galleryItems'] );
+	if ( ! empty( $attrs['isPreview'] ) && empty( $manual_items ) ) {
+		$manual_items = ugm_gallery_manual_items( ugm_get_gallery_preview_items() );
+	}
 	$detail_index   = max( 0, absint( get_query_var( 'ugm_gallery_item' ) ) - 1 );
 	$has_detail     = '' !== (string) get_query_var( 'ugm_gallery_item' ) && isset( $manual_items[ $detail_index ] );
 
@@ -462,6 +494,7 @@ function ugm_register_gallery_page_blocks() {
 				'title'        => array( 'type' => 'string', 'default' => 'Galeri' ),
 				'buttonLabel'  => array( 'type' => 'string', 'default' => 'Selengkapnya' ),
 				'galleryItems' => array( 'type' => 'array', 'default' => array() ),
+				'isPreview'    => array( 'type' => 'boolean', 'default' => false ),
 			),
 		)
 	);
@@ -470,7 +503,9 @@ function ugm_register_gallery_page_blocks() {
 		'ugm/gallery-template-preview',
 		array(
 			'api_version'     => 2,
-			'render_callback' => '__return_empty_string',
+			'render_callback' => function () {
+				return is_admin() ? ugm_render_block_gallery_page( array( 'title' => 'Galeri', 'isPreview' => true ) ) : '';
+			},
 		)
 	);
 }

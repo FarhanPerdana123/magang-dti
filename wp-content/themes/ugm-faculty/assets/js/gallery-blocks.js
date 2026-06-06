@@ -277,6 +277,7 @@
 			title:        { type: 'string', default: 'Galeri' },
 			buttonLabel:  { type: 'string', default: 'Selengkapnya' },
 			galleryItems: { type: 'array', default: [] },
+			isPreview:    { type: 'boolean', default: false },
 		},
 		edit: function ( props ) {
 			var attrs   = props.attributes;
@@ -317,7 +318,7 @@
 			return isPreviewMode
 				? el( ServerSideRender, {
 					block:      'ugm/gallery-page',
-					attributes: { title: 'Galeri' },
+					attributes: { title: 'Galeri', isPreview: true },
 				} )
 				: null;
 		},
