@@ -10,6 +10,49 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Get the header social-media field definitions.
+ *
+ * Header social links are managed separately from the footer social block.
+ *
+ * @return array[]
+ */
+function ugm_get_header_social_definitions() {
+	return array(
+		array( 'label' => __( 'Instagram', 'ugm-faculty' ), 'setting' => 'ugm_header_social_instagram_url', 'icon' => 'Component Instagram.png' ),
+		array( 'label' => __( 'YouTube', 'ugm-faculty' ), 'setting' => 'ugm_header_social_youtube_url', 'icon' => 'Component YouTube.png' ),
+		array( 'label' => __( 'Facebook', 'ugm-faculty' ), 'setting' => 'ugm_header_social_facebook_url', 'icon' => 'Component Facebook.png' ),
+		array( 'label' => __( 'X/Twitter', 'ugm-faculty' ), 'setting' => 'ugm_header_social_x_url', 'icon' => 'Component Twitter.png' ),
+		array( 'label' => __( 'LinkedIn', 'ugm-faculty' ), 'setting' => 'ugm_header_social_linkedin_url', 'icon' => 'Component LinkedIn.png' ),
+		array( 'label' => __( 'TikTok', 'ugm-faculty' ), 'setting' => 'ugm_header_social_tiktok_url', 'icon' => 'Component TikTok.png' ),
+	);
+}
+
+/**
+ * Get enabled header social-media items from Customizer settings.
+ *
+ * @return array[]
+ */
+function ugm_get_header_social_items() {
+	$items = array();
+
+	foreach ( ugm_get_header_social_definitions() as $definition ) {
+		$url = trim( (string) get_theme_mod( $definition['setting'], '' ) );
+
+		if ( '' === $url ) {
+			continue;
+		}
+
+		$items[] = array(
+			'label' => $definition['label'],
+			'file'  => $definition['icon'],
+			'url'   => $url,
+		);
+	}
+
+	return $items;
+}
+
+/**
  * Add customizer settings and controls.
  *
  * @param WP_Customize_Manager $wp_customize Theme Customizer object.
@@ -116,6 +159,40 @@ function ugm_customize_register( $wp_customize ) {
 			'type'    => 'text',
 		)
 	);
+
+	// Header Social Media Section.
+	$wp_customize->add_section(
+		'ugm_header_social_media',
+		array(
+			'title'       => __( 'Header Social Media', 'ugm-faculty' ),
+			'description' => __( 'Isi URL untuk menampilkan ikon media sosial di header. Kosongkan URL untuk menyembunyikan ikon.', 'ugm-faculty' ),
+			'priority'    => 36,
+		)
+	);
+
+	foreach ( ugm_get_header_social_definitions() as $definition ) {
+		$wp_customize->add_setting(
+			$definition['setting'],
+			array(
+				'default'           => '',
+				'sanitize_callback' => 'esc_url_raw',
+			)
+		);
+
+		$wp_customize->add_control(
+			$definition['setting'],
+			array(
+				'label'       => sprintf(
+					/* translators: %s: social media name. */
+					__( '%s URL', 'ugm-faculty' ),
+					$definition['label']
+				),
+				'description' => __( 'Kosongkan jika ikon ini tidak ingin ditampilkan di header.', 'ugm-faculty' ),
+				'section'     => 'ugm_header_social_media',
+				'type'        => 'url',
+			)
+		);
+	}
 
 }
 add_action( 'customize_register', 'ugm_customize_register' );
