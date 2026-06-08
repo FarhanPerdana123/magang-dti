@@ -116,6 +116,11 @@
 			"postTypes": [ "page" ]
 		},
 		{
+			"name": "management-page",
+			"title": "Manajemen Page",
+			"postTypes": [ "page" ]
+		},
+		{
 			"name": "agenda-post",
 			"title": "Agenda",
 			"postTypes": [ "post" ]

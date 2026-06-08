@@ -16,48 +16,184 @@
 	var el                         = wp.element.createElement;
 	var Fragment                   = wp.element.Fragment;
 	var useEffect                  = wp.element.useEffect;
-	var useState                   = wp.element.useState;
+	var useRef                     = wp.element.useRef;
 	var __                         = wp.i18n.__;
 	var ServerSideRender           = wp.serverSideRender;
 	var InspectorControls          = wp.blockEditor.InspectorControls;
+	var useBlockProps              = wp.blockEditor.useBlockProps;
 	var MediaUpload                = wp.blockEditor.MediaUpload;
 	var MediaUploadCheck           = wp.blockEditor.MediaUploadCheck;
 	var PanelBody                  = wp.components.PanelBody;
 	var TextControl                = wp.components.TextControl;
-	var SelectControl              = wp.components.SelectControl;
 	var ColorPalette               = wp.components.ColorPalette;
 	var Button                     = wp.components.Button;
 	var useSelect                  = wp.data.useSelect;
 	var dispatch                   = wp.data.dispatch;
 	var createHigherOrderComponent = wp.compose.createHigherOrderComponent;
 
+	function isManagementTemplate( template ) {
+		return template === 'management-page' ||
+			template === 'page-templates/template-management.php';
+	}
+
+	function getEditorRenderingMode( select ) {
+		var editor = select( 'core/editor' );
+
+		return editor && typeof editor.getRenderingMode === 'function'
+			? editor.getRenderingMode()
+			: '';
+	}
+
+	function hasManagementBlock( blocks ) {
+		return !! (
+			findBlock( blocks, 'ugm/management-hero' ) ||
+			findBlock( blocks, 'ugm/management-section' ) ||
+			findBlock( blocks, 'ugm/study-program-section' ) ||
+			findBlock( blocks, 'ugm/management-share-section' )
+		);
+	}
+
+	function isManagementBlockName( blockName ) {
+		return blockName === 'ugm/management-hero' ||
+			blockName === 'ugm/management-section' ||
+			blockName === 'ugm/study-program-section' ||
+			blockName === 'ugm/management-share-section';
+	}
+
+	function removeManagementBlocks( blocks ) {
+		return ( Array.isArray( blocks ) ? blocks : [] ).filter( function ( block ) {
+			return ! isManagementBlockName( block.name );
+		} ).map( function ( block ) {
+			if ( Array.isArray( block.innerBlocks ) && block.innerBlocks.length ) {
+				block = Object.assign( {}, block );
+				block.innerBlocks = removeManagementBlocks( block.innerBlocks );
+			}
+			return block;
+		} );
+	}
+
+	function isEmptyEditorBlock( block ) {
+		if ( ! block ) { return true; }
+		if ( block.name === 'core/paragraph' ) {
+			return ! ( block.attributes && block.attributes.content && String( block.attributes.content ).trim() );
+		}
+		return false;
+	}
+
+	function hasOnlyEmptyEditorBlocks( blocks ) {
+		blocks = Array.isArray( blocks ) ? blocks : [];
+		return blocks.length === 0 || blocks.every( isEmptyEditorBlock );
+	}
+
+	function hasMeaningfulContent( content ) {
+		content = String( content || '' );
+		if (
+			content.indexOf( '<!-- wp:ugm/management-hero' ) !== -1 ||
+			content.indexOf( '<!-- wp:ugm/management-section' ) !== -1 ||
+			content.indexOf( '<!-- wp:ugm/study-program-section' ) !== -1 ||
+			content.indexOf( '<!-- wp:ugm/management-share-section' ) !== -1
+		) {
+			return true;
+		}
+
+		return content.replace( /<!--[\s\S]*?-->/g, '' )
+			.replace( /<[^>]+>/g, '' )
+			.replace( /&nbsp;/g, ' ' )
+			.trim() !== '';
+	}
+
+	function getBlockStructureSignature( blocks ) {
+		return ( Array.isArray( blocks ) ? blocks : [] ).map( function ( block ) {
+			return block.name + '[' + getBlockStructureSignature( block.innerBlocks ) + ']';
+		} ).join( ',' );
+	}
+
 	/* ------------------------------------------------------------------
 	 * Template Seeder — seed blok default ke halaman manajemen kosong
 	 * (sama persis dengan AgendaTemplateSeeder / GalleryTemplateSeeder)
 	 * ------------------------------------------------------------------ */
 	function ManagementTemplateSeeder() {
+		var lastSeedSignature = useRef( '' );
 		var state = useSelect( function ( select ) {
 			var editor = select( 'core/editor' );
+			var blockEditor = select( 'core/block-editor' );
 			return {
-				template:   editor.getEditedPostAttribute( 'template' ),
-				content:    editor.getEditedPostAttribute( 'content' ) || '',
-				blockCount: select( 'core/block-editor' ).getBlockCount(),
+				template: editor.getEditedPostAttribute( 'template' ),
+				content:  editor.getEditedPostAttribute( 'content' ) || '',
+				blocks:   blockEditor.getBlocks(),
 			};
 		} );
 
 		useEffect( function () {
-			var isManagement =
-				state.template === 'management-page' ||
-				state.template === 'page-templates/template-management.php';
+			var contentBlocks = wp.blocks.parse( state.content || '' );
+			var contentHasMeaning = hasMeaningfulContent( state.content );
+			var needsLegacyUpgrade =
+				state.content.indexOf( '<!-- wp:ugm/management-section' ) !== -1 &&
+				state.content.indexOf( '<!-- wp:ugm/management-hero' ) === -1;
+			var seedSignature = [
+				state.template || '',
+				contentHasMeaning ? 'meaningful' : 'empty',
+				needsLegacyUpgrade ? 'legacy' : 'current',
+				getBlockStructureSignature( contentBlocks ),
+				getBlockStructureSignature( state.blocks ),
+			].join( '|' );
 
-			if ( ! isManagement ) { return; }
+			if ( seedSignature === lastSeedSignature.current ) {
+				return;
+			}
+
+			lastSeedSignature.current = seedSignature;
+
+			if ( ! isManagementTemplate( state.template ) ) {
+				if ( hasManagementBlock( contentBlocks ) ) {
+					dispatch( 'core/editor' ).editPost( {
+						content: wp.blocks.serialize( removeManagementBlocks( contentBlocks ) ).trim(),
+					} );
+				}
+
+				if ( hasManagementBlock( state.blocks ) ) {
+					var postContentBlock = findBlock( state.blocks, 'core/post-content' );
+					if ( postContentBlock ) {
+						dispatch( 'core/block-editor' ).replaceInnerBlocks(
+							postContentBlock.clientId,
+							removeManagementBlocks( postContentBlock.innerBlocks || [] ),
+							false
+						);
+					} else {
+						dispatch( 'core/block-editor' ).resetBlocks( removeManagementBlocks( state.blocks ) );
+					}
+				}
+				return;
+			}
+
 			if ( ! window.ugmManagementPageEditor || ! ugmManagementPageEditor.defaultBlocks ) { return; }
 
-			if ( ! state.content.trim() || state.blockCount === 0 ) {
-				var blocks = wp.blocks.parse( ugmManagementPageEditor.defaultBlocks );
-				if ( blocks && blocks.length ) {
-					dispatch( 'core/block-editor' ).insertBlocks( blocks );
+			var defaultBlocks = wp.blocks.parse( ugmManagementPageEditor.defaultBlocks );
+			if ( ! defaultBlocks || ! defaultBlocks.length ) { return; }
+
+			var postContent = findBlock( state.blocks, 'core/post-content' );
+			if ( postContent ) {
+				var innerBlocks = Array.isArray( postContent.innerBlocks ) ? postContent.innerBlocks : [];
+				if ( ! contentHasMeaning && ! hasManagementBlock( innerBlocks ) && hasOnlyEmptyEditorBlocks( innerBlocks ) ) {
+					dispatch( 'core/block-editor' ).replaceInnerBlocks(
+						postContent.clientId,
+						defaultBlocks,
+						false
+					);
+					dispatch( 'core/editor' ).editPost( {
+						content: ugmManagementPageEditor.defaultBlocks,
+					} );
 				}
+				return;
+			}
+
+			if ( ! hasMeaningfulContent( state.content ) ) {
+				if ( ! hasManagementBlock( state.blocks ) ) {
+					dispatch( 'core/block-editor' ).insertBlocks( defaultBlocks );
+				}
+				dispatch( 'core/editor' ).editPost( {
+					content: ugmManagementPageEditor.defaultBlocks,
+				} );
 				return;
 			}
 
@@ -65,7 +201,7 @@
 			if ( upgraded !== state.content ) {
 				dispatch( 'core/editor' ).editPost( { content: upgraded } );
 			}
-		}, [ state.template, state.content, state.blockCount ] );
+		}, [ state.template, state.content, state.blocks ] );
 
 		return null;
 	}
@@ -128,12 +264,16 @@
 			el( TextControl, {
 				label:    __( 'Nama', 'ugm-faculty' ),
 				value:    person.name || '',
-				onChange: function ( v ) { onChange( { name: v } ); },
+				onChange: function ( v ) {
+					onChange( { name: v } );
+				},
 			} ),
 			el( TextControl, {
 				label:    __( 'Jabatan', 'ugm-faculty' ),
 				value:    person.role || '',
-				onChange: function ( v ) { onChange( { role: v } ); },
+				onChange: function ( v ) {
+					onChange( { role: v } );
+				},
 			} ),
 			person.imageUrl
 				? el( 'img', {
@@ -211,9 +351,11 @@
 				PanelBody,
 				{ key: 'hero-settings', title: __( 'Pengaturan Hero', 'ugm-faculty' ), initialOpen: true },
 				el( TextControl, {
-					label:    __( 'Judul Hero', 'ugm-faculty' ),
-					value:    attrs.title || '',
-					onChange: function ( v ) { setAttr( { title: v } ); },
+				label:    __( 'Judul Hero', 'ugm-faculty' ),
+				value:    attrs.title || '',
+				onChange: function ( v ) {
+						setAttr( { title: v } );
+					},
 				} ),
 				el( 'p', { style: { margin: '0 0 6px' } }, __( 'Warna Background Hero', 'ugm-faculty' ) ),
 				el( ColorPalette, {
@@ -224,7 +366,45 @@
 						{ name: __( 'Putih', 'ugm-faculty' ), color: '#ffffff' },
 						{ name: __( 'Biru UGM', 'ugm-faculty' ), color: '#074a73' },
 					],
-				} )
+				} ),
+				el( 'p', { style: { margin: '14px 0 6px' } }, __( 'Gambar Background Hero', 'ugm-faculty' ) ),
+				attrs.backgroundImageUrl
+					? el( 'img', {
+						src:   attrs.backgroundImageUrl,
+						alt:   '',
+						style: { display: 'block', width: '100%', maxHeight: '120px', objectFit: 'cover', marginBottom: '8px', border: '1px solid #ddd' },
+					} )
+					: null,
+				el( MediaUploadCheck, null,
+					el( MediaUpload, {
+						allowedTypes: [ 'image' ],
+						value:        attrs.backgroundImageId || 0,
+						onSelect: function ( image ) {
+							setAttr( {
+								backgroundImageId:  image.id || 0,
+								backgroundImageUrl: image.url || '',
+							} );
+						},
+						render: function ( ref ) {
+							return el(
+								'div',
+								{ style: { display: 'flex', gap: '6px', flexWrap: 'wrap' } },
+								el( Button, { isSecondary: true, isSmall: true, onClick: ref.open },
+									attrs.backgroundImageUrl ? __( 'Ganti gambar background', 'ugm-faculty' ) : __( 'Pilih gambar background', 'ugm-faculty' )
+								),
+								attrs.backgroundImageUrl
+									? el( Button, {
+										isDestructive: true,
+										isSmall:       true,
+										onClick: function () {
+											setAttr( { backgroundImageId: 0, backgroundImageUrl: '' } );
+										},
+									}, __( 'Hapus gambar', 'ugm-faculty' ) )
+									: null
+							);
+						},
+					} )
+				)
 			),
 		];
 	}
@@ -239,9 +419,11 @@
 				PanelBody,
 				{ key: 'mgmt-settings', title: __( 'Pengaturan Section', 'ugm-faculty' ), initialOpen: true },
 				el( TextControl, {
-					label:    __( 'Judul Section', 'ugm-faculty' ),
-					value:    attrs.title || '',
-					onChange: function ( v ) { setAttr( { title: v } ); },
+				label:    __( 'Judul Section', 'ugm-faculty' ),
+				value:    attrs.title || '',
+				onChange: function ( v ) {
+						setAttr( { title: v } );
+					},
 				} )
 			),
 			el(
@@ -282,9 +464,11 @@
 				PanelBody,
 				{ key: 'prodi-settings', title: __( 'Pengaturan Section', 'ugm-faculty' ), initialOpen: true },
 				el( TextControl, {
-					label:    __( 'Judul Section', 'ugm-faculty' ),
-					value:    attrs.title || '',
-					onChange: function ( v ) { setAttr( { title: v } ); },
+				label:    __( 'Judul Section', 'ugm-faculty' ),
+				value:    attrs.title || '',
+				onChange: function ( v ) {
+						setAttr( { title: v } );
+					},
 				} )
 			),
 		].concat(
@@ -300,7 +484,9 @@
 					el( TextControl, {
 						label:    __( 'Nama Program Studi', 'ugm-faculty' ),
 						value:    program.title || '',
-						onChange: function ( v ) { updProg( pi, { title: v } ); },
+						onChange: function ( v ) {
+							updProg( pi, { title: v } );
+						},
 					} ),
 					el(
 						'div',
@@ -338,6 +524,103 @@
 		] );
 	}
 
+	function managementShareControls( attrs, setAttr ) {
+		var links = getShareLinks( attrs );
+
+		function updateLink( index, patch ) {
+			setAttr( {
+				links: links.map( function ( link, linkIndex ) {
+					return linkIndex === index ? Object.assign( {}, link, patch ) : link;
+				} ),
+			} );
+		}
+
+		return [
+			el(
+				PanelBody,
+				{ key: 'share-settings', title: __( 'Pengaturan Share', 'ugm-faculty' ), initialOpen: true },
+				el( TextControl, {
+					label:    __( 'Judul Share', 'ugm-faculty' ),
+					value:    attrs.title || '',
+					onChange: function ( v ) {
+						setAttr( { title: v } );
+					},
+				} )
+			),
+		].concat(
+			links.map( function ( link, index ) {
+				return el(
+					PanelBody,
+					{
+						key:         'share-link-' + link.className,
+						title:       link.label || link.defaultLabel,
+						initialOpen: index === 0,
+					},
+					el( TextControl, {
+						label:    __( 'Label', 'ugm-faculty' ),
+						value:    link.label || '',
+						onChange: function ( v ) {
+							updateLink( index, { label: v } );
+						},
+					} ),
+					el( TextControl, {
+						label:    __( 'Icon Fallback', 'ugm-faculty' ),
+						value:    link.icon || '',
+						help:     __( 'Teks pendek jika gambar ikon belum dipilih.', 'ugm-faculty' ),
+						onChange: function ( v ) {
+							updateLink( index, { icon: v } );
+						},
+					} ),
+					link.iconUrl
+						? el( 'img', {
+							src:   link.iconUrl,
+							alt:   '',
+							style: { display: 'block', width: '36px', height: '36px', objectFit: 'contain', marginBottom: '8px', border: '1px solid #ddd', padding: '4px' },
+						} )
+						: null,
+					el( MediaUploadCheck, null,
+						el( MediaUpload, {
+							allowedTypes: [ 'image' ],
+							value:        link.iconId || 0,
+							onSelect: function ( image ) {
+								updateLink( index, {
+									iconId:  image.id || 0,
+									iconUrl: image.url || '',
+								} );
+							},
+							render: function ( ref ) {
+								return el(
+									'div',
+									{ style: { display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px' } },
+									el( Button, { isSecondary: true, isSmall: true, onClick: ref.open },
+										link.iconUrl ? __( 'Ganti gambar icon', 'ugm-faculty' ) : __( 'Pilih gambar icon', 'ugm-faculty' )
+									),
+									link.iconUrl
+										? el( Button, {
+											isDestructive: true,
+											isSmall:       true,
+											onClick: function () {
+												updateLink( index, { iconId: 0, iconUrl: '' } );
+											},
+										}, __( 'Hapus gambar', 'ugm-faculty' ) )
+										: null
+								);
+							},
+						} )
+					),
+					el( TextControl, {
+						label:    __( 'URL', 'ugm-faculty' ),
+						value:    link.url || '',
+						help:     __( 'Kosongkan untuk memakai URL share otomatis.', 'ugm-faculty' ),
+						onChange: function ( v ) {
+							updateLink( index, { url: v } );
+						},
+					} )
+				);
+			} )
+		);
+	}
+
 	/* ------------------------------------------------------------------
 	 * registerBlockType — pola identik dengan agenda-blocks.js
 	 * ------------------------------------------------------------------ */
@@ -351,95 +634,260 @@
 		return found;
 	}
 
-	function updateBlock( blocks, name, patch ) {
-		return ( blocks || [] ).some( function ( block ) {
-			if ( block.name === name ) {
-				block.attributes = Object.assign( {}, block.attributes, patch );
-				return true;
+	var withManagementTemplateVisibility = createHigherOrderComponent( function ( BlockListBlock ) {
+		return function ( props ) {
+			var state = useSelect( function ( select ) {
+				var editor = select( 'core/editor' );
+
+				return {
+					template:      editor.getEditedPostAttribute( 'template' ),
+					renderingMode: getEditorRenderingMode( select ),
+				};
+			}, [] );
+
+			if (
+				props.name === 'ugm/management-template-preview' &&
+				isManagementTemplate( state.template )
+			) {
+				return null;
 			}
-			return updateBlock( block.innerBlocks, name, patch );
+
+			if (
+				isManagementBlockName( props.name ) &&
+				isManagementTemplate( state.template ) &&
+				state.renderingMode === 'post-only'
+			) {
+				return null;
+			}
+
+			return el( BlockListBlock, props );
+		};
+	}, 'withManagementTemplateVisibility' );
+
+	wp.hooks.addFilter(
+		'editor.BlockListBlock',
+		'ugm-faculty/management-template-visibility',
+		withManagementTemplateVisibility
+	);
+
+	function useManagementRenderState( attrs ) {
+		var state = useSelect( function ( select ) {
+			var editor = select( 'core/editor' );
+
+			return {
+				template:      editor.getEditedPostAttribute( 'template' ) || '',
+				renderingMode: getEditorRenderingMode( select ),
+			};
+		}, [] );
+
+		return {
+			isVisible:  isManagementTemplate( state.template ) && state.renderingMode !== 'post-only',
+			attributes: Object.assign( {}, attrs, { _templateSlug: state.template } ),
+		};
+	}
+
+	function updateManagementBlockAttributes( props ) {
+		return function ( patch ) {
+			props.setAttributes( patch );
+		};
+	}
+
+	function normalizeEditorPeople( people ) {
+		return ( Array.isArray( people ) ? people : [] ).filter( function ( person ) {
+			if ( ! person || typeof person !== 'object' ) {
+				return false;
+			}
+
+			return !! (
+				( person.name && String( person.name ).trim() ) ||
+				( person.role && String( person.role ).trim() ) ||
+				( person.imageUrl && String( person.imageUrl ).trim() )
+			);
 		} );
 	}
 
-	var withManagementContentControls = createHigherOrderComponent( function ( BlockEdit ) {
-		return function ( props ) {
-			var activeState = useState( 'hero' );
-			var activeSection = activeState[0];
-			var setActiveSection = activeState[1];
-			var state = useSelect( function ( select ) {
-				var editor = select( 'core/editor' );
-				return {
-					template: editor.getEditedPostAttribute( 'template' ),
-					content:  editor.getEditedPostAttribute( 'content' ) || '',
-				};
-			} );
+	function renderManagementPersonPreview( person, modifier ) {
+		var className = 'ugm-management-person';
 
-			var isManagement =
-				state.template === 'management-page' ||
-				state.template === 'page-templates/template-management.php';
+		if ( modifier ) {
+			className += ' ugm-management-person--' + modifier;
+		}
 
-			if ( ! isManagement || props.name !== 'core/post-content' ) {
-				return el( BlockEdit, props );
-			}
+		return el(
+			'article',
+			{ className: className },
+			el(
+				'div',
+				{ className: 'ugm-management-person__photo' },
+				person.imageUrl
+					? el( 'img', { src: person.imageUrl, alt: person.name || '', loading: 'lazy', decoding: 'async' } )
+					: el( 'span', { 'aria-hidden': true } )
+			),
+			el(
+				'div',
+				{ className: 'ugm-management-person__info' },
+				person.name ? el( 'h3', null, person.name ) : null,
+				person.role ? el( 'p', null, person.role ) : null
+			)
+		);
+	}
 
-			var blocks = wp.blocks.parse( state.content );
-			var sections = {
-				hero:   { name: 'ugm/management-hero', block: findBlock( blocks, 'ugm/management-hero' ) },
-				people: { name: 'ugm/management-section', block: findBlock( blocks, 'ugm/management-section' ) },
-				study:  { name: 'ugm/study-program-section', block: findBlock( blocks, 'ugm/study-program-section' ) },
-			};
-			var current = sections[ activeSection ];
+	function renderManagementHeroPreview( attrs ) {
+		var heroStyle = { backgroundColor: attrs.background || '#dceef6' };
+		if ( attrs.backgroundImageUrl ) {
+			heroStyle.backgroundImage = 'url(' + attrs.backgroundImageUrl + ')';
+		}
+		return el(
+			'header',
+			{
+				className: 'ugm-management-page__hero',
+				style:     heroStyle,
+			},
+			el( 'h1', null, attrs.title || 'Manajemen Organisasi' )
+		);
+	}
 
-			function setAttr( patch ) {
-				var nextBlocks = wp.blocks.parse( state.content );
-				if ( current && updateBlock( nextBlocks, current.name, patch ) ) {
-					dispatch( 'core/editor' ).editPost( { content: wp.blocks.serialize( nextBlocks ) } );
-				}
-			}
+	function renderManagementSectionPreview( attrs ) {
+		var people = normalizeEditorPeople( attrs.people );
 
-			var controls = [];
-			if ( current && current.block ) {
-				if ( activeSection === 'hero' ) {
-					controls = managementHeroControls( current.block.attributes, setAttr );
-				} else if ( activeSection === 'people' ) {
-					controls = managementSectionControls( current.block.attributes, setAttr );
-				} else {
-					controls = studyProgramSectionControls( current.block.attributes, setAttr );
-				}
-			}
-
-			return el(
-				Fragment,
-				null,
-				el( BlockEdit, props ),
-				el(
-					InspectorControls,
-					null,
+		return el(
+			'section',
+			{ className: 'ugm-management-section', 'aria-labelledby': 'ugm-management-section-title' },
+			el(
+				'header',
+				{ className: 'ugm-management-section__heading' },
+				el( 'h2', { id: 'ugm-management-section-title' }, attrs.title || 'Manajemen Fakultas' )
+			),
+			people.length
+				? [
 					el(
-						PanelBody,
-						{ title: __( 'Section Manajemen', 'ugm-faculty' ), initialOpen: true },
-						el( SelectControl, {
-							label:    __( 'Section yang Diedit', 'ugm-faculty' ),
-							value:    activeSection,
-							options:  [
-								{ label: __( 'Hero', 'ugm-faculty' ), value: 'hero' },
-								{ label: __( 'Daftar Pimpinan', 'ugm-faculty' ), value: 'people' },
-								{ label: __( 'Program Studi', 'ugm-faculty' ), value: 'study' },
-							],
-							onChange: setActiveSection,
-						} )
+						'div',
+						{ key: 'leader', className: 'ugm-management-section__leader' },
+						renderManagementPersonPreview( people[0], 'leader' )
 					),
-					controls
-				)
-			);
-		};
-	}, 'withManagementContentControls' );
+					people.length > 1
+						? el(
+							'div',
+							{ key: 'team', className: 'ugm-management-section__team' },
+							people.slice( 1 ).map( function ( person, index ) {
+								return el(
+									Fragment,
+									{ key: index },
+									renderManagementPersonPreview( person )
+								);
+							} )
+						)
+						: null,
+				]
+				: el( 'p', { className: 'ugm-management-empty' }, __( 'Tambahkan kartu pimpinan fakultas melalui sidebar editor.', 'ugm-faculty' ) )
+		);
+	}
 
-	wp.hooks.addFilter(
-		'editor.BlockEdit',
-		'ugm-faculty/management-content-controls',
-		withManagementContentControls
-	);
+	function normalizeEditorPrograms( programs ) {
+		return ( Array.isArray( programs ) ? programs : [] ).map( function ( program ) {
+			var people = normalizeEditorPeople( program && program.people );
+			var title = program && program.title ? String( program.title ).trim() : '';
+
+			if ( ! title && ! people.length ) {
+				return null;
+			}
+
+			return {
+				title:  title,
+				people: people,
+			};
+		} ).filter( Boolean );
+	}
+
+	function renderStudyProgramPreview( attrs ) {
+		var programs = normalizeEditorPrograms( attrs.programs );
+
+		return el(
+			'section',
+			{ className: 'ugm-study-program-section', 'aria-labelledby': 'ugm-study-program-section-title' },
+			el(
+				'header',
+				{ className: 'ugm-management-section__heading' },
+				el( 'h2', { id: 'ugm-study-program-section-title' }, attrs.title || 'Program Studi' )
+			),
+			programs.length
+				? el(
+					'div',
+					{ className: 'ugm-study-program-list' },
+					programs.map( function ( program, programIndex ) {
+						return el(
+							'section',
+							{ key: programIndex, className: 'ugm-study-program' },
+							el( 'h3', null, program.title || __( 'Program Studi', 'ugm-faculty' ) ),
+							el(
+								'div',
+								{ className: 'ugm-study-program__people' },
+								program.people.map( function ( person, personIndex ) {
+									return el(
+										Fragment,
+										{ key: personIndex },
+										renderManagementPersonPreview( person, 'program' )
+									);
+								} )
+							)
+						);
+					} )
+				)
+				: el( 'p', { className: 'ugm-management-empty' }, __( 'Tambahkan program studi dan pengelolanya melalui sidebar editor.', 'ugm-faculty' ) )
+		);
+	}
+
+	function getShareLinks( attrs ) {
+		var defaults = [
+			{ className: 'facebook', icon: 'f', iconId: 0, iconUrl: '', label: 'Facebook', defaultLabel: 'Facebook', url: '' },
+			{ className: 'twitter', icon: 't', iconId: 0, iconUrl: '', label: 'Twitter', defaultLabel: 'Twitter', url: '' },
+			{ className: 'linkedin', icon: 'in', iconId: 0, iconUrl: '', label: 'LinkedIn', defaultLabel: 'LinkedIn', url: '' },
+			{ className: 'whatsapp', icon: 'wa', iconId: 0, iconUrl: '', label: 'WhatsApp', defaultLabel: 'WhatsApp', url: '' },
+			{ className: 'email', icon: '@', iconId: 0, iconUrl: '', label: 'Email', defaultLabel: 'Email', url: '' },
+		];
+		var links = Array.isArray( attrs.links ) ? attrs.links : [];
+
+		return defaults.map( function ( defaultLink, index ) {
+			var custom = links[ index ] && typeof links[ index ] === 'object' ? links[ index ] : {};
+
+			return Object.assign( {}, defaultLink, {
+				label: custom.label !== undefined ? custom.label : defaultLink.label,
+				icon:  custom.icon !== undefined ? custom.icon : defaultLink.icon,
+				iconId: custom.iconId !== undefined ? custom.iconId : defaultLink.iconId,
+				iconUrl: custom.iconUrl !== undefined ? custom.iconUrl : defaultLink.iconUrl,
+				url:   custom.url !== undefined ? custom.url : defaultLink.url,
+			} );
+		} );
+	}
+
+	function renderManagementSharePreview( attrs ) {
+		var links = getShareLinks( attrs );
+
+		return el(
+			'section',
+			{ className: 'ugm-management-share', 'aria-label': attrs.title || 'Share This Page' },
+			el( 'span', { className: 'ugm-management-share__label' }, attrs.title || 'Share This Page' ),
+			el(
+				'div',
+				{ className: 'ugm-management-share__links' },
+				links.map( function ( link ) {
+					return el(
+						'a',
+						{
+							key:       link.className,
+							className: 'ugm-management-share__button ugm-management-share__button--' + link.className,
+							href:      link.url || '#',
+							onClick:   function ( event ) { event.preventDefault(); },
+							'aria-label': link.label,
+						},
+						link.iconUrl
+							? el( 'img', { src: link.iconUrl, alt: '', loading: 'lazy', decoding: 'async' } )
+							: link.icon
+					);
+				} )
+			)
+		);
+	}
 
 	registerBlockType( 'ugm/management-hero', {
 		title:       __( 'Hero Manajemen', 'ugm-faculty' ),
@@ -448,17 +896,32 @@
 		icon:        'cover-image',
 		supports:    { html: false, multiple: false },
 		attributes:  {
-			title:      { type: 'string', default: 'Manajemen Organisasi' },
-			background: { type: 'string', default: '#dceef6' },
+			title:         { type: 'string', default: 'Manajemen Organisasi' },
+			background:    { type: 'string', default: '#dceef6' },
+			backgroundImageId:  { type: 'number', default: 0 },
+			backgroundImageUrl: { type: 'string', default: '' },
+			_templateSlug: { type: 'string', default: '' },
 		},
 		edit: function ( props ) {
 			var attrs   = props.attributes;
-			var setAttr = props.setAttributes;
+			var setAttr = updateManagementBlockAttributes( props );
+			var renderState = useManagementRenderState( attrs );
+			var blockProps = useBlockProps( {
+				className: 'ugm-management-editor-block ugm-management-editor-block--hero',
+			} );
+			if ( ! renderState.isVisible ) {
+				return null;
+			}
+
 			return el(
 				Fragment,
 				null,
 				el( InspectorControls, null, managementHeroControls( attrs, setAttr ) ),
-				el( ServerSideRender, { block: 'ugm/management-hero', attributes: attrs, httpMethod: 'POST' } )
+				el(
+					'div',
+					blockProps,
+					renderManagementHeroPreview( attrs )
+				)
 			);
 		},
 		save: function () { return null; },
@@ -471,17 +934,30 @@
 		icon:        'groups',
 		supports:    { html: false, multiple: false },
 		attributes:  {
-			title:  { type: 'string', default: 'Manajemen Fakultas' },
-			people: { type: 'array',  default: [] },
+			title:         { type: 'string', default: 'Manajemen Fakultas' },
+			people:        { type: 'array',  default: [] },
+			_templateSlug: { type: 'string', default: '' },
 		},
 		edit: function ( props ) {
 			var attrs   = props.attributes;
-			var setAttr = props.setAttributes;
+			var setAttr = updateManagementBlockAttributes( props );
+			var renderState = useManagementRenderState( attrs );
+			var blockProps = useBlockProps( {
+				className: 'ugm-management-editor-block ugm-management-editor-block--faculty',
+			} );
+			if ( ! renderState.isVisible ) {
+				return null;
+			}
+
 			return el(
 				Fragment,
 				null,
 				el( InspectorControls, null, managementSectionControls( attrs, setAttr ) ),
-				el( ServerSideRender, { block: 'ugm/management-section', attributes: attrs, httpMethod: 'POST' } )
+				el(
+					'div',
+					blockProps,
+					renderManagementSectionPreview( attrs )
+				)
 			);
 		},
 		save: function () { return null; },
@@ -494,21 +970,87 @@
 		icon:        'welcome-learn-more',
 		supports:    { html: false, multiple: false },
 		attributes:  {
-			title:    { type: 'string', default: 'Program Studi' },
-			programs: { type: 'array',  default: [] },
+			title:         { type: 'string', default: 'Program Studi' },
+			programs:      { type: 'array',  default: [] },
+			_templateSlug: { type: 'string', default: '' },
 		},
 		edit: function ( props ) {
 			var attrs   = props.attributes;
-			var setAttr = props.setAttributes;
+			var setAttr = updateManagementBlockAttributes( props );
+			var renderState = useManagementRenderState( attrs );
+			var blockProps = useBlockProps( {
+				className: 'ugm-management-editor-block ugm-management-editor-block--study-program',
+			} );
+			if ( ! renderState.isVisible ) {
+				return null;
+			}
+
 			return el(
 				Fragment,
 				null,
 				el( InspectorControls, null, studyProgramSectionControls( attrs, setAttr ) ),
-				el( ServerSideRender, { block: 'ugm/study-program-section', attributes: attrs, httpMethod: 'POST' } )
+				el(
+					'div',
+					blockProps,
+					renderStudyProgramPreview( attrs )
+				)
 			);
 		},
 		save: function () { return null; },
 		} );
+
+	registerBlockType( 'ugm/management-share-section', {
+		title:       __( 'Share This Page', 'ugm-faculty' ),
+		description: __( 'Tombol share halaman manajemen.', 'ugm-faculty' ),
+		category:    'ugm-management-page-sections',
+		icon:        'share',
+		supports:    { html: false, multiple: false },
+		attributes:  {
+			title:         { type: 'string', default: 'Share This Page' },
+			links:         { type: 'array', default: [] },
+			_templateSlug: { type: 'string', default: '' },
+		},
+		edit: function ( props ) {
+			var attrs   = props.attributes;
+			var setAttr = updateManagementBlockAttributes( props );
+			var renderState = useManagementRenderState( attrs );
+			var blockProps = useBlockProps( {
+				className: 'ugm-management-editor-block ugm-management-editor-block--share',
+			} );
+			if ( ! renderState.isVisible ) {
+				return null;
+			}
+
+			return el(
+				Fragment,
+				null,
+				el( InspectorControls, null, managementShareControls( attrs, setAttr ) ),
+				el(
+					'div',
+					blockProps,
+					renderManagementSharePreview( attrs )
+				)
+			);
+		},
+		save: function () { return null; },
+		} );
+
+	registerBlockType( 'ugm/management-template-preview', {
+		title:    __( 'Manajemen Page Template Preview', 'ugm-faculty' ),
+		category: 'ugm-management-page-sections',
+		supports: {
+			html:     false,
+			inserter: false,
+		},
+		edit: function () {
+			return el( ServerSideRender, {
+				block:      'ugm/management-template-preview',
+				attributes: {},
+				httpMethod: 'POST',
+			} );
+		},
+		save: function () { return null; },
+	} );
 
 	/* ------------------------------------------------------------------
 	 * registerPlugin — seed blok ke konten kosong (pola agenda/gallery)
