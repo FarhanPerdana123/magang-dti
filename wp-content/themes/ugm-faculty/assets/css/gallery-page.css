@@ -305,17 +305,22 @@ body:has(.ugm-gallery-page) .site-content {
 
 .ugm-gallery-card__sheet--back {
 	z-index: 1;
+	transform-origin: center;
+	transition: transform 180ms ease;
 	transform: translate(0, -12px) rotate(1.8deg);
 }
 
 .ugm-gallery-card__sheet--middle {
 	z-index: 2;
+	transform-origin: center;
+	transition: transform 180ms ease;
 	transform: translate(4px, -8px) rotate(-1.3deg);
 }
 
 .ugm-gallery-card__image {
 	z-index: 3;
 	transform-origin: center;
+	transition: transform 180ms ease;
 }
 
 .ugm-gallery-card__media-button,
@@ -344,8 +349,18 @@ body:has(.ugm-gallery-page) .site-content {
 	transform: scale(1.025);
 }
 
-.ugm-gallery-card__media-button .ugm-gallery-card__image {
-	transition: transform 180ms ease;
+.ugm-gallery-card__media:hover .ugm-gallery-card__sheet--middle,
+.ugm-gallery-card__media:focus-visible .ugm-gallery-card__sheet--middle,
+.ugm-gallery-card__media-button:hover .ugm-gallery-card__sheet--middle,
+.ugm-gallery-card__media-button:focus-visible .ugm-gallery-card__sheet--middle {
+	transform: translate(4px, -8px) rotate(-3deg);
+}
+
+.ugm-gallery-card__media:hover .ugm-gallery-card__sheet--back,
+.ugm-gallery-card__media:focus-visible .ugm-gallery-card__sheet--back,
+.ugm-gallery-card__media-button:hover .ugm-gallery-card__sheet--back,
+.ugm-gallery-card__media-button:focus-visible .ugm-gallery-card__sheet--back {
+	transform: translate(0, -12px) rotate(3deg);
 }
 
 .ugm-gallery-card__count {
