@@ -1178,8 +1178,16 @@
 		border: 0;
 		box-shadow: none;
 		opacity: 1;
-		visibility: visible;
+		visibility: hidden;
 		transform: none;
+		pointer-events: none;
+	}
+
+	.primary-menu__list > li.menu-item-has-children.is-hovered > .sub-menu .sub-menu,
+	.primary-menu__list > li.page_item_has_children.is-hovered > .sub-menu .sub-menu,
+	.primary-menu__list > li.menu-item-has-children.is-open > .sub-menu .sub-menu,
+	.primary-menu__list > li.page_item_has_children.is-open > .sub-menu .sub-menu {
+		visibility: visible;
 		pointer-events: auto;
 	}
 
