@@ -111,6 +111,11 @@
 			"postTypes": [ "page" ]
 		},
 		{
+			"name": "rector-greeting-page",
+			"title": "Sambutan Rektor Page",
+			"postTypes": [ "page" ]
+		},
+		{
 			"name": "agenda-post",
 			"title": "Agenda",
 			"postTypes": [ "post" ]
