@@ -363,13 +363,24 @@ function ugm_render_featured_categories_markup( $attrs = array() ) {
 function ugm_render_category_section_markup( $attrs = array() ) {
 	$visibility_class = ugm_block_visibility_class( $attrs );
 	$title = ugm_resolve_section_title( $attrs, __( 'Kategori', 'ugm-faculty' ) );
+	$default_category_id = (int) get_option( 'default_category' );
+	$hide_default_category = static function ( $term ) use ( $default_category_id ) {
+		return $term instanceof WP_Term
+			&& 'uncategorized' !== $term->slug
+			&& $default_category_id !== (int) $term->term_id;
+	};
 
-	$top_level_category_terms = get_categories(
-		array(
-			'hide_empty' => true,
-			'parent'     => 0,
-			'orderby'    => 'name',
-			'order'      => 'ASC',
+	$top_level_category_terms = array_values(
+		array_filter(
+			get_categories(
+				array(
+					'hide_empty' => true,
+					'parent'     => 0,
+					'orderby'    => 'name',
+					'order'      => 'ASC',
+				)
+			),
+			$hide_default_category
 		)
 	);
 	$category_preview_count = 9;
@@ -413,6 +424,7 @@ function ugm_render_category_section_markup( $attrs = array() ) {
 						if ( is_wp_error( $descendant_terms ) ) {
 							$descendant_terms = array();
 						}
+						$descendant_terms = array_values( array_filter( $descendant_terms, $hide_default_category ) );
 
 						$parent_total_count = (int) $category_term->count;
 						if ( ! empty( $descendant_terms ) ) {
@@ -2279,6 +2291,145 @@ register_block_type( 'ugm/magazine-section', array(
  * ========================================================================== */
 
 /**
+ * Extract the first YouTube video ID from content or embed markup.
+ *
+ * @param string $text Content to scan.
+ * @return string
+ */
+function ugm_extract_youtube_id_from_text( $text ) {
+	$text = (string) $text;
+	if ( '' === trim( $text ) ) {
+		return '';
+	}
+
+	$candidates = array(
+		$text,
+		str_replace( '\/', '/', wp_unslash( $text ) ),
+	);
+
+	$patterns = array(
+		'~youtu\.be/([A-Za-z0-9_-]{11})(?:[/?#&"\']|\s|$)~i',
+		'~youtube(?:-nocookie)?\.com/(?:embed|shorts|live)/([A-Za-z0-9_-]{11})(?:[/?#&"\']|\s|$)~i',
+		'~youtube(?:-nocookie)?\.com/(?:watch|watch_popup)\?[^"\'>\s]*[?&]v=([A-Za-z0-9_-]{11})~i',
+		'~youtube(?:-nocookie)?\.com/[^"\'>\s]*[?&]v=([A-Za-z0-9_-]{11})~i',
+	);
+
+	foreach ( array_unique( $candidates ) as $candidate ) {
+		foreach ( $patterns as $pattern ) {
+			if ( preg_match( $pattern, $candidate, $matches ) ) {
+				return $matches[1];
+			}
+		}
+	}
+
+	return '';
+}
+
+/**
+ * Get the first YouTube video ID embedded in a post.
+ *
+ * @param int $post_id Post ID.
+ * @return string
+ */
+function ugm_get_post_youtube_id( $post_id ) {
+	static $cache = array();
+
+	$post_id = absint( $post_id );
+	if ( ! $post_id ) {
+		return '';
+	}
+
+	if ( array_key_exists( $post_id, $cache ) ) {
+		return $cache[ $post_id ];
+	}
+
+	$content = (string) get_post_field( 'post_content', $post_id );
+	$cache[ $post_id ] = ugm_extract_youtube_id_from_text( $content );
+
+	return $cache[ $post_id ];
+}
+
+/**
+ * Build a stable YouTube thumbnail URL.
+ *
+ * @param string $youtube_id YouTube video ID.
+ * @return string
+ */
+function ugm_get_youtube_thumbnail_url( $youtube_id ) {
+	$youtube_id = preg_match( '~^[A-Za-z0-9_-]{11}$~', (string) $youtube_id ) ? (string) $youtube_id : '';
+	if ( '' === $youtube_id ) {
+		return '';
+	}
+
+	return 'https://img.youtube.com/vi/' . rawurlencode( $youtube_id ) . '/hqdefault.jpg';
+}
+
+/**
+ * Resolve thumbnail data for video cards.
+ *
+ * YouTube thumbnails take priority; featured images remain the fallback.
+ *
+ * @param int    $post_id Post ID.
+ * @param string $size    Featured image size fallback.
+ * @return array|null
+ */
+function ugm_get_video_thumbnail_data( $post_id, $size = 'large' ) {
+	$post_id = absint( $post_id );
+	if ( ! $post_id ) {
+		return null;
+	}
+
+	$youtube_id = ugm_get_post_youtube_id( $post_id );
+	if ( $youtube_id ) {
+		$url = ugm_get_youtube_thumbnail_url( $youtube_id );
+		if ( $url ) {
+			return array(
+				'source' => 'youtube',
+				'url'    => $url,
+			);
+		}
+	}
+
+	if ( has_post_thumbnail( $post_id ) ) {
+		$url = get_the_post_thumbnail_url( $post_id, $size );
+		if ( $url ) {
+			return array(
+				'source' => 'featured',
+				'url'    => $url,
+			);
+		}
+	}
+
+	return null;
+}
+
+/**
+ * Render thumbnail markup for a video card.
+ *
+ * @param int    $post_id Post ID.
+ * @param string $size    Featured image size fallback.
+ * @return string
+ */
+function ugm_render_video_thumbnail_image( $post_id, $size = 'large' ) {
+	$post_id = absint( $post_id );
+	$data    = ugm_get_video_thumbnail_data( $post_id, $size );
+
+	if ( ! $data ) {
+		return '';
+	}
+
+	if ( 'featured' === $data['source'] ) {
+		return get_the_post_thumbnail( $post_id, $size );
+	}
+
+	return sprintf(
+		'<img src="%1$s" alt="%2$s" loading="lazy" decoding="async" />',
+		esc_url( $data['url'] ),
+		esc_attr( get_the_title( $post_id ) )
+	);
+}
+
+/**
  * Render the video section markup.
  *
  * Layout: featured video (left, large thumbnail) + list of 3 smaller videos (right).
@@ -2326,16 +2477,24 @@ function ugm_render_block_video_section( $attrs ) {
 		if ( $featured instanceof WP_Post ) {
 			$GLOBALS['post'] = $featured;
 			setup_postdata( $featured );
+			$featured_youtube_id = ugm_get_post_youtube_id( get_the_ID() );
+			$featured_media_classes = array( 'video-featured__media' );
+			if ( $featured_youtube_id ) {
+				$featured_media_classes[] = 'video-featured__media--player';
+			}
 			echo '<div class="video-area video-area--featured">';
 			echo '<article class="' . esc_attr( implode( ' ', get_post_class( 'video-featured' ) ) ) . '">';
-			echo '<a class="video-featured__media" href="' . esc_url( get_the_permalink() ) . '" tabindex="-1" aria-hidden="true">';
-			if ( has_post_thumbnail() ) {
-				echo get_the_post_thumbnail( null, 'large' );
+			echo '<div class="' . esc_attr( implode( ' ', $featured_media_classes ) ) . '"' . ( $featured_youtube_id ? ' data-ugm-video-player data-youtube-id="' . esc_attr( $featured_youtube_id ) . '"' : '' ) . '>';
+			$featured_thumbnail = ugm_render_video_thumbnail_image( get_the_ID(), 'large' );
+			if ( $featured_thumbnail ) {
+				echo $featured_thumbnail;
 			} else {
 				echo '<div class="video-featured__placeholder"><span class="card-placeholder__text">' . esc_html( $title ) . '</span></div>';
 			}
-			echo '<span class="video-featured__play" aria-hidden="true"></span>';
-			echo '</a>';
+			if ( $featured_youtube_id ) {
+				echo '<button class="video-featured__play ugm-video-play" type="button" aria-label="' . esc_attr( sprintf( __( 'Putar video: %s', 'ugm-faculty' ), get_the_title() ) ) . '"></button>';
+			}
+			echo '</div>';
 			echo '<div class="video-featured__body">';
 			echo '<h3 class="video-featured__title"><a href="' . esc_url( get_the_permalink() ) . '">' . get_the_title() . '</a></h3>';
 			echo '<p class="video-featured__date">' . esc_html( get_the_date( 'j F Y, H.i' ) ) . '</p>';
@@ -2364,15 +2523,23 @@ function ugm_render_block_video_section( $attrs ) {
 			foreach ( $list as $item ) {
 				$GLOBALS['post'] = $item;
 				setup_postdata( $item );
+				$list_youtube_id = ugm_get_post_youtube_id( get_the_ID() );
+				$list_media_classes = array( 'video-list-card__media' );
+				if ( $list_youtube_id ) {
+					$list_media_classes[] = 'video-list-card__media--player';
+				}
 				echo '<article class="' . esc_attr( implode( ' ', get_post_class( 'video-list-card' ) ) ) . '">';
-				echo '<a class="video-list-card__media" href="' . esc_url( get_the_permalink() ) . '" tabindex="-1" aria-hidden="true">';
-				if ( has_post_thumbnail() ) {
-					echo get_the_post_thumbnail( null, 'thumbnail' );
+				echo '<div class="' . esc_attr( implode( ' ', $list_media_classes ) ) . '"' . ( $list_youtube_id ? ' data-ugm-video-player data-youtube-id="' . esc_attr( $list_youtube_id ) . '"' : '' ) . '>';
+				$list_thumbnail = ugm_render_video_thumbnail_image( get_the_ID(), 'thumbnail' );
+				if ( $list_thumbnail ) {
+					echo $list_thumbnail;
 				} else {
 					echo '<div class="video-list-card__placeholder"></div>';
 				}
-				echo '<span class="video-list-card__play" aria-hidden="true"></span>';
-				echo '</a>';
+				if ( $list_youtube_id ) {
+					echo '<button class="video-list-card__play ugm-video-play" type="button" aria-label="' . esc_attr( sprintf( __( 'Putar video: %s', 'ugm-faculty' ), get_the_title() ) ) . '"></button>';
+				}
+				echo '</div>';
 				echo '<div class="video-list-card__body">';
 				echo '<h3 class="video-list-card__title"><a href="' . esc_url( get_the_permalink() ) . '">' . get_the_title() . '</a></h3>';
 				echo '<p class="video-list-card__date">' . esc_html( get_the_date( 'j F Y, H.i' ) ) . '</p>';
@@ -2534,6 +2701,8 @@ register_block_type( 'ugm/template-links', array(
 		'visibility' => array( 'type' => 'string', 'default' => 'all' ),
 	),
 ) );
+
+require_once get_theme_file_path( 'inc/blocks/index.php' );
 
 /* ==========================================================================
  * Shared rendering helper: portal column (featured + list cards)

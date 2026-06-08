@@ -139,8 +139,9 @@ function ugm_get_agenda_block_template_content() {
 /**
  * Resolve the block source that should be rendered by the PHP wrapper template.
  *
- * Pages using the Site Editor template slug should render the saved wp_template
- * content, while pages using the legacy PHP template render their own content.
+ * Page content wins so each page can be edited from the normal page editor.
+ * The saved wp_template is only a fallback for legacy pages that are still
+ * empty after template selection.
  *
  * @param string $page_content Page post_content.
  * @param string $template_slug Page template slug/path.
@@ -149,16 +150,14 @@ function ugm_get_agenda_block_template_content() {
 function ugm_get_agenda_render_source( $page_content = '', $template_slug = '' ) {
 	$template_slug = (string) $template_slug;
 
-	if ( 'agenda-page' === $template_slug ) {
-		$template_content = ugm_get_agenda_block_template_content();
-		if ( '' !== $template_content && false !== strpos( $template_content, '<!-- wp:' ) ) {
-			return $template_content;
-		}
-	}
-
 	$page_content = (string) $page_content;
 	if ( false !== strpos( $page_content, '<!-- wp:' ) || '' !== trim( wp_strip_all_tags( strip_shortcodes( $page_content ) ) ) ) {
 		return $page_content;
+	}
+
+	$template_content = ugm_get_agenda_block_template_content();
+	if ( '' !== $template_content && false !== strpos( $template_content, '<!-- wp:ugm/' ) ) {
+		return $template_content;
 	}
 
 	return ugm_get_default_agenda_page_blocks();
@@ -539,11 +538,17 @@ function ugm_populate_empty_agenda_page( $post_id ) {
 		return false;
 	}
 
+	$content = ugm_get_default_agenda_page_blocks();
+	$template_content = ugm_get_agenda_block_template_content();
+	if ( '' !== $template_content && false !== strpos( $template_content, '<!-- wp:ugm/' ) ) {
+		$content = $template_content;
+	}
+
 	remove_action( 'save_post_page', 'ugm_seed_agenda_page_on_save', 20 );
 	wp_update_post(
 		array(
 			'ID'           => $post_id,
-			'post_content' => ugm_get_default_agenda_page_blocks(),
+			'post_content' => $content,
 		)
 	);
 	add_action( 'save_post_page', 'ugm_seed_agenda_page_on_save', 20, 3 );
@@ -766,7 +771,7 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 				?>
 			</nav>
 		<?php else : ?>
-			<p class="section-empty"><?php esc_html_e( 'Belum ada agenda yang sesuai filter.', 'ugm-faculty' ); ?></p>
+			<p class="section-empty"><?php esc_html_e( 'Belum ada agenda yang sesuai pencarian.', 'ugm-faculty' ); ?></p>
 		<?php endif; ?>
 		<?php wp_reset_postdata(); ?>
 	</section>

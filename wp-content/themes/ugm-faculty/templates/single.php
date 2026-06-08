@@ -53,7 +53,15 @@ get_header();
 					</div>
 				</header>
 
-				<?php if ( has_post_thumbnail() ) : ?>
+				<?php
+				$ugm_single_youtube_id = function_exists( 'ugm_get_post_youtube_id' )
+					? ugm_get_post_youtube_id( get_the_ID() )
+					: '';
+				$ugm_is_video_post = has_category( 'video', get_the_ID() );
+				$ugm_show_featured_image = has_post_thumbnail() && ! ( $ugm_is_video_post && $ugm_single_youtube_id );
+				?>
+
+				<?php if ( $ugm_show_featured_image ) : ?>
 					<figure class="ugm-article__featured-image">
 						<?php the_post_thumbnail( 'large', array( 'class' => 'ugm-article__image' ) ); ?>
 					</figure>

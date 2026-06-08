@@ -1,0 +1,451 @@
+/**
+ * Sambutan Rektor block styles.
+ *
+ * Frontend and editor styles for Rector Greeting content/sidebar blocks.
+ *
+ * @package ugm-faculty
+ */
+
+/* ── Sambutan Rektor template blocks ───────────────────────────────────── */
+.ugm-rector-template-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 2.1fr) minmax(280px, 0.9fr);
+	gap: clamp(32px, 5vw, 80px);
+	align-items: start;
+	width: min(100% - 40px, 1240px);
+	margin: 0 auto;
+	padding: clamp(28px, 4vw, 58px) 0 clamp(44px, 6vw, 86px);
+}
+
+.ugm-rector-greeting {
+	color: #4f4f58;
+}
+
+.ugm-rector-greeting__breadcrumb {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 7px;
+	margin: 0 0 18px;
+	color: #164c68;
+	font-size: 0.92rem;
+	line-height: 1.35;
+}
+
+.ugm-rector-greeting__breadcrumb span[aria-hidden="true"] {
+	color: #d1a51d;
+	font-weight: 700;
+}
+
+.ugm-rector-greeting__title {
+	margin: 0 0 18px;
+	color: #084666;
+	font-size: clamp(1.8rem, 3vw, 2.55rem);
+	font-weight: 700;
+	line-height: 1.12;
+}
+
+.ugm-rector-greeting__grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+	gap: clamp(28px, 4vw, 58px);
+	align-items: start;
+}
+
+.ugm-rector-greeting--photo-left .ugm-rector-card {
+	order: -1;
+}
+
+.ugm-rector-greeting__body {
+	max-width: 58ch;
+	font-size: 1.04rem;
+	letter-spacing: 0;
+	line-height: 1.58;
+}
+
+.ugm-rector-greeting__body p {
+	margin: 0 0 1.1em;
+}
+
+.ugm-rector-card {
+	width: min(100%, 280px);
+	margin: 30px auto 0;
+}
+
+.ugm-rector-card__photo {
+	aspect-ratio: 0.74;
+	background: #d9e0e5;
+	overflow: hidden;
+}
+
+.ugm-rector-card__photo img,
+.ugm-rector-card__photo span {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.ugm-rector-card__photo span {
+	background:
+		linear-gradient(145deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0)),
+		#cfd9df;
+}
+
+.ugm-rector-card__caption {
+	position: relative;
+	z-index: 1;
+	width: calc(100% - 38px);
+	min-height: 92px;
+	margin: -28px auto 0;
+	padding: 18px 18px 16px;
+	background: #07486f;
+	color: #fff;
+	text-align: center;
+}
+
+.ugm-rector-card__caption strong {
+	display: block;
+	font-size: 0.96rem;
+	font-weight: 700;
+	line-height: 1.4;
+}
+
+.ugm-rector-card__caption span {
+	display: block;
+	margin-top: 14px;
+	font-size: 0.9rem;
+	line-height: 1.35;
+}
+
+.ugm-about-sidebar {
+	position: relative;
+	overflow: hidden;
+	min-height: 600px;
+	padding: 32px 30px 26px;
+	background: #07486f;
+	color: #fff;
+}
+
+.ugm-about-sidebar::after {
+	content: "";
+	position: absolute;
+	top: 18px;
+	right: 24px;
+	width: 88px;
+	height: 88px;
+	border: 2px solid rgba(255, 255, 255, 0.08);
+	border-radius: 50%;
+	box-shadow:
+		0 0 0 12px rgba(255, 255, 255, 0.025),
+		0 0 0 25px rgba(255, 255, 255, 0.018);
+	pointer-events: none;
+}
+
+.ugm-about-sidebar__title {
+	position: relative;
+	z-index: 1;
+	margin: 0 0 18px;
+	color: #fff;
+	font-size: 1.45rem;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.ugm-about-sidebar__list {
+	position: relative;
+	z-index: 1;
+	display: grid;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.ugm-about-sidebar__item {
+	border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.ugm-about-sidebar__link {
+	position: relative;
+	display: flex;
+	align-items: center;
+	min-height: 50px;
+	padding: 11px 30px 11px 20px;
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 0.96rem;
+	line-height: 1.35;
+	text-decoration: none;
+}
+
+.ugm-about-sidebar__link::before {
+	content: "\203A";
+	position: absolute;
+	top: 50%;
+	left: 0;
+	transform: translateY(-50%);
+	color: #d1a51d;
+	font-size: 1.2rem;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.ugm-about-sidebar__item--level-1 .ugm-about-sidebar__link {
+	padding-left: 36px;
+}
+
+.ugm-about-sidebar__item--level-1 .ugm-about-sidebar__link::before {
+	left: 17px;
+}
+
+.ugm-about-sidebar__item--level-2 .ugm-about-sidebar__link {
+	padding-left: 52px;
+}
+
+.ugm-about-sidebar__item--level-2 .ugm-about-sidebar__link::before {
+	left: 33px;
+}
+
+.ugm-about-sidebar__item.is-active .ugm-about-sidebar__link {
+	color: #fff;
+	font-weight: 700;
+}
+
+.ugm-about-sidebar__item.is-active .ugm-about-sidebar__link::after {
+	content: "\203A";
+	position: absolute;
+	top: 50%;
+	right: 4px;
+	transform: translateY(-50%);
+	color: #d1a51d;
+	font-size: 2.1rem;
+	font-weight: 400;
+	line-height: 1;
+}
+
+.ugm-about-sidebar__link:hover,
+.ugm-about-sidebar__link:focus-visible {
+	color: #fff;
+	outline: none;
+}
+
+@media (max-width: 1024px) {
+	.ugm-rector-template-layout {
+		grid-template-columns: 1fr;
+		width: min(100% - 32px, 760px);
+	}
+
+	.ugm-about-sidebar {
+		min-height: 0;
+	}
+}
+
+@media (max-width: 720px) {
+	.ugm-rector-template-layout {
+		width: min(100% - 28px, 520px);
+		padding-top: 24px;
+	}
+
+	.ugm-rector-greeting__grid {
+		grid-template-columns: 1fr;
+	}
+
+	.ugm-rector-greeting--photo-left .ugm-rector-card {
+		order: 0;
+	}
+
+	.ugm-rector-greeting__body {
+		max-width: none;
+		font-size: 0.98rem;
+	}
+
+	.ugm-rector-card {
+		margin-top: 10px;
+	}
+
+	.ugm-about-sidebar {
+		padding: 28px 24px 22px;
+	}
+}
+
+.ugm-rector-template {
+	margin-top: 0;
+	padding-top: 0;
+}
+
+.ugm-rector-template .ugm-rector-template__article {
+	margin-top: 0;
+	padding-top: 0;
+}
+
+.ugm-rector-template .ugm-rector-template__article > .ugm-rector-template-layout {
+	margin-top: clamp(-120px, -7vw, -80px);
+	padding-top: 0;
+}
+
+.editor-styles-wrapper .ugm-rector-template-layout {
+	width: 100%;
+	max-width: 1240px;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor {
+	display: grid;
+	grid-template-columns: minmax(0, 2.1fr) minmax(280px, 0.9fr);
+	column-gap: clamp(32px, 5vw, 80px);
+	row-gap: 32px;
+	align-items: start;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor > .block-editor-inner-blocks {
+	display: contents;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor > .block-editor-inner-blocks > .block-editor-block-list__layout {
+	display: contents;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor .wp-block-ugm-rector-greeting-content,
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor .wp-block-ugm-about-ugm-sidebar {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: none;
+	min-width: 0;
+	float: none;
+	margin-top: 0;
+	margin-right: 0;
+	margin-bottom: 0;
+	margin-left: 0;
+	overflow-wrap: normal;
+	word-break: normal;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor .wp-block-ugm-rector-greeting-content {
+	grid-column: 1;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor .wp-block-ugm-about-ugm-sidebar {
+	grid-column: 2;
+}
+
+@media (max-width: 1024px) {
+	.editor-styles-wrapper .ugm-rector-greeting-layout-editor {
+		grid-template-columns: 1fr;
+	}
+
+	.editor-styles-wrapper .ugm-rector-greeting-layout-editor .wp-block-ugm-rector-greeting-content,
+	.editor-styles-wrapper .ugm-rector-greeting-layout-editor .wp-block-ugm-about-ugm-sidebar {
+		grid-column: 1;
+	}
+}
+
+/* Sambutan Rektor: override generic UGM editor block constraints. */
+.editor-styles-wrapper .block-editor-block-list__layout:has(> .wp-block[data-type="ugm/rector-greeting-content"]):has(> .wp-block[data-type="ugm/about-ugm-sidebar"]) {
+	display: grid !important;
+	grid-template-columns: minmax(760px, 1fr) 365px !important;
+	gap: 64px !important;
+	align-items: start !important;
+	width: min(1240px, calc(100vw - 4rem)) !important;
+	max-width: none !important;
+	min-width: 0 !important;
+	margin-right: auto !important;
+	margin-left: auto !important;
+}
+
+.editor-styles-wrapper .block-editor-block-list__layout:has(> .wp-block[data-type="ugm/rector-greeting-content"]):has(> .wp-block[data-type="ugm/about-ugm-sidebar"]) > .wp-block[data-type="ugm/rector-greeting-content"],
+.editor-styles-wrapper .block-editor-block-list__layout:has(> .wp-block[data-type="ugm/rector-greeting-content"]):has(> .wp-block[data-type="ugm/about-ugm-sidebar"]) > .wp-block[data-type="ugm/about-ugm-sidebar"] {
+	box-sizing: border-box !important;
+	width: 100% !important;
+	max-width: none !important;
+	min-width: 0 !important;
+	float: none !important;
+	margin: 0 !important;
+	overflow-wrap: normal !important;
+	word-break: normal !important;
+}
+
+.editor-styles-wrapper .block-editor-block-list__layout:has(> .wp-block[data-type="ugm/rector-greeting-content"]):has(> .wp-block[data-type="ugm/about-ugm-sidebar"]) > .wp-block[data-type="ugm/rector-greeting-content"] {
+	grid-column: 1 !important;
+}
+
+.editor-styles-wrapper .block-editor-block-list__layout:has(> .wp-block[data-type="ugm/rector-greeting-content"]):has(> .wp-block[data-type="ugm/about-ugm-sidebar"]) > .wp-block[data-type="ugm/about-ugm-sidebar"] {
+	grid-column: 2 !important;
+}
+
+.editor-styles-wrapper .block-editor-block-list__layout:has(> .wp-block[data-type="ugm/rector-greeting-content"]):has(> .wp-block[data-type="ugm/about-ugm-sidebar"]) .ugm-rector-greeting__grid {
+	grid-template-columns: minmax(360px, 1fr) 280px !important;
+	gap: 48px !important;
+}
+
+@media (max-width: 1024px) {
+	.editor-styles-wrapper .block-editor-block-list__layout:has(> .wp-block[data-type="ugm/rector-greeting-content"]):has(> .wp-block[data-type="ugm/about-ugm-sidebar"]) {
+		grid-template-columns: 1fr !important;
+		gap: 32px !important;
+		width: min(100% - 2rem, 760px) !important;
+	}
+
+	.editor-styles-wrapper .block-editor-block-list__layout:has(> .wp-block[data-type="ugm/rector-greeting-content"]):has(> .wp-block[data-type="ugm/about-ugm-sidebar"]) > .wp-block[data-type="ugm/rector-greeting-content"],
+	.editor-styles-wrapper .block-editor-block-list__layout:has(> .wp-block[data-type="ugm/rector-greeting-content"]):has(> .wp-block[data-type="ugm/about-ugm-sidebar"]) > .wp-block[data-type="ugm/about-ugm-sidebar"] {
+		grid-column: 1 !important;
+	}
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/rector-greeting-layout"] {
+	display: grid !important;
+	grid-template-columns: minmax(760px, 1fr) 365px !important;
+	gap: 64px !important;
+	align-items: start !important;
+	width: min(1240px, calc(100vw - 4rem)) !important;
+	max-width: none !important;
+	min-width: 0 !important;
+	margin-right: auto !important;
+	margin-left: auto !important;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/rector-greeting-layout"] > .block-editor-inner-blocks,
+.editor-styles-wrapper .wp-block[data-type="ugm/rector-greeting-layout"] > .block-editor-inner-blocks > .block-editor-block-list__layout {
+	display: contents !important;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/rector-greeting-layout"] .wp-block[data-type="ugm/rector-greeting-content"],
+.editor-styles-wrapper .wp-block[data-type="ugm/rector-greeting-layout"] .wp-block[data-type="ugm/about-ugm-sidebar"] {
+	box-sizing: border-box !important;
+	width: 100% !important;
+	max-width: none !important;
+	min-width: 0 !important;
+	float: none !important;
+	margin: 0 !important;
+	overflow-wrap: normal !important;
+	word-break: normal !important;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/rector-greeting-layout"] .wp-block[data-type="ugm/rector-greeting-content"] {
+	grid-column: 1 !important;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/rector-greeting-layout"] .wp-block[data-type="ugm/about-ugm-sidebar"] {
+	grid-column: 2 !important;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/rector-greeting-layout"] .ugm-rector-greeting__grid {
+	grid-template-columns: minmax(360px, 1fr) 280px !important;
+	gap: 48px !important;
+}
+
+.editor-styles-wrapper .wp-block[data-type="ugm/rector-greeting-layout"] .ugm-about-sidebar {
+	width: 100% !important;
+	min-width: 0 !important;
+}
+
+@media (max-width: 1024px) {
+	.editor-styles-wrapper .wp-block[data-type="ugm/rector-greeting-layout"] {
+		grid-template-columns: 1fr !important;
+		gap: 32px !important;
+		width: min(100% - 2rem, 760px) !important;
+	}
+
+	.editor-styles-wrapper .wp-block[data-type="ugm/rector-greeting-layout"] .wp-block[data-type="ugm/rector-greeting-content"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/rector-greeting-layout"] .wp-block[data-type="ugm/about-ugm-sidebar"] {
+		grid-column: 1 !important;
+	}
+}
