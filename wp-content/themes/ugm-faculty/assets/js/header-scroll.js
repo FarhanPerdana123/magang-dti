@@ -236,6 +236,7 @@
 
 			parentItems.forEach(function (item) {
 				var submenu = item.querySelector(':scope > .sub-menu');
+				var hoverCloseTimer = null;
 				if (!submenu) {
 					return;
 				}
@@ -254,20 +255,43 @@
 				submenu.hidden = window.innerWidth < 900;
 				mobileDropdownToggles.push(toggle);
 
-				item.addEventListener('pointerenter', function () {
+				function clearHoverCloseTimer() {
+					if (hoverCloseTimer) {
+						window.clearTimeout(hoverCloseTimer);
+						hoverCloseTimer = null;
+					}
+				}
+
+				function openDesktopHoverMenu() {
 					if (!isDesktopMenu()) {
 						return;
 					}
+					clearHoverCloseTimer();
 					closeDesktopHoverMenus(item);
 					item.classList.add('is-hovered');
-				});
+				}
 
-				item.addEventListener('pointerleave', function () {
+				function scheduleDesktopHoverClose(event) {
 					if (!isDesktopMenu()) {
 						return;
 					}
-					item.classList.remove('is-hovered');
-				});
+
+					var nextTarget = event && event.relatedTarget ? event.relatedTarget : null;
+					if (nextTarget && (item.contains(nextTarget) || submenu.contains(nextTarget))) {
+						return;
+					}
+
+					clearHoverCloseTimer();
+					hoverCloseTimer = window.setTimeout(function () {
+						item.classList.remove('is-hovered');
+						hoverCloseTimer = null;
+					}, 180);
+				}
+
+				item.addEventListener('pointerenter', openDesktopHoverMenu);
+				item.addEventListener('pointerleave', scheduleDesktopHoverClose);
+				submenu.addEventListener('pointerenter', openDesktopHoverMenu);
+				submenu.addEventListener('pointerleave', scheduleDesktopHoverClose);
 
 				toggle.addEventListener('click', function (event) {
 					event.preventDefault();
