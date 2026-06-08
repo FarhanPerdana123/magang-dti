@@ -109,6 +109,21 @@ function ugm_enqueue_assets() {
 		);
 	}
 
+	$is_video_single = is_singular( 'post' )
+		&& has_category( 'video', get_queried_object_id() )
+		&& function_exists( 'ugm_get_post_youtube_id' )
+		&& ugm_get_post_youtube_id( get_queried_object_id() );
+
+	if ( $is_landing_template || $is_video_single ) {
+		wp_enqueue_script(
+			'ugm-video-player-guard',
+			get_template_directory_uri() . '/assets/js/video-player-guard.js',
+			array(),
+			ugm_get_asset_version( '/assets/js/video-player-guard.js' ),
+			true
+		);
+	}
+
 	if ( is_page_template( array( 'page-templates/template-gallery.php', 'gallery-page' ) ) ) {
 		wp_enqueue_script(
 			'ugm-gallery-slider',
