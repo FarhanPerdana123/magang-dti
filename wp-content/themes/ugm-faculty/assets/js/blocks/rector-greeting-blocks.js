@@ -18,7 +18,6 @@
 	var MediaUpload                = wp.blockEditor.MediaUpload;
 	var MediaUploadCheck           = wp.blockEditor.MediaUploadCheck;
 	var PanelBody                  = wp.components.PanelBody;
-	var CheckboxControl            = wp.components.CheckboxControl;
 	var SelectControl              = wp.components.SelectControl;
 	var TextControl                = wp.components.TextControl;
 	var TextareaControl            = wp.components.TextareaControl;
@@ -32,6 +31,15 @@
 
 	function getDefaultRectorBody() {
 		return [
+			'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vitae lectus at massa dictum fermentum. Donec sed augue non erat porta tempor.',
+			'Praesent euismod, lorem at facilisis consequat, sem lorem tincidunt nibh, vitae luctus neque erat vitae urna. Sed non mauris vel nibh bibendum posuere.',
+			'Aliquam erat volutpat. Curabitur vitae libero in ipsum porta vulputate. Suspendisse potenti. Nam vitae risus eget augue feugiat faucibus.',
+			'Morbi consequat, sapien sed dignissim malesuada, justo arcu volutpat mi, sed finibus neque lorem vitae erat. Pellentesque habitant morbi tristique senectus et netus.',
+		].join( '\n\n' );
+	}
+
+	function getLegacyRectorBody() {
+		return [
 			'Selamat datang di Universitas Gadjah Mada (UGM), tempat Anda dapat mulai membuat perubahan nyata.',
 			'Sebagai salah satu universitas terkemuka di Indonesia, Universitas Gadjah Mada berupaya untuk memfasilitasi generasi muda dari seluruh penjuru negeri dan dunia untuk mengembangkan diri dan memaksimalkan potensi yang dimiliki. Kami bertekad membekali komunitas yang dinamis dan penuh semangat ini dengan pendidikan berkualitas demi hari esok yang lebih baik.',
 			'Keunggulan UGM mencakup spektrum bidang yang luas. Ada lebih dari 270 program studi dan 23 pusat penelitian yang akan membantu para mahasiswa memperluas wawasan dan memperkaya pengalaman dalam penelitian, kolaborasi interdisipliner, dan kehidupan secara umum.',
@@ -39,33 +47,6 @@
 			'Kampus kami terletak di jantung kota Yogyakarta, sebuah kota yang terkenal akan sejarah dan warisan budayanya. Oleh karenanya, tak hanya pengalaman akademis, di sini, siapa pun Anda, dari mana pun Anda berasal, dapat merasakan secara langsung pengalaman antarbudaya yang kaya. Kami mengundang Anda belajar di kampus kami yang beragam dan inklusif, tempat kita dapat bahu-membahu menciptakan dampak nyata bagi bangsa dan dunia.',
 			'Terima kasih telah mengunjungi halaman kami. Semoga kampus UGM memberikan kesan yang manis bagi Anda.',
 		].join( '\n\n' );
-	}
-
-	function getDefaultAboutSidebarItems() {
-		return [
-			'Organisasi',
-			'Majelis Wali Amanat',
-			'Senat Akademik',
-			'Dewan Guru Besar',
-			'Pimpinan Universitas',
-			'Struktur Organisasi',
-			'Tentang UGM',
-			'Sambutan Rektor',
-			'Visi dan Misi',
-			'Tugas Pokok dan Fungsi',
-			'Sejarah',
-			'Makna Lambang',
-			'Himne Gadjah Mada',
-			'UGM dalam Angka',
-			'Peta Kampus',
-		].map( function ( label, index ) {
-			return {
-				label:  label,
-				url:    '',
-				active: label === 'Sambutan Rektor',
-				level:  index >= 7 ? 1 : 0,
-			};
-		} );
 	}
 
 	function isRectorGreetingTemplate( template ) {
@@ -312,17 +293,18 @@
 					allowedBlocks: [ 'ugm/rector-greeting-content', 'ugm/about-ugm-sidebar' ],
 					template: [
 						[ 'ugm/rector-greeting-content', {
-							breadcrumbHome: 'Beranda',
-							breadcrumbParent: 'Tentang UGM',
-							title: 'Sambutan Rektor',
+							breadcrumbHome: 'Lorem Ipsum',
+							breadcrumbParent: 'Lorem Ipsum',
+							title: 'Lorem Ipsum',
 							body: getDefaultRectorBody(),
-							rectorName: 'Prof. dr. Ova Emilia, M.MedEd, SpOG (K), PhD',
-							rectorRole: 'Rektor UGM',
+							rectorName: 'Nama Rektor',
+							rectorRole: 'Jabatan Rektor',
 							photoPosition: 'right',
+							showPhotoFrame: true,
 						} ],
 						[ 'ugm/about-ugm-sidebar', {
 							title: 'Tentang UGM',
-							items: getDefaultAboutSidebarItems(),
+							menuLocation: 'sidebar-tentang-ugm',
 						} ],
 					],
 					templateLock: false,
@@ -341,19 +323,49 @@
 		icon:        'id-alt',
 		supports:    { html: false },
 		attributes:  {
-			breadcrumbHome:   { type: 'string', default: 'Beranda' },
-			breadcrumbParent: { type: 'string', default: 'Tentang UGM' },
-			title:            { type: 'string', default: 'Sambutan Rektor' },
+			breadcrumbHome:   { type: 'string', default: 'Lorem Ipsum' },
+			breadcrumbParent: { type: 'string', default: 'Lorem Ipsum' },
+			title:            { type: 'string', default: 'Lorem Ipsum' },
 			body:             { type: 'string', default: getDefaultRectorBody() },
-			rectorName:       { type: 'string', default: 'Prof. dr. Ova Emilia, M.MedEd, SpOG (K), PhD' },
-			rectorRole:       { type: 'string', default: 'Rektor UGM' },
+			rectorName:       { type: 'string', default: 'Nama Rektor' },
+			rectorRole:       { type: 'string', default: 'Jabatan Rektor' },
 			photoId:          { type: 'integer', default: 0 },
 			photoUrl:         { type: 'string', default: '' },
 			photoPosition:    { type: 'string', default: 'right' },
+			showPhotoFrame:   { type: 'boolean', default: true },
 		},
 		edit: function ( props ) {
 			var attrs   = props.attributes;
 			var setAttr = props.setAttributes;
+			var hasPhoto = ( parseInt( attrs.photoId, 10 ) || 0 ) > 0 || !! attrs.photoUrl;
+			var showPhotoFrame = attrs.showPhotoFrame !== false;
+
+			useEffect( function () {
+				var nextAttrs = {};
+
+				if ( attrs.breadcrumbHome === 'Beranda' ) {
+					nextAttrs.breadcrumbHome = 'Lorem Ipsum';
+				}
+				if ( attrs.breadcrumbParent === 'Tentang UGM' ) {
+					nextAttrs.breadcrumbParent = 'Lorem Ipsum';
+				}
+				if ( attrs.title === 'Sambutan Rektor' ) {
+					nextAttrs.title = 'Lorem Ipsum';
+				}
+				if ( attrs.body === getLegacyRectorBody() ) {
+					nextAttrs.body = getDefaultRectorBody();
+				}
+				if ( attrs.rectorName === 'Prof. dr. Ova Emilia, M.MedEd, SpOG (K), PhD' ) {
+					nextAttrs.rectorName = 'Nama Rektor';
+				}
+				if ( attrs.rectorRole === 'Rektor UGM' ) {
+					nextAttrs.rectorRole = 'Jabatan Rektor';
+				}
+
+				if ( Object.keys( nextAttrs ).length ) {
+					setAttr( nextAttrs );
+				}
+			}, [] );
 
 			return el(
 				Fragment,
@@ -425,21 +437,25 @@
 								allowedTypes: [ 'image' ],
 								value: attrs.photoId || 0,
 								onSelect: function ( image ) {
-									setAttr( { photoId: image.id || 0, photoUrl: image.url || '' } );
+									setAttr( { photoId: image.id || 0, photoUrl: image.url || '', showPhotoFrame: true } );
 								},
 								render: function ( ref ) {
 									return el(
 										'div',
-										{ style: { display: 'flex', gap: '6px', flexWrap: 'wrap' } },
+										{ style: { display: 'grid', gap: '8px' } },
 										el( Button, { isSecondary: true, onClick: ref.open },
-											attrs.photoUrl ? __( 'Ganti Foto', 'ugm-faculty' ) : __( 'Pilih Foto', 'ugm-faculty' )
+											hasPhoto ? __( 'Ganti Foto', 'ugm-faculty' ) : __( 'Pilih Foto', 'ugm-faculty' )
 										),
-										attrs.photoUrl
+										showPhotoFrame
 											? el( Button, {
+												isSecondary: true,
 												isDestructive: true,
-												onClick: function () { setAttr( { photoId: 0, photoUrl: '' } ); },
+												onClick: function () { setAttr( { photoId: 0, photoUrl: '', showPhotoFrame: false } ); },
 											}, __( 'Hapus Foto', 'ugm-faculty' ) )
-											: null
+											: el( Button, {
+												isSecondary: true,
+												onClick: function () { setAttr( { showPhotoFrame: true } ); },
+											}, __( 'Tampilkan Frame Foto', 'ugm-faculty' ) )
 									);
 								},
 							} )
@@ -463,90 +479,12 @@
 		icon:        'menu-alt3',
 		supports:    { html: false },
 		attributes:  {
-			title: { type: 'string', default: 'Tentang UGM' },
-			items: { type: 'array', default: getDefaultAboutSidebarItems() },
+			title:        { type: 'string', default: 'Tentang UGM' },
+			menuLocation: { type: 'string', default: 'sidebar-tentang-ugm' },
 		},
 		edit: function ( props ) {
 			var attrs   = props.attributes;
 			var setAttr = props.setAttributes;
-			var items   = Array.isArray( attrs.items ) && attrs.items.length ? attrs.items : getDefaultAboutSidebarItems();
-
-			function setItems( nextItems ) {
-				setAttr( { items: nextItems } );
-			}
-
-			function updateItem( index, patch ) {
-				setItems( items.map( function ( item, itemIndex ) {
-					return itemIndex === index ? Object.assign( {}, item, patch ) : item;
-				} ) );
-			}
-
-			function moveItem( from, to ) {
-				var next;
-				var moved;
-				if ( to < 0 || to >= items.length ) {
-					return;
-				}
-				next = items.slice();
-				moved = next[ from ];
-				next[ from ] = next[ to ];
-				next[ to ] = moved;
-				setItems( next );
-			}
-
-			function removeItem( index ) {
-				setItems( items.filter( function ( item, itemIndex ) {
-					return itemIndex !== index;
-				} ) );
-			}
-
-			function renderItem( item, index ) {
-				return el(
-					'div',
-					{
-						key: 'about-sidebar-item-' + index,
-						style: { borderTop: '1px solid #ddd', marginTop: '12px', paddingTop: '12px' },
-					},
-					el(
-						'div',
-						{ style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' } },
-						el( 'strong', null, __( 'Menu', 'ugm-faculty' ) + ' ' + ( index + 1 ) ),
-						el(
-							'span',
-							{ style: { display: 'flex', gap: '2px' } },
-							index > 0 ? el( Button, { isSmall: true, icon: 'arrow-up-alt2', onClick: function () { moveItem( index, index - 1 ); }, label: __( 'Naik', 'ugm-faculty' ) } ) : null,
-							index < items.length - 1 ? el( Button, { isSmall: true, icon: 'arrow-down-alt2', onClick: function () { moveItem( index, index + 1 ); }, label: __( 'Turun', 'ugm-faculty' ) } ) : null,
-							el( Button, { isSmall: true, isDestructive: true, icon: 'trash', onClick: function () { removeItem( index ); }, label: __( 'Hapus', 'ugm-faculty' ) } )
-						)
-					),
-					el( TextControl, {
-						label: __( 'Label Menu', 'ugm-faculty' ),
-						value: item.label || '',
-						onChange: function ( value ) { updateItem( index, { label: value } ); },
-					} ),
-					el( TextControl, {
-						label: __( 'URL', 'ugm-faculty' ),
-						value: item.url || '',
-						type: 'url',
-						onChange: function ( value ) { updateItem( index, { url: value } ); },
-					} ),
-					el( SelectControl, {
-						label: __( 'Level / Indent', 'ugm-faculty' ),
-						value: String( item.level || 0 ),
-						options: [
-							{ label: __( 'Level 0', 'ugm-faculty' ), value: '0' },
-							{ label: __( 'Level 1', 'ugm-faculty' ), value: '1' },
-							{ label: __( 'Level 2', 'ugm-faculty' ), value: '2' },
-						],
-						onChange: function ( value ) { updateItem( index, { level: parseInt( value, 10 ) || 0 } ); },
-					} ),
-					el( CheckboxControl, {
-						label: __( 'Item aktif', 'ugm-faculty' ),
-						checked: !! item.active,
-						onChange: function ( checked ) { updateItem( index, { active: checked } ); },
-					} )
-				);
-			}
 
 			return el(
 				Fragment,
@@ -561,24 +499,21 @@
 							label: __( 'Judul Sidebar', 'ugm-faculty' ),
 							value: attrs.title || '',
 							onChange: function ( value ) { setAttr( { title: value } ); },
+						} ),
+						el( SelectControl, {
+							label: __( 'Lokasi Menu', 'ugm-faculty' ),
+							value: attrs.menuLocation || 'sidebar-tentang-ugm',
+							options: [
+								{ label: __( 'Sidebar Tentang UGM', 'ugm-faculty' ), value: 'sidebar-tentang-ugm' },
+							],
+							onChange: function ( value ) { setAttr( { menuLocation: value } ); },
+							help: __( 'Item sidebar mengikuti menu pada Appearance > Menus untuk lokasi ini.', 'ugm-faculty' ),
 						} )
-					),
-					el(
-						PanelBody,
-						{ title: __( 'Daftar Menu (' + items.length + ')', 'ugm-faculty' ), initialOpen: true },
-						items.map( renderItem ),
-						el( Button, {
-							isPrimary: true,
-							style: { width: '100%', justifyContent: 'center', marginTop: '12px' },
-							onClick: function () {
-								setItems( items.concat( [ { label: '', url: '', active: false, level: 0 } ] ) );
-							},
-						}, __( '+ Tambah Menu', 'ugm-faculty' ) )
 					)
 				),
 				el( ServerSideRender, {
 					block: 'ugm/about-ugm-sidebar',
-					attributes: Object.assign( {}, attrs, { items: items } ),
+					attributes: attrs,
 					httpMethod: 'POST',
 				} )
 			);

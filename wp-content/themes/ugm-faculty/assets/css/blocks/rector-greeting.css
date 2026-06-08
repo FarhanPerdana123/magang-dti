@@ -52,6 +52,10 @@
 	align-items: start;
 }
 
+.ugm-rector-greeting--no-photo .ugm-rector-greeting__grid {
+	grid-template-columns: minmax(0, 1fr);
+}
+
 .ugm-rector-greeting--photo-left .ugm-rector-card {
 	order: -1;
 }
@@ -159,6 +163,15 @@
 	margin: 0;
 	padding: 0;
 	list-style: none;
+}
+
+.ugm-about-sidebar__empty {
+	position: relative;
+	z-index: 1;
+	margin: 12px 0 0;
+	color: rgba(255, 255, 255, 0.82);
+	font-size: 0.95rem;
+	line-height: 1.5;
 }
 
 .ugm-about-sidebar__item {

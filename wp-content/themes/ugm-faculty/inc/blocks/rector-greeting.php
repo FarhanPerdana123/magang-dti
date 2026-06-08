@@ -19,6 +19,18 @@ function ugm_get_default_rector_greeting_paragraphs() {
 	return implode(
 		"\n\n",
 		array(
+			__( 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vitae lectus at massa dictum fermentum. Donec sed augue non erat porta tempor.', 'ugm-faculty' ),
+			__( 'Praesent euismod, lorem at facilisis consequat, sem lorem tincidunt nibh, vitae luctus neque erat vitae urna. Sed non mauris vel nibh bibendum posuere.', 'ugm-faculty' ),
+			__( 'Aliquam erat volutpat. Curabitur vitae libero in ipsum porta vulputate. Suspendisse potenti. Nam vitae risus eget augue feugiat faucibus.', 'ugm-faculty' ),
+			__( 'Morbi consequat, sapien sed dignissim malesuada, justo arcu volutpat mi, sed finibus neque lorem vitae erat. Pellentesque habitant morbi tristique senectus et netus.', 'ugm-faculty' ),
+		)
+	);
+}
+
+function ugm_get_legacy_rector_greeting_paragraphs() {
+	return implode(
+		"\n\n",
+		array(
 			__( 'Selamat datang di Universitas Gadjah Mada (UGM), tempat Anda dapat mulai membuat perubahan nyata.', 'ugm-faculty' ),
 			__( 'Sebagai salah satu universitas terkemuka di Indonesia, Universitas Gadjah Mada berupaya untuk memfasilitasi generasi muda dari seluruh penjuru negeri dan dunia untuk mengembangkan diri dan memaksimalkan potensi yang dimiliki. Kami bertekad membekali komunitas yang dinamis dan penuh semangat ini dengan pendidikan berkualitas demi hari esok yang lebih baik.', 'ugm-faculty' ),
 			__( 'Keunggulan UGM mencakup spektrum bidang yang luas. Ada lebih dari 270 program studi dan 23 pusat penelitian yang akan membantu para mahasiswa memperluas wawasan dan memperkaya pengalaman dalam penelitian, kolaborasi interdisipliner, dan kehidupan secara umum.', 'ugm-faculty' ),
@@ -29,53 +41,20 @@ function ugm_get_default_rector_greeting_paragraphs() {
 	);
 }
 
-function ugm_get_default_about_ugm_sidebar_items() {
-	$labels = array(
-		'Organisasi',
-		'Majelis Wali Amanat',
-		'Senat Akademik',
-		'Dewan Guru Besar',
-		'Pimpinan Universitas',
-		'Struktur Organisasi',
-		'Tentang UGM',
-		'Sambutan Rektor',
-		'Visi dan Misi',
-		'Tugas Pokok dan Fungsi',
-		'Sejarah',
-		'Makna Lambang',
-		'Himne Gadjah Mada',
-		'UGM dalam Angka',
-		'Peta Kampus',
-	);
-
-	return array_map(
-		static function ( $label, $index ) {
-			return array(
-				'label'  => $label,
-				'url'    => '',
-				'active' => 'Sambutan Rektor' === $label,
-				'level'  => $index >= 7 ? 1 : 0,
-			);
-		},
-		$labels,
-		array_keys( $labels )
-	);
-}
-
 function ugm_get_default_rector_greeting_blocks() {
 	$content_attrs = array(
-		'breadcrumbHome'  => __( 'Beranda', 'ugm-faculty' ),
-		'breadcrumbParent' => __( 'Tentang UGM', 'ugm-faculty' ),
-		'title'           => __( 'Sambutan Rektor', 'ugm-faculty' ),
+		'breadcrumbHome'  => __( 'Lorem Ipsum', 'ugm-faculty' ),
+		'breadcrumbParent' => __( 'Lorem Ipsum', 'ugm-faculty' ),
+		'title'           => __( 'Lorem Ipsum', 'ugm-faculty' ),
 		'body'            => ugm_get_default_rector_greeting_paragraphs(),
-		'rectorName'      => __( 'Prof. dr. Ova Emilia, M.MedEd, SpOG (K), PhD', 'ugm-faculty' ),
-		'rectorRole'      => __( 'Rektor UGM', 'ugm-faculty' ),
+		'rectorName'      => __( 'Nama Rektor', 'ugm-faculty' ),
+		'rectorRole'      => __( 'Jabatan Rektor', 'ugm-faculty' ),
 		'photoPosition'   => 'right',
+		'showPhotoFrame'  => true,
 	);
 
 	$sidebar_attrs = array(
 		'title' => __( 'Tentang UGM', 'ugm-faculty' ),
-		'items' => ugm_get_default_about_ugm_sidebar_items(),
 	);
 
 	return '<!-- wp:ugm/rector-greeting-content ' . wp_json_encode( $content_attrs ) . ' /-->' . "\n" .
@@ -222,14 +201,15 @@ register_block_type( 'ugm/rector-greeting-layout', array(
 ) );
 
 function ugm_render_block_rector_greeting_content( $attrs ) {
-	$title             = trim( (string) ( $attrs['title'] ?? __( 'Sambutan Rektor', 'ugm-faculty' ) ) );
-	$breadcrumb_home   = trim( (string) ( $attrs['breadcrumbHome'] ?? __( 'Beranda', 'ugm-faculty' ) ) );
-	$breadcrumb_parent = trim( (string) ( $attrs['breadcrumbParent'] ?? __( 'Tentang UGM', 'ugm-faculty' ) ) );
+	$title             = trim( (string) ( $attrs['title'] ?? __( 'Lorem Ipsum', 'ugm-faculty' ) ) );
+	$breadcrumb_home   = trim( (string) ( $attrs['breadcrumbHome'] ?? __( 'Lorem Ipsum', 'ugm-faculty' ) ) );
+	$breadcrumb_parent = trim( (string) ( $attrs['breadcrumbParent'] ?? __( 'Lorem Ipsum', 'ugm-faculty' ) ) );
 	$body              = array_key_exists( 'body', $attrs ) ? trim( (string) $attrs['body'] ) : ugm_get_default_rector_greeting_paragraphs();
 	$rector_name       = trim( (string) ( $attrs['rectorName'] ?? '' ) );
 	$rector_role       = trim( (string) ( $attrs['rectorRole'] ?? '' ) );
 	$photo_position    = 'left' === ( $attrs['photoPosition'] ?? 'right' ) ? 'left' : 'right';
 	$photo_id          = absint( $attrs['photoId'] ?? 0 );
+	$show_photo_frame  = array_key_exists( 'showPhotoFrame', $attrs ) ? (bool) $attrs['showPhotoFrame'] : true;
 	$photo_url         = '';
 
 	if ( $photo_id > 0 ) {
@@ -237,6 +217,26 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 	} elseif ( ! empty( $attrs['photoUrl'] ) ) {
 		$photo_url = esc_url_raw( (string) $attrs['photoUrl'] );
 	}
+
+	if ( __( 'Sambutan Rektor', 'ugm-faculty' ) === $title ) {
+		$title = __( 'Lorem Ipsum', 'ugm-faculty' );
+	}
+	if ( __( 'Beranda', 'ugm-faculty' ) === $breadcrumb_home ) {
+		$breadcrumb_home = __( 'Lorem Ipsum', 'ugm-faculty' );
+	}
+	if ( __( 'Tentang UGM', 'ugm-faculty' ) === $breadcrumb_parent ) {
+		$breadcrumb_parent = __( 'Lorem Ipsum', 'ugm-faculty' );
+	}
+	if ( trim( ugm_get_legacy_rector_greeting_paragraphs() ) === $body ) {
+		$body = ugm_get_default_rector_greeting_paragraphs();
+	}
+	if ( __( 'Prof. dr. Ova Emilia, M.MedEd, SpOG (K), PhD', 'ugm-faculty' ) === $rector_name ) {
+		$rector_name = __( 'Nama Rektor', 'ugm-faculty' );
+	}
+	if ( __( 'Rektor UGM', 'ugm-faculty' ) === $rector_role ) {
+		$rector_role = __( 'Jabatan Rektor', 'ugm-faculty' );
+	}
+
 	$paragraphs = preg_split( "/\r\n\r\n|\n\n|\r\r/", $body );
 	$paragraphs = array_values(
 		array_filter(
@@ -249,7 +249,7 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 
 	ob_start();
 	?>
-	<section class="ugm-rector-greeting ugm-rector-greeting--photo-<?php echo esc_attr( $photo_position ); ?>" aria-labelledby="ugm-rector-greeting-title">
+	<section class="ugm-rector-greeting ugm-rector-greeting--photo-<?php echo esc_attr( $photo_position ); ?> <?php echo $show_photo_frame ? '' : 'ugm-rector-greeting--no-photo'; ?>" aria-labelledby="ugm-rector-greeting-title">
 		<nav class="ugm-rector-greeting__breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'ugm-faculty' ); ?>">
 			<?php if ( '' !== $breadcrumb_home ) : ?>
 				<span><?php echo esc_html( $breadcrumb_home ); ?></span>
@@ -273,23 +273,27 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 				</div>
 			</div>
 
-			<figure class="ugm-rector-card">
-				<div class="ugm-rector-card__photo">
-					<?php if ( '' !== $photo_url ) : ?>
-						<img src="<?php echo esc_url( $photo_url ); ?>" alt="<?php echo esc_attr( $rector_name ); ?>" loading="lazy">
-					<?php else : ?>
-						<span aria-hidden="true"></span>
+			<?php if ( $show_photo_frame ) : ?>
+				<figure class="ugm-rector-card">
+					<div class="ugm-rector-card__photo">
+						<?php if ( '' !== $photo_url ) : ?>
+							<img src="<?php echo esc_url( $photo_url ); ?>" alt="<?php echo esc_attr( $rector_name ); ?>" loading="lazy">
+						<?php else : ?>
+							<span aria-hidden="true"></span>
+						<?php endif; ?>
+					</div>
+					<?php if ( '' !== $rector_name || '' !== $rector_role ) : ?>
+						<figcaption class="ugm-rector-card__caption">
+							<?php if ( '' !== $rector_name ) : ?>
+								<strong><?php echo esc_html( $rector_name ); ?></strong>
+							<?php endif; ?>
+							<?php if ( '' !== $rector_role ) : ?>
+								<span><?php echo esc_html( $rector_role ); ?></span>
+							<?php endif; ?>
+						</figcaption>
 					<?php endif; ?>
-				</div>
-				<figcaption class="ugm-rector-card__caption">
-					<?php if ( '' !== $rector_name ) : ?>
-						<strong><?php echo esc_html( $rector_name ); ?></strong>
-					<?php endif; ?>
-					<?php if ( '' !== $rector_role ) : ?>
-						<span><?php echo esc_html( $rector_role ); ?></span>
-					<?php endif; ?>
-				</figcaption>
-			</figure>
+				</figure>
+			<?php endif; ?>
 		</div>
 	</section>
 	<?php
@@ -303,24 +307,130 @@ register_block_type( 'ugm/rector-greeting-content', array(
 	'render_callback' => 'ugm_render_block_rector_greeting_content',
 	'supports'        => array( 'html' => false ),
 	'attributes'      => array(
-		'breadcrumbHome'   => array( 'type' => 'string', 'default' => 'Beranda' ),
-		'breadcrumbParent' => array( 'type' => 'string', 'default' => 'Tentang UGM' ),
-		'title'            => array( 'type' => 'string', 'default' => 'Sambutan Rektor' ),
+		'breadcrumbHome'   => array( 'type' => 'string', 'default' => 'Lorem Ipsum' ),
+		'breadcrumbParent' => array( 'type' => 'string', 'default' => 'Lorem Ipsum' ),
+		'title'            => array( 'type' => 'string', 'default' => 'Lorem Ipsum' ),
 		'body'             => array( 'type' => 'string', 'default' => ugm_get_default_rector_greeting_paragraphs() ),
-		'rectorName'       => array( 'type' => 'string', 'default' => 'Prof. dr. Ova Emilia, M.MedEd, SpOG (K), PhD' ),
-		'rectorRole'       => array( 'type' => 'string', 'default' => 'Rektor UGM' ),
+		'rectorName'       => array( 'type' => 'string', 'default' => 'Nama Rektor' ),
+		'rectorRole'       => array( 'type' => 'string', 'default' => 'Jabatan Rektor' ),
 		'photoId'          => array( 'type' => 'integer', 'default' => 0 ),
 		'photoUrl'         => array( 'type' => 'string', 'default' => '' ),
 		'photoPosition'    => array( 'type' => 'string', 'default' => 'right' ),
+		'showPhotoFrame'   => array( 'type' => 'boolean', 'default' => true ),
 	),
 ) );
 
-function ugm_render_block_about_ugm_sidebar( $attrs ) {
-	$title = trim( (string) ( $attrs['title'] ?? __( 'Tentang UGM', 'ugm-faculty' ) ) );
-	$items = isset( $attrs['items'] ) && is_array( $attrs['items'] ) ? $attrs['items'] : ugm_get_default_about_ugm_sidebar_items();
-	if ( empty( $items ) ) {
-		$items = ugm_get_default_about_ugm_sidebar_items();
+function ugm_get_about_ugm_sidebar_menu_object( $location = 'sidebar-tentang-ugm' ) {
+	$location = sanitize_key( (string) $location );
+	$locations = get_nav_menu_locations();
+
+	if ( isset( $locations[ $location ] ) ) {
+		$menu = wp_get_nav_menu_object( $locations[ $location ] );
+		if ( $menu instanceof WP_Term ) {
+			return $menu;
+		}
 	}
+
+	foreach ( array( 'sidebar-tentang-ugm', 'tentang-ugm' ) as $menu_name ) {
+		$menu = wp_get_nav_menu_object( $menu_name );
+		if ( $menu instanceof WP_Term ) {
+			return $menu;
+		}
+	}
+
+	return null;
+}
+
+function ugm_rector_normalize_url_for_compare( $url ) {
+	$url = trim( (string) $url );
+	if ( '' === $url ) {
+		return '';
+	}
+
+	return untrailingslashit( strtok( $url, '#' ) );
+}
+
+function ugm_about_sidebar_menu_item_is_current( WP_Post $item ) {
+	$queried_id  = (int) get_queried_object_id();
+	$current_url = ugm_rector_normalize_url_for_compare( get_permalink( $queried_id ) );
+	$item_url    = ugm_rector_normalize_url_for_compare( (string) $item->url );
+
+	if ( $queried_id > 0 && (int) $item->object_id === $queried_id ) {
+		return true;
+	}
+
+	return '' !== $current_url && '' !== $item_url && $current_url === $item_url;
+}
+
+function ugm_flatten_about_sidebar_menu_items( $items, $parent_id = 0, $level = 0, &$active_ids = array() ) {
+	$flat = array();
+
+	foreach ( $items as $item ) {
+		if ( (int) $item->menu_item_parent !== (int) $parent_id ) {
+			continue;
+		}
+
+		$children = ugm_flatten_about_sidebar_menu_items( $items, (int) $item->ID, $level + 1, $active_ids );
+		$current  = ugm_about_sidebar_menu_item_is_current( $item );
+		$active   = $current;
+
+		foreach ( $children as $child ) {
+			if ( ! empty( $child['active'] ) ) {
+				$active = true;
+				break;
+			}
+		}
+
+		if ( $active ) {
+			$active_ids[] = (int) $item->ID;
+		}
+
+		$flat[] = array(
+			'label'  => (string) $item->title,
+			'url'    => (string) $item->url,
+			'active' => $active,
+			'current' => $current,
+			'level'  => min( 2, max( 0, (int) $level ) ),
+		);
+
+		$flat = array_merge( $flat, $children );
+	}
+
+	return $flat;
+}
+
+function ugm_get_about_sidebar_menu_items( $location = 'sidebar-tentang-ugm' ) {
+	$menu = ugm_get_about_ugm_sidebar_menu_object( $location );
+	if ( ! $menu instanceof WP_Term ) {
+		return array();
+	}
+
+	$items = wp_get_nav_menu_items(
+		$menu->term_id,
+		array(
+			'update_post_term_cache' => false,
+		)
+	);
+
+	if ( empty( $items ) || ! is_array( $items ) ) {
+		return array();
+	}
+
+	usort(
+		$items,
+		static function ( $left, $right ) {
+			return (int) $left->menu_order <=> (int) $right->menu_order;
+		}
+	);
+
+	$active_ids = array();
+	return ugm_flatten_about_sidebar_menu_items( $items, 0, 0, $active_ids );
+}
+
+function ugm_render_block_about_ugm_sidebar( $attrs ) {
+	$title         = trim( (string) ( $attrs['title'] ?? __( 'Tentang UGM', 'ugm-faculty' ) ) );
+	$menu_location = sanitize_key( (string) ( $attrs['menuLocation'] ?? 'sidebar-tentang-ugm' ) );
+	$items         = ugm_get_about_sidebar_menu_items( '' !== $menu_location ? $menu_location : 'sidebar-tentang-ugm' );
 
 	ob_start();
 	?>
@@ -328,30 +438,32 @@ function ugm_render_block_about_ugm_sidebar( $attrs ) {
 		<?php if ( '' !== $title ) : ?>
 			<h2 id="ugm-about-sidebar-title" class="ugm-about-sidebar__title"><?php echo esc_html( $title ); ?></h2>
 		<?php endif; ?>
-		<nav class="ugm-about-sidebar__nav" aria-label="<?php echo esc_attr( $title ); ?>">
-			<ul class="ugm-about-sidebar__list">
-				<?php foreach ( $items as $item ) : ?>
-					<?php
-					if ( ! is_array( $item ) ) {
-						continue;
-					}
-					$label  = trim( (string) ( $item['label'] ?? '' ) );
-					$url    = trim( (string) ( $item['url'] ?? '' ) );
-					$active = ! empty( $item['active'] );
-					$level  = min( 2, max( 0, absint( $item['level'] ?? 0 ) ) );
-					if ( '' === $label ) {
-						continue;
-					}
-					$tag = '' !== $url ? 'a' : 'span';
-					?>
-					<li class="ugm-about-sidebar__item ugm-about-sidebar__item--level-<?php echo esc_attr( $level ); ?><?php echo $active ? ' is-active' : ''; ?>">
-						<<?php echo tag_escape( $tag ); ?> class="ugm-about-sidebar__link"<?php echo '' !== $url ? ' href="' . esc_url( $url ) . '"' : ''; ?><?php echo $active ? ' aria-current="page"' : ''; ?>>
-							<span><?php echo esc_html( $label ); ?></span>
-						</<?php echo tag_escape( $tag ); ?>>
-					</li>
-				<?php endforeach; ?>
-			</ul>
-		</nav>
+		<?php if ( ! empty( $items ) ) : ?>
+			<nav class="ugm-about-sidebar__nav" aria-label="<?php echo esc_attr( $title ); ?>">
+				<ul class="ugm-about-sidebar__list">
+					<?php foreach ( $items as $item ) : ?>
+						<?php
+						$label  = trim( (string) ( $item['label'] ?? '' ) );
+						$url    = trim( (string) ( $item['url'] ?? '' ) );
+						$active = ! empty( $item['active'] );
+						$current = ! empty( $item['current'] );
+						$level  = min( 2, max( 0, absint( $item['level'] ?? 0 ) ) );
+						if ( '' === $label ) {
+							continue;
+						}
+						$tag = '' !== $url ? 'a' : 'span';
+						?>
+						<li class="ugm-about-sidebar__item ugm-about-sidebar__item--level-<?php echo esc_attr( $level ); ?><?php echo $active ? ' is-active' : ''; ?>">
+							<<?php echo tag_escape( $tag ); ?> class="ugm-about-sidebar__link"<?php echo '' !== $url ? ' href="' . esc_url( $url ) . '"' : ''; ?><?php echo $current ? ' aria-current="page"' : ''; ?>>
+								<span><?php echo esc_html( $label ); ?></span>
+							</<?php echo tag_escape( $tag ); ?>>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</nav>
+		<?php else : ?>
+			<p class="ugm-about-sidebar__empty"><?php esc_html_e( 'Pilih menu pada lokasi Sidebar Tentang UGM di WordPress Menu.', 'ugm-faculty' ); ?></p>
+		<?php endif; ?>
 	</aside>
 	<?php
 	return ob_get_clean();
@@ -364,8 +476,8 @@ register_block_type( 'ugm/about-ugm-sidebar', array(
 	'render_callback' => 'ugm_render_block_about_ugm_sidebar',
 	'supports'        => array( 'html' => false ),
 	'attributes'      => array(
-		'title' => array( 'type' => 'string', 'default' => 'Tentang UGM' ),
-		'items' => array( 'type' => 'array', 'default' => array() ),
+		'title'        => array( 'type' => 'string', 'default' => 'Tentang UGM' ),
+		'menuLocation' => array( 'type' => 'string', 'default' => 'sidebar-tentang-ugm' ),
 	),
 ) );
 
