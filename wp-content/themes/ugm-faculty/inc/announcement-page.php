@@ -16,7 +16,7 @@ function ugm_get_default_announcement_page_blocks() {
 		'<div class="wp-block-columns ugm-announcement-template-columns">' . "\n" .
 		'<!-- wp:column {"width":"1016px","className":"ugm-announcement-template-main"} -->' . "\n" .
 		'<div class="wp-block-column ugm-announcement-template-main" style="flex-basis:1016px">' . "\n" .
-		'<!-- wp:ugm/announcement-page {"title":"Pengumuman","categorySlug":"pengumuman","postsPerPage":7,"showFacebook":true,"facebookUrl":"","showTwitter":true,"twitterUrl":"","showWhatsapp":true,"whatsappUrl":""} /-->' . "\n" .
+		'<!-- wp:ugm/announcement-page {"title":"Pengumuman","categorySlug":"pengumuman","showFacebook":true,"facebookUrl":"","showTwitter":true,"twitterUrl":"","showWhatsapp":true,"whatsappUrl":""} /-->' . "\n" .
 		'</div>' . "\n" .
 		'<!-- /wp:column -->' . "\n" .
 		'<!-- wp:column {"width":"270px","className":"ugm-announcement-template-sidebar"} -->' . "\n" .
@@ -363,7 +363,7 @@ function ugm_resolve_announcement_social_url( $value, $fallback, $type = 'url' )
 }
 
 function ugm_get_announcement_social_items( $attrs ) {
-	$attrs = is_array( $attrs ) ? $attrs : array();
+	$attrs         = is_array( $attrs ) ? $attrs : array();
 	$current_url   = rawurlencode( get_permalink() );
 	$current_title = rawurlencode( get_the_title() );
 	$fallback_urls = array(
@@ -379,14 +379,14 @@ function ugm_get_announcement_social_items( $attrs ) {
 				continue;
 			}
 
-			$label   = trim( (string) ( $item['label'] ?? '' ) );
-			$icon    = trim( (string) ( $item['icon'] ?? '' ) );
-			$icon_id = absint( $item['iconImageId'] ?? 0 );
+			$label    = trim( (string) ( $item['label'] ?? '' ) );
+			$icon     = trim( (string) ( $item['icon'] ?? '' ) );
+			$icon_id  = absint( $item['iconImageId'] ?? 0 );
 			$icon_url = '';
-			$url     = trim( (string) ( $item['url'] ?? '' ) );
-			$color   = trim( (string) ( $item['color'] ?? '' ) );
-			$type    = sanitize_key( (string) ( $item['type'] ?? '' ) );
-			$enabled = (bool) ( $item['enabled'] ?? true );
+			$url      = trim( (string) ( $item['url'] ?? '' ) );
+			$color    = trim( (string) ( $item['color'] ?? '' ) );
+			$type     = sanitize_key( (string) ( $item['type'] ?? '' ) );
+			$enabled  = (bool) ( $item['enabled'] ?? true );
 
 			if ( $icon_id > 0 ) {
 				$icon_url = (string) wp_get_attachment_image_url( $icon_id, 'thumbnail' );
@@ -404,11 +404,11 @@ function ugm_get_announcement_social_items( $attrs ) {
 			}
 
 			$items[] = array(
-				'label' => '' !== $label ? $label : __( 'Media sosial', 'ugm-faculty' ),
-				'icon'  => '' !== $icon ? ( function_exists( 'mb_substr' ) ? mb_substr( $icon, 0, 4 ) : substr( $icon, 0, 4 ) ) : 'S',
+				'label'    => '' !== $label ? $label : __( 'Media sosial', 'ugm-faculty' ),
+				'icon'     => '' !== $icon ? ( function_exists( 'mb_substr' ) ? mb_substr( $icon, 0, 4 ) : substr( $icon, 0, 4 ) ) : 'S',
 				'icon_url' => $icon_url,
-				'url'   => ugm_resolve_announcement_social_url( $url, '' ),
-				'color' => preg_match( '/^#[0-9a-f]{6}$/i', $color ) ? $color : '#083b60',
+				'url'      => ugm_resolve_announcement_social_url( $url, '' ),
+				'color'    => preg_match( '/^#[0-9a-f]{6}$/i', $color ) ? $color : '#083b60',
 			);
 		}
 
@@ -419,9 +419,9 @@ function ugm_get_announcement_social_items( $attrs ) {
 }
 
 function ugm_render_announcement_mobile_share_links( $attrs = array() ) {
-	$attrs = is_array( $attrs ) ? $attrs : array();
-	$url   = rawurlencode( get_permalink() );
-	$title = rawurlencode( get_the_title() );
+	$attrs        = is_array( $attrs ) ? $attrs : array();
+	$url          = rawurlencode( get_permalink() );
+	$title        = rawurlencode( get_the_title() );
 	$custom_items = ugm_get_announcement_social_items( $attrs );
 
 	if ( array_key_exists( 'socialItems', $attrs ) && is_array( $attrs['socialItems'] ) ) {
@@ -590,7 +590,7 @@ function ugm_render_block_announcement_page( $attrs ) {
 	$attrs          = is_array( $attrs ) ? $attrs : array();
 	$title          = trim( (string) ( $attrs['title'] ?? __( 'Pengumuman', 'ugm-faculty' ) ) );
 	$category_slug  = trim( (string) ( $attrs['categorySlug'] ?? 'pengumuman' ) );
-	$posts_per_page = max( 1, min( 24, absint( $attrs['postsPerPage'] ?? 7 ) ) );
+	$query_limit    = 10;
 	$paged          = max( 1, (int) get_query_var( 'paged' ), (int) get_query_var( 'page' ) );
 	$keyword        = isset( $_GET['announcement_keyword'] ) ? sanitize_text_field( wp_unslash( $_GET['announcement_keyword'] ) ) : '';
 
@@ -598,7 +598,7 @@ function ugm_render_block_announcement_page( $attrs ) {
 
 	$query_args = array(
 		'post_type'           => 'post',
-		'posts_per_page'      => $posts_per_page,
+		'posts_per_page'      => $query_limit,
 		'paged'               => $paged,
 		'ignore_sticky_posts' => true,
 		'post_status'         => 'publish',
@@ -661,11 +661,23 @@ function ugm_render_block_announcement_page( $attrs ) {
 						</div>
 					<?php endif; ?>
 
-					<div class="ugm-announcement-list">
-						<?php foreach ( $list_items as $list_post ) : ?>
-							<?php ugm_render_announcement_list_item( $list_post ); ?>
-						<?php endforeach; ?>
-					</div>
+					<?php if ( ! empty( $list_items ) ) : ?>
+						<div class="ugm-announcement-list-slider" data-ugm-announcement-slider>
+							<button class="ugm-announcement-list-slider__nav ugm-announcement-list-slider__nav--prev" type="button" data-ugm-announcement-prev aria-label="<?php esc_attr_e( 'Pengumuman sebelumnya', 'ugm-faculty' ); ?>">
+								<span aria-hidden="true">&#8249;</span>
+							</button>
+							<div class="ugm-announcement-list-viewport">
+								<div class="ugm-announcement-list" data-ugm-announcement-track>
+									<?php foreach ( $list_items as $list_post ) : ?>
+										<?php ugm_render_announcement_list_item( $list_post ); ?>
+									<?php endforeach; ?>
+								</div>
+							</div>
+							<button class="ugm-announcement-list-slider__nav ugm-announcement-list-slider__nav--next" type="button" data-ugm-announcement-next aria-label="<?php esc_attr_e( 'Pengumuman berikutnya', 'ugm-faculty' ); ?>">
+								<span aria-hidden="true">&#8250;</span>
+							</button>
+						</div>
+					<?php endif; ?>
 				</div>
 
 				<div class="ugm-announcement-mobile-list">
@@ -696,25 +708,6 @@ function ugm_render_block_announcement_page( $attrs ) {
 					<p class="section-empty"><?php esc_html_e( 'Belum ada pengumuman.', 'ugm-faculty' ); ?></p>
 				<?php endif; ?>
 
-				<nav class="ugm-announcement-pagination" aria-label="<?php esc_attr_e( 'Announcement navigation', 'ugm-faculty' ); ?>">
-					<?php
-					echo paginate_links(
-						array(
-							'total'     => max( 1, (int) $query->max_num_pages ),
-							'current'   => $paged,
-							'mid_size'  => 1,
-							'prev_text' => '&#8592;',
-							'next_text' => '&#8594;',
-							'add_args'  => array_filter(
-								array(
-									'announcement_keyword' => $keyword,
-								)
-							),
-						)
-					); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					?>
-				</nav>
-
 				<?php ugm_render_announcement_mobile_share_links( $attrs ); ?>
 		</div>
 	</section>
@@ -727,46 +720,45 @@ function ugm_render_block_announcement_page( $attrs ) {
 add_action( 'init', function () {
 	register_block_type( 'ugm/announcement-page', array(
 		'title'           => __( 'Daftar Pengumuman', 'ugm-faculty' ),
-		'description'     => __( 'Daftar pengumuman utama dengan filter dan pagination.', 'ugm-faculty' ),
+		'description'     => __( 'Daftar pengumuman utama dengan filter dan slider daftar bawah.', 'ugm-faculty' ),
 		'category'        => 'ugm-announcement-page-sections',
 		'render_callback' => 'ugm_render_block_announcement_page',
 		'supports'        => array( 'html' => false ),
 		'attributes'      => array(
 			'title'        => array( 'type' => 'string', 'default' => 'Pengumuman' ),
 			'categorySlug' => array( 'type' => 'string', 'default' => 'pengumuman' ),
-			'postsPerPage' => array( 'type' => 'number', 'default' => 7 ),
 			'socialItems'  => array(
 				'type'    => 'array',
 				'default' => array(
 					array(
-						'enabled' => true,
-						'type'    => 'facebook',
-						'label'   => 'Facebook',
-						'icon'    => 'F',
+						'enabled'      => true,
+						'type'         => 'facebook',
+						'label'        => 'Facebook',
+						'icon'         => 'F',
 						'iconImageId'  => 0,
 						'iconImageUrl' => '',
-						'url'     => '',
-						'color'   => '#315c9d',
+						'url'          => '',
+						'color'        => '#315c9d',
 					),
 					array(
-						'enabled' => true,
-						'type'    => 'twitter',
-						'label'   => 'Twitter / X',
-						'icon'    => 'T',
+						'enabled'      => true,
+						'type'         => 'twitter',
+						'label'        => 'Twitter / X',
+						'icon'         => 'T',
 						'iconImageId'  => 0,
 						'iconImageUrl' => '',
-						'url'     => '',
-						'color'   => '#1da6d8',
+						'url'          => '',
+						'color'        => '#1da6d8',
 					),
 					array(
-						'enabled' => true,
-						'type'    => 'whatsapp',
-						'label'   => 'WhatsApp',
-						'icon'    => 'W',
+						'enabled'      => true,
+						'type'         => 'whatsapp',
+						'label'        => 'WhatsApp',
+						'icon'         => 'W',
 						'iconImageId'  => 0,
 						'iconImageUrl' => '',
-						'url'     => '',
-						'color'   => '#13b94f',
+						'url'          => '',
+						'color'        => '#13b94f',
 					),
 				),
 			),
