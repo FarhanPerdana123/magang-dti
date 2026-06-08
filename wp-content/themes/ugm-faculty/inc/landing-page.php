@@ -247,9 +247,10 @@ function ugm_get_landing_page_block_template_content() {
 /**
  * Resolve the frontend/editor source of truth for landing-page blocks.
  *
- * Page content wins because normal page edits are per-page. If a page is
- * empty, use a customized Site Editor template before falling back to theme
- * defaults so template editor saves are reflected on the site.
+ * Page content wins because normal page edits are per-page. Empty pages fall
+ * back to theme defaults only; legacy template content is copied to
+ * post_content by the admin seeding routine instead of being rendered from the
+ * template.
  *
  * @param string $post_content  Page post_content.
  * @param string $template_slug Page template slug.
@@ -259,20 +260,8 @@ function ugm_get_landing_page_render_content( $post_content = '', $template_slug
 	$post_content = (string) $post_content;
 	$template_slug = (string) $template_slug;
 
-	if ( 'landing-page' === $template_slug ) {
-		$template_content = ugm_get_landing_page_block_template_content();
-		if ( ugm_landing_page_has_ugm_blocks( $template_content ) ) {
-			return ugm_normalize_landing_page_blocks( $template_content );
-		}
-	}
-
 	if ( ugm_landing_page_has_ugm_blocks( $post_content ) ) {
 		return ugm_normalize_landing_page_blocks( $post_content );
-	}
-
-	$template_content = ugm_get_landing_page_block_template_content();
-	if ( ugm_landing_page_has_ugm_blocks( $template_content ) ) {
-		return ugm_normalize_landing_page_blocks( $template_content );
 	}
 
 	return ugm_get_default_landing_page_blocks();
@@ -316,11 +305,17 @@ function ugm_populate_empty_landing_page( $post_id ) {
 		return false;
 	}
 
+	$content = ugm_get_default_landing_page_blocks();
+	$template_content = ugm_get_landing_page_block_template_content();
+	if ( ugm_landing_page_has_ugm_blocks( $template_content ) ) {
+		$content = ugm_normalize_landing_page_blocks( $template_content );
+	}
+
 	remove_action( 'save_post_page', 'ugm_seed_landing_page_on_save', 20 );
 	wp_update_post(
 		array(
 			'ID'           => $post_id,
-			'post_content' => ugm_get_default_landing_page_blocks(),
+			'post_content' => $content,
 		)
 	);
 	add_action( 'save_post_page', 'ugm_seed_landing_page_on_save', 20, 3 );
@@ -346,6 +341,88 @@ function ugm_seed_landing_page_on_save( $post_id, $post, $update ) {
 	ugm_populate_empty_landing_page( $post_id );
 }
 add_action( 'save_post_page', 'ugm_seed_landing_page_on_save', 20, 3 );
+
+/**
+ * Move pages still assigned to the block-template slug back to the PHP page
+ * template so WordPress opens the normal page editor instead of Edit Template.
+ *
+ * @return void
+ */
+function ugm_migrate_landing_block_template_pages_to_php_template() {
+	if ( ! is_admin() ) {
+		return;
+	}
+
+	$pages = get_posts(
+		array(
+			'post_type'      => 'page',
+			'post_status'    => array( 'publish', 'draft', 'private', 'pending' ),
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'meta_query'     => array(
+				array(
+					'key'   => '_wp_page_template',
+					'value' => 'landing-page',
+				),
+			),
+		)
+	);
+
+	foreach ( $pages as $page_id ) {
+		ugm_populate_empty_landing_page( $page_id );
+		update_post_meta( $page_id, '_wp_page_template', 'page-templates/template-landing-page.php' );
+	}
+}
+add_action( 'admin_init', 'ugm_migrate_landing_block_template_pages_to_php_template', 15 );
+
+/**
+ * Temporary editor-state trace for diagnosing Landing Page edit routing.
+ *
+ * @return void
+ */
+function ugm_debug_landing_page_editor_state() {
+	if ( ! is_admin() || ! current_user_can( 'edit_pages' ) ) {
+		return;
+	}
+
+	$debug_enabled = ( defined( 'UGM_LANDING_DEBUG' ) && UGM_LANDING_DEBUG )
+		|| ! empty( $_GET['ugm_landing_debug'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ! $debug_enabled ) {
+		return;
+	}
+
+	$post_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( $post_id <= 0 ) {
+		$post_id = (int) get_option( 'page_on_front' );
+	}
+
+	if ( $post_id <= 0 || ! ugm_is_landing_page_template_slug( get_page_template_slug( $post_id ) ) ) {
+		return;
+	}
+
+	$post = get_post( $post_id );
+	if ( ! $post instanceof WP_Post ) {
+		return;
+	}
+
+	$template_slug = (string) get_page_template_slug( $post_id );
+	$content       = (string) $post->post_content;
+	$source        = ugm_landing_page_has_ugm_blocks( $content ) ? 'post_content' : 'fallback_default';
+
+	error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		sprintf(
+			'UGM Landing Debug: post_id=%d title="%s" page_on_front=%d template="%s" post_content_len=%d has_ugm=%s render_source=%s',
+			$post_id,
+			$post->post_title,
+			(int) get_option( 'page_on_front' ),
+			$template_slug,
+			strlen( $content ),
+			ugm_landing_page_has_ugm_blocks( $content ) ? 'yes' : 'no',
+			$source
+		)
+	);
+}
+add_action( 'admin_init', 'ugm_debug_landing_page_editor_state', 20 );
 
 /**
  * Repair existing empty pages that already use the Landing Page template.
@@ -460,17 +537,15 @@ function ugm_normalize_existing_landing_page_content() {
 			continue;
 		}
 
-		$content    = (string) $template_post->post_content;
-		$normalized = ugm_normalize_landing_page_blocks( $content );
-
-		if ( $normalized === $content ) {
+		$content = (string) $template_post->post_content;
+		if ( false !== strpos( $content, 'wp:post-content' ) ) {
 			continue;
 		}
 
 		wp_update_post(
 			array(
 				'ID'           => $template_post->ID,
-				'post_content' => $normalized,
+				'post_content' => '<!-- wp:post-content {"layout":{"type":"default"}} /-->',
 			)
 		);
 	}

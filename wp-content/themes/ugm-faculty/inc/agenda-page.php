@@ -139,8 +139,9 @@ function ugm_get_agenda_block_template_content() {
 /**
  * Resolve the block source that should be rendered by the PHP wrapper template.
  *
- * Pages using the Site Editor template slug should render the saved wp_template
- * content, while pages using the legacy PHP template render their own content.
+ * Page content wins so each page can be edited from the normal page editor.
+ * The saved wp_template is only a fallback for legacy pages that are still
+ * empty after template selection.
  *
  * @param string $page_content Page post_content.
  * @param string $template_slug Page template slug/path.
@@ -149,16 +150,14 @@ function ugm_get_agenda_block_template_content() {
 function ugm_get_agenda_render_source( $page_content = '', $template_slug = '' ) {
 	$template_slug = (string) $template_slug;
 
-	if ( 'agenda-page' === $template_slug ) {
-		$template_content = ugm_get_agenda_block_template_content();
-		if ( '' !== $template_content && false !== strpos( $template_content, '<!-- wp:' ) ) {
-			return $template_content;
-		}
-	}
-
 	$page_content = (string) $page_content;
 	if ( false !== strpos( $page_content, '<!-- wp:' ) || '' !== trim( wp_strip_all_tags( strip_shortcodes( $page_content ) ) ) ) {
 		return $page_content;
+	}
+
+	$template_content = ugm_get_agenda_block_template_content();
+	if ( '' !== $template_content && false !== strpos( $template_content, '<!-- wp:ugm/' ) ) {
+		return $template_content;
 	}
 
 	return ugm_get_default_agenda_page_blocks();
@@ -451,11 +450,17 @@ function ugm_populate_empty_agenda_page( $post_id ) {
 		return false;
 	}
 
+	$content = ugm_get_default_agenda_page_blocks();
+	$template_content = ugm_get_agenda_block_template_content();
+	if ( '' !== $template_content && false !== strpos( $template_content, '<!-- wp:ugm/' ) ) {
+		$content = $template_content;
+	}
+
 	remove_action( 'save_post_page', 'ugm_seed_agenda_page_on_save', 20 );
 	wp_update_post(
 		array(
 			'ID'           => $post_id,
-			'post_content' => ugm_get_default_agenda_page_blocks(),
+			'post_content' => $content,
 		)
 	);
 	add_action( 'save_post_page', 'ugm_seed_agenda_page_on_save', 20, 3 );
@@ -577,28 +582,9 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 	$paged          = max( 1, (int) get_query_var( 'paged' ), (int) get_query_var( 'page' ) );
 
 	$keyword = isset( $_GET['agenda_keyword'] ) ? sanitize_text_field( wp_unslash( $_GET['agenda_keyword'] ) ) : '';
-	if ( '' === $keyword && isset( $_GET['agenda_keyword_mobile'] ) ) {
-		$keyword = sanitize_text_field( wp_unslash( $_GET['agenda_keyword_mobile'] ) );
-	}
-
-	$location      = isset( $_GET['agenda_location'] ) ? sanitize_text_field( wp_unslash( $_GET['agenda_location'] ) ) : '';
-	$date_range    = isset( $_GET['agenda_date_range'] ) ? sanitize_key( wp_unslash( $_GET['agenda_date_range'] ) ) : '';
-	$category_pick = isset( $_GET['agenda_category'] ) ? sanitize_key( wp_unslash( $_GET['agenda_category'] ) ) : '';
-	$type_pick     = isset( $_GET['agenda_type'] ) ? sanitize_key( wp_unslash( $_GET['agenda_type'] ) ) : '';
 
 	$agenda_term_ids = ugm_resolve_agenda_exclude_ids( $category_slug );
 	$tax_ids         = $agenda_term_ids;
-
-	foreach ( array( $category_pick, $type_pick ) as $picked_slug ) {
-		if ( '' === $picked_slug ) {
-			continue;
-		}
-
-		$picked_ids = ugm_resolve_multiple_slugs_to_ids( array( $picked_slug ) );
-		if ( ! empty( $picked_ids ) ) {
-			$tax_ids = empty( $tax_ids ) ? $picked_ids : array_values( array_intersect( $tax_ids, $picked_ids ) );
-		}
-	}
 
 	$query_args = array(
 		'post_type'           => 'post',
@@ -620,62 +606,8 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 		$query_args['post__in'] = array( 0 );
 	}
 
-	if ( '' !== $location ) {
-		$query_args['meta_query'] = array(
-			'relation' => 'OR',
-			array(
-				'key'     => 'agenda_location',
-				'value'   => $location,
-				'compare' => 'LIKE',
-			),
-			array(
-				'key'     => '_agenda_location',
-				'value'   => $location,
-				'compare' => 'LIKE',
-			),
-			array(
-				'key'     => 'location',
-				'value'   => $location,
-				'compare' => 'LIKE',
-			),
-		);
-	}
-
-	if ( 'this-month' === $date_range ) {
-		$query_args['date_query'] = array(
-			array(
-				'after'     => wp_date( 'Y-m-01 00:00:00' ),
-				'before'    => wp_date( 'Y-m-t 23:59:59' ),
-				'inclusive' => true,
-			),
-		);
-	} elseif ( 'upcoming' === $date_range ) {
-		$query_args['date_query'] = array(
-			array(
-				'after'     => wp_date( 'Y-m-d 00:00:00' ),
-				'inclusive' => true,
-			),
-		);
-		$query_args['order'] = 'ASC';
-	} elseif ( 'past' === $date_range ) {
-		$query_args['date_query'] = array(
-			array(
-				'before'    => wp_date( 'Y-m-d 00:00:00' ),
-				'inclusive' => false,
-			),
-		);
-	}
-
 	$agenda_query = new WP_Query( $query_args );
 	$breadcrumb_label = ugm_get_landing_agenda_section_title( $title );
-	$category_options = ! empty( $agenda_term_ids ) ? get_categories(
-		array(
-			'include'    => $agenda_term_ids,
-			'hide_empty' => false,
-			'orderby'    => 'name',
-			'order'      => 'ASC',
-		)
-	) : array();
 
 	ob_start();
 	?>
@@ -692,48 +624,14 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 		</header>
 
 		<form class="ugm-agenda-filter" action="<?php echo esc_url( get_permalink() ); ?>" method="get">
-			<div class="ugm-agenda-filter__mobile input-group">
-				<input class="form-control" type="search" name="agenda_keyword_mobile" value="<?php echo esc_attr( $keyword ); ?>" placeholder="<?php esc_attr_e( 'Pencarian Agenda...', 'ugm-faculty' ); ?>">
-				<button class="btn btn-warning" type="submit" aria-label="<?php esc_attr_e( 'Cari agenda', 'ugm-faculty' ); ?>">
+			<div class="ugm-agenda-filter__search input-group">
+				<input class="form-control" type="search" name="agenda_keyword" value="<?php echo esc_attr( $keyword ); ?>" placeholder="<?php esc_attr_e( 'Pencarian Agenda...', 'ugm-faculty' ); ?>">
+				<button class="btn" type="submit" aria-label="<?php esc_attr_e( 'Cari agenda', 'ugm-faculty' ); ?>">
 					<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
 						<path d="M10.8 4.5a6.3 6.3 0 1 1 0 12.6 6.3 6.3 0 0 1 0-12.6zm0-3a9.3 9.3 0 0 0-7.33 15.02 9.3 9.3 0 0 0 12.02 1.08l4.45 4.46 2.12-2.12-4.46-4.45A9.3 9.3 0 0 0 10.8 1.5z"/>
 					</svg>
 				</button>
 			</div>
-
-			<div class="row g-3">
-				<div class="col-12 col-md-4">
-					<input class="form-control" type="search" name="agenda_keyword" value="<?php echo esc_attr( $keyword ); ?>" placeholder="<?php esc_attr_e( 'Kata kunci', 'ugm-faculty' ); ?>">
-				</div>
-				<div class="col-12 col-md-4">
-					<input class="form-control" type="text" name="agenda_location" value="<?php echo esc_attr( $location ); ?>" placeholder="<?php esc_attr_e( 'Lokasi', 'ugm-faculty' ); ?>">
-				</div>
-				<div class="col-12 col-md-4">
-					<select class="form-select" name="agenda_date_range" onchange="this.form.submit()">
-						<option value=""><?php esc_html_e( 'Select Date Range', 'ugm-faculty' ); ?></option>
-						<option value="upcoming" <?php selected( $date_range, 'upcoming' ); ?>><?php esc_html_e( 'Upcoming', 'ugm-faculty' ); ?></option>
-						<option value="this-month" <?php selected( $date_range, 'this-month' ); ?>><?php esc_html_e( 'This Month', 'ugm-faculty' ); ?></option>
-						<option value="past" <?php selected( $date_range, 'past' ); ?>><?php esc_html_e( 'Past', 'ugm-faculty' ); ?></option>
-					</select>
-				</div>
-				<div class="col-12 col-md-6">
-					<select class="form-select" name="agenda_category" onchange="this.form.submit()">
-						<option value=""><?php esc_html_e( 'Choose an Event Category', 'ugm-faculty' ); ?></option>
-						<?php foreach ( $category_options as $term ) : ?>
-							<option value="<?php echo esc_attr( $term->slug ); ?>" <?php selected( $category_pick, $term->slug ); ?>><?php echo esc_html( $term->name ); ?></option>
-						<?php endforeach; ?>
-					</select>
-				</div>
-				<div class="col-12 col-md-6">
-					<select class="form-select" name="agenda_type" onchange="this.form.submit()">
-						<option value=""><?php esc_html_e( 'Choose an Event Type', 'ugm-faculty' ); ?></option>
-						<?php foreach ( $category_options as $term ) : ?>
-							<option value="<?php echo esc_attr( $term->slug ); ?>" <?php selected( $type_pick, $term->slug ); ?>><?php echo esc_html( $term->name ); ?></option>
-						<?php endforeach; ?>
-					</select>
-				</div>
-			</div>
-			<noscript><button class="btn btn-primary mt-3" type="submit"><?php esc_html_e( 'Terapkan Filter', 'ugm-faculty' ); ?></button></noscript>
 		</form>
 
 		<h2 class="ugm-agenda-page__subheading"><?php esc_html_e( 'Acara-acara', 'ugm-faculty' ); ?></h2>
@@ -759,11 +657,7 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 						'next_text' => '&#8594;',
 						'add_args'  => array_filter(
 							array(
-								'agenda_keyword'    => $keyword,
-								'agenda_location'   => $location,
-								'agenda_date_range' => $date_range,
-								'agenda_category'   => $category_pick,
-								'agenda_type'       => $type_pick,
+								'agenda_keyword' => $keyword,
 							)
 						),
 					)
@@ -771,7 +665,7 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 				?>
 			</nav>
 		<?php else : ?>
-			<p class="section-empty"><?php esc_html_e( 'Belum ada agenda yang sesuai filter.', 'ugm-faculty' ); ?></p>
+			<p class="section-empty"><?php esc_html_e( 'Belum ada agenda yang sesuai pencarian.', 'ugm-faculty' ); ?></p>
 		<?php endif; ?>
 		<?php wp_reset_postdata(); ?>
 	</section>
