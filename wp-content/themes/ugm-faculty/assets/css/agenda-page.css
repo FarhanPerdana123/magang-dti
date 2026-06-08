@@ -254,6 +254,25 @@ body:has(.ugm-agenda-page) .site-content {
 	box-shadow: -3px 3px 12px rgba(0, 0, 0, 0.45);
 }
 
+.ugm-agenda-card__date::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 16px;
+	border-radius: 0 0 0 18px;
+	background: linear-gradient(
+		90deg,
+		rgba(0, 24, 43, 0) 0%,
+		rgba(0, 24, 43, 0.34) 50%,
+		rgba(255, 255, 255, 0.18) 78%,
+		rgba(0, 24, 43, 0.22) 100%
+	);
+	pointer-events: none;
+	z-index: 6;
+}
+
 /*
  * Lipatan ribbon: segitiga kecil ◥ di pojok KANAN BAWAH badge.
  * Setelah badge dipindah ke luar overflow:hidden, segitiga ini kini terlihat.
@@ -263,12 +282,12 @@ body:has(.ugm-agenda-page) .site-content {
 	content: '';
 	position: absolute;
 	right: 0;
-	bottom: -17px;
-	width: 0;
-	height: 0;
-	border-top: 18px solid #002f50;
-	border-left: 18px solid transparent;
-	z-index: 6;
+	bottom: -12px;
+	width: 14px;
+	height: 12px;
+	background: linear-gradient(90deg, #001b31 0%, #002f50 76%);
+	border-radius: 0 0 12px 0;
+	z-index: 7;
 }
 
 .ugm-agenda-card__date strong {
@@ -293,7 +312,7 @@ body:has(.ugm-agenda-page) .site-content {
 
 .ugm-agenda-page-section .ugm-agenda-card__date {
 	top: 25px;
-	right: -14px;
+	right: -12px;
 	width: 78px;
 	min-height: 62px;
 	padding: 10px 9px 9px;
@@ -303,12 +322,25 @@ body:has(.ugm-agenda-page) .site-content {
 	box-shadow: none;
 }
 
+.ugm-agenda-page-section .ugm-agenda-card__date::before {
+	width: 14px;
+	border-radius: 0 0 0 14px;
+	background: linear-gradient(
+		90deg,
+		rgba(0, 24, 43, 0) 0%,
+		rgba(0, 24, 43, 0.32) 50%,
+		rgba(255, 255, 255, 0.16) 78%,
+		rgba(0, 24, 43, 0.22) 100%
+	);
+}
+
 .ugm-agenda-page-section .ugm-agenda-card__date::after {
 	right: 0;
-	bottom: -13px;
-	border-top: 14px solid #002b49;
-	border-left: 0;
-	border-right: 16px solid transparent;
+	bottom: -10px;
+	width: 12px;
+	height: 10px;
+	background: linear-gradient(90deg, #001b31 0%, #002b49 70%);
+	border-radius: 0 0 10px 0;
 }
 
 .ugm-agenda-page-section .ugm-agenda-card__date strong {
