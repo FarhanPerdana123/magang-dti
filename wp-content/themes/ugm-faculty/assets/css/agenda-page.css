@@ -249,6 +249,7 @@ body:has(.ugm-agenda-page) .site-content {
 	z-index: 5;
 	box-sizing: border-box;
 	overflow: visible;
+	border-radius: 8px 0 0 8px;
 	/* Bayangan di sisi kiri badge agar terasa menonjol keluar dari card */
 	box-shadow: -3px 3px 12px rgba(0, 0, 0, 0.45);
 }
@@ -262,7 +263,7 @@ body:has(.ugm-agenda-page) .site-content {
 	content: '';
 	position: absolute;
 	right: 0;
-	bottom: -18px;
+	bottom: -17px;
 	width: 0;
 	height: 0;
 	border-top: 18px solid #002f50;
@@ -298,12 +299,13 @@ body:has(.ugm-agenda-page) .site-content {
 	padding: 10px 9px 9px;
 	background: #003f63;
 	font-family: "Albert Sans", Arial, Helvetica, sans-serif;
+	border-radius: 10px 0 0 10px;
 	box-shadow: none;
 }
 
 .ugm-agenda-page-section .ugm-agenda-card__date::after {
 	right: 0;
-	bottom: -14px;
+	bottom: -13px;
 	border-top: 14px solid #002b49;
 	border-left: 0;
 	border-right: 16px solid transparent;
@@ -603,10 +605,11 @@ body:has(.ugm-agenda-page) .site-content {
 		padding: 12px 6px 12px;
 		clip-path: none;
 		filter: none;
+		border-radius: 8px 0 0 8px;
 	}
 
 	.ugm-agenda-card__date::after {
-		bottom: -16px;
+		bottom: -15px;
 		border-top-width: 16px;
 		border-left-width: 16px;
 		border-right-width: 0;
@@ -629,10 +632,11 @@ body:has(.ugm-agenda-page) .site-content {
 		width: 66px;
 		min-height: 52px;
 		padding: 8px 7px 7px;
+		border-radius: 8px 0 0 8px;
 	}
 
 	.ugm-agenda-page-section .ugm-agenda-card__date::after {
-		bottom: -12px;
+		bottom: -11px;
 		border-top-width: 12px;
 		border-left-width: 0;
 		border-right-width: 14px;
