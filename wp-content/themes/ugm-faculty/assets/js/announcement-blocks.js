@@ -113,14 +113,13 @@
 
 	registerBlockType( 'ugm/announcement-page', {
 		title:       __( 'Daftar Pengumuman', 'ugm-faculty' ),
-		description: __( 'Daftar pengumuman utama dengan filter dan pagination.', 'ugm-faculty' ),
+		description: __( 'Daftar pengumuman utama dengan filter dan slider daftar bawah.', 'ugm-faculty' ),
 		category:    'ugm-announcement-page-sections',
 		icon:        'megaphone',
 		supports:    { html: false, multiple: false },
 		attributes: {
 			title:        { type: 'string', default: 'Pengumuman' },
 			categorySlug: { type: 'string', default: 'pengumuman' },
-			postsPerPage: { type: 'number', default: 7 },
 			socialItems:  { type: 'array', default: getDefaultSocialItems() },
 			showFacebook: { type: 'boolean', default: true },
 			facebookUrl:  { type: 'string', default: '' },
@@ -186,14 +185,6 @@
 							label: __( 'Kategori Pengumuman', 'ugm-faculty' ),
 							value: attrs.categorySlug || '',
 							onChange: function ( value ) { setAttr( { categorySlug: value } ); },
-						} ),
-						el( TextControl, {
-							label: __( 'Jumlah per halaman', 'ugm-faculty' ),
-							type: 'number',
-							value: attrs.postsPerPage || 7,
-							onChange: function ( v ) {
-								setAttr( { postsPerPage: parseInt( v, 10 ) || 7 } );
-							},
 						} )
 					),
 					el(

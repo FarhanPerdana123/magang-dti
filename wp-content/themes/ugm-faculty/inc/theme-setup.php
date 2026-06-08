@@ -55,6 +55,7 @@ function ugm_theme_setup() {
 			'header-quick-links' => esc_html__( 'Header Quick Links', 'ugm-faculty' ),
 			'footer-quick-links' => esc_html__( 'Footer Quick Links', 'ugm-faculty' ),
 			'mobile-quick-links' => esc_html__( 'Mobile Quick Links', 'ugm-faculty' ),
+			'sidebar-tentang-ugm' => esc_html__( 'Sidebar Tentang UGM', 'ugm-faculty' ),
 		)
 	);
 

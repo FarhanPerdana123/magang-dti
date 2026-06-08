@@ -1120,6 +1120,16 @@
 		transition: opacity 160ms ease, transform 160ms ease, visibility 0s linear 160ms;
 	}
 
+	.primary-menu__list > li.menu-item-has-children > .sub-menu::before,
+	.primary-menu__list > li.page_item_has_children > .sub-menu::before {
+		content: "";
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: -0.75rem;
+		height: 0.75rem;
+	}
+
 	.primary-menu__list > li.menu-item-has-children.is-hovered > .sub-menu,
 	.primary-menu__list > li.page_item_has_children.is-hovered > .sub-menu,
 	.primary-menu__list > li.menu-item-has-children.is-open > .sub-menu,

@@ -148,6 +148,20 @@ function ugm_enqueue_assets() {
 		);
 	}
 
+	$is_announcement_page = is_page()
+		&& function_exists( 'ugm_is_announcement_page_template_slug' )
+		&& ugm_is_announcement_page_template_slug( get_page_template_slug( get_queried_object_id() ) );
+
+	if ( $is_announcement_page ) {
+		wp_enqueue_script(
+			'ugm-announcement-slider',
+			get_template_directory_uri() . '/assets/js/announcement-slider.js',
+			array(),
+			ugm_get_asset_version( '/assets/js/announcement-slider.js' ),
+			true
+		);
+	}
+
 	if ( is_page_template( array( 'page-templates/template-gallery.php', 'gallery-page' ) ) ) {
 		wp_enqueue_script(
 			'ugm-gallery-slider',

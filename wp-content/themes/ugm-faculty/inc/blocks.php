@@ -3058,6 +3058,14 @@ add_action( 'enqueue_block_editor_assets', function () {
 	);
 
 	wp_enqueue_script(
+		'ugm-announcement-slider',
+		get_template_directory_uri() . '/assets/js/announcement-slider.js',
+		array(),
+		ugm_get_asset_version( '/assets/js/announcement-slider.js' ),
+		true
+	);
+
+	wp_enqueue_script(
 		'ugm-gallery-blocks',
 		get_template_directory_uri() . '/assets/js/gallery-blocks.js',
 		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-compose', 'wp-data', 'wp-hooks', 'wp-plugins', 'wp-server-side-render' ),
