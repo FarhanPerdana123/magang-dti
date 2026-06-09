@@ -7,8 +7,9 @@
 	'use strict';
 
 	var visibleCount = 3;
+	var animationClass = 'is-announcement-sliding';
 
-	function updateSlider( slider ) {
+	function updateSlider( slider, animate ) {
 		var track = slider.querySelector( '[data-ugm-announcement-track]' );
 		var prev = slider.querySelector( '[data-ugm-announcement-prev]' );
 		var next = slider.querySelector( '[data-ugm-announcement-next]' );
@@ -32,6 +33,12 @@
 		if ( next ) {
 			next.disabled = activeIndex >= maxIndex;
 		}
+
+		if ( animate && track ) {
+			track.classList.remove( animationClass );
+			void track.offsetWidth;
+			track.classList.add( animationClass );
+		}
 	}
 
 	function bindSlider( slider ) {
@@ -50,7 +57,7 @@
 				event.preventDefault();
 				event.stopPropagation();
 				slider.dataset.announcementIndex = String( Math.max( 0, Number( slider.dataset.announcementIndex || 0 ) - 1 ) );
-				updateSlider( slider );
+				updateSlider( slider, true );
 			} );
 		}
 
@@ -59,7 +66,7 @@
 				event.preventDefault();
 				event.stopPropagation();
 				slider.dataset.announcementIndex = String( Number( slider.dataset.announcementIndex || 0 ) + 1 );
-				updateSlider( slider );
+				updateSlider( slider, true );
 			} );
 		}
 

@@ -21,6 +21,14 @@
 	color: #4f4f58;
 }
 
+.site-main .ugm-rector-greeting:hover,
+.site-main .ugm-rector-greeting:focus-within,
+.site-main .ugm-about-sidebar:hover,
+.site-main .ugm-about-sidebar:focus-within {
+	transform: none;
+	box-shadow: none;
+}
+
 .ugm-rector-greeting__breadcrumb {
 	display: flex;
 	flex-wrap: wrap;
@@ -56,8 +64,19 @@
 	grid-template-columns: minmax(0, 1fr);
 }
 
+.ugm-rector-greeting--photo-left .ugm-rector-greeting__grid {
+	grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+	gap: 24px;
+}
+
+.ugm-rector-greeting--photo-left .ugm-rector-greeting__content {
+	order: 2;
+}
+
 .ugm-rector-greeting--photo-left .ugm-rector-card {
 	order: -1;
+	margin-right: 0;
+	margin-left: 0;
 }
 
 .ugm-rector-greeting__body {
@@ -262,6 +281,7 @@
 		grid-template-columns: 1fr;
 	}
 
+	.ugm-rector-greeting--photo-left .ugm-rector-greeting__content,
 	.ugm-rector-greeting--photo-left .ugm-rector-card {
 		order: 0;
 	}
@@ -291,7 +311,7 @@
 }
 
 .ugm-rector-template .ugm-rector-template__article > .ugm-rector-template-layout {
-	margin-top: clamp(-120px, -7vw, -80px);
+	margin-top: -60px;
 	padding-top: 0;
 }
 

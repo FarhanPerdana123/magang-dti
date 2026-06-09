@@ -22,13 +22,22 @@ get_header();
 					: $page_content;
 
 				if ( '' !== trim( $render_source ) ) {
-					echo do_blocks( $render_source ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					if ( function_exists( 'ugm_render_announcement_page_source' ) ) {
+						echo ugm_render_announcement_page_source( $render_source ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					} else {
+						echo do_blocks( $render_source ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					}
 				} else {
-					echo do_blocks( ugm_get_default_announcement_page_blocks() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo function_exists( 'ugm_render_announcement_page_source' )
+						? ugm_render_announcement_page_source( ugm_get_default_announcement_page_blocks() ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						: do_blocks( ugm_get_default_announcement_page_blocks() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
 			endwhile;
 		else :
-			echo do_blocks( ugm_get_announcement_render_source() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			$render_source = ugm_get_announcement_render_source();
+			echo function_exists( 'ugm_render_announcement_page_source' )
+				? ugm_render_announcement_page_source( $render_source ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				: do_blocks( $render_source ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		endif;
 		?>
 	</div>

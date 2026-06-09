@@ -31,6 +31,74 @@ function ugm_get_default_announcement_page_blocks() {
 		'<!-- /wp:group -->';
 }
 
+function ugm_get_default_announcement_sidebar_blocks() {
+	return '<!-- wp:ugm/announcement-latest-news {"title":"Berita Terbaru","postsPerPage":5} /-->' . "\n" .
+		'<!-- wp:ugm/announcement-latest-agenda {"title":"Agenda Terbaru","categorySlug":"agenda","postsPerPage":3,"buttonLabel":"Semua Agenda","buttonUrl":"/agenda/"} /-->';
+}
+
+function ugm_is_announcement_sidebar_block_name( $block_name ) {
+	return in_array(
+		(string) $block_name,
+		array(
+			'ugm/announcement-latest-news',
+			'ugm/announcement-latest-agenda',
+		),
+		true
+	);
+}
+
+function ugm_split_announcement_top_level_sidebar_blocks( $source ) {
+	$blocks         = parse_blocks( (string) $source );
+	$main_blocks    = array();
+	$sidebar_blocks = array();
+
+	foreach ( $blocks as $block ) {
+		if ( ugm_is_announcement_sidebar_block_name( $block['blockName'] ?? '' ) ) {
+			$sidebar_blocks[] = $block;
+			continue;
+		}
+
+		$main_blocks[] = $block;
+	}
+
+	return array(
+		'main'    => serialize_blocks( $main_blocks ),
+		'sidebar' => serialize_blocks( $sidebar_blocks ),
+	);
+}
+
+function ugm_render_announcement_page_source( $source ) {
+	$source = (string) $source;
+
+	if ( '' === trim( $source ) ) {
+		return '';
+	}
+
+	if ( false !== strpos( $source, 'ugm-announcement-template-sidebar' ) ) {
+		return do_blocks( $source );
+	}
+
+	$split          = ugm_split_announcement_top_level_sidebar_blocks( $source );
+	$main_source    = '' !== trim( $split['main'] ) ? $split['main'] : '<!-- wp:ugm/announcement-page /-->';
+	$sidebar_source = '' !== trim( $split['sidebar'] ) ? $split['sidebar'] : ugm_get_default_announcement_sidebar_blocks();
+
+	ob_start();
+	?>
+	<div class="wp-block-group ugm-announcement-template-layout">
+		<div class="wp-block-columns ugm-announcement-template-columns">
+			<div class="wp-block-column ugm-announcement-template-main">
+				<?php echo do_blocks( $main_source ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			</div>
+			<aside class="wp-block-column ugm-announcement-template-sidebar" aria-label="<?php esc_attr_e( 'Sidebar pengumuman', 'ugm-faculty' ); ?>">
+				<?php echo do_blocks( $sidebar_source ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			</aside>
+		</div>
+	</div>
+	<?php
+
+	return ob_get_clean();
+}
+
 function ugm_is_announcement_page_template_slug( $template ) {
 	return in_array(
 		(string) $template,

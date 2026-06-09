@@ -78,14 +78,17 @@ body:has(.ugm-management-page) .site-content {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 42px;
+	justify-items: center;
 }
 
 .ugm-management-person {
+	width: min(100%, 270px);
 	max-width: 270px;
 	margin: 0 auto;
 }
 
 .ugm-management-person__photo {
+	width: 100%;
 	aspect-ratio: 0.78;
 	overflow: hidden;
 	background: #e6eef2;

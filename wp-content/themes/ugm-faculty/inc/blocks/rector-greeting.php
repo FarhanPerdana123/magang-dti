@@ -260,12 +260,12 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 			<?php endif; ?>
 		</nav>
 
+		<?php if ( '' !== $title ) : ?>
+			<h1 id="ugm-rector-greeting-title" class="ugm-rector-greeting__title"><?php echo esc_html( $title ); ?></h1>
+		<?php endif; ?>
+
 		<div class="ugm-rector-greeting__grid">
 			<div class="ugm-rector-greeting__content">
-				<?php if ( '' !== $title ) : ?>
-					<h1 id="ugm-rector-greeting-title" class="ugm-rector-greeting__title"><?php echo esc_html( $title ); ?></h1>
-				<?php endif; ?>
-
 				<div class="ugm-rector-greeting__body">
 					<?php foreach ( $paragraphs as $paragraph ) : ?>
 						<p><?php echo nl2br( esc_html( $paragraph ) ); ?></p>
