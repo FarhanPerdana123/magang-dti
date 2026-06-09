@@ -30,7 +30,7 @@ $is_magazine_news_route = '1' === get_query_var( 'ugm_magazine_news' );
 $is_landing_template    = is_page_template( array( 'page-templates/template-landing-page.php', 'landing-page' ) );
 $is_front_landing       = $is_landing_template && ! $is_latest_news_route && ! $is_magazine_news_route;
 $front_route_no_hero    = is_front_page() && ! $is_front_landing;
-$header_social_icons    = function_exists( 'ugm_get_footer_social_items' ) ? ugm_get_footer_social_items() : array();
+$header_social_icons    = function_exists( 'ugm_get_header_social_items' ) ? ugm_get_header_social_items() : array();
 $header_quick_links     = array(
 	array(
 		'label' => __( 'Email', 'ugm-faculty' ),
@@ -84,35 +84,37 @@ if ( '' === $cs_link && '' !== $header_phone ) {
 
 			<div class="site-header__meta">
 				<div class="site-header__meta-top">
-					<ul class="site-header__social" aria-label="<?php esc_attr_e( 'Social media', 'ugm-faculty' ); ?>">
-						<?php foreach ( $header_social_icons as $social_icon ) : ?>
-							<?php
-							$icon_path = get_theme_file_path( 'assets/images/' . $social_icon['file'] );
-							$social_url = esc_url( (string) $social_icon['url'] );
+					<?php if ( ! empty( $header_social_icons ) ) : ?>
+						<ul class="site-header__social" aria-label="<?php esc_attr_e( 'Social media', 'ugm-faculty' ); ?>">
+							<?php foreach ( $header_social_icons as $social_icon ) : ?>
+								<?php
+								$icon_path  = get_theme_file_path( 'assets/images/' . $social_icon['file'] );
+								$social_url = esc_url( (string) $social_icon['url'] );
 
-							if ( ! file_exists( $icon_path ) || '' === $social_url ) {
-								continue;
-							}
-							?>
-							<li class="site-header__social-item">
-								<a
-									class="site-header__social-link"
-									href="<?php echo esc_url( $social_url ); ?>"
-									target="_blank"
-									rel="noopener noreferrer"
-									aria-label="<?php echo esc_attr( $social_icon['label'] ); ?>"
-								>
-									<img
-										class="site-header__social-icon"
-										src="<?php echo esc_url( get_theme_file_uri( 'assets/images/' . $social_icon['file'] ) ); ?>"
-										alt=""
-										loading="lazy"
-										decoding="async"
+								if ( ! file_exists( $icon_path ) || '' === $social_url ) {
+									continue;
+								}
+								?>
+								<li class="site-header__social-item">
+									<a
+										class="site-header__social-link"
+										href="<?php echo esc_url( $social_url ); ?>"
+										target="_blank"
+										rel="noopener noreferrer"
+										aria-label="<?php echo esc_attr( $social_icon['label'] ); ?>"
 									>
-								</a>
-							</li>
-						<?php endforeach; ?>
-					</ul>
+										<img
+											class="site-header__social-icon"
+											src="<?php echo esc_url( get_theme_file_uri( 'assets/images/' . $social_icon['file'] ) ); ?>"
+											alt=""
+											loading="lazy"
+											decoding="async"
+										>
+									</a>
+								</li>
+							<?php endforeach; ?>
+						</ul>
+					<?php endif; ?>
 
 					<div class="site-header__actions">
 						<?php get_template_part( 'template-parts/header/language-switcher' ); ?>

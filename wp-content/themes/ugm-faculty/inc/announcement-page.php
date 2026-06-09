@@ -16,7 +16,7 @@ function ugm_get_default_announcement_page_blocks() {
 		'<div class="wp-block-columns ugm-announcement-template-columns">' . "\n" .
 		'<!-- wp:column {"width":"1016px","className":"ugm-announcement-template-main"} -->' . "\n" .
 		'<div class="wp-block-column ugm-announcement-template-main" style="flex-basis:1016px">' . "\n" .
-		'<!-- wp:ugm/announcement-page {"title":"Pengumuman","categorySlug":"pengumuman","showFacebook":true,"facebookUrl":"","showTwitter":true,"twitterUrl":"","showWhatsapp":true,"whatsappUrl":""} /-->' . "\n" .
+		'<!-- wp:ugm/announcement-page {"title":"Pengumuman","featuredLabel":"Pengumuman Utama","latestTitle":"Pengumuman Terkini","otherTitle":"Pengumuman Lainnya","categorySlug":"pengumuman","featuredCategorySlug":"pengumuman","latestCategorySlug":"pengumuman","otherCategorySlug":"pengumuman","showFacebook":true,"facebookUrl":"","showTwitter":true,"twitterUrl":"","showWhatsapp":true,"whatsappUrl":""} /-->' . "\n" .
 		'</div>' . "\n" .
 		'<!-- /wp:column -->' . "\n" .
 		'<!-- wp:column {"width":"270px","className":"ugm-announcement-template-sidebar"} -->' . "\n" .
@@ -248,15 +248,59 @@ function ugm_announcement_image_url( $post_id, $size = 'large' ) {
 	return get_theme_file_uri( 'assets/images/landing page UGM.png' );
 }
 
-function ugm_render_announcement_featured_card( WP_Post $post ) {
+function ugm_get_announcement_section_category_slug( $attrs, $key, $fallback = 'pengumuman' ) {
+	$attrs = is_array( $attrs ) ? $attrs : array();
+	$value = trim( (string) ( $attrs[ $key ] ?? '' ) );
+
+	if ( '' !== $value ) {
+		return $value;
+	}
+
+	$legacy_value = trim( (string) ( $attrs['categorySlug'] ?? '' ) );
+
+	return '' !== $legacy_value ? $legacy_value : $fallback;
+}
+
+function ugm_query_announcement_section_posts( $category_slug, $limit, $keyword = '', $exclude_ids = array() ) {
+	$term_ids = ugm_announcement_term_ids_from_slugs( '' !== $category_slug ? $category_slug : 'pengumuman' );
+
+	if ( empty( $term_ids ) && 'pengumuman' !== $category_slug ) {
+		$term_ids = ugm_announcement_term_ids_from_slugs( 'pengumuman' );
+	}
+
+	$args     = array(
+		'post_type'           => 'post',
+		'posts_per_page'      => max( 1, absint( $limit ) ),
+		'ignore_sticky_posts' => true,
+		'post_status'         => 'publish',
+		'orderby'             => 'date',
+		'order'               => 'DESC',
+		'post__not_in'        => array_values( array_filter( array_map( 'absint', $exclude_ids ) ) ),
+	);
+
+	if ( ! empty( $term_ids ) ) {
+		$args['category__in'] = $term_ids;
+	}
+
+	if ( '' !== $keyword ) {
+		$args['s'] = $keyword;
+	}
+
+	$query = new WP_Query( $args );
+
+	return $query->posts;
+}
+
+function ugm_render_announcement_featured_card( WP_Post $post, $label = '' ) {
 	$post_id = (int) $post->ID;
+	$label   = trim( (string) $label );
 	?>
 	<article class="ugm-announcement-featured">
 		<a class="ugm-announcement-featured__media" href="<?php echo esc_url( get_permalink( $post_id ) ); ?>">
 			<img src="<?php echo esc_url( ugm_announcement_image_url( $post_id, 'large' ) ); ?>" alt="<?php echo esc_attr( get_the_title( $post_id ) ); ?>" loading="lazy" decoding="async">
 		</a>
 		<div class="ugm-announcement-featured__body">
-			<p class="ugm-announcement-card__kicker"><?php esc_html_e( 'Pengumuman Utama', 'ugm-faculty' ); ?></p>
+			<p class="ugm-announcement-card__kicker"><?php echo esc_html( '' !== $label ? $label : __( 'Pengumuman Utama', 'ugm-faculty' ) ); ?></p>
 			<h2 class="ugm-announcement-featured__title"><a href="<?php echo esc_url( get_permalink( $post_id ) ); ?>"><?php echo esc_html( get_the_title( $post_id ) ); ?></a></h2>
 			<p class="ugm-announcement-featured__excerpt"><?php echo esc_html( ugm_announcement_excerpt( $post_id, 24 ) ); ?></p>
 			<div class="ugm-announcement-featured__footer">
@@ -299,8 +343,9 @@ function ugm_render_announcement_list_item( WP_Post $post ) {
 	<?php
 }
 
-function ugm_render_announcement_mobile_card( WP_Post $post ) {
+function ugm_render_announcement_mobile_card( WP_Post $post, $label = '' ) {
 	$post_id   = (int) $post->ID;
+	$label     = trim( (string) $label );
 	$timestamp = (int) get_post_timestamp( $post_id );
 	?>
 	<article class="ugm-announcement-mobile-card">
@@ -312,7 +357,7 @@ function ugm_render_announcement_mobile_card( WP_Post $post ) {
 			</span>
 		</a>
 		<div class="ugm-announcement-mobile-card__body">
-			<p class="ugm-announcement-mobile-card__kicker"><?php esc_html_e( 'Pengumuman Utama', 'ugm-faculty' ); ?></p>
+			<p class="ugm-announcement-mobile-card__kicker"><?php echo esc_html( '' !== $label ? $label : __( 'Pengumuman Utama', 'ugm-faculty' ) ); ?></p>
 			<h2><a href="<?php echo esc_url( get_permalink( $post_id ) ); ?>"><?php echo esc_html( get_the_title( $post_id ) ); ?></a></h2>
 			<p class="ugm-announcement-mobile-card__excerpt"><?php echo esc_html( ugm_announcement_excerpt( $post_id, 21 ) ); ?></p>
 			<p class="ugm-announcement-mobile-card__meta"><?php echo esc_html( get_the_date( 'j F Y', $post_id ) ); ?></p>
@@ -601,38 +646,34 @@ function ugm_render_block_announcement_latest_agenda( $attrs ) {
 }
 
 function ugm_render_block_announcement_page( $attrs ) {
-	$attrs          = is_array( $attrs ) ? $attrs : array();
-	$title          = trim( (string) ( $attrs['title'] ?? __( 'Pengumuman', 'ugm-faculty' ) ) );
-	$category_slug  = trim( (string) ( $attrs['categorySlug'] ?? 'pengumuman' ) );
-	$query_limit    = 10;
-	$paged          = max( 1, (int) get_query_var( 'paged' ), (int) get_query_var( 'page' ) );
-	$keyword        = isset( $_GET['announcement_keyword'] ) ? sanitize_text_field( wp_unslash( $_GET['announcement_keyword'] ) ) : '';
+	$attrs                  = is_array( $attrs ) ? $attrs : array();
+	$title                  = trim( (string) ( $attrs['title'] ?? __( 'Pengumuman', 'ugm-faculty' ) ) );
+	$featured_label         = trim( (string) ( $attrs['featuredLabel'] ?? __( 'Pengumuman Utama', 'ugm-faculty' ) ) );
+	$latest_title           = trim( (string) ( $attrs['latestTitle'] ?? __( 'Pengumuman Terkini', 'ugm-faculty' ) ) );
+	$other_title            = trim( (string) ( $attrs['otherTitle'] ?? __( 'Pengumuman Lainnya', 'ugm-faculty' ) ) );
+	$featured_category_slug = ugm_get_announcement_section_category_slug( $attrs, 'featuredCategorySlug' );
+	$latest_category_slug   = ugm_get_announcement_section_category_slug( $attrs, 'latestCategorySlug' );
+	$other_category_slug    = ugm_get_announcement_section_category_slug( $attrs, 'otherCategorySlug' );
+	$keyword                = isset( $_GET['announcement_keyword'] ) ? sanitize_text_field( wp_unslash( $_GET['announcement_keyword'] ) ) : '';
+	$shown_post_ids         = array();
 
-	$term_ids = ugm_announcement_term_ids_from_slugs( '' !== $category_slug ? $category_slug : 'pengumuman' );
+	$featured_posts = ugm_query_announcement_section_posts( $featured_category_slug, 1, $keyword, $shown_post_ids );
+	$featured       = ! empty( $featured_posts ) ? $featured_posts[0] : null;
 
-	$query_args = array(
-		'post_type'           => 'post',
-		'posts_per_page'      => $query_limit,
-		'paged'               => $paged,
-		'ignore_sticky_posts' => true,
-		'post_status'         => 'publish',
-		'orderby'             => 'date',
-		'order'               => 'DESC',
-	);
-
-	if ( ! empty( $term_ids ) ) {
-		$query_args['category__in'] = $term_ids;
+	if ( $featured instanceof WP_Post ) {
+		$shown_post_ids[] = (int) $featured->ID;
 	}
 
-	if ( '' !== $keyword ) {
-		$query_args['s'] = $keyword;
+	$compact = ugm_query_announcement_section_posts( $latest_category_slug, 3, $keyword, $shown_post_ids );
+
+	foreach ( $compact as $compact_post ) {
+		if ( $compact_post instanceof WP_Post ) {
+			$shown_post_ids[] = (int) $compact_post->ID;
+		}
 	}
 
-	$query        = new WP_Query( $query_args );
-	$posts        = $query->posts;
-	$featured     = ! empty( $posts ) ? array_shift( $posts ) : null;
-	$compact      = array_slice( $posts, 0, 3 );
-	$list_items   = array_slice( $posts, 3 );
+	$list_items = ugm_query_announcement_section_posts( $other_category_slug, 10, $keyword, $shown_post_ids );
+	$has_posts  = $featured instanceof WP_Post || ! empty( $compact ) || ! empty( $list_items );
 	ob_start();
 	?>
 	<section class="ugm-announcement-section" aria-labelledby="ugm-announcement-page-title">
@@ -664,7 +705,7 @@ function ugm_render_block_announcement_page( $attrs ) {
 
 				<div class="ugm-announcement-desktop-list">
 					<?php if ( $featured instanceof WP_Post ) : ?>
-						<?php ugm_render_announcement_featured_card( $featured ); ?>
+						<?php ugm_render_announcement_featured_card( $featured, $featured_label ); ?>
 					<?php endif; ?>
 
 					<?php if ( ! empty( $compact ) ) : ?>
@@ -696,12 +737,12 @@ function ugm_render_block_announcement_page( $attrs ) {
 
 				<div class="ugm-announcement-mobile-list">
 					<?php if ( $featured instanceof WP_Post ) : ?>
-						<?php ugm_render_announcement_mobile_card( $featured ); ?>
+						<?php ugm_render_announcement_mobile_card( $featured, $featured_label ); ?>
 					<?php endif; ?>
 
 					<?php if ( ! empty( $compact ) ) : ?>
 						<section class="ugm-announcement-mobile-group">
-							<h2><?php esc_html_e( 'Pengumuman Terkini', 'ugm-faculty' ); ?></h2>
+							<h2><?php echo esc_html( '' !== $latest_title ? $latest_title : __( 'Pengumuman Terkini', 'ugm-faculty' ) ); ?></h2>
 							<?php foreach ( $compact as $compact_post ) : ?>
 								<?php ugm_render_announcement_mobile_row( $compact_post, 'latest' ); ?>
 							<?php endforeach; ?>
@@ -710,7 +751,7 @@ function ugm_render_block_announcement_page( $attrs ) {
 
 					<?php if ( ! empty( $list_items ) ) : ?>
 						<section class="ugm-announcement-mobile-group ugm-announcement-mobile-group--other">
-							<h2><?php esc_html_e( 'Pengumuman Lainnya', 'ugm-faculty' ); ?></h2>
+							<h2><?php echo esc_html( '' !== $other_title ? $other_title : __( 'Pengumuman Lainnya', 'ugm-faculty' ) ); ?></h2>
 							<?php foreach ( array_slice( $list_items, 0, 4 ) as $list_post ) : ?>
 								<?php ugm_render_announcement_mobile_row( $list_post, 'other' ); ?>
 							<?php endforeach; ?>
@@ -718,7 +759,7 @@ function ugm_render_block_announcement_page( $attrs ) {
 					<?php endif; ?>
 				</div>
 
-				<?php if ( ! $query->have_posts() ) : ?>
+				<?php if ( ! $has_posts ) : ?>
 					<p class="section-empty"><?php esc_html_e( 'Belum ada pengumuman.', 'ugm-faculty' ); ?></p>
 				<?php endif; ?>
 
@@ -726,7 +767,6 @@ function ugm_render_block_announcement_page( $attrs ) {
 		</div>
 	</section>
 	<?php
-	wp_reset_postdata();
 
 	return ob_get_clean();
 }
@@ -739,9 +779,15 @@ add_action( 'init', function () {
 		'render_callback' => 'ugm_render_block_announcement_page',
 		'supports'        => array( 'html' => false ),
 		'attributes'      => array(
-			'title'        => array( 'type' => 'string', 'default' => 'Pengumuman' ),
-			'categorySlug' => array( 'type' => 'string', 'default' => 'pengumuman' ),
-			'socialItems'  => array(
+			'title'                => array( 'type' => 'string', 'default' => 'Pengumuman' ),
+			'featuredLabel'        => array( 'type' => 'string', 'default' => 'Pengumuman Utama' ),
+			'latestTitle'          => array( 'type' => 'string', 'default' => 'Pengumuman Terkini' ),
+			'otherTitle'           => array( 'type' => 'string', 'default' => 'Pengumuman Lainnya' ),
+			'categorySlug'         => array( 'type' => 'string', 'default' => 'pengumuman' ),
+			'featuredCategorySlug' => array( 'type' => 'string', 'default' => '' ),
+			'latestCategorySlug'   => array( 'type' => 'string', 'default' => '' ),
+			'otherCategorySlug'    => array( 'type' => 'string', 'default' => '' ),
+			'socialItems'          => array(
 				'type'    => 'array',
 				'default' => array(
 					array(

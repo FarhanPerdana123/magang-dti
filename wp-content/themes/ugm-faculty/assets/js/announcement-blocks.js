@@ -10,6 +10,7 @@
 	var el                = wp.element.createElement;
 	var Fragment          = wp.element.Fragment;
 	var useEffect         = wp.element.useEffect;
+	var useState          = wp.element.useState;
 	var __                = wp.i18n.__;
 	var ServerSideRender  = wp.serverSideRender;
 	var InspectorControls = wp.blockEditor.InspectorControls;
@@ -58,6 +59,9 @@
 	}
 
 	function CategoryChecklistControl( props ) {
+		var isOpen = useState( false );
+		var open = isOpen[0];
+		var setOpen = isOpen[1];
 		var categories = useSelect( function ( select ) {
 			return select( 'core' ).getEntityRecords( 'taxonomy', 'category', {
 				per_page: 100,
@@ -67,6 +71,18 @@
 			} );
 		}, [] );
 		var selectedSlugs = parseCategorySlugValue( props.value );
+		var selectedLabels = Array.isArray( categories )
+			? categories
+				.filter( function ( category ) {
+					return selectedSlugs.indexOf( category.slug ) !== -1;
+				} )
+				.map( function ( category ) {
+					return category.name;
+				} )
+			: [];
+		var summary = selectedLabels.length
+			? selectedLabels.slice( 0, 3 ).join( ', ' ) + ( selectedLabels.length > 3 ? ' +' + ( selectedLabels.length - 3 ) : '' )
+			: __( 'Belum ada kategori dipilih', 'ugm-faculty' );
 
 		function toggleSlug( slug, checked ) {
 			var next = selectedSlugs.filter( function ( selectedSlug ) {
@@ -82,28 +98,81 @@
 
 		return el(
 			'div',
-			{ className: 'ugm-category-checklist-control' },
+			{
+				className: 'ugm-category-checklist-control',
+				style: {
+					border: '1px solid #dcdcde',
+					borderRadius: '4px',
+					marginBottom: '12px',
+					overflow: 'hidden',
+				},
+			},
 			el(
-				'p',
-				{ style: { fontSize: '11px', fontWeight: '600', margin: '0 0 8px', textTransform: 'uppercase' } },
-				props.label
-			),
-			Array.isArray( categories ) && categories.length > 0
-				? categories.map( function ( category ) {
-					return el( CheckboxControl, {
-						key: category.id,
-						label: category.name,
-						checked: selectedSlugs.indexOf( category.slug ) !== -1,
-						onChange: function ( checked ) {
-							toggleSlug( category.slug, checked );
-						},
-					} );
-				} )
-				: el(
-					'p',
-					{ style: { color: '#757575', fontSize: '12px', margin: '0 0 8px' } },
-					__( 'Memuat kategori...', 'ugm-faculty' )
+				'button',
+				{
+					type: 'button',
+					onClick: function () { setOpen( ! open ); },
+					style: {
+						alignItems: 'flex-start',
+						background: '#fff',
+						border: 0,
+						cursor: 'pointer',
+						display: 'flex',
+						gap: '8px',
+						justifyContent: 'space-between',
+						padding: '10px 12px',
+						textAlign: 'left',
+						width: '100%',
+					},
+				},
+				el(
+					'span',
+					{ style: { display: 'grid', gap: '3px', minWidth: 0 } },
+					el(
+						'strong',
+						{ style: { color: '#1e1e1e', fontSize: '12px', lineHeight: '1.35' } },
+						props.label
+					),
+					el(
+						'span',
+						{ style: { color: '#646970', fontSize: '12px', lineHeight: '1.35' } },
+						summary
+					)
+				),
+				el(
+					'span',
+					{ 'aria-hidden': true, style: { color: '#646970', fontSize: '16px', lineHeight: '1' } },
+					open ? '\u2303' : '\u2304'
 				)
+			),
+			open && el(
+				'div',
+				{
+					style: {
+						background: '#f6f7f7',
+						borderTop: '1px solid #dcdcde',
+						maxHeight: '220px',
+						overflowY: 'auto',
+						padding: '8px 12px 4px',
+					},
+				},
+				Array.isArray( categories ) && categories.length > 0
+					? categories.map( function ( category ) {
+						return el( CheckboxControl, {
+							key: category.id,
+							label: category.name,
+							checked: selectedSlugs.indexOf( category.slug ) !== -1,
+							onChange: function ( checked ) {
+								toggleSlug( category.slug, checked );
+							},
+						} );
+					} )
+					: el(
+						'p',
+						{ style: { color: '#757575', fontSize: '12px', margin: '0 0 8px' } },
+						__( 'Memuat kategori...', 'ugm-faculty' )
+					)
+			)
 		);
 	}
 
@@ -118,15 +187,21 @@
 		icon:        'megaphone',
 		supports:    { html: false, multiple: false },
 		attributes: {
-			title:        { type: 'string', default: 'Pengumuman' },
-			categorySlug: { type: 'string', default: 'pengumuman' },
-			socialItems:  { type: 'array', default: getDefaultSocialItems() },
-			showFacebook: { type: 'boolean', default: true },
-			facebookUrl:  { type: 'string', default: '' },
-			showTwitter:  { type: 'boolean', default: true },
-			twitterUrl:   { type: 'string', default: '' },
-			showWhatsapp: { type: 'boolean', default: true },
-			whatsappUrl:  { type: 'string', default: '' },
+			title:                { type: 'string', default: 'Pengumuman' },
+			featuredLabel:        { type: 'string', default: 'Pengumuman Utama' },
+			latestTitle:          { type: 'string', default: 'Pengumuman Terkini' },
+			otherTitle:           { type: 'string', default: 'Pengumuman Lainnya' },
+			categorySlug:         { type: 'string', default: 'pengumuman' },
+			featuredCategorySlug: { type: 'string', default: '' },
+			latestCategorySlug:   { type: 'string', default: '' },
+			otherCategorySlug:    { type: 'string', default: '' },
+			socialItems:          { type: 'array', default: getDefaultSocialItems() },
+			showFacebook:         { type: 'boolean', default: true },
+			facebookUrl:          { type: 'string', default: '' },
+			showTwitter:          { type: 'boolean', default: true },
+			twitterUrl:           { type: 'string', default: '' },
+			showWhatsapp:         { type: 'boolean', default: true },
+			whatsappUrl:          { type: 'string', default: '' },
 		},
 		edit: function ( props ) {
 			var attrs   = props.attributes;
@@ -181,10 +256,35 @@
 							value: attrs.title || '',
 							onChange: function ( v ) { setAttr( { title: v } ); },
 						} ),
+						el( TextControl, {
+							label: __( 'Label Pengumuman Utama', 'ugm-faculty' ),
+							value: attrs.featuredLabel || '',
+							onChange: function ( v ) { setAttr( { featuredLabel: v } ); },
+						} ),
+						el( TextControl, {
+							label: __( 'Judul Pengumuman Terkini', 'ugm-faculty' ),
+							value: attrs.latestTitle || '',
+							onChange: function ( v ) { setAttr( { latestTitle: v } ); },
+						} ),
+						el( TextControl, {
+							label: __( 'Judul Pengumuman Lainnya', 'ugm-faculty' ),
+							value: attrs.otherTitle || '',
+							onChange: function ( v ) { setAttr( { otherTitle: v } ); },
+						} ),
 						el( CategoryChecklistControl, {
-							label: __( 'Kategori Pengumuman', 'ugm-faculty' ),
-							value: attrs.categorySlug || '',
-							onChange: function ( value ) { setAttr( { categorySlug: value } ); },
+							label: __( 'Kategori untuk Pengumuman Utama', 'ugm-faculty' ),
+							value: attrs.featuredCategorySlug || attrs.categorySlug || 'pengumuman',
+							onChange: function ( value ) { setAttr( { featuredCategorySlug: value } ); },
+						} ),
+						el( CategoryChecklistControl, {
+							label: __( 'Kategori untuk Pengumuman Terkini', 'ugm-faculty' ),
+							value: attrs.latestCategorySlug || attrs.categorySlug || 'pengumuman',
+							onChange: function ( value ) { setAttr( { latestCategorySlug: value } ); },
+						} ),
+						el( CategoryChecklistControl, {
+							label: __( 'Kategori untuk Pengumuman Lainnya', 'ugm-faculty' ),
+							value: attrs.otherCategorySlug || attrs.categorySlug || 'pengumuman',
+							onChange: function ( value ) { setAttr( { otherCategorySlug: value } ); },
 						} )
 					),
 					el(
