@@ -777,6 +777,9 @@ function ugm_register_management_page_blocks() {
 		'ugm/management-hero',
 		array(
 			'api_version'     => 2,
+			'title'           => __( 'Organization Hero', 'ugm-faculty' ),
+			'description'     => __( 'Display a hero section for an organization, department, or profile page.', 'ugm-faculty' ),
+			'keywords'        => array( __( 'organization', 'ugm-faculty' ), __( 'hero', 'ugm-faculty' ), __( 'profile', 'ugm-faculty' ) ),
 			'category'        => 'ugm-management-page-sections',
 			'render_callback' => 'ugm_render_block_management_hero',
 			'uses_context'    => array( 'postId' ),
@@ -795,6 +798,9 @@ function ugm_register_management_page_blocks() {
 		'ugm/management-section',
 		array(
 			'api_version'     => 2,
+			'title'           => __( 'Management List', 'ugm-faculty' ),
+			'description'     => __( 'Display a list of organization members or managers.', 'ugm-faculty' ),
+			'keywords'        => array( __( 'management', 'ugm-faculty' ), __( 'members', 'ugm-faculty' ), __( 'organization', 'ugm-faculty' ) ),
 			'category'        => 'ugm-management-page-sections',
 			'render_callback' => 'ugm_render_block_management_section',
 			'uses_context'    => array( 'postId' ),
@@ -811,6 +817,9 @@ function ugm_register_management_page_blocks() {
 		'ugm/study-program-section',
 		array(
 			'api_version'     => 2,
+			'title'           => __( 'Program List', 'ugm-faculty' ),
+			'description'     => __( 'Display programs, departments, or study options.', 'ugm-faculty' ),
+			'keywords'        => array( __( 'programs', 'ugm-faculty' ), __( 'departments', 'ugm-faculty' ), __( 'study', 'ugm-faculty' ) ),
 			'category'        => 'ugm-management-page-sections',
 			'render_callback' => 'ugm_render_block_study_program_section',
 			'uses_context'    => array( 'postId' ),
@@ -827,6 +836,9 @@ function ugm_register_management_page_blocks() {
 		'ugm/management-share-section',
 		array(
 			'api_version'     => 2,
+			'title'           => __( 'Share Page', 'ugm-faculty' ),
+			'description'     => __( 'Display sharing links for the current page.', 'ugm-faculty' ),
+			'keywords'        => array( __( 'share', 'ugm-faculty' ), __( 'social', 'ugm-faculty' ), __( 'links', 'ugm-faculty' ) ),
 			'category'        => 'ugm-management-page-sections',
 			'render_callback' => 'ugm_render_block_management_share_section',
 			'uses_context'    => array( 'postId' ),
@@ -843,6 +855,7 @@ function ugm_register_management_page_blocks() {
 		'ugm/management-template-preview',
 		array(
 			'api_version'     => 2,
+			'title'           => __( 'Organization Page Template Preview', 'ugm-faculty' ),
 			'render_callback' => 'ugm_render_block_management_template_preview',
 			'uses_context'    => array( 'postId' ),
 			'supports'        => array(
@@ -860,7 +873,7 @@ function ugm_register_management_page_block_category( $categories ) {
 		$categories,
 		array(
 			'slug'  => 'ugm-management-page-sections',
-			'title' => __( 'UGM - Manajemen Page Sections', 'ugm-faculty' ),
+			'title' => __( 'UGM — Profile & Organization', 'ugm-faculty' ),
 			'icon'  => 'groups',
 		)
 	);
@@ -903,8 +916,8 @@ function ugm_register_management_page_block_pattern() {
 	register_block_pattern(
 		'ugm/management-page-sections',
 		array(
-			'title'       => __( 'Konten Halaman Manajemen', 'ugm-faculty' ),
-			'description' => __( 'Section manajemen fakultas dan program studi. Insert ke halaman yang menggunakan template Manajemen Page.', 'ugm-faculty' ),
+			'title'       => __( 'Organization Page Sections', 'ugm-faculty' ),
+			'description' => __( 'Profile and organization sections for pages that use the organization template.', 'ugm-faculty' ),
 			'categories'  => array( 'ugm-landing' ),
 			'content'     => ugm_get_default_management_page_blocks(),
 		)

@@ -768,6 +768,9 @@ function ugm_register_gallery_page_blocks() {
 		'ugm/gallery-page',
 		array(
 			'api_version'     => 2,
+			'title'           => __( 'Gallery', 'ugm-faculty' ),
+			'description'     => __( 'Display a gallery page with featured media and gallery cards.', 'ugm-faculty' ),
+			'keywords'        => array( __( 'gallery', 'ugm-faculty' ), __( 'media', 'ugm-faculty' ), __( 'images', 'ugm-faculty' ) ),
 			'render_callback' => 'ugm_render_block_gallery_page',
 			'category'        => 'ugm-gallery-page-sections',
 			'attributes'      => $attributes,
@@ -779,6 +782,7 @@ function ugm_register_gallery_page_blocks() {
 		'ugm/gallery-template-preview',
 		array(
 			'api_version'     => 2,
+			'title'           => __( 'Gallery Template Preview', 'ugm-faculty' ),
 			'render_callback' => 'ugm_render_block_gallery_template_preview',
 			'attributes'      => $attributes,
 			'uses_context'    => array( 'postId', 'postType' ),

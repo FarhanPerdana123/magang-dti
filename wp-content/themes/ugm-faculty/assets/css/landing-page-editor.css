@@ -807,6 +807,7 @@
 	margin-left: 0 !important;
 }
 
+.editor-styles-wrapper .is-root-container:has(> .wp-block[data-type="ugm/hero-section"]) > .wp-block[data-type="ugm/gallery-section"],
 .editor-styles-wrapper .is-root-container:has(> .wp-block[data-type="ugm/hero-section"]) > .wp-block[data-type="ugm/video-section"],
 .editor-styles-wrapper .is-root-container:has(> .wp-block[data-type="ugm/hero-section"]) > .wp-block[data-type="ugm/template-links"] {
 	grid-column: 1 / -1;
@@ -916,6 +917,7 @@
 	.editor-styles-wrapper .wp-block[data-type="ugm/category-section"],
 	.editor-styles-wrapper .wp-block[data-type="ugm/featured-categories"],
 	.editor-styles-wrapper .wp-block[data-type="ugm/magazine-section"],
+	.editor-styles-wrapper .wp-block[data-type="ugm/gallery-section"],
 	.editor-styles-wrapper .wp-block[data-type="ugm/video-section"],
 	.editor-styles-wrapper .wp-block[data-type="ugm/template-links"] {
 		width: 100% !important;

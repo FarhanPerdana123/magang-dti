@@ -193,8 +193,8 @@ function ugm_render_block_rector_greeting_layout( $attrs, $content = '' ) {
 }
 
 register_block_type( 'ugm/rector-greeting-layout', array(
-	'title'           => __( 'Layout Sambutan Rektor', 'ugm-faculty' ),
-	'description'     => __( 'Wrapper grid untuk konten Sambutan Rektor dan sidebar Tentang UGM.', 'ugm-faculty' ),
+	'title'           => __( 'Greeting Layout', 'ugm-faculty' ),
+	'description'     => __( 'Arrange greeting content with a page sidebar menu.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_rector_greeting_layout',
 	'supports'        => array( 'html' => false ),
@@ -293,8 +293,8 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 }
 
 register_block_type( 'ugm/rector-greeting-content', array(
-	'title'           => __( 'Isi Sambutan Rektor', 'ugm-faculty' ),
-	'description'     => __( 'Konten utama, foto, nama, dan jabatan rektor.', 'ugm-faculty' ),
+	'title'           => __( 'Greeting Content', 'ugm-faculty' ),
+	'description'     => __( 'Display greeting text with an optional profile photo, name, and role.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_rector_greeting_content',
 	'supports'        => array( 'html' => false ),
@@ -595,8 +595,8 @@ function ugm_render_block_about_ugm_sidebar( $attrs ) {
 }
 
 register_block_type( 'ugm/about-ugm-sidebar', array(
-	'title'           => __( 'Sidebar Tentang UGM', 'ugm-faculty' ),
-	'description'     => __( 'Menu samping untuk halaman Tentang UGM.', 'ugm-faculty' ),
+	'title'           => __( 'Page Sidebar Menu', 'ugm-faculty' ),
+	'description'     => __( 'Sidebar menu for page navigation.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_about_ugm_sidebar',
 	'supports'        => array( 'html' => false ),
@@ -614,7 +614,7 @@ function ugm_render_block_rector_greeting_template_preview() {
 }
 
 register_block_type( 'ugm/rector-greeting-template-preview', array(
-	'title'           => __( 'Sambutan Rektor Page Template Preview', 'ugm-faculty' ),
+	'title'           => __( 'Greeting Page Template Preview', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_rector_greeting_template_preview',
 	'supports'        => array(
@@ -681,8 +681,8 @@ add_action( 'enqueue_block_editor_assets', 'ugm_enqueue_rector_greeting_editor_s
  */
 function ugm_register_rector_greeting_patterns() {
 	register_block_pattern( 'ugm/rector-greeting-page', array(
-		'title'       => __( 'Template Sambutan Rektor', 'ugm-faculty' ),
-		'description' => __( 'Layout konten Sambutan Rektor dengan sidebar Tentang UGM. Block tetap bisa dipindahkan, dihapus, atau diduplikasi.', 'ugm-faculty' ),
+		'title'       => __( 'Greeting Page Template', 'ugm-faculty' ),
+		'description' => __( 'A greeting page layout with content and sidebar navigation blocks.', 'ugm-faculty' ),
 		'categories'  => array( 'ugm-landing' ),
 		'content'     => ugm_get_default_rector_greeting_blocks(),
 	) );

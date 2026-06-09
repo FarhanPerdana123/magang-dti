@@ -276,9 +276,10 @@
 	);
 
 	registerBlockType( 'ugm/rector-greeting-layout', {
-		title:       __( 'Layout Sambutan Rektor', 'ugm-faculty' ),
-		description: __( 'Wrapper grid untuk konten Sambutan Rektor dan sidebar Tentang UGM.', 'ugm-faculty' ),
+		title:       __( 'Greeting Layout', 'ugm-faculty' ),
+		description: __( 'Arrange greeting content with a page sidebar menu.', 'ugm-faculty' ),
 		category:    'ugm-sections',
+		keywords:    [ __( 'greeting', 'ugm-faculty' ), __( 'layout', 'ugm-faculty' ), __( 'sidebar', 'ugm-faculty' ) ],
 		icon:        'columns',
 		supports:    { html: false },
 		edit: function () {
@@ -317,9 +318,10 @@
 	} );
 
 	registerBlockType( 'ugm/rector-greeting-content', {
-		title:       __( 'Isi Sambutan Rektor', 'ugm-faculty' ),
-		description: __( 'Konten utama, foto, nama, dan jabatan rektor.', 'ugm-faculty' ),
+		title:       __( 'Greeting Content', 'ugm-faculty' ),
+		description: __( 'Display greeting text with an optional profile photo, name, and role.', 'ugm-faculty' ),
 		category:    'ugm-sections',
+		keywords:    [ __( 'greeting', 'ugm-faculty' ), __( 'message', 'ugm-faculty' ), __( 'profile', 'ugm-faculty' ) ],
 		icon:        'id-alt',
 		supports:    { html: false },
 		attributes:  {
@@ -464,9 +466,10 @@
 	} );
 
 	registerBlockType( 'ugm/about-ugm-sidebar', {
-		title:       __( 'Sidebar Tentang UGM', 'ugm-faculty' ),
-		description: __( 'Menu samping untuk halaman Tentang UGM.', 'ugm-faculty' ),
+		title:       __( 'Page Sidebar Menu', 'ugm-faculty' ),
+		description: __( 'Sidebar menu for page navigation.', 'ugm-faculty' ),
 		category:    'ugm-sections',
+		keywords:    [ __( 'sidebar', 'ugm-faculty' ), __( 'menu', 'ugm-faculty' ), __( 'navigation', 'ugm-faculty' ) ],
 		icon:        'menu-alt3',
 		supports:    { html: false },
 		attributes:  {
@@ -545,7 +548,7 @@
 	} );
 
 	registerBlockType( 'ugm/rector-greeting-template-preview', {
-		title:    __( 'Sambutan Rektor Page Template Preview', 'ugm-faculty' ),
+		title:    __( 'Greeting Page Template Preview', 'ugm-faculty' ),
 		category: 'ugm-sections',
 		supports: {
 			html:     false,

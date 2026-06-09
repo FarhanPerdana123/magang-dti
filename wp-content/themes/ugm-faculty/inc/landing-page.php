@@ -50,7 +50,7 @@ function ugm_get_default_landing_page_blocks() {
 	$blocks .= '<!-- wp:ugm/agenda-only {"title":"Agenda Kegiatan","categorySlug":"agenda","visibility":"desktop"} /-->' . "\n";
 	$blocks .= '<!-- wp:ugm/facility-only {"title":"Fasilitas Mahasiswa","categorySlug":"fasilitas-mahasiswa","visibility":"desktop"} /-->' . "\n";
 	$blocks .= '<!-- wp:ugm/magazine-section /-->' . "\n";
-	$blocks .= '<!-- wp:ugm/video-section {"title":"Video","categorySlug":"video","visibility":"desktop"} /-->' . "\n";
+	$blocks .= '<!-- wp:ugm/gallery-section {"sectionTitle":"Gallery","detailLabel":"Selengkapnya","viewAllLabel":"View All","visibility":"desktop"} /-->' . "\n";
 	$blocks .= '<!-- wp:ugm/template-links {"title":"Tautan Layanan","items":[],"visibility":"desktop"} /-->';
 
 	return $blocks;

@@ -424,9 +424,10 @@
 	};
 
 	registerBlockType( 'ugm/gallery-page', {
-		title:       __( 'Galeri Page', 'ugm-faculty' ),
-		description: __( 'Halaman galeri dengan hero sorotan dan grid kartu galeri.', 'ugm-faculty' ),
+		title:       __( 'Gallery', 'ugm-faculty' ),
+		description: __( 'Display a gallery page with featured media and gallery cards.', 'ugm-faculty' ),
 		category:    'ugm-gallery-page-sections',
+		keywords:    [ __( 'gallery', 'ugm-faculty' ), __( 'media', 'ugm-faculty' ), __( 'images', 'ugm-faculty' ) ],
 		icon:        'format-gallery',
 		supports:    { html: false, multiple: false },
 		attributes:  galleryPageAttributes,
@@ -455,7 +456,7 @@
 	} );
 
 	registerBlockType( 'ugm/gallery-template-preview', {
-		title:    __( 'Galeri Page Template Preview', 'ugm-faculty' ),
+		title:    __( 'Gallery Template Preview', 'ugm-faculty' ),
 		category: 'ugm-gallery-page-sections',
 		supports: {
 			html:     false,

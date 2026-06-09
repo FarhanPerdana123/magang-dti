@@ -781,9 +781,9 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 }
 
 add_action( 'init', function () {
-	register_block_type( 'ugm/agenda-list-page', array(
-		'title'           => __( 'Daftar Agenda Lengkap', 'ugm-faculty' ),
-		'description'     => __( 'Halaman daftar agenda lengkap dengan filter dan pagination.', 'ugm-faculty' ),
+register_block_type( 'ugm/agenda-list-page', array(
+		'title'           => __( 'Agenda List', 'ugm-faculty' ),
+		'description'     => __( 'Display a complete event or agenda list with filters and pagination.', 'ugm-faculty' ),
 		'category'        => 'ugm-agenda-page-sections',
 		'render_callback' => 'ugm_render_block_agenda_list_page',
 		'supports'        => array( 'html' => false ),
