@@ -759,8 +759,8 @@ function ugm_render_block_announcement_page( $attrs ) {
 
 add_action( 'init', function () {
 	register_block_type( 'ugm/announcement-page', array(
-		'title'           => __( 'Daftar Pengumuman', 'ugm-faculty' ),
-		'description'     => __( 'Daftar pengumuman utama dengan filter dan slider daftar bawah.', 'ugm-faculty' ),
+		'title'           => __( 'Information List', 'ugm-faculty' ),
+		'description'     => __( 'Display a searchable list of information, announcements, or updates.', 'ugm-faculty' ),
 		'category'        => 'ugm-announcement-page-sections',
 		'render_callback' => 'ugm_render_block_announcement_page',
 		'supports'        => array( 'html' => false ),
@@ -818,8 +818,8 @@ add_action( 'init', function () {
 	) );
 
 	register_block_type( 'ugm/announcement-latest-news', array(
-		'title'           => __( 'Pengumuman: Berita Terbaru', 'ugm-faculty' ),
-		'description'     => __( 'Sidebar berita terbaru untuk halaman pengumuman.', 'ugm-faculty' ),
+		'title'           => __( 'Latest News', 'ugm-faculty' ),
+		'description'     => __( 'Display recent news items for a page sidebar or supporting section.', 'ugm-faculty' ),
 		'category'        => 'ugm-announcement-page-sections',
 		'render_callback' => 'ugm_render_block_announcement_latest_news',
 		'supports'        => array( 'html' => false ),
@@ -830,8 +830,8 @@ add_action( 'init', function () {
 	) );
 
 	register_block_type( 'ugm/announcement-latest-agenda', array(
-		'title'           => __( 'Pengumuman: Agenda Terbaru', 'ugm-faculty' ),
-		'description'     => __( 'Sidebar agenda terbaru untuk halaman pengumuman.', 'ugm-faculty' ),
+		'title'           => __( 'Latest Agenda', 'ugm-faculty' ),
+		'description'     => __( 'Display recent agenda or event items for a page sidebar or supporting section.', 'ugm-faculty' ),
 		'category'        => 'ugm-announcement-page-sections',
 		'render_callback' => 'ugm_render_block_announcement_latest_agenda',
 		'supports'        => array( 'html' => false ),

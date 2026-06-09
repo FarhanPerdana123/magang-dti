@@ -178,9 +178,10 @@
 	}
 
 	registerBlockType( 'ugm/agenda-list-page', {
-		title:       __( 'Daftar Agenda Lengkap', 'ugm-faculty' ),
-		description: __( 'Halaman daftar agenda lengkap dengan filter, kartu agenda, dan pagination.', 'ugm-faculty' ),
+		title:       __( 'Agenda List', 'ugm-faculty' ),
+		description: __( 'Display a complete event or agenda list with filters and pagination.', 'ugm-faculty' ),
 		category:    'ugm-agenda-page-sections',
+		keywords:    [ __( 'agenda', 'ugm-faculty' ), __( 'events', 'ugm-faculty' ), __( 'list', 'ugm-faculty' ) ],
 		icon:        'calendar',
 		supports:    { html: false, multiple: false },
 		attributes: {

@@ -890,9 +890,10 @@
 	}
 
 	registerBlockType( 'ugm/management-hero', {
-		title:       __( 'Hero Manajemen', 'ugm-faculty' ),
-		description: __( 'Hero halaman manajemen yang dikelola manual.', 'ugm-faculty' ),
+		title:       __( 'Organization Hero', 'ugm-faculty' ),
+		description: __( 'Display a hero section for an organization, department, or profile page.', 'ugm-faculty' ),
 		category:    'ugm-management-page-sections',
+		keywords:    [ __( 'organization', 'ugm-faculty' ), __( 'hero', 'ugm-faculty' ), __( 'profile', 'ugm-faculty' ) ],
 		icon:        'cover-image',
 		supports:    { html: false, multiple: false },
 		attributes:  {
@@ -928,9 +929,10 @@
 		} );
 
 	registerBlockType( 'ugm/management-section', {
-		title:       __( 'Manajemen Fakultas', 'ugm-faculty' ),
-		description: __( 'Kartu pimpinan fakultas yang dikelola manual.', 'ugm-faculty' ),
+		title:       __( 'Management List', 'ugm-faculty' ),
+		description: __( 'Display a list of organization members or managers.', 'ugm-faculty' ),
 		category:    'ugm-management-page-sections',
+		keywords:    [ __( 'management', 'ugm-faculty' ), __( 'members', 'ugm-faculty' ), __( 'organization', 'ugm-faculty' ) ],
 		icon:        'groups',
 		supports:    { html: false, multiple: false },
 		attributes:  {
@@ -964,9 +966,10 @@
 		} );
 
 	registerBlockType( 'ugm/study-program-section', {
-		title:       __( 'Program Studi', 'ugm-faculty' ),
-		description: __( 'Daftar program studi dan pengelolanya yang dikelola manual.', 'ugm-faculty' ),
+		title:       __( 'Program List', 'ugm-faculty' ),
+		description: __( 'Display programs, departments, or study options.', 'ugm-faculty' ),
 		category:    'ugm-management-page-sections',
+		keywords:    [ __( 'programs', 'ugm-faculty' ), __( 'departments', 'ugm-faculty' ), __( 'study', 'ugm-faculty' ) ],
 		icon:        'welcome-learn-more',
 		supports:    { html: false, multiple: false },
 		attributes:  {
@@ -1000,9 +1003,10 @@
 		} );
 
 	registerBlockType( 'ugm/management-share-section', {
-		title:       __( 'Share This Page', 'ugm-faculty' ),
-		description: __( 'Tombol share halaman manajemen.', 'ugm-faculty' ),
+		title:       __( 'Share Page', 'ugm-faculty' ),
+		description: __( 'Display sharing links for the current page.', 'ugm-faculty' ),
 		category:    'ugm-management-page-sections',
+		keywords:    [ __( 'share', 'ugm-faculty' ), __( 'social', 'ugm-faculty' ), __( 'links', 'ugm-faculty' ) ],
 		icon:        'share',
 		supports:    { html: false, multiple: false },
 		attributes:  {
@@ -1036,7 +1040,7 @@
 		} );
 
 	registerBlockType( 'ugm/management-template-preview', {
-		title:    __( 'Manajemen Page Template Preview', 'ugm-faculty' ),
+		title:    __( 'Organization Page Template Preview', 'ugm-faculty' ),
 		category: 'ugm-management-page-sections',
 		supports: {
 			html:     false,

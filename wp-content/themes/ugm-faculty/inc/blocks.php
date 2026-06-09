@@ -724,8 +724,8 @@ function ugm_render_block_hero_section( $attrs ) {
 }
 
 register_block_type( 'ugm/hero-section', array(
-	'title'           => __( 'Hero Section', 'ugm-faculty' ),
-	'description'     => __( 'Bagian hero landing page: gambar latar, judul, dan deskripsi.', 'ugm-faculty' ),
+	'title'           => __( 'Hero Banner', 'ugm-faculty' ),
+	'description'     => __( 'Display a prominent page banner with media, heading, and supporting text.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_hero_section',
 	'supports'        => array( 'html' => false ),
@@ -1423,8 +1423,8 @@ function ugm_render_latest_news_grid( $q ) {
 }
 
 register_block_type( 'ugm/latest-news', array(
-	'title'           => __( 'Berita Terbaru', 'ugm-faculty' ),
-	'description'     => __( 'Menampilkan berita terbaru pada landing page.', 'ugm-faculty' ),
+	'title'           => __( 'Information Highlights', 'ugm-faculty' ),
+	'description'     => __( 'Display selected information or news items.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_latest_news',
 	'supports'        => array( 'html' => false ),
@@ -1468,7 +1468,8 @@ function ugm_render_block_academic_news( $attrs ) {
 }
 
 register_block_type( 'ugm/academic-news', array(
-	'title'           => __( 'Berita Akademik', 'ugm-faculty' ),
+	'title'           => __( 'Academic Information', 'ugm-faculty' ),
+	'description'     => __( 'Display academic information or education-related posts.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_academic_news',
 	'supports'        => array( 'html' => false ),
@@ -1512,7 +1513,8 @@ function ugm_render_block_profile_section( $attrs ) {
 }
 
 register_block_type( 'ugm/profile-section', array(
-	'title'           => __( 'Profile', 'ugm-faculty' ),
+	'title'           => __( 'General Information', 'ugm-faculty' ),
+	'description'     => __( 'Display general profile, overview, or informational posts.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_profile_section',
 	'supports'        => array( 'html' => false ),
@@ -1556,7 +1558,8 @@ function ugm_render_block_achievement_section( $attrs ) {
 }
 
 register_block_type( 'ugm/achievement-section', array(
-	'title'           => __( 'Prestasi', 'ugm-faculty' ),
+	'title'           => __( 'Achievements', 'ugm-faculty' ),
+	'description'     => __( 'Display achievement, recognition, or milestone posts.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_achievement_section',
 	'supports'        => array( 'html' => false ),
@@ -1574,8 +1577,8 @@ function ugm_render_block_featured_categories( $attrs ) {
 }
 
 register_block_type( 'ugm/featured-categories', array(
-	'title'           => __( 'Sorotan Kategori (Lama)', 'ugm-faculty' ),
-	'description'     => __( 'Blok lama — gunakan "Sorotan Kategori Kolom" agar tiap kolom bisa dipindah secara terpisah.', 'ugm-faculty' ),
+	'title'           => __( 'Content Categories (Legacy)', 'ugm-faculty' ),
+	'description'     => __( 'Legacy grouped category highlights. Use Featured Content for movable individual columns.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_featured_categories',
 	'supports'        => array(
@@ -1733,8 +1736,8 @@ function ugm_render_block_featured_category_column( $attrs ) {
 }
 
 register_block_type( 'ugm/featured-category-column', array(
-	'title'           => __( 'Sorotan Kategori Kolom', 'ugm-faculty' ),
-	'description'     => __( 'Satu kolom sorotan kategori. Tambahkan beberapa blok ini berdampingan — tiap kolom bisa dipindah secara terpisah.', 'ugm-faculty' ),
+	'title'           => __( 'Featured Content', 'ugm-faculty' ),
+	'description'     => __( 'Display a single highlighted content column based on a selected category.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_featured_category_column',
 	'supports'        => array( 'html' => false ),
@@ -1757,7 +1760,8 @@ function ugm_render_block_category_section( $attrs ) {
 }
 
 register_block_type( 'ugm/category-section', array(
-	'title'           => __( 'Kategori', 'ugm-faculty' ),
+	'title'           => __( 'Content Categories', 'ugm-faculty' ),
+	'description'     => __( 'Display a section of content categories.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_category_section',
 	'supports'        => array( 'html' => false ),
@@ -1810,7 +1814,8 @@ function ugm_render_block_facility_section( $attrs ) {
 }
 
 register_block_type( 'ugm/facility-section', array(
-	'title'           => __( 'Fasilitas', 'ugm-faculty' ),
+	'title'           => __( 'Facilities', 'ugm-faculty' ),
+	'description'     => __( 'Display facility-related content.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_facility_section',
 	'supports'        => array(
@@ -1918,7 +1923,8 @@ function ugm_render_block_faculty_section( $attrs ) {
 }
 
 register_block_type( 'ugm/faculty-section', array(
-	'title'           => __( 'Fakultas dan Sekolah', 'ugm-faculty' ),
+	'title'           => __( 'Organization Structure', 'ugm-faculty' ),
+	'description'     => __( 'Display organizational units, departments, or related structures.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_faculty_section',
 	'supports'        => array(
@@ -2026,8 +2032,8 @@ function ugm_render_block_faculty_list( $attrs ) {
 }
 
 register_block_type( 'ugm/faculty-list', array(
-	'title'           => __( 'Fakultas dan Sekolah (Manual)', 'ugm-faculty' ),
-	'description'     => __( 'Daftar fakultas dengan gambar, nama, dan link — diinput langsung di editor, tanpa post.', 'ugm-faculty' ),
+	'title'           => __( 'Organization Structure', 'ugm-faculty' ),
+	'description'     => __( 'Display a manually managed list of organizational units with images and links.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_faculty_list',
 	'supports'        => array( 'html' => false ),
@@ -2239,8 +2245,8 @@ function ugm_render_block_agenda_section( $attrs ) {
 }
 
 register_block_type( 'ugm/agenda-section', array(
-	'title'           => __( 'Agenda + Fasilitas (Lama)', 'ugm-faculty' ),
-	'description'     => __( 'Blok lama — gunakan "Agenda Kegiatan" dan "Fasilitas Mahasiswa" terpisah agar bisa dipindah secara mandiri.', 'ugm-faculty' ),
+	'title'           => __( 'Events & Facilities (Legacy)', 'ugm-faculty' ),
+	'description'     => __( 'Legacy combined events and facilities block. Use separate Events & Agenda and Facilities blocks for movable sections.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_agenda_section',
 	'supports'        => array(
@@ -2272,8 +2278,8 @@ function ugm_render_block_agenda_only( $attrs ) {
 }
 
 register_block_type( 'ugm/agenda-only', array(
-	'title'           => __( 'Agenda Kegiatan', 'ugm-faculty' ),
-	'description'     => __( 'Menampilkan daftar agenda kegiatan berdasarkan kategori.', 'ugm-faculty' ),
+	'title'           => __( 'Events & Agenda', 'ugm-faculty' ),
+	'description'     => __( 'Display event or agenda items from a selected category.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_agenda_only',
 	'supports'        => array( 'html' => false ),
@@ -2301,8 +2307,8 @@ function ugm_render_block_facility_only( $attrs ) {
 }
 
 register_block_type( 'ugm/facility-only', array(
-	'title'           => __( 'Fasilitas Mahasiswa', 'ugm-faculty' ),
-	'description'     => __( 'Menampilkan grid fasilitas mahasiswa berdasarkan kategori.', 'ugm-faculty' ),
+	'title'           => __( 'Facilities', 'ugm-faculty' ),
+	'description'     => __( 'Display facility items from a selected category.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_facility_only',
 	'supports'        => array( 'html' => false ),
@@ -2327,7 +2333,8 @@ function ugm_render_block_magazine_section( $attrs ) {
 }
 
 register_block_type( 'ugm/magazine-section', array(
-	'title'           => __( 'Majalah Digital', 'ugm-faculty' ),
+	'title'           => __( 'Digital Magazine', 'ugm-faculty' ),
+	'description'     => __( 'Display a digital magazine or publication section.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_magazine_section',
 	'supports'        => array( 'html' => false ),
@@ -2337,7 +2344,274 @@ register_block_type( 'ugm/magazine-section', array(
 ) );
 
 /* ==========================================================================
- * 13. ugm/video-section — Video
+ * 13. ugm/gallery-section — Gallery
+ * ========================================================================== */
+
+/**
+ * Normalize manually selected gallery images.
+ *
+ * @param mixed $images Raw image attribute value.
+ * @return array<int,array{id:int,url:string,alt:string}>
+ */
+function ugm_normalize_landing_gallery_images( $images ) {
+	if ( ! is_array( $images ) ) {
+		return array();
+	}
+
+	$normalized = array();
+
+	foreach ( $images as $image ) {
+		if ( ! is_array( $image ) ) {
+			continue;
+		}
+
+		$url = isset( $image['url'] ) ? esc_url_raw( (string) $image['url'] ) : '';
+		if ( '' === $url ) {
+			continue;
+		}
+
+		$normalized[] = array(
+			'id'  => isset( $image['id'] ) ? absint( $image['id'] ) : 0,
+			'url' => $url,
+			'alt' => isset( $image['alt'] ) ? sanitize_text_field( (string) $image['alt'] ) : '',
+		);
+	}
+
+	return array_slice( $normalized, 0, 8 );
+}
+
+/**
+ * Find a Gallery page that can be used as the landing Gallery source.
+ *
+ * @param array $attrs Block attributes.
+ * @return int
+ */
+function ugm_get_landing_gallery_source_page_id( $attrs ) {
+	$selected_page_id = isset( $attrs['galleryPageId'] ) ? absint( $attrs['galleryPageId'] ) : 0;
+	if ( $selected_page_id > 0 && 'page' === get_post_type( $selected_page_id ) ) {
+		return $selected_page_id;
+	}
+
+	$pages = get_posts(
+		array(
+			'post_type'      => 'page',
+			'post_status'    => 'publish',
+			'posts_per_page' => 1,
+			'orderby'        => 'menu_order title',
+			'order'          => 'ASC',
+			'meta_query'     => array(
+				'relation' => 'OR',
+				array(
+					'key'   => '_wp_page_template',
+					'value' => 'page-templates/template-gallery.php',
+				),
+				array(
+					'key'   => '_wp_page_template',
+					'value' => 'gallery-page',
+				),
+			),
+		)
+	);
+
+	if ( ! empty( $pages ) && $pages[0] instanceof WP_Post ) {
+		return (int) $pages[0]->ID;
+	}
+
+	$pages = get_posts(
+		array(
+			'post_type'      => 'page',
+			'post_status'    => 'publish',
+			'posts_per_page' => 20,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+		)
+	);
+
+	foreach ( $pages as $page ) {
+		if ( false !== strpos( (string) $page->post_content, '<!-- wp:ugm/gallery-page' ) ) {
+			return (int) $page->ID;
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Get the Gallery page item displayed by the landing Gallery block.
+ *
+ * @param array $attrs Block attributes.
+ * @return array{page_id:int,page_title:string,page_url:string,item_index:int,item:array|null,items:array}
+ */
+function ugm_get_landing_gallery_source_data( $attrs ) {
+	$page_id = ugm_get_landing_gallery_source_page_id( $attrs );
+	$data    = array(
+		'page_id'    => $page_id,
+		'page_title' => $page_id > 0 ? get_the_title( $page_id ) : '',
+		'page_url'   => $page_id > 0 ? get_permalink( $page_id ) : '',
+		'item_index' => 0,
+		'item'       => null,
+		'items'      => array(),
+	);
+
+	if ( $page_id <= 0 ) {
+		return $data;
+	}
+
+	$gallery_attrs = function_exists( 'ugm_find_gallery_page_block_attrs' )
+		? ugm_find_gallery_page_block_attrs( parse_blocks( (string) get_post_field( 'post_content', $page_id ) ) )
+		: array();
+
+	$gallery_items = isset( $gallery_attrs['galleryItems'] ) ? $gallery_attrs['galleryItems'] : array();
+	$items         = function_exists( 'ugm_gallery_manual_items' )
+		? ugm_gallery_manual_items( $gallery_items )
+		: array();
+
+	$data['items'] = $items;
+
+	foreach ( $items as $index => $item ) {
+		if ( ! empty( $item['images'] ) ) {
+			$data['item_index'] = (int) $index;
+			$data['item']       = $item;
+			return $data;
+		}
+	}
+
+	if ( ! empty( $items ) ) {
+		$data['item'] = $items[0];
+	}
+
+	return $data;
+}
+
+/**
+ * Render the landing page gallery section.
+ *
+ * @param array $attrs Block attributes.
+ * @return string
+ */
+function ugm_render_block_gallery_section( $attrs ) {
+	$visibility_class = ugm_block_visibility_class( $attrs );
+	$section_title    = ugm_resolve_section_title( $attrs, __( 'Gallery', 'ugm-faculty' ), 'sectionTitle' );
+	$source_data      = ugm_get_landing_gallery_source_data( $attrs );
+	$source_item      = is_array( $source_data['item'] ) ? $source_data['item'] : array();
+	$fallback_images  = ugm_normalize_landing_gallery_images( $attrs['images'] ?? array() );
+	$source_images    = isset( $source_item['images'] ) && is_array( $source_item['images'] ) ? $source_item['images'] : array();
+	$images           = ! empty( $source_images ) ? ugm_normalize_landing_gallery_images( $source_images ) : $fallback_images;
+	$date             = isset( $source_item['date'] ) && '' !== trim( (string) $source_item['date'] )
+		? trim( (string) $source_item['date'] )
+		: ( isset( $attrs['date'] ) ? trim( (string) $attrs['date'] ) : '' );
+	$gallery_title    = isset( $source_item['title'] ) && '' !== trim( (string) $source_item['title'] )
+		? trim( (string) $source_item['title'] )
+		: ( isset( $attrs['galleryTitle'] ) && '' !== trim( (string) $attrs['galleryTitle'] )
+			? trim( (string) $attrs['galleryTitle'] )
+			: __( 'Gallery Highlight', 'ugm-faculty' ) );
+	$description      = isset( $source_item['description'] ) && '' !== trim( (string) $source_item['description'] )
+		? trim( (string) $source_item['description'] )
+		: ( isset( $attrs['description'] ) ? trim( (string) $attrs['description'] ) : '' );
+	$detail_label     = isset( $attrs['detailLabel'] ) && '' !== trim( (string) $attrs['detailLabel'] )
+		? trim( (string) $attrs['detailLabel'] )
+		: __( 'View Details', 'ugm-faculty' );
+	$source_detail_url = ! empty( $source_data['page_url'] )
+		? add_query_arg( 'ugm_gallery_item', absint( $source_data['item_index'] ) + 1, $source_data['page_url'] )
+		: '';
+	$detail_url       = '' !== $source_detail_url ? esc_url( $source_detail_url ) : ( isset( $attrs['detailUrl'] ) ? esc_url( (string) $attrs['detailUrl'] ) : '' );
+	$view_all_label   = isset( $attrs['viewAllLabel'] ) && '' !== trim( (string) $attrs['viewAllLabel'] )
+		? trim( (string) $attrs['viewAllLabel'] )
+		: __( 'View All', 'ugm-faculty' );
+	$source_view_all_url = ! empty( $source_data['page_url'] ) ? $source_data['page_url'] : '';
+	$view_all_url     = '' !== $source_view_all_url ? esc_url( $source_view_all_url ) : ( isset( $attrs['viewAllUrl'] ) ? esc_url( (string) $attrs['viewAllUrl'] ) : '' );
+	$grid_count       = max( 4, count( $images ) );
+
+	ob_start();
+	echo '<section class="home-section section-gallery ' . esc_attr( $visibility_class ) . '"';
+	echo '' !== $section_title
+		? ' aria-labelledby="block-gallery-title">'
+		: ' aria-label="' . esc_attr__( 'Gallery', 'ugm-faculty' ) . '">';
+	echo '<div class="section-gallery__inner">';
+	echo '<div class="section-gallery__copy">';
+
+	if ( '' !== $section_title ) {
+		echo '<header class="section-header section-gallery__header">';
+		echo '<h2 id="block-gallery-title" class="section-title">' . esc_html( $section_title ) . '</h2>';
+		echo '<span class="section-line" aria-hidden="true"></span>';
+		echo '</header>';
+	}
+
+	if ( '' !== $date ) {
+		echo '<p class="section-gallery__date">' . esc_html( $date ) . '</p>';
+	}
+
+	echo '<h3 class="section-gallery__headline">' . esc_html( $gallery_title ) . '</h3>';
+
+	if ( '' !== $description ) {
+		echo '<p class="section-gallery__description">' . esc_html( wp_trim_words( $description, 18, '...' ) ) . '</p>';
+	}
+
+	if ( '' !== $detail_url ) {
+		echo '<a class="section-gallery__button" href="' . esc_url( $detail_url ) . '">' . esc_html( $detail_label ) . '</a>';
+	} else {
+		echo '<span class="section-gallery__button section-gallery__button--disabled">' . esc_html( $detail_label ) . '</span>';
+	}
+
+	echo '<div class="section-gallery__pager" aria-hidden="true"><span></span><span></span><span></span></div>';
+	echo '</div>';
+
+	echo '<div class="section-gallery__media">';
+	echo '<div class="section-gallery__grid section-gallery__grid--count-' . esc_attr( (string) $grid_count ) . '">';
+
+	if ( ! empty( $images ) ) {
+		foreach ( $images as $index => $image ) {
+			$alt = '' !== $image['alt'] ? $image['alt'] : $gallery_title;
+			echo '<figure class="section-gallery__item section-gallery__item--' . esc_attr( (string) ( $index + 1 ) ) . '">';
+			echo '<img src="' . esc_url( $image['url'] ) . '" alt="' . esc_attr( $alt ) . '" loading="lazy" decoding="async">';
+			echo '</figure>';
+		}
+	}
+
+	for ( $i = count( $images ); $i < 4; $i++ ) {
+		echo '<div class="section-gallery__item section-gallery__item--placeholder section-gallery__item--' . esc_attr( (string) ( $i + 1 ) ) . '">';
+		echo '<span>' . esc_html__( 'Select gallery image', 'ugm-faculty' ) . '</span>';
+		echo '</div>';
+	}
+
+	echo '</div>';
+
+	if ( '' !== $view_all_url ) {
+		echo '<a class="section-gallery__view-all" href="' . esc_url( $view_all_url ) . '">' . esc_html( $view_all_label ) . '<span aria-hidden="true">-&gt;</span></a>';
+	} else {
+		echo '<span class="section-gallery__view-all section-gallery__view-all--disabled">' . esc_html( $view_all_label ) . '<span aria-hidden="true">-&gt;</span></span>';
+	}
+
+	echo '</div>';
+	echo '</div>';
+	echo '</section>';
+
+	return ob_get_clean();
+}
+
+register_block_type( 'ugm/gallery-section', array(
+	'title'           => __( 'Gallery', 'ugm-faculty' ),
+	'description'     => __( 'Display a manually managed gallery highlight section.', 'ugm-faculty' ),
+	'category'        => 'ugm-sections',
+	'render_callback' => 'ugm_render_block_gallery_section',
+	'supports'        => array( 'html' => false ),
+	'attributes'      => array(
+		'sectionTitle'  => array( 'type' => 'string', 'default' => 'Gallery' ),
+		'galleryPageId' => array( 'type' => 'integer', 'default' => 0 ),
+		'date'          => array( 'type' => 'string', 'default' => '' ),
+		'galleryTitle'  => array( 'type' => 'string', 'default' => 'Gallery Highlight' ),
+		'description'   => array( 'type' => 'string', 'default' => '' ),
+		'detailLabel'   => array( 'type' => 'string', 'default' => 'View Details' ),
+		'detailUrl'     => array( 'type' => 'string', 'default' => '' ),
+		'viewAllLabel'  => array( 'type' => 'string', 'default' => 'View All' ),
+		'viewAllUrl'    => array( 'type' => 'string', 'default' => '' ),
+		'images'        => array( 'type' => 'array', 'default' => array() ),
+		'visibility'    => array( 'type' => 'string', 'default' => 'all' ),
+	),
+) );
+
+/* ==========================================================================
+ * 14. ugm/video-section — Video
  * ========================================================================== */
 
 /**
@@ -2628,8 +2902,8 @@ function ugm_render_block_video_section( $attrs ) {
 }
 
 register_block_type( 'ugm/video-section', array(
-	'title'           => __( 'Video', 'ugm-faculty' ),
-	'description'     => __( 'Menampilkan video unggulan dan daftar video berdasarkan kategori.', 'ugm-faculty' ),
+	'title'           => __( 'Featured Video', 'ugm-faculty' ),
+	'description'     => __( 'Display a featured video and related video items from a selected category.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_video_section',
 	'supports'        => array( 'html' => false ),
@@ -2641,7 +2915,7 @@ register_block_type( 'ugm/video-section', array(
 ) );
 
 /* ==========================================================================
- * 14. ugm/template-links — Tautan Layanan (Grid Kartu Manual)
+ * 15. ugm/template-links — Tautan Layanan (Grid Kartu Manual)
  *
  * Displays a manually-configured grid of link cards — icon image, bold title,
  * subtitle / URL, and an external link. Designed to match the UGM portal
@@ -2740,8 +3014,8 @@ function ugm_render_block_template_links( $attrs ) {
 }
 
 register_block_type( 'ugm/template-links', array(
-	'title'           => __( 'Tautan Layanan', 'ugm-faculty' ),
-	'description'     => __( 'Grid kartu tautan layanan dengan ikon, label, dan URL. Data diinput manual langsung di editor.', 'ugm-faculty' ),
+	'title'           => __( 'Featured Services', 'ugm-faculty' ),
+	'description'     => __( 'Display a manually managed grid of service or resource links.', 'ugm-faculty' ),
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_template_links',
 	'supports'        => array( 'html' => false ),
@@ -3011,19 +3285,19 @@ function ugm_resolve_faculty_exclude_ids( $slug_attr ) {
 add_filter( 'block_categories_all', function ( $categories ) {
 	array_unshift( $categories, array(
 		'slug'  => 'ugm-sections',
-		'title' => __( 'UGM — Landing Page Sections', 'ugm-faculty' ),
+		'title' => __( 'UGM — General Sections', 'ugm-faculty' ),
 		'icon'  => 'layout',
 	), array(
 		'slug'  => 'ugm-agenda-page-sections',
-		'title' => __( 'UGM - Agenda Page Sections', 'ugm-faculty' ),
+		'title' => __( 'UGM — Events & Agenda', 'ugm-faculty' ),
 		'icon'  => 'calendar',
 	), array(
 		'slug'  => 'ugm-announcement-page-sections',
-		'title' => __( 'UGM - Pengumuman Page Sections', 'ugm-faculty' ),
+		'title' => __( 'UGM — News & Updates', 'ugm-faculty' ),
 		'icon'  => 'megaphone',
 	), array(
 		'slug'  => 'ugm-gallery-page-sections',
-		'title' => __( 'UGM - Galeri Page Sections', 'ugm-faculty' ),
+		'title' => __( 'UGM — Gallery & Media', 'ugm-faculty' ),
 		'icon'  => 'format-gallery',
 	) );
 	return $categories;
@@ -3168,7 +3442,7 @@ add_action( 'init', function () {
 	}
 
 	register_block_pattern_category( 'ugm-landing', array(
-		'label' => __( 'UGM Landing Page', 'ugm-faculty' ),
+		'label' => __( 'UGM Page Sections', 'ugm-faculty' ),
 	) );
 
 	$landing_blocks = function_exists( 'ugm_get_default_landing_page_blocks' )
@@ -3176,22 +3450,22 @@ add_action( 'init', function () {
 		: '';
 
 	register_block_pattern( 'ugm/landing-page-sections', array(
-		'title'       => __( 'Konten Halaman Landing — Semua Section', 'ugm-faculty' ),
-		'description' => __( 'Hero + semua section halaman landing. Insert ke halaman yang menggunakan template Halaman Landing.', 'ugm-faculty' ),
+		'title'       => __( 'General Page Sections', 'ugm-faculty' ),
+		'description' => __( 'Hero and general content sections for pages that use the general page template.', 'ugm-faculty' ),
 		'categories'  => array( 'ugm-landing' ),
 		'content'     => $landing_blocks,
 	) );
 
 	register_block_pattern( 'ugm/agenda-page-sections', array(
-		'title'       => __( 'Konten Halaman Agenda', 'ugm-faculty' ),
-		'description' => __( 'Daftar agenda lengkap dengan filter dan pagination. Insert ke halaman yang menggunakan template Agenda Page.', 'ugm-faculty' ),
+		'title'       => __( 'Events & Agenda Page Sections', 'ugm-faculty' ),
+		'description' => __( 'Agenda list sections for pages that use the events and agenda template.', 'ugm-faculty' ),
 		'categories'  => array( 'ugm-landing' ),
 		'content'     => ugm_get_default_agenda_page_blocks(),
 	) );
 
 	register_block_pattern( 'ugm/announcement-page-sections', array(
-		'title'       => __( 'Konten Halaman Pengumuman', 'ugm-faculty' ),
-		'description' => __( 'Daftar pengumuman dengan sidebar berita dan agenda terbaru. Insert ke halaman yang menggunakan template Pengumuman Page.', 'ugm-faculty' ),
+		'title'       => __( 'News & Updates Page Sections', 'ugm-faculty' ),
+		'description' => __( 'Information list sections with supporting latest news and agenda blocks.', 'ugm-faculty' ),
 		'categories'  => array( 'ugm-landing' ),
 		'content'     => ugm_get_default_announcement_page_blocks(),
 	) );

@@ -181,9 +181,10 @@
 	}
 
 	registerBlockType( 'ugm/announcement-page', {
-		title:       __( 'Daftar Pengumuman', 'ugm-faculty' ),
-		description: __( 'Daftar pengumuman utama dengan filter dan slider daftar bawah.', 'ugm-faculty' ),
+		title:       __( 'Information List', 'ugm-faculty' ),
+		description: __( 'Display a searchable list of information, announcements, or updates.', 'ugm-faculty' ),
 		category:    'ugm-announcement-page-sections',
+		keywords:    [ __( 'information', 'ugm-faculty' ), __( 'announcements', 'ugm-faculty' ), __( 'updates', 'ugm-faculty' ) ],
 		icon:        'megaphone',
 		supports:    { html: false, multiple: false },
 		attributes: {
@@ -411,9 +412,10 @@
 	} );
 
 	registerBlockType( 'ugm/announcement-latest-news', {
-		title:       __( 'Pengumuman: Berita Terbaru', 'ugm-faculty' ),
-		description: __( 'Block sidebar berita terbaru untuk halaman pengumuman.', 'ugm-faculty' ),
+		title:       __( 'Latest News', 'ugm-faculty' ),
+		description: __( 'Display recent news items for a page sidebar or supporting section.', 'ugm-faculty' ),
 		category:    'ugm-announcement-page-sections',
+		keywords:    [ __( 'latest', 'ugm-faculty' ), __( 'news', 'ugm-faculty' ), __( 'updates', 'ugm-faculty' ) ],
 		icon:        'list-view',
 		supports:    { html: false },
 		attributes: {
@@ -459,9 +461,10 @@
 	} );
 
 	registerBlockType( 'ugm/announcement-latest-agenda', {
-		title:       __( 'Pengumuman: Agenda Terbaru', 'ugm-faculty' ),
-		description: __( 'Block sidebar agenda terbaru untuk halaman pengumuman.', 'ugm-faculty' ),
+		title:       __( 'Latest Agenda', 'ugm-faculty' ),
+		description: __( 'Display recent agenda or event items for a page sidebar or supporting section.', 'ugm-faculty' ),
 		category:    'ugm-announcement-page-sections',
+		keywords:    [ __( 'latest', 'ugm-faculty' ), __( 'agenda', 'ugm-faculty' ), __( 'events', 'ugm-faculty' ) ],
 		icon:        'calendar-alt',
 		supports:    { html: false },
 		attributes: {

@@ -2,7 +2,7 @@
  * UGM Landing Page — Block Editor JavaScript
  *
  * Registers all custom landing page section blocks in the block editor so they:
- * 1. Appear in the block inserter under "UGM — Landing Page Sections"
+ * 1. Appear in the block inserter under "UGM — General Sections"
  * 2. Show a live Server-Side Render (SSR) preview inside the editor canvas
  * 3. Expose Inspector Controls (sidebar settings) for title, category, hero image etc.
  *
@@ -518,7 +518,7 @@
 					null,
 					el(
 						PanelBody,
-						{ title: __( 'Event & Agenda', 'ugm-faculty' ), initialOpen: true },
+						{ title: __( 'Events & Agenda', 'ugm-faculty' ), initialOpen: true },
 						renderVisibilityControl( attrs, setAttr ),
 						el( TextControl, {
 							label: __( 'Judul Section', 'ugm-faculty' ),
@@ -529,7 +529,7 @@
 					),
 					el(
 						PanelBody,
-						{ title: __( 'Fasilitas Kampus', 'ugm-faculty' ), initialOpen: false },
+						{ title: __( 'Facilities', 'ugm-faculty' ), initialOpen: false },
 						el( TextControl, {
 							label: __( 'Judul Section', 'ugm-faculty' ),
 							value: attrs.facilityTitle || '',
@@ -540,6 +540,132 @@
 				),
 				el( ServerSideRender, {
 					block: blockName,
+					attributes: attrs,
+					httpMethod: 'POST',
+				} )
+			);
+		};
+	}
+
+	function makeGallerySectionEdit() {
+		return function ( props ) {
+			var attrs        = props.attributes;
+			var setAttr      = props.setAttributes;
+			var galleryPages = useSelect( function ( select ) {
+				var records = select( 'core' ).getEntityRecords( 'postType', 'page', {
+					per_page: 100,
+					status: 'publish',
+					orderby: 'title',
+					order: 'asc',
+				} );
+
+				if ( ! Array.isArray( records ) ) {
+					return null;
+				}
+
+				return records.filter( function ( page ) {
+					var template = page.template || '';
+					var content = page.content && page.content.raw ? page.content.raw : '';
+
+					return template === 'gallery-page' ||
+						template === 'page-templates/template-gallery.php' ||
+						content.indexOf( '<!-- wp:ugm/gallery-page' ) !== -1;
+				} );
+			}, [] );
+
+			function pageLabel( page ) {
+				return page.title && page.title.rendered
+					? page.title.rendered.replace( /<[^>]*>/g, '' )
+					: __( '(Untitled)', 'ugm-faculty' );
+			}
+
+			return el(
+				Fragment,
+				null,
+				el(
+					InspectorControls,
+					null,
+					el(
+						PanelBody,
+						{ title: __( 'Section Settings', 'ugm-faculty' ), initialOpen: true },
+						renderVisibilityControl( attrs, setAttr ),
+						el( SelectControl, {
+							label: __( 'Gallery page source', 'ugm-faculty' ),
+							value: String( attrs.galleryPageId || 0 ),
+							options: [
+								{ label: __( 'Auto-detect Gallery page', 'ugm-faculty' ), value: '0' },
+							].concat(
+								Array.isArray( galleryPages )
+									? galleryPages.map( function ( page ) {
+										return { label: pageLabel( page ), value: String( page.id ) };
+									} )
+									: []
+							),
+							onChange: function ( value ) {
+								setAttr( { galleryPageId: parseInt( value, 10 ) || 0 } );
+							},
+							help: Array.isArray( galleryPages )
+								? __( 'Landing Gallery reads cards and images from the selected Gallery page.', 'ugm-faculty' )
+								: __( 'Loading Gallery pages...', 'ugm-faculty' ),
+						} ),
+						el( TextControl, {
+							label: __( 'Section title', 'ugm-faculty' ),
+							value: attrs.sectionTitle || '',
+							onChange: function ( value ) { setAttr( { sectionTitle: value } ); },
+						} )
+					),
+					el(
+						PanelBody,
+						{ title: __( 'Links', 'ugm-faculty' ), initialOpen: false },
+						el( TextControl, {
+							label: __( 'Detail button label', 'ugm-faculty' ),
+							value: attrs.detailLabel || '',
+							onChange: function ( value ) { setAttr( { detailLabel: value } ); },
+						} ),
+						el( TextControl, {
+							label: __( 'View All label', 'ugm-faculty' ),
+							value: attrs.viewAllLabel || '',
+							onChange: function ( value ) { setAttr( { viewAllLabel: value } ); },
+						} )
+					),
+					el(
+						PanelBody,
+						{ title: __( 'Fallback Content', 'ugm-faculty' ), initialOpen: false },
+						el( 'p', { style: { color: '#757575', fontSize: '12px', marginTop: 0 } },
+							__( 'Used only when no Gallery page or Gallery card is available.', 'ugm-faculty' )
+						),
+						el( TextControl, {
+							label: __( 'Date', 'ugm-faculty' ),
+							value: attrs.date || '',
+							onChange: function ( value ) { setAttr( { date: value } ); },
+						} ),
+						el( TextControl, {
+							label: __( 'Gallery title', 'ugm-faculty' ),
+							value: attrs.galleryTitle || '',
+							onChange: function ( value ) { setAttr( { galleryTitle: value } ); },
+						} ),
+						el( TextareaControl, {
+							label: __( 'Description', 'ugm-faculty' ),
+							value: attrs.description || '',
+							rows: 3,
+							onChange: function ( value ) { setAttr( { description: value } ); },
+						} ),
+						el( TextControl, {
+							label: __( 'Detail fallback URL', 'ugm-faculty' ),
+							type: 'url',
+							value: attrs.detailUrl || '',
+							onChange: function ( value ) { setAttr( { detailUrl: value } ); },
+						} ),
+						el( TextControl, {
+							label: __( 'View All fallback URL', 'ugm-faculty' ),
+							type: 'url',
+							value: attrs.viewAllUrl || '',
+							onChange: function ( value ) { setAttr( { viewAllUrl: value } ); },
+						} )
+					)
+				),
+				el( ServerSideRender, {
+					block: 'ugm/gallery-section',
 					attributes: attrs,
 					httpMethod: 'POST',
 				} )
@@ -570,9 +696,10 @@
 	 * directly from the page editor sidebar.
 	 * ------------------------------------------------------------------ */
 	registerBlockType( 'ugm/hero-section', {
-		title:       __( 'Banner Utama', 'ugm-faculty' ),
-		description: __( 'Gambar latar, judul, dan deskripsi halaman landing.', 'ugm-faculty' ),
+		title:       __( 'Hero Banner', 'ugm-faculty' ),
+		description: __( 'Display a prominent page banner with media, heading, and supporting text.', 'ugm-faculty' ),
 		category:    'ugm-sections',
+		keywords:    [ __( 'hero', 'ugm-faculty' ), __( 'banner', 'ugm-faculty' ), __( 'media', 'ugm-faculty' ) ],
 		icon:        'format-image',
 		supports:    { html: false, multiple: false },
 		attributes: {
@@ -819,9 +946,10 @@
 	var sections = [
 		{
 			name:         'ugm/latest-news',
-			title:        __( 'Highlight Informasi', 'ugm-faculty' ),
-			description:  __( 'Menampilkan postingan terbaru pada landing page.', 'ugm-faculty' ),
+			title:        __( 'Information Highlights', 'ugm-faculty' ),
+			description:  __( 'Display selected information or news items.', 'ugm-faculty' ),
 			icon:         'rss',
+			keywords:     [ __( 'information', 'ugm-faculty' ), __( 'news', 'ugm-faculty' ), __( 'highlights', 'ugm-faculty' ) ],
 			defaultTitle: __( 'Berita Terbaru', 'ugm-faculty' ),
 			defaultSlug:  '',
 			categoryHelp: __( 'Biarkan kosong agar otomatis mengikuti gabungan kategori dari Informasi Akademik, Informasi Umum, dan Pencapaian.', 'ugm-faculty' ),
@@ -832,9 +960,10 @@
 		},
 		{
 			name:         'ugm/academic-news',
-			title:        __( 'Informasi Akademik', 'ugm-faculty' ),
-			description:  __( 'Menampilkan berita berdasarkan kategori akademik.', 'ugm-faculty' ),
+			title:        __( 'Academic Information', 'ugm-faculty' ),
+			description:  __( 'Display academic information or education-related posts.', 'ugm-faculty' ),
 			icon:         'book',
+			keywords:     [ __( 'academic', 'ugm-faculty' ), __( 'education', 'ugm-faculty' ), __( 'information', 'ugm-faculty' ) ],
 			defaultTitle: __( 'Berita Akademik', 'ugm-faculty' ),
 			defaultSlug:  'pendidikan',
 			attrs: {
@@ -844,9 +973,10 @@
 		},
 		{
 			name:         'ugm/profile-section',
-			title:        __( 'Informasi Umum', 'ugm-faculty' ),
-			description:  __( 'Menampilkan konten kategori profil / informasi umum.', 'ugm-faculty' ),
+			title:        __( 'General Information', 'ugm-faculty' ),
+			description:  __( 'Display general profile, overview, or informational posts.', 'ugm-faculty' ),
 			icon:         'admin-users',
+			keywords:     [ __( 'general', 'ugm-faculty' ), __( 'profile', 'ugm-faculty' ), __( 'information', 'ugm-faculty' ) ],
 			defaultTitle: __( 'Profile', 'ugm-faculty' ),
 			defaultSlug:  'profile',
 			attrs: {
@@ -856,9 +986,10 @@
 		},
 		{
 			name:         'ugm/achievement-section',
-			title:        __( 'Pencapaian', 'ugm-faculty' ),
-			description:  __( 'Menampilkan konten pencapaian / prestasi berdasarkan kategori.', 'ugm-faculty' ),
+			title:        __( 'Achievements', 'ugm-faculty' ),
+			description:  __( 'Display achievement, recognition, or milestone posts.', 'ugm-faculty' ),
 			icon:         'awards',
+			keywords:     [ __( 'achievements', 'ugm-faculty' ), __( 'awards', 'ugm-faculty' ), __( 'milestones', 'ugm-faculty' ) ],
 			defaultTitle: __( 'Prestasi', 'ugm-faculty' ),
 			defaultSlug:  'prestasi',
 			attrs: {
@@ -868,9 +999,10 @@
 		},
 		{
 			name:         'ugm/facility-section',
-			title:        __( 'Fasilitas', 'ugm-faculty' ),
-			description:  __( 'Menampilkan konten kategori fasilitas.', 'ugm-faculty' ),
+			title:        __( 'Facilities', 'ugm-faculty' ),
+			description:  __( 'Display facility-related content.', 'ugm-faculty' ),
 			icon:         'building',
+			keywords:     [ __( 'facilities', 'ugm-faculty' ), __( 'resources', 'ugm-faculty' ), __( 'services', 'ugm-faculty' ) ],
 			defaultTitle: __( 'Fasilitas', 'ugm-faculty' ),
 			defaultSlug:  'fasilitas',
 			supports:     { html: false, multiple: false, inserter: false },
@@ -881,9 +1013,10 @@
 		},
 		{
 			name:         'ugm/faculty-section',
-			title:        __( 'Fakultas dan Sekolah', 'ugm-faculty' ),
-			description:  __( 'Slider foto/logo fakultas dan sekolah.', 'ugm-faculty' ),
+			title:        __( 'Organization Structure', 'ugm-faculty' ),
+			description:  __( 'Display organizational units, departments, or related structures.', 'ugm-faculty' ),
 			icon:         'art',
+			keywords:     [ __( 'organization', 'ugm-faculty' ), __( 'structure', 'ugm-faculty' ), __( 'departments', 'ugm-faculty' ) ],
 			defaultTitle: __( 'Fakultas dan Sekolah', 'ugm-faculty' ),
 			defaultSlug:  null, // No category — data from Customizer.
 			supports:     { html: false, multiple: false, inserter: false },
@@ -895,9 +1028,10 @@
 		},
 		{
 			name:         'ugm/agenda-section',
-			title:        __( 'Event & Agenda', 'ugm-faculty' ),
-			description:  __( 'Menampilkan agenda kegiatan berdasarkan kategori.', 'ugm-faculty' ),
+			title:        __( 'Events & Agenda', 'ugm-faculty' ),
+			description:  __( 'Display event or agenda items from a selected category.', 'ugm-faculty' ),
 			icon:         'calendar',
+			keywords:     [ __( 'events', 'ugm-faculty' ), __( 'agenda', 'ugm-faculty' ), __( 'calendar', 'ugm-faculty' ) ],
 			defaultTitle: __( 'Agenda Kegiatan', 'ugm-faculty' ),
 			defaultSlug:  'agenda',
 			supports:     { html: false, multiple: false, inserter: false },
@@ -910,9 +1044,10 @@
 		},
 		{
 			name:         'ugm/category-section',
-			title:        __( 'Kategori', 'ugm-faculty' ),
-			description:  __( 'Menampilkan daftar kategori pada landing page.', 'ugm-faculty' ),
+			title:        __( 'Content Categories', 'ugm-faculty' ),
+			description:  __( 'Display a section of content categories.', 'ugm-faculty' ),
 			icon:         'category',
+			keywords:     [ __( 'categories', 'ugm-faculty' ), __( 'content', 'ugm-faculty' ), __( 'taxonomy', 'ugm-faculty' ) ],
 			defaultTitle: __( 'Kategori', 'ugm-faculty' ),
 			defaultSlug:  null,
 			attrs: {
@@ -921,9 +1056,10 @@
 		},
 		{
 			name:         'ugm/video-section',
-			title:        __( 'Media Video', 'ugm-faculty' ),
-			description:  __( 'Menampilkan video unggulan dan daftar video berdasarkan kategori.', 'ugm-faculty' ),
+			title:        __( 'Featured Video', 'ugm-faculty' ),
+			description:  __( 'Display a featured video and related video items from a selected category.', 'ugm-faculty' ),
 			icon:         'video-alt3',
+			keywords:     [ __( 'video', 'ugm-faculty' ), __( 'media', 'ugm-faculty' ), __( 'featured', 'ugm-faculty' ) ],
 			defaultTitle: __( 'Video', 'ugm-faculty' ),
 			defaultSlug:  'video',
 			attrs: {
@@ -947,6 +1083,7 @@
 			title:       section.title,
 			description: section.description,
 			category:    'ugm-sections',
+			keywords:    section.keywords || [],
 			icon:        section.icon,
 			supports:    section.supports || { html: false, multiple: false },
 			attributes:  Object.assign( { visibility: { type: 'string', default: 'all' } }, section.attrs ),
@@ -955,10 +1092,35 @@
 		} );
 	} );
 
+	registerBlockType( 'ugm/gallery-section', {
+		title:       __( 'Gallery', 'ugm-faculty' ),
+		description: __( 'Display a manually managed gallery highlight section.', 'ugm-faculty' ),
+		category:    'ugm-sections',
+		keywords:    [ __( 'gallery', 'ugm-faculty' ), __( 'images', 'ugm-faculty' ), __( 'media', 'ugm-faculty' ) ],
+		icon:        'format-gallery',
+		supports:    { html: false, multiple: false },
+		attributes: {
+			visibility:    { type: 'string', default: 'all' },
+			sectionTitle:  { type: 'string', default: 'Gallery' },
+			galleryPageId: { type: 'integer', default: 0 },
+			date:          { type: 'string', default: '' },
+			galleryTitle:  { type: 'string', default: 'Gallery Highlight' },
+			description:   { type: 'string', default: '' },
+			detailLabel:   { type: 'string', default: 'View Details' },
+			detailUrl:     { type: 'string', default: '' },
+			viewAllLabel:  { type: 'string', default: 'View All' },
+			viewAllUrl:    { type: 'string', default: '' },
+			images:        { type: 'array', default: [] },
+		},
+		edit: makeGallerySectionEdit(),
+		save: function () { return null; },
+	} );
+
 	registerBlockType( 'ugm/featured-categories', {
-		title: __( 'Sorotan Kategori (Lama)', 'ugm-faculty' ),
-		description: __( 'Blok lama — gunakan "Sorotan Kategori Kolom" agar tiap kolom bisa dipindah terpisah.', 'ugm-faculty' ),
+		title: __( 'Content Categories (Legacy)', 'ugm-faculty' ),
+		description: __( 'Legacy grouped category highlights. Use Featured Content for movable individual columns.', 'ugm-faculty' ),
 		category: 'ugm-sections',
+		keywords: [ __( 'categories', 'ugm-faculty' ), __( 'legacy', 'ugm-faculty' ), __( 'content', 'ugm-faculty' ) ],
 		icon: 'screenoptions',
 		supports: { html: false, multiple: false, inserter: false },
 		attributes: {
@@ -976,9 +1138,10 @@
 
 	/* ugm/featured-category-column — single reorderable column */
 	registerBlockType( 'ugm/featured-category-column', {
-		title:       __( 'Highlight Konten', 'ugm-faculty' ),
-		description: __( 'Satu kolom highlight konten. Tambahkan tiga blok ini berdampingan dan pindah-pindahkan sesuka hati.', 'ugm-faculty' ),
+		title:       __( 'Featured Content', 'ugm-faculty' ),
+		description: __( 'Display a single highlighted content column based on a selected category.', 'ugm-faculty' ),
 		category:    'ugm-sections',
+		keywords:    [ __( 'featured', 'ugm-faculty' ), __( 'content', 'ugm-faculty' ), __( 'category', 'ugm-faculty' ) ],
 		icon:        'columns',
 		supports:    { html: false },
 		attributes: {
@@ -987,7 +1150,7 @@
 			categorySlug: { type: 'string', default: '' },
 			emptyText:    { type: 'string', default: '' },
 		},
-		edit: makeSectionEdit( 'ugm/featured-category-column', __( 'Highlight Konten', 'ugm-faculty' ), 'seputar-kampus' ),
+		edit: makeSectionEdit( 'ugm/featured-category-column', __( 'Featured Content', 'ugm-faculty' ), 'seputar-kampus' ),
 		save: function () { return null; },
 	} );
 
@@ -995,7 +1158,7 @@
 	[
 		{ name: 'ugm/site-header',      title: __( 'Header Situs', 'ugm-faculty' ),   icon: 'admin-site' },
 		{ name: 'ugm/site-footer',      title: __( 'Footer Situs', 'ugm-faculty' ),   icon: 'admin-site-alt3' },
-		{ name: 'ugm/magazine-section', title: __( 'E-Magazine', 'ugm-faculty' ), icon: 'media-document' },
+		{ name: 'ugm/magazine-section', title: __( 'Digital Magazine', 'ugm-faculty' ), icon: 'media-document' },
 	].forEach( function ( block ) {
 		registerBlockType( block.name, {
 			title:    block.title,
@@ -1089,9 +1252,10 @@
 	} );
 
 	registerBlockType( 'ugm/agenda-only', {
-		title:       __( 'Event & Agenda', 'ugm-faculty' ),
-		description: __( 'Menampilkan daftar agenda kegiatan. Bisa dipindah terpisah dari Fasilitas Kampus.', 'ugm-faculty' ),
+		title:       __( 'Events & Agenda', 'ugm-faculty' ),
+		description: __( 'Display event or agenda items from a selected category.', 'ugm-faculty' ),
 		category:    'ugm-sections',
+		keywords:    [ __( 'events', 'ugm-faculty' ), __( 'agenda', 'ugm-faculty' ), __( 'calendar', 'ugm-faculty' ) ],
 		icon:        'calendar-alt',
 		supports:    { html: false },
 		attributes: {
@@ -1099,15 +1263,16 @@
 			title:        { type: 'string', default: 'Event & Agenda' },
 			categorySlug: { type: 'string', default: '' },
 		},
-		edit: makeSectionEdit( 'ugm/agenda-only', __( 'Event & Agenda', 'ugm-faculty' ), 'agenda' ),
+		edit: makeSectionEdit( 'ugm/agenda-only', __( 'Events & Agenda', 'ugm-faculty' ), 'agenda' ),
 		save: function () { return null; },
 	} );
 
 	/* ugm/facility-only — Fasilitas Mahasiswa mandiri */
 	registerBlockType( 'ugm/facility-only', {
-		title:       __( 'Fasilitas Kampus', 'ugm-faculty' ),
-		description: __( 'Menampilkan grid fasilitas kampus. Bisa dipindah terpisah dari Event & Agenda.', 'ugm-faculty' ),
+		title:       __( 'Facilities', 'ugm-faculty' ),
+		description: __( 'Display facility items from a selected category.', 'ugm-faculty' ),
 		category:    'ugm-sections',
+		keywords:    [ __( 'facilities', 'ugm-faculty' ), __( 'services', 'ugm-faculty' ), __( 'resources', 'ugm-faculty' ) ],
 		icon:        'building',
 		supports:    { html: false },
 		attributes: {
@@ -1115,14 +1280,15 @@
 			title:        { type: 'string', default: 'Fasilitas Kampus' },
 			categorySlug: { type: 'string', default: '' },
 		},
-		edit: makeSectionEdit( 'ugm/facility-only', __( 'Fasilitas Kampus', 'ugm-faculty' ), 'fasilitas-mahasiswa' ),
+		edit: makeSectionEdit( 'ugm/facility-only', __( 'Facilities', 'ugm-faculty' ), 'fasilitas-mahasiswa' ),
 		save: function () { return null; },
 	} );
 	/* ugm/faculty-list — Fakultas dan Sekolah (Manual / Static) */
 	registerBlockType( 'ugm/faculty-list', {
-		title:       __( 'Struktur Akademik', 'ugm-faculty' ),
-		description: __( 'Daftar fakultas/sekolah diinput langsung di editor — gambar, nama, link website.', 'ugm-faculty' ),
+		title:       __( 'Organization Structure', 'ugm-faculty' ),
+		description: __( 'Display a manually managed list of organizational units with images and links.', 'ugm-faculty' ),
 		category:    'ugm-sections',
+		keywords:    [ __( 'organization', 'ugm-faculty' ), __( 'departments', 'ugm-faculty' ), __( 'structure', 'ugm-faculty' ) ],
 		icon:        'building',
 		supports:    { html: false },
 		attributes: {
@@ -1286,9 +1452,10 @@
 	 * optional background image, and an external URL.
 	 * ------------------------------------------------------------------ */
 	registerBlockType( 'ugm/template-links', {
-		title:       __( 'Layanan Pilihan', 'ugm-faculty' ),
-		description: __( 'Grid kartu layanan pilihan dengan ikon, label, dan URL. Data diinput manual di editor.', 'ugm-faculty' ),
+		title:       __( 'Featured Services', 'ugm-faculty' ),
+		description: __( 'Display a manually managed grid of service or resource links.', 'ugm-faculty' ),
 		category:    'ugm-sections',
+		keywords:    [ __( 'services', 'ugm-faculty' ), __( 'links', 'ugm-faculty' ), __( 'resources', 'ugm-faculty' ) ],
 		icon:        'admin-links',
 		supports:    { html: false },
 		attributes: {
