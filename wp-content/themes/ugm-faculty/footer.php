@@ -77,18 +77,18 @@
 
 		/* ── BANNER:  full-width, proporsional ── */
 		#colophon .ugm-footer__wrap--banner {
-			overflow: hidden;
+			overflow: visible;
 			padding: 0;
-			margin: 0;
-			width: 100%;
+			margin: 0 auto;
+			width: min(70%, 1400px);
 			line-height: 0;
-			border-top: 1px solid rgba(255,255,255,0.1);
+			border-top: 0;
 		}
 		#colophon .ugm-footer__wrap--banner .widget,
 		#colophon .ugm-footer__wrap--banner section,
 		#colophon .ugm-footer__wrap--banner figure,
 		#colophon .ugm-footer__wrap--banner div {
-			overflow: hidden;
+			overflow: visible;
 			padding: 0 !important;
 			margin: 0 !important;
 			line-height: 0;
@@ -96,11 +96,11 @@
 		}
 		#colophon .ugm-footer__wrap--banner img {
 			width: 100% !important;
-			height: 320px !important; /* Set fixed explicit height to force cropping */
-			object-fit: cover !important;
-			object-position: center bottom !important;
+			height: auto !important;
+			object-fit: contain !important;
+			object-position: center center !important;
 			display: block !important;
-			max-width: none !important;
+			max-width: 100% !important;
 		}
 
 		/* ── DESKTOP (768px+): centering melalui padding kiri-kanan ── */
@@ -114,7 +114,7 @@
 			#colophon .ugm-footer__social-link { width: 28px; height: 28px; }
 			#colophon .ugm-footer__social-icon { width: 24px; height: 24px; }
 			#colophon .ugm-footer__brand-img { height: 64px; }
-			#colophon .ugm-footer__wrap--banner { height: auto; max-width: 100%; margin: 0; }
+			#colophon .ugm-footer__wrap--banner { height: auto; width: min(70%, 1400px); max-width: 100%; margin: 0 auto; }
 			#colophon .ugm-footer__wrap--banner .widget,
 			#colophon .ugm-footer__wrap--banner section { height: auto; }
 		}
@@ -123,7 +123,10 @@
 				padding-left: max(32px, calc((100% - 1040px) / 2));
 				padding-right: max(32px, calc((100% - 1040px) / 2));
 			}
-			#colophon .ugm-footer__wrap--banner { max-width: 100%; margin: 0; height: auto; }
+			#colophon .ugm-footer__wrap--banner { width: min(70%, 1400px); max-width: 100%; margin: 0 auto; height: auto; }
+		}
+		@media (max-width: 767px) {
+			#colophon .ugm-footer__wrap--banner { width: calc(100% - 24px); }
 		}
 		</style>
 

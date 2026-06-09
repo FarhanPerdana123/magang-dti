@@ -219,15 +219,6 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 		$photo_url = esc_url_raw( (string) $attrs['photoUrl'] );
 	}
 
-	if ( __( 'Sambutan Rektor', 'ugm-faculty' ) === $title ) {
-		$title = __( 'Lorem Ipsum', 'ugm-faculty' );
-	}
-	if ( __( 'Beranda', 'ugm-faculty' ) === $breadcrumb_home ) {
-		$breadcrumb_home = __( 'Lorem Ipsum', 'ugm-faculty' );
-	}
-	if ( __( 'Tentang UGM', 'ugm-faculty' ) === $breadcrumb_parent ) {
-		$breadcrumb_parent = __( 'Lorem Ipsum', 'ugm-faculty' );
-	}
 	if ( trim( ugm_get_legacy_rector_greeting_paragraphs() ) === $body ) {
 		$body = ugm_get_default_rector_greeting_paragraphs();
 	}

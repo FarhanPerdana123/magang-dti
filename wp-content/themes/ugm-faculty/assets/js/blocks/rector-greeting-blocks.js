@@ -343,15 +343,6 @@
 			useEffect( function () {
 				var nextAttrs = {};
 
-				if ( attrs.breadcrumbHome === 'Beranda' ) {
-					nextAttrs.breadcrumbHome = 'Lorem Ipsum';
-				}
-				if ( attrs.breadcrumbParent === 'Tentang UGM' ) {
-					nextAttrs.breadcrumbParent = 'Lorem Ipsum';
-				}
-				if ( attrs.title === 'Sambutan Rektor' ) {
-					nextAttrs.title = 'Lorem Ipsum';
-				}
 				if ( attrs.body === getLegacyRectorBody() ) {
 					nextAttrs.body = getDefaultRectorBody();
 				}

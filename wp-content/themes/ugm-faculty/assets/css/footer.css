@@ -300,19 +300,21 @@
 /* ══ BANNER BAWAH ════════════════════════════════════════════════════════ */
 
 .ugm-footer__wrap--banner {
-	overflow: hidden;
-	height: 140px;
-	border-top: 1px solid rgba(255, 255, 255, 0.1);
+	overflow: visible;
+	width: min(70%, 1400px);
+	height: auto;
+	margin-inline: auto;
+	border-top: 0;
 }
 
-.ugm-footer__wrap--banner .widget { height: 100%; }
+.ugm-footer__wrap--banner .widget { height: auto; }
 
 .ugm-footer__wrap--banner img {
 	display: block;
 	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	object-position: center 20%;
+	height: auto;
+	object-fit: contain;
+	object-position: center center;
 }
 
 /* ══ BOTTOM BAR ══════════════════════════════════════════════════════════ */
@@ -431,11 +433,16 @@
 		text-align: center;
 	}
 
-	/* Banner lebih tinggi (tampilkan panorama penuh) */
-	.ugm-footer__wrap--banner { height: 200px; }
+	.ugm-footer__wrap--banner { height: auto; }
 }
 
 @media (min-width: 1280px) {
 	.ugm-footer__container { max-width: 1040px; }
-	.ugm-footer__wrap--banner { height: 240px; }
+	.ugm-footer__wrap--banner { height: auto; }
+}
+
+@media (max-width: 767px) {
+	.ugm-footer__wrap--banner {
+		width: calc(100% - 24px);
+	}
 }
