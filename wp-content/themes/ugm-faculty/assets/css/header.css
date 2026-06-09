@@ -1173,9 +1173,7 @@
 	.primary-menu__list > li.page_item_has_children > .sub-menu a:hover,
 	.primary-menu__list > li.page_item_has_children > .sub-menu a:focus-visible {
 		color: #001f43 !important;
-		text-decoration: underline;
-		text-decoration-color: #d2b343;
-		text-underline-offset: 0.25rem;
+		text-decoration: none;
 	}
 
 	.primary-menu__list .sub-menu .sub-menu {
@@ -1297,16 +1295,20 @@
 		content: '';
 		position: absolute;
 		bottom: -2px;
-		left: 0;
-		width: 0;
+		left: 50%;
+		width: 100%;
 		height: 1px;
 		background: var(--color-secondary-400);
-		transition: width 250ms ease;
+		opacity: 0.75;
+		transform: translateX(-50%) scaleX(0);
+		transform-origin: center;
+		transition: transform 240ms ease, opacity 240ms ease;
 	}
 
 	.primary-navigation a:hover::after,
 	.primary-navigation a:focus::after {
-		width: 100%;
+		opacity: 1;
+		transform: translateX(-50%) scaleX(1);
 	}
 
 	.primary-menu__list > li > a::after {
@@ -1548,16 +1550,53 @@
 		width: 100%;
 		height: 2px;
 		background: #f5c542;
+		border-radius: 999px;
+		opacity: 0.76;
 		transform: translateX(-50%) scaleX(0);
 		transform-origin: center;
-		transition: transform 220ms ease;
+		transition: transform 240ms ease, opacity 240ms ease;
 	}
 
 	.primary-navigation a:hover::after,
 	.primary-navigation a:focus-visible::after,
 	.primary-menu__list > .current-menu-item > a::after,
 	.primary-menu__list > .current_page_item > a::after {
+		opacity: 1;
 		transform: translateX(-50%) scaleX(1);
+	}
+
+	.primary-menu__list > li.menu-item-has-children > .sub-menu a,
+	.primary-menu__list > li.page_item_has_children > .sub-menu a {
+		position: relative;
+		display: inline-block;
+		max-width: 100%;
+		text-decoration: none;
+	}
+
+	.primary-menu__list > li.menu-item-has-children > .sub-menu a::after,
+	.primary-menu__list > li.page_item_has_children > .sub-menu a::after {
+		content: '';
+		position: absolute;
+		right: 0;
+		bottom: -0.12rem;
+		left: 0;
+		display: block;
+		width: 100%;
+		height: 1px;
+		background: #d2b343;
+		border-radius: 999px;
+		opacity: 0.72;
+		transform: scaleX(0);
+		transform-origin: left center;
+		transition: transform 240ms ease, opacity 240ms ease;
+	}
+
+	.primary-menu__list > li.menu-item-has-children > .sub-menu a:hover::after,
+	.primary-menu__list > li.menu-item-has-children > .sub-menu a:focus-visible::after,
+	.primary-menu__list > li.page_item_has_children > .sub-menu a:hover::after,
+	.primary-menu__list > li.page_item_has_children > .sub-menu a:focus-visible::after {
+		opacity: 1;
+		transform: scaleX(1);
 	}
 
 }

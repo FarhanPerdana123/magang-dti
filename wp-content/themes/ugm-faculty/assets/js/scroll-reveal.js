@@ -1,158 +1,115 @@
-(function () {
+( function () {
 	'use strict';
 
-	function revealElements(elements) {
-		elements.forEach(function (element) {
-			element.classList.add('is-visible');
-		});
+	function revealElements( elements ) {
+		elements.forEach( function ( element ) {
+			element.classList.add( 'is-visible' );
+		} );
+	}
+
+	function isExcluded( element ) {
+		return !! element.closest(
+			[
+				'.site-header',
+				'.primary-navigation',
+				'.menu-backdrop',
+				'.hero',
+				'.ugm-home',
+				'.ugm-gallery-page',
+				'.ugm-gallery-card',
+				'.faculty-slider',
+				'.faculty-nav',
+				'.faculty-pagination'
+			].join( ',' )
+		);
 	}
 
 	function initScrollReveal() {
-		document.documentElement.classList.add('js');
+		document.documentElement.classList.add( 'js' );
 
 		var autoRevealSelectors = [
-			'.section-header',
-			'.section-arrow-link',
-			'.section-empty',
-			'.news-card',
-			'.academic-card',
-			'.list-card',
-			'.faculty-card',
-			'.category-card',
-			'.majalah-card',
-			'.faculty-nav',
-			'.faculty-pagination',
-			'.category-mobile-list'
+			'.site-main .page-header',
+			'.site-main .entry-header',
+			'.site-main .entry-content > *',
+			'.site-main .wp-block-group',
+			'.site-main .wp-block-columns',
+			'.site-main .wp-block-column',
+			'.site-main article',
+			'.site-main .card',
+			'.site-main .portal-card',
+			'.site-main .portal-list-card',
+			'.site-main .news-grid-card',
+			'.site-main .desktop-agenda-card',
+			'.site-main .desktop-facility-card',
+			'.site-main .majalah-card',
+			'.site-main .video-featured',
+			'.site-main .video-list-card',
+			'.site-main .template-link-card',
+			'.site-main .ugm-agenda-card',
+			'.site-main .ugm-announcement-featured',
+			'.site-main .ugm-announcement-compact',
+			'.site-main .ugm-announcement-list-item',
+			'.site-main .ugm-announcement-side-news',
+			'.site-main .ugm-announcement-side-agenda',
+			'.site-main .ugm-rector-greeting',
+			'.site-main .ugm-about-sidebar',
+			'.site-footer > *'
 		];
 
-		autoRevealSelectors.forEach(function (selector) {
-			var nodes = document.querySelectorAll(selector);
-			nodes.forEach(function (node) {
-				node.classList.add('scroll-reveal');
-			});
-		});
-
-		var directionCounters = {};
-		var delayCounters = {};
-		var groupCounter = 0;
-
-		function nextDirection(key, options) {
-			var current = directionCounters[key] || 0;
-			directionCounters[key] = current + 1;
-			return options[current % options.length];
-		}
-
-		function getGroupKey(element) {
-			var section = element.closest('.home-section');
-			if (section) {
-				if (!section.hasAttribute('data-reveal-group')) {
-					section.setAttribute('data-reveal-group', String(groupCounter));
-					groupCounter += 1;
+		autoRevealSelectors.forEach( function ( selector ) {
+			document.querySelectorAll( selector ).forEach( function ( node ) {
+				if ( isExcluded( node ) || node.classList.contains( 'ugm-scroll-reveal' ) ) {
+					return;
 				}
-				return section.getAttribute('data-reveal-group');
-			}
-			return 'global';
-		}
+				node.classList.add( 'ugm-scroll-reveal' );
+			} );
+		} );
 
-		function chooseReveal(element) {
-			if (element.matches('.section-header')) {
-				return 'down';
-			}
-			if (element.matches('.section-arrow-link')) {
-				return 'right';
-			}
-			if (element.matches('.section-empty')) {
-				return 'up';
-			}
-			if (element.matches('.faculty-nav--prev')) {
-				return 'left';
-			}
-			if (element.matches('.faculty-nav--next')) {
-				return 'right';
-			}
-			if (element.matches('.category-mobile-list')) {
-				return 'down';
-			}
-			if (element.matches('.news-card--featured')) {
-				return 'up';
-			}
-			if (element.matches('.news-card--compact')) {
-				return nextDirection('news-compact', ['left', 'right']);
-			}
-			if (element.matches('.academic-card')) {
-				return nextDirection('academic', ['right', 'left']);
-			}
-			if (element.matches('.list-card--reverse')) {
-				return 'right';
-			}
-			if (element.matches('.list-card')) {
-				return nextDirection('list', ['left', 'up']);
-			}
-			if (element.matches('.faculty-card')) {
-				return nextDirection('faculty', ['up', 'left', 'right']);
-			}
-			if (element.matches('.category-card')) {
-				return nextDirection('category', ['left', 'right', 'up']);
-			}
-			if (element.matches('.majalah-card')) {
-				return nextDirection('majalah', ['up', 'right', 'left', 'zoom']);
-			}
-			return nextDirection('fallback', ['up', 'right', 'left', 'down', 'zoom']);
-		}
-
-		var elements = Array.prototype.slice.call(document.querySelectorAll('.scroll-reveal'));
-		if (!elements.length) {
+		var elements = Array.prototype.slice.call( document.querySelectorAll( '.ugm-scroll-reveal' ) ).filter( function ( element ) {
+			return ! isExcluded( element );
+		} );
+		if ( ! elements.length ) {
 			return;
 		}
 
-		elements.forEach(function (element) {
-			var delay = element.getAttribute('data-reveal-delay');
-			if (delay) {
-				element.style.setProperty('--reveal-delay', delay + 'ms');
-			} else {
-				var groupKey = getGroupKey(element);
-				var groupIndex = delayCounters[groupKey] || 0;
-				delayCounters[groupKey] = groupIndex + 1;
-				var computedDelay = Math.min(groupIndex, 4) * 70;
-				element.style.setProperty('--reveal-delay', computedDelay + 'ms');
+		elements.forEach( function ( element, index ) {
+			if ( element.style.getPropertyValue( '--ugm-reveal-delay' ) ) {
+				return;
 			}
+			element.style.setProperty( '--ugm-reveal-delay', Math.min( index % 6, 5 ) * 45 + 'ms' );
+		} );
 
-			if (!element.hasAttribute('data-reveal')) {
-				element.setAttribute('data-reveal', chooseReveal(element));
-			}
-		});
-
-		var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		if (prefersReducedMotion || !('IntersectionObserver' in window)) {
-			revealElements(elements);
+		var prefersReducedMotion = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+		if ( prefersReducedMotion || !( 'IntersectionObserver' in window ) ) {
+			revealElements( elements );
 			return;
 		}
 
 		var observer = new IntersectionObserver(
-			function (entries) {
-				entries.forEach(function (entry) {
-					if (entry.isIntersecting) {
-						entry.target.classList.add('is-visible');
+			function ( entries ) {
+				entries.forEach( function ( entry ) {
+					if ( entry.isIntersecting ) {
+						entry.target.classList.add( 'is-visible' );
 					} else {
-						entry.target.classList.remove('is-visible');
+						entry.target.classList.remove( 'is-visible' );
 					}
-				});
+				} );
 			},
 			{
 				root: null,
-				rootMargin: '0px 0px -10% 0px',
-				threshold: 0.15
+				rootMargin: '0px 0px -12% 0px',
+				threshold: 0.12
 			}
 		);
 
-		elements.forEach(function (element) {
-			observer.observe(element);
-		});
+		elements.forEach( function ( element ) {
+			observer.observe( element );
+		} );
 	}
 
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', initScrollReveal);
+	if ( document.readyState === 'loading' ) {
+		document.addEventListener( 'DOMContentLoaded', initScrollReveal );
 	} else {
 		initScrollReveal();
 	}
-})();
+}() );
