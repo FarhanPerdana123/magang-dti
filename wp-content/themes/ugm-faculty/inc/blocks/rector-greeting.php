@@ -54,7 +54,8 @@ function ugm_get_default_rector_greeting_blocks() {
 	);
 
 	$sidebar_attrs = array(
-		'title' => __( 'Tentang UGM', 'ugm-faculty' ),
+		'title'                   => __( 'Tentang UGM', 'ugm-faculty' ),
+		'selectedParentMenuTitle' => __( 'Tentang', 'ugm-faculty' ),
 	);
 
 	return '<!-- wp:ugm/rector-greeting-content ' . wp_json_encode( $content_attrs ) . ' /-->' . "\n" .
@@ -320,25 +321,82 @@ register_block_type( 'ugm/rector-greeting-content', array(
 	),
 ) );
 
-function ugm_get_about_ugm_sidebar_menu_object( $location = 'sidebar-tentang-ugm' ) {
-	$location = sanitize_key( (string) $location );
+function ugm_get_primary_header_menu_object() {
 	$locations = get_nav_menu_locations();
 
-	if ( isset( $locations[ $location ] ) ) {
-		$menu = wp_get_nav_menu_object( $locations[ $location ] );
-		if ( $menu instanceof WP_Term ) {
-			return $menu;
-		}
-	}
-
-	foreach ( array( 'sidebar-tentang-ugm', 'tentang-ugm' ) as $menu_name ) {
-		$menu = wp_get_nav_menu_object( $menu_name );
+	if ( isset( $locations['menu-1'] ) ) {
+		$menu = wp_get_nav_menu_object( $locations['menu-1'] );
 		if ( $menu instanceof WP_Term ) {
 			return $menu;
 		}
 	}
 
 	return null;
+}
+
+function ugm_get_primary_header_menu_items() {
+	$menu = ugm_get_primary_header_menu_object();
+	if ( ! $menu instanceof WP_Term ) {
+		return array();
+	}
+
+	$items = wp_get_nav_menu_items(
+		$menu->term_id,
+		array(
+			'update_post_term_cache' => false,
+		)
+	);
+
+	if ( empty( $items ) || ! is_array( $items ) ) {
+		return array();
+	}
+
+	usort(
+		$items,
+		static function ( $left, $right ) {
+			return (int) $left->menu_order <=> (int) $right->menu_order;
+		}
+	);
+
+	return $items;
+}
+
+function ugm_get_primary_header_parent_menu_options() {
+	$items = ugm_get_primary_header_menu_items();
+	if ( empty( $items ) ) {
+		return array();
+	}
+
+	$child_counts = array();
+	foreach ( $items as $item ) {
+		$parent_id = (int) $item->menu_item_parent;
+		if ( $parent_id > 0 ) {
+			if ( ! isset( $child_counts[ $parent_id ] ) ) {
+				$child_counts[ $parent_id ] = 0;
+			}
+			++$child_counts[ $parent_id ];
+		}
+	}
+
+	$options = array();
+	foreach ( $items as $item ) {
+		if ( 0 !== (int) $item->menu_item_parent ) {
+			continue;
+		}
+
+		$title = trim( (string) $item->title );
+		if ( '' === $title ) {
+			continue;
+		}
+
+		$options[] = array(
+			'id'         => (int) $item->ID,
+			'title'      => $title,
+			'childCount' => isset( $child_counts[ (int) $item->ID ] ) ? (int) $child_counts[ (int) $item->ID ] : 0,
+		);
+	}
+
+	return $options;
 }
 
 function ugm_rector_normalize_url_for_compare( $url ) {
@@ -362,15 +420,15 @@ function ugm_about_sidebar_menu_item_is_current( WP_Post $item ) {
 	return '' !== $current_url && '' !== $item_url && $current_url === $item_url;
 }
 
-function ugm_flatten_about_sidebar_menu_items( $items, $parent_id = 0, $level = 0, &$active_ids = array() ) {
-	$flat = array();
+function ugm_build_about_sidebar_menu_tree( $items, $parent_id = 0, $level = 0, &$active_ids = array() ) {
+	$tree = array();
 
 	foreach ( $items as $item ) {
 		if ( (int) $item->menu_item_parent !== (int) $parent_id ) {
 			continue;
 		}
 
-		$children = ugm_flatten_about_sidebar_menu_items( $items, (int) $item->ID, $level + 1, $active_ids );
+		$children = ugm_build_about_sidebar_menu_tree( $items, (int) $item->ID, $level + 1, $active_ids );
 		$current  = ugm_about_sidebar_menu_item_is_current( $item );
 		$active   = $current;
 
@@ -385,52 +443,139 @@ function ugm_flatten_about_sidebar_menu_items( $items, $parent_id = 0, $level = 
 			$active_ids[] = (int) $item->ID;
 		}
 
-		$flat[] = array(
-			'label'  => (string) $item->title,
-			'url'    => (string) $item->url,
-			'active' => $active,
-			'current' => $current,
-			'level'  => min( 2, max( 0, (int) $level ) ),
+		$tree[] = array(
+			'id'       => (int) $item->ID,
+			'label'    => (string) $item->title,
+			'url'      => (string) $item->url,
+			'active'   => $active,
+			'current'  => $current,
+			'level'    => max( 0, (int) $level ),
+			'children' => $children,
 		);
-
-		$flat = array_merge( $flat, $children );
 	}
 
-	return $flat;
+	return $tree;
 }
 
-function ugm_get_about_sidebar_menu_items( $location = 'sidebar-tentang-ugm' ) {
-	$menu = ugm_get_about_ugm_sidebar_menu_object( $location );
-	if ( ! $menu instanceof WP_Term ) {
-		return array();
-	}
+function ugm_find_about_sidebar_parent_menu_item( $items, $selected_parent_menu_id = 0, $selected_parent_menu_title = '' ) {
+	$selected_parent_menu_id    = absint( $selected_parent_menu_id );
+	$selected_parent_menu_title = trim( (string) $selected_parent_menu_title );
 
-	$items = wp_get_nav_menu_items(
-		$menu->term_id,
-		array(
-			'update_post_term_cache' => false,
-		)
-	);
-
-	if ( empty( $items ) || ! is_array( $items ) ) {
-		return array();
-	}
-
-	usort(
-		$items,
-		static function ( $left, $right ) {
-			return (int) $left->menu_order <=> (int) $right->menu_order;
+	foreach ( $items as $item ) {
+		if ( 0 !== (int) $item->menu_item_parent ) {
+			continue;
 		}
-	);
+
+		if ( $selected_parent_menu_id > 0 && (int) $item->ID === $selected_parent_menu_id ) {
+			return $item;
+		}
+	}
+
+	if ( '' === $selected_parent_menu_title ) {
+		return null;
+	}
+
+	$selected_slug = sanitize_title( $selected_parent_menu_title );
+	foreach ( $items as $item ) {
+		if ( 0 !== (int) $item->menu_item_parent ) {
+			continue;
+		}
+
+		if ( sanitize_title( (string) $item->title ) === $selected_slug ) {
+			return $item;
+		}
+	}
+
+	return null;
+}
+
+function ugm_get_about_sidebar_menu_state( $selected_parent_menu_id = 0, $selected_parent_menu_title = '' ) {
+	$items = ugm_get_primary_header_menu_items();
+	if ( empty( $items ) ) {
+		return array(
+			'status' => 'missing_menu',
+			'items'  => array(),
+		);
+	}
+
+	$parent = ugm_find_about_sidebar_parent_menu_item( $items, $selected_parent_menu_id, $selected_parent_menu_title );
+	if ( ! $parent instanceof WP_Post ) {
+		return array(
+			'status' => 'missing_parent',
+			'items'  => array(),
+		);
+	}
 
 	$active_ids = array();
-	return ugm_flatten_about_sidebar_menu_items( $items, 0, 0, $active_ids );
+	$sidebar_items = ugm_build_about_sidebar_menu_tree( $items, (int) $parent->ID, 0, $active_ids );
+
+	return array(
+		'status' => empty( $sidebar_items ) ? 'missing_children' : 'ready',
+		'items'  => $sidebar_items,
+	);
+}
+
+function ugm_render_about_sidebar_menu_items( $items, $level = 0 ) {
+	if ( empty( $items ) || ! is_array( $items ) ) {
+		return;
+	}
+
+	$list_class = 0 === (int) $level ? 'ugm-about-sidebar__list' : 'ugm-about-sidebar__submenu';
+	?>
+	<ul class="<?php echo esc_attr( $list_class ); ?>">
+		<?php foreach ( $items as $item ) : ?>
+			<?php
+			$label       = trim( (string) ( $item['label'] ?? '' ) );
+			$url         = trim( (string) ( $item['url'] ?? '' ) );
+			$children    = isset( $item['children'] ) && is_array( $item['children'] ) ? $item['children'] : array();
+			$has_children = ! empty( $children );
+			$active      = ! empty( $item['active'] );
+			$current     = ! empty( $item['current'] );
+			$item_level  = min( 3, max( 0, absint( $item['level'] ?? $level ) ) );
+
+			if ( '' === $label ) {
+				continue;
+			}
+
+			$item_classes = array(
+				'ugm-about-sidebar__item',
+				'ugm-about-sidebar__item--level-' . $item_level,
+			);
+
+			if ( $active ) {
+				$item_classes[] = 'is-active';
+			}
+
+			if ( $has_children ) {
+				$item_classes[] = 'has-children';
+			}
+			?>
+			<li class="<?php echo esc_attr( implode( ' ', $item_classes ) ); ?>">
+				<?php if ( $has_children ) : ?>
+					<details class="ugm-about-sidebar__details">
+						<summary class="ugm-about-sidebar__link ugm-about-sidebar__summary">
+							<span><?php echo esc_html( $label ); ?></span>
+						</summary>
+						<?php ugm_render_about_sidebar_menu_items( $children, $level + 1 ); ?>
+					</details>
+				<?php else : ?>
+					<?php $tag = '' !== $url ? 'a' : 'span'; ?>
+					<<?php echo tag_escape( $tag ); ?> class="ugm-about-sidebar__link"<?php echo '' !== $url ? ' href="' . esc_url( $url ) . '"' : ''; ?><?php echo $current ? ' aria-current="page"' : ''; ?>>
+						<span><?php echo esc_html( $label ); ?></span>
+					</<?php echo tag_escape( $tag ); ?>>
+				<?php endif; ?>
+			</li>
+		<?php endforeach; ?>
+	</ul>
+	<?php
 }
 
 function ugm_render_block_about_ugm_sidebar( $attrs ) {
-	$title         = trim( (string) ( $attrs['title'] ?? __( 'Tentang UGM', 'ugm-faculty' ) ) );
-	$menu_location = sanitize_key( (string) ( $attrs['menuLocation'] ?? 'sidebar-tentang-ugm' ) );
-	$items         = ugm_get_about_sidebar_menu_items( '' !== $menu_location ? $menu_location : 'sidebar-tentang-ugm' );
+	$title                      = trim( (string) ( $attrs['title'] ?? __( 'Tentang UGM', 'ugm-faculty' ) ) );
+	$selected_parent_menu_id    = absint( $attrs['selectedParentMenuId'] ?? 0 );
+	$selected_parent_menu_title = trim( (string) ( $attrs['selectedParentMenuTitle'] ?? __( 'Tentang', 'ugm-faculty' ) ) );
+	$menu_state                 = ugm_get_about_sidebar_menu_state( $selected_parent_menu_id, $selected_parent_menu_title );
+	$items                      = $menu_state['items'];
 
 	ob_start();
 	?>
@@ -440,29 +585,18 @@ function ugm_render_block_about_ugm_sidebar( $attrs ) {
 		<?php endif; ?>
 		<?php if ( ! empty( $items ) ) : ?>
 			<nav class="ugm-about-sidebar__nav" aria-label="<?php echo esc_attr( $title ); ?>">
-				<ul class="ugm-about-sidebar__list">
-					<?php foreach ( $items as $item ) : ?>
-						<?php
-						$label  = trim( (string) ( $item['label'] ?? '' ) );
-						$url    = trim( (string) ( $item['url'] ?? '' ) );
-						$active = ! empty( $item['active'] );
-						$current = ! empty( $item['current'] );
-						$level  = min( 2, max( 0, absint( $item['level'] ?? 0 ) ) );
-						if ( '' === $label ) {
-							continue;
-						}
-						$tag = '' !== $url ? 'a' : 'span';
-						?>
-						<li class="ugm-about-sidebar__item ugm-about-sidebar__item--level-<?php echo esc_attr( $level ); ?><?php echo $active ? ' is-active' : ''; ?>">
-							<<?php echo tag_escape( $tag ); ?> class="ugm-about-sidebar__link"<?php echo '' !== $url ? ' href="' . esc_url( $url ) . '"' : ''; ?><?php echo $current ? ' aria-current="page"' : ''; ?>>
-								<span><?php echo esc_html( $label ); ?></span>
-							</<?php echo tag_escape( $tag ); ?>>
-						</li>
-					<?php endforeach; ?>
-				</ul>
+				<?php ugm_render_about_sidebar_menu_items( $items ); ?>
 			</nav>
 		<?php else : ?>
-			<p class="ugm-about-sidebar__empty"><?php esc_html_e( 'Pilih menu pada lokasi Sidebar Tentang UGM di WordPress Menu.', 'ugm-faculty' ); ?></p>
+			<?php
+			$empty_message = __( 'Pilih parent menu dari menu utama/header.', 'ugm-faculty' );
+			if ( 'missing_menu' === $menu_state['status'] ) {
+				$empty_message = __( 'Menu utama/header belum tersedia.', 'ugm-faculty' );
+			} elseif ( 'missing_children' === $menu_state['status'] ) {
+				$empty_message = __( 'Menu ini belum memiliki submenu.', 'ugm-faculty' );
+			}
+			?>
+			<p class="ugm-about-sidebar__empty"><?php echo esc_html( $empty_message ); ?></p>
 		<?php endif; ?>
 	</aside>
 	<?php
@@ -476,8 +610,9 @@ register_block_type( 'ugm/about-ugm-sidebar', array(
 	'render_callback' => 'ugm_render_block_about_ugm_sidebar',
 	'supports'        => array( 'html' => false ),
 	'attributes'      => array(
-		'title'        => array( 'type' => 'string', 'default' => 'Tentang UGM' ),
-		'menuLocation' => array( 'type' => 'string', 'default' => 'sidebar-tentang-ugm' ),
+		'title'                   => array( 'type' => 'string', 'default' => 'Tentang UGM' ),
+		'selectedParentMenuId'    => array( 'type' => 'integer', 'default' => 0 ),
+		'selectedParentMenuTitle' => array( 'type' => 'string', 'default' => 'Tentang' ),
 	),
 ) );
 
@@ -516,7 +651,9 @@ function ugm_enqueue_rector_greeting_editor_assets() {
 		'ugm-rector-greeting-blocks',
 		'ugmRectorGreetingEditor',
 		array(
-			'defaultBlocks' => ugm_get_default_rector_greeting_blocks(),
+			'defaultBlocks'               => ugm_get_default_rector_greeting_blocks(),
+			'primaryHeaderMenuAvailable'  => ugm_get_primary_header_menu_object() instanceof WP_Term,
+			'primaryHeaderParentMenus'    => ugm_get_primary_header_parent_menu_options(),
 		)
 	);
 }
