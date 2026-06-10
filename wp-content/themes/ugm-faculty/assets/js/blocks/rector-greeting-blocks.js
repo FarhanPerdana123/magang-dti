@@ -482,9 +482,7 @@
 		icon:        'menu-alt3',
 		supports:    { html: false },
 		attributes:  {
-			title:                   { type: 'string', default: 'Tentang UGM' },
-			selectedParentMenuId:    { type: 'integer', default: 0 },
-			selectedParentMenuTitle: { type: 'string', default: 'Tentang' },
+			title: { type: 'string', default: 'Tentang UGM' },
 		},
 		edit: function ( props ) {
 			var attrs   = props.attributes;
@@ -527,23 +525,14 @@
 							value: attrs.title || '',
 							onChange: function ( value ) { setAttr( { title: value } ); },
 						} ),
-						el( SelectControl, {
-							label: __( 'Parent Menu Header', 'ugm-faculty' ),
-							value: selectedParentMenuValue,
-							options: parentMenuOptions,
-							disabled: ! hasPrimaryHeaderMenu,
-							onChange: function ( value ) {
-								var selected = parentMenus.filter( function ( menu ) {
-									return String( menu.id ) === String( value );
-								} )[0];
-
-								setAttr( {
-									selectedParentMenuId: selected ? parseInt( selected.id, 10 ) || 0 : 0,
-									selectedParentMenuTitle: selected ? selected.title || '' : '',
-								} );
+						el( 'p', {
+							style: {
+								marginTop: '8px',
+								color: '#757575',
+								fontSize: '12px',
+								lineHeight: '1.4',
 							},
-							help: __( 'Sidebar menampilkan submenu dari parent menu utama/header yang dipilih.', 'ugm-faculty' ),
-						} )
+						}, __( 'Isi sidebar diambil dari menu yang dicentang pada lokasi Sidebar Menu di Appearance > Menus.', 'ugm-faculty' ) )
 					)
 				),
 				el( ServerSideRender, {

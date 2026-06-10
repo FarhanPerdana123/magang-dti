@@ -11,6 +11,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+function ugm_register_sidebar_menu_location() {
+	register_nav_menus(
+		array(
+			'sidebar-menu' => __( 'Sidebar Menu', 'ugm-faculty' ),
+		)
+	);
+}
+add_action( 'after_setup_theme', 'ugm_register_sidebar_menu_location', 20 );
+
 /* ==========================================================================
  * 15. Sambutan Rektor page blocks
  * ========================================================================== */
@@ -262,40 +271,62 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 		</nav>
 
 		<div class="ugm-rector-greeting__grid">
-			<div class="ugm-rector-greeting__content">
-				<?php if ( '' !== $title ) : ?>
-					<h1 id="ugm-rector-greeting-title" class="ugm-rector-greeting__title"><?php echo esc_html( $title ); ?></h1>
-				<?php endif; ?>
+	<div class="ugm-rector-greeting__content">
+		<?php if ( '' !== $title ) : ?>
+			<h1 id="ugm-rector-greeting-title" class="ugm-rector-greeting__title"><?php echo esc_html( $title ); ?></h1>
+		<?php endif; ?>
 
-				<div class="ugm-rector-greeting__body">
-					<?php foreach ( $paragraphs as $paragraph ) : ?>
-						<p><?php echo nl2br( esc_html( $paragraph ) ); ?></p>
-					<?php endforeach; ?>
-				</div>
-			</div>
-
-			<?php if ( $show_photo_frame ) : ?>
-				<figure class="ugm-rector-card">
-					<div class="ugm-rector-card__photo">
-						<?php if ( '' !== $photo_url ) : ?>
-							<img src="<?php echo esc_url( $photo_url ); ?>" alt="<?php echo esc_attr( $rector_name ); ?>" loading="lazy">
-						<?php else : ?>
-							<span aria-hidden="true"></span>
-						<?php endif; ?>
-					</div>
-					<?php if ( '' !== $rector_name || '' !== $rector_role ) : ?>
-						<figcaption class="ugm-rector-card__caption">
-							<?php if ( '' !== $rector_name ) : ?>
-								<strong><?php echo esc_html( $rector_name ); ?></strong>
-							<?php endif; ?>
-							<?php if ( '' !== $rector_role ) : ?>
-								<span><?php echo esc_html( $rector_role ); ?></span>
-							<?php endif; ?>
-						</figcaption>
+		<?php if ( $show_photo_frame ) : ?>
+			<figure class="ugm-rector-card ugm-rector-card--mobile">
+				<div class="ugm-rector-card__photo">
+					<?php if ( '' !== $photo_url ) : ?>
+						<img src="<?php echo esc_url( $photo_url ); ?>" alt="<?php echo esc_attr( $rector_name ); ?>" loading="lazy">
+					<?php else : ?>
+						<span aria-hidden="true"></span>
 					<?php endif; ?>
-				</figure>
-			<?php endif; ?>
+				</div>
+				<?php if ( '' !== $rector_name || '' !== $rector_role ) : ?>
+					<figcaption class="ugm-rector-card__caption">
+						<?php if ( '' !== $rector_name ) : ?>
+							<strong><?php echo esc_html( $rector_name ); ?></strong>
+						<?php endif; ?>
+						<?php if ( '' !== $rector_role ) : ?>
+							<span><?php echo esc_html( $rector_role ); ?></span>
+						<?php endif; ?>
+					</figcaption>
+				<?php endif; ?>
+			</figure>
+		<?php endif; ?>
+
+		<div class="ugm-rector-greeting__body">
+			<?php foreach ( $paragraphs as $paragraph ) : ?>
+				<p><?php echo nl2br( esc_html( $paragraph ) ); ?></p>
+			<?php endforeach; ?>
 		</div>
+	</div>
+
+	<?php if ( $show_photo_frame ) : ?>
+		<figure class="ugm-rector-card ugm-rector-card--desktop">
+			<div class="ugm-rector-card__photo">
+				<?php if ( '' !== $photo_url ) : ?>
+					<img src="<?php echo esc_url( $photo_url ); ?>" alt="<?php echo esc_attr( $rector_name ); ?>" loading="lazy">
+				<?php else : ?>
+					<span aria-hidden="true"></span>
+				<?php endif; ?>
+			</div>
+			<?php if ( '' !== $rector_name || '' !== $rector_role ) : ?>
+				<figcaption class="ugm-rector-card__caption">
+					<?php if ( '' !== $rector_name ) : ?>
+						<strong><?php echo esc_html( $rector_name ); ?></strong>
+					<?php endif; ?>
+					<?php if ( '' !== $rector_role ) : ?>
+						<span><?php echo esc_html( $rector_role ); ?></span>
+					<?php endif; ?>
+				</figcaption>
+			<?php endif; ?>
+		</figure>
+	<?php endif; ?>
+</div>
 	</section>
 	<?php
 	return ob_get_clean();
@@ -399,6 +430,46 @@ function ugm_get_primary_header_parent_menu_options() {
 	return $options;
 }
 
+function ugm_get_sidebar_menu_object() {
+	$locations = get_nav_menu_locations();
+
+	if ( isset( $locations['sidebar-menu'] ) ) {
+		$menu = wp_get_nav_menu_object( $locations['sidebar-menu'] );
+		if ( $menu instanceof WP_Term ) {
+			return $menu;
+		}
+	}
+
+	return null;
+}
+
+function ugm_get_sidebar_menu_items() {
+	$menu = ugm_get_sidebar_menu_object();
+	if ( ! $menu instanceof WP_Term ) {
+		return array();
+	}
+
+	$items = wp_get_nav_menu_items(
+		$menu->term_id,
+		array(
+			'update_post_term_cache' => false,
+		)
+	);
+
+	if ( empty( $items ) || ! is_array( $items ) ) {
+		return array();
+	}
+
+	usort(
+		$items,
+		static function ( $left, $right ) {
+			return (int) $left->menu_order <=> (int) $right->menu_order;
+		}
+	);
+
+	return $items;
+}
+
 function ugm_rector_normalize_url_for_compare( $url ) {
 	$url = trim( (string) $url );
 	if ( '' === $url ) {
@@ -490,27 +561,22 @@ function ugm_find_about_sidebar_parent_menu_item( $items, $selected_parent_menu_
 }
 
 function ugm_get_about_sidebar_menu_state( $selected_parent_menu_id = 0, $selected_parent_menu_title = '' ) {
-	$items = ugm_get_primary_header_menu_items();
+	unset( $selected_parent_menu_id, $selected_parent_menu_title );
+
+	$items = ugm_get_sidebar_menu_items();
+
 	if ( empty( $items ) ) {
 		return array(
-			'status' => 'missing_menu',
-			'items'  => array(),
-		);
-	}
-
-	$parent = ugm_find_about_sidebar_parent_menu_item( $items, $selected_parent_menu_id, $selected_parent_menu_title );
-	if ( ! $parent instanceof WP_Post ) {
-		return array(
-			'status' => 'missing_parent',
+			'status' => 'missing_sidebar_menu',
 			'items'  => array(),
 		);
 	}
 
 	$active_ids = array();
-	$sidebar_items = ugm_build_about_sidebar_menu_tree( $items, (int) $parent->ID, 0, $active_ids );
+	$sidebar_items = ugm_build_about_sidebar_menu_tree( $items, 0, 0, $active_ids );
 
 	return array(
-		'status' => empty( $sidebar_items ) ? 'missing_children' : 'ready',
+		'status' => empty( $sidebar_items ) ? 'missing_sidebar_menu' : 'ready',
 		'items'  => $sidebar_items,
 	);
 }
@@ -576,28 +642,58 @@ function ugm_render_block_about_ugm_sidebar( $attrs ) {
 	$selected_parent_menu_title = trim( (string) ( $attrs['selectedParentMenuTitle'] ?? __( 'Tentang', 'ugm-faculty' ) ) );
 	$menu_state                 = ugm_get_about_sidebar_menu_state( $selected_parent_menu_id, $selected_parent_menu_title );
 	$items                      = $menu_state['items'];
+	$sidebar_title              = '' !== $title ? $title : __( 'Tentang UGM', 'ugm-faculty' );
 
 	ob_start();
 	?>
 	<aside class="ugm-about-sidebar" aria-labelledby="ugm-about-sidebar-title">
-		<?php if ( '' !== $title ) : ?>
-			<h2 id="ugm-about-sidebar-title" class="ugm-about-sidebar__title"><?php echo esc_html( $title ); ?></h2>
-		<?php endif; ?>
-		<?php if ( ! empty( $items ) ) : ?>
-			<nav class="ugm-about-sidebar__nav" aria-label="<?php echo esc_attr( $title ); ?>">
-				<?php ugm_render_about_sidebar_menu_items( $items ); ?>
-			</nav>
-		<?php else : ?>
-			<?php
-			$empty_message = __( 'Pilih parent menu dari menu utama/header.', 'ugm-faculty' );
-			if ( 'missing_menu' === $menu_state['status'] ) {
-				$empty_message = __( 'Menu utama/header belum tersedia.', 'ugm-faculty' );
-			} elseif ( 'missing_children' === $menu_state['status'] ) {
-				$empty_message = __( 'Menu ini belum memiliki submenu.', 'ugm-faculty' );
-			}
-			?>
-			<p class="ugm-about-sidebar__empty"><?php echo esc_html( $empty_message ); ?></p>
-		<?php endif; ?>
+		<div class="ugm-about-sidebar__desktop">
+			<h2 id="ugm-about-sidebar-title" class="ugm-about-sidebar__title">
+				<?php echo esc_html( $sidebar_title ); ?>
+			</h2>
+
+			<?php if ( ! empty( $items ) ) : ?>
+				<nav class="ugm-about-sidebar__nav" aria-label="<?php echo esc_attr( $sidebar_title ); ?>">
+					<?php ugm_render_about_sidebar_menu_items( $items ); ?>
+				</nav>
+			<?php else : ?>
+				<?php
+				$empty_message = __( 'Pilih menu untuk lokasi Sidebar Menu di Appearance > Menus.', 'ugm-faculty' );
+
+				if ( 'missing_sidebar_menu' === $menu_state['status'] ) {
+					$empty_message = __( 'Menu Sidebar belum dipilih. Buka Appearance > Menus, lalu centang lokasi Sidebar Menu.', 'ugm-faculty' );
+				}
+				?>
+				<p class="ugm-about-sidebar__empty"><?php echo esc_html( $empty_message ); ?></p>
+			<?php endif; ?>
+		</div>
+
+		<details class="ugm-about-sidebar__mobile-details">
+			<summary class="ugm-about-sidebar__mobile-summary" aria-label="<?php esc_attr_e( 'Buka tab menu', 'ugm-faculty' ); ?>">
+				<span class="ugm-about-sidebar__mobile-icon" aria-hidden="true"></span>
+				<span class="ugm-about-sidebar__mobile-label">
+					<?php esc_html_e( 'TAB MENU', 'ugm-faculty' ); ?>
+				</span>
+			</summary>
+
+			<div class="ugm-about-sidebar__mobile-panel">
+				<?php if ( ! empty( $items ) ) : ?>
+					<nav class="ugm-about-sidebar__nav" aria-label="<?php echo esc_attr( $sidebar_title ); ?>">
+						<?php ugm_render_about_sidebar_menu_items( $items ); ?>
+					</nav>
+				<?php else : ?>
+					<?php
+					$empty_message = __( 'Pilih parent menu dari menu utama/header.', 'ugm-faculty' );
+					if ( 'missing_menu' === $menu_state['status'] ) {
+						$empty_message = __( 'Menu utama/header belum tersedia.', 'ugm-faculty' );
+					} elseif ( 'missing_children' === $menu_state['status'] ) {
+						$empty_message = __( 'Menu ini belum memiliki submenu.', 'ugm-faculty' );
+					}
+					?>
+					<p class="ugm-about-sidebar__empty"><?php echo esc_html( $empty_message ); ?></p>
+				<?php endif; ?>
+			</div>
+		</details>
 	</aside>
 	<?php
 	return ob_get_clean();
