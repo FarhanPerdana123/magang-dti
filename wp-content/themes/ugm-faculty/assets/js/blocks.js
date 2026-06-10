@@ -1348,7 +1348,7 @@
 			},
 			fields: [
 				{ key: 'widgetTitle', label: __( 'Judul Widget', 'ugm-faculty' ),
-				  help: __( 'Kosongkan = "Berita Terbaru".', 'ugm-faculty' ) },
+				  help: __( 'Kosongkan = "Berita".', 'ugm-faculty' ) },
 				{ key: 'postsCount',  label: __( 'Jumlah Berita', 'ugm-faculty' ),
 				  type: 'number', default: 5 },
 			],
@@ -1365,7 +1365,7 @@
 			},
 			fields: [
 				{ key: 'widgetTitle', label: __( 'Judul Widget', 'ugm-faculty' ),
-				  help: __( 'Kosongkan = "Agenda Terbaru".', 'ugm-faculty' ) },
+				  help: __( 'Kosongkan = "Agenda".', 'ugm-faculty' ) },
 				{ key: 'postsCount',  label: __( 'Jumlah Agenda', 'ugm-faculty' ),
 				  type: 'number', default: 3 },
 				{ key: 'agendaUrl',   label: __( 'URL Tombol "Semua Agenda"', 'ugm-faculty' ),

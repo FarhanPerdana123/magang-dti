@@ -1541,3 +1541,75 @@
 		cursor: pointer;
 	}
 }
+
+@media (max-width: 480px) {
+	.ugm-rector-greeting__grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(112px, 42%);
+		gap: 0 12px;
+		align-items: start;
+	}
+
+	.ugm-rector-greeting__content,
+	.ugm-rector-greeting__body {
+		display: contents;
+	}
+
+	.ugm-rector-card {
+		float: none;
+		grid-column: 2;
+		grid-row: 1 / span 4;
+		width: 100%;
+		max-width: 150px;
+		min-width: 112px;
+		margin: 0 0 10px auto;
+	}
+
+	.ugm-rector-greeting--photo-left .ugm-rector-card {
+		float: none;
+		grid-column: 1;
+		margin: 0 auto 10px 0;
+	}
+
+	.ugm-rector-greeting__body p {
+		grid-column: 1 / -1;
+		margin-bottom: 0.82em;
+	}
+
+	.ugm-rector-greeting__body p:first-child,
+	.ugm-rector-greeting__body p:nth-child(2),
+	.ugm-rector-greeting__body p:nth-child(3),
+	.ugm-rector-greeting__body p:nth-child(4) {
+		grid-column: 1;
+	}
+
+	.ugm-rector-card__photo {
+		aspect-ratio: 0.76;
+	}
+
+	.ugm-rector-card__caption {
+		display: block;
+		width: 100%;
+		min-height: 0;
+		margin: 0;
+		padding: 7px 7px 8px;
+	}
+
+	.ugm-rector-card__caption strong {
+		font-size: 0.5rem;
+		line-height: 1.25;
+	}
+
+	.ugm-rector-card__caption span {
+		margin-top: 3px;
+		font-size: 0.46rem;
+		line-height: 1.25;
+	}
+
+	.ugm-rector-greeting__body {
+		max-width: none;
+		font-size: 0.68rem;
+		line-height: 1.42;
+		letter-spacing: 0;
+	}
+}

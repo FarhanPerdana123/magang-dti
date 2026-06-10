@@ -1115,7 +1115,6 @@ function ugm_render_block_footer_contact( $attrs ) {
 	<div class="ugm-footer-contact">
 		<?php if ( '' !== $address ) : ?>
 			<p class="ugm-footer-contact__address ugm-footer-contact__item">
-				<?php echo $render_icon( 'address' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<span class="ugm-footer-contact__address-text"><?php echo wp_kses_post( nl2br( esc_html( $address ), false ) ); ?></span>
 			</p>
 		<?php endif; ?>

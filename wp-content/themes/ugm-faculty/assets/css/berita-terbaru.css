@@ -618,7 +618,8 @@ body:not(.home):not(.front-page) .site-content:has(.ugmbt-page) {
 }
 
 .ugmbt-container {
-	width: min(100% - 32px, 930px);
+	width: min(100% - 2rem, 1200px);
+	max-width: 1200px;
 	padding-block: 24px 56px;
 }
 
@@ -639,11 +640,11 @@ body:not(.home):not(.front-page) .site-content:has(.ugmbt-page) {
 }
 
 .ugmbt-layout {
-	gap: 48px;
+	gap: 60px;
 }
 
 .ugmbt-sidebar {
-	width: 250px;
+	width: 312px;
 }
 
 .ugmbt-row1,
@@ -868,6 +869,7 @@ body:not(.home):not(.front-page) .site-content:has(.ugmbt-page) {
 @media (max-width: 960px) {
 	.ugmbt-container {
 		width: min(100% - 32px, 720px);
+		max-width: 720px;
 		padding-block: 18px 44px;
 	}
 

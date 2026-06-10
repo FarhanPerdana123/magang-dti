@@ -595,7 +595,10 @@ function ugmbt_render_block_sidebar_news( array $attrs ): string {
 
 	$title = ( isset( $attrs['widgetTitle'] ) && '' !== $attrs['widgetTitle'] )
 		? sanitize_text_field( $attrs['widgetTitle'] )
-		: __( 'Berita Terbaru', 'ugm-faculty' );
+		: __( 'Berita', 'ugm-faculty' );
+	if ( __( 'Berita Terbaru', 'ugm-faculty' ) === $title ) {
+		$title = __( 'Berita', 'ugm-faculty' );
+	}
 	$count = max( 1, (int) ( $attrs['postsCount'] ?? 5 ) );
 
 	$query_args = array(
@@ -654,7 +657,10 @@ function ugmbt_render_block_sidebar_agenda( array $attrs ): string {
 
 	$title      = ( isset( $attrs['widgetTitle'] ) && '' !== $attrs['widgetTitle'] )
 		? sanitize_text_field( $attrs['widgetTitle'] )
-		: __( 'Agenda Terbaru', 'ugm-faculty' );
+		: __( 'Agenda', 'ugm-faculty' );
+	if ( __( 'Agenda Terbaru', 'ugm-faculty' ) === $title ) {
+		$title = __( 'Agenda', 'ugm-faculty' );
+	}
 	$count      = max( 1, (int) ( $attrs['postsCount'] ?? 3 ) );
 	$agenda_url = ( isset( $attrs['agendaUrl'] ) && '' !== $attrs['agendaUrl'] )
 		? sanitize_text_field( $attrs['agendaUrl'] ) : '/agenda/';
@@ -806,8 +812,8 @@ add_action( 'init', static function () {
 		'<!-- /wp:group -->' . "\n\n" .
 		'<!-- wp:group {"className":"ugmbt-editor-sidebar","layout":{"type":"default"}} -->' . "\n" .
 		'<div class="wp-block-group ugmbt-editor-sidebar">' . "\n" .
-		'<!-- wp:ugm/bt-sidebar-news {"widgetTitle":"Berita Terbaru","postsCount":5} /-->' . "\n" .
-		'<!-- wp:ugm/bt-sidebar-agenda {"widgetTitle":"Agenda Terbaru","postsCount":3,"agendaUrl":"/agenda/"} /-->' . "\n" .
+		'<!-- wp:ugm/bt-sidebar-news {"widgetTitle":"Berita","postsCount":5} /-->' . "\n" .
+		'<!-- wp:ugm/bt-sidebar-agenda {"widgetTitle":"Agenda","postsCount":3,"agendaUrl":"/agenda/"} /-->' . "\n" .
 		'<!-- wp:ugm/bt-sidebar-categories {"widgetTitle":"Kategori"} /-->' . "\n" .
 		'</div>' . "\n" .
 		'<!-- /wp:group -->' . "\n" .

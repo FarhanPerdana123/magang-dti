@@ -704,7 +704,7 @@ function ugm_render_gallery_page_markup( $attrs ) {
 
 		<section class="ugm-gallery-list" aria-labelledby="ugm-gallery-list-title">
 			<header class="ugm-gallery-section-head">
-				<h2 id="ugm-gallery-list-title"><?php echo esc_html( $title ); ?></h2>
+				<h2 id="ugm-gallery-list-title"><?php esc_html_e( 'Album', 'ugm-faculty' ); ?></h2>
 				<span aria-hidden="true"></span>
 			</header>
 			<div class="ugm-gallery-grid">

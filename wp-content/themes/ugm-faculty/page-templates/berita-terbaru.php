@@ -14,8 +14,8 @@
  *  ugm/bt-featured-row       → baris utama: 1 besar kiri + 1 kecil kanan
  *  ugm/bt-news-grid          → grid N kolom berita
  *  ugm/bt-sidebar-promo      → sidebar: tombol update + poster
- *  ugm/bt-sidebar-news       → sidebar: daftar berita terbaru
- *  ugm/bt-sidebar-agenda     → sidebar: agenda terbaru
+ *  ugm/bt-sidebar-news       → sidebar: daftar berita
+ *  ugm/bt-sidebar-agenda     → sidebar: agenda
  *  ugm/bt-sidebar-categories → sidebar: daftar kategori
  *
  * Sidebar muncul otomatis jika minimal 1 blok sidebar ditambahkan.
@@ -108,11 +108,17 @@ $sb_promo_poster_2_alt = (string) $_bt_attr( 'ugm/bt-sidebar-promo', 'posterTwoA
 $sb_promo_poster_2_link = (string) $_bt_attr( 'ugm/bt-sidebar-promo', 'posterTwoLink', '' );
 
 // Sidebar: berita.
-$sb_news_title = (string) $_bt_attr( 'ugm/bt-sidebar-news', 'widgetTitle', __( 'Berita Terbaru', 'ugm-faculty' ) );
+$sb_news_title = (string) $_bt_attr( 'ugm/bt-sidebar-news', 'widgetTitle', __( 'Berita', 'ugm-faculty' ) );
+if ( __( 'Berita Terbaru', 'ugm-faculty' ) === $sb_news_title ) {
+	$sb_news_title = __( 'Berita', 'ugm-faculty' );
+}
 $sb_news_count = max( 1, (int) $_bt_attr( 'ugm/bt-sidebar-news', 'postsCount', 5 ) );
 
 // Sidebar: agenda.
-$sb_agenda_title = (string) $_bt_attr( 'ugm/bt-sidebar-agenda', 'widgetTitle', __( 'Agenda Terbaru', 'ugm-faculty' ) );
+$sb_agenda_title = (string) $_bt_attr( 'ugm/bt-sidebar-agenda', 'widgetTitle', __( 'Agenda', 'ugm-faculty' ) );
+if ( __( 'Agenda Terbaru', 'ugm-faculty' ) === $sb_agenda_title ) {
+	$sb_agenda_title = __( 'Agenda', 'ugm-faculty' );
+}
 $sb_agenda_count = max( 1, (int) $_bt_attr( 'ugm/bt-sidebar-agenda', 'postsCount', 3 ) );
 $sb_agenda_url   = (string) $_bt_attr( 'ugm/bt-sidebar-agenda', 'agendaUrl', '/agenda/' );
 
