@@ -487,36 +487,11 @@
 		icon:        'menu-alt3',
 		supports:    { html: false },
 		attributes:  {
-			title:                   { type: 'string', default: 'Tentang UGM' },
-			selectedParentMenuId:    { type: 'integer', default: 0 },
-			selectedParentMenuTitle: { type: 'string', default: 'Tentang' },
+			title: { type: 'string', default: 'Tentang UGM' },
 		},
 		edit: function ( props ) {
 			var attrs   = props.attributes;
 			var setAttr = props.setAttributes;
-			var editorSettings = window.ugmRectorGreetingEditor || {};
-			var parentMenus = Array.isArray( editorSettings.primaryHeaderParentMenus )
-				? editorSettings.primaryHeaderParentMenus
-				: [];
-			var hasPrimaryHeaderMenu = !! editorSettings.primaryHeaderMenuAvailable;
-			var selectedParentMenuId = parseInt( attrs.selectedParentMenuId, 10 ) || 0;
-			var selectedParentMenuTitle = attrs.selectedParentMenuTitle || 'Tentang';
-			var selectedParentMenu = parentMenus.filter( function ( menu ) {
-				if ( selectedParentMenuId > 0 ) {
-					return parseInt( menu.id, 10 ) === selectedParentMenuId;
-				}
-
-				return String( menu.title || '' ).toLowerCase() === String( selectedParentMenuTitle || '' ).toLowerCase();
-			} )[0];
-			var selectedParentMenuValue = selectedParentMenu ? String( selectedParentMenu.id ) : '';
-			var parentMenuOptions = hasPrimaryHeaderMenu
-				? [ { label: __( 'Pilih parent menu', 'ugm-faculty' ), value: '' } ].concat( parentMenus.map( function ( menu ) {
-					return {
-						label: menu.title || '',
-						value: String( menu.id ),
-					};
-				} ) )
-				: [ { label: __( 'Menu utama/header belum tersedia.', 'ugm-faculty' ), value: '' } ];
 
 			return el(
 				Fragment,
@@ -532,23 +507,14 @@
 							value: attrs.title || '',
 							onChange: function ( value ) { setAttr( { title: value } ); },
 						} ),
-						el( SelectControl, {
-							label: __( 'Fallback Parent Menu Header', 'ugm-faculty' ),
-							value: selectedParentMenuValue,
-							options: parentMenuOptions,
-							disabled: ! hasPrimaryHeaderMenu,
-							onChange: function ( value ) {
-								var selected = parentMenus.filter( function ( menu ) {
-									return String( menu.id ) === String( value );
-								} )[0];
-
-								setAttr( {
-									selectedParentMenuId: selected ? parseInt( selected.id, 10 ) || 0 : 0,
-									selectedParentMenuTitle: selected ? selected.title || '' : '',
-								} );
+						el( 'p', {
+							style: {
+								marginTop: '8px',
+								color: '#757575',
+								fontSize: '12px',
+								lineHeight: '1.4',
 							},
-							help: __( 'Utama: pilih menu di Appearance > Menus > Display location: Tentang UGM Sidebar. Pilihan ini hanya dipakai sebagai fallback jika location itu belum diisi.', 'ugm-faculty' ),
-						} )
+						}, __( 'Isi sidebar diambil dari menu yang dicentang pada lokasi Sidebar Menu di Appearance > Menus.', 'ugm-faculty' ) )
 					)
 				),
 				el( ServerSideRender, {

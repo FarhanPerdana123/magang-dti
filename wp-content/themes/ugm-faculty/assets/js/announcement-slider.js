@@ -9,13 +9,23 @@
 	var visibleCount = 3;
 	var animationClass = 'is-announcement-sliding';
 
+	function getMaxIndex( items ) {
+		if ( items.length <= visibleCount ) {
+			return 0;
+		}
+
+		return Math.floor( ( items.length - 1 ) / visibleCount ) * visibleCount;
+	}
+
 	function updateSlider( slider, animate ) {
 		var track = slider.querySelector( '[data-ugm-announcement-track]' );
 		var prev = slider.querySelector( '[data-ugm-announcement-prev]' );
 		var next = slider.querySelector( '[data-ugm-announcement-next]' );
 		var items = track ? Array.from( track.querySelectorAll( '.ugm-announcement-list-item' ) ) : [];
-		var maxIndex = Math.max( 0, items.length - visibleCount );
-		var activeIndex = Math.min( Number( slider.dataset.announcementIndex || 0 ), maxIndex );
+		var maxIndex = getMaxIndex( items );
+		var activeIndex = Number( slider.dataset.announcementIndex || 0 );
+
+		activeIndex = Math.max( 0, Math.min( activeIndex, maxIndex ) );
 
 		slider.dataset.announcementIndex = String( activeIndex );
 
@@ -56,7 +66,11 @@
 			prev.addEventListener( 'click', function ( event ) {
 				event.preventDefault();
 				event.stopPropagation();
-				slider.dataset.announcementIndex = String( Math.max( 0, Number( slider.dataset.announcementIndex || 0 ) - 1 ) );
+
+				slider.dataset.announcementIndex = String(
+					Math.max( 0, Number( slider.dataset.announcementIndex || 0 ) - visibleCount )
+				);
+
 				updateSlider( slider, true );
 			} );
 		}
@@ -65,7 +79,15 @@
 			next.addEventListener( 'click', function ( event ) {
 				event.preventDefault();
 				event.stopPropagation();
-				slider.dataset.announcementIndex = String( Number( slider.dataset.announcementIndex || 0 ) + 1 );
+
+				var track = slider.querySelector( '[data-ugm-announcement-track]' );
+				var items = track ? Array.from( track.querySelectorAll( '.ugm-announcement-list-item' ) ) : [];
+				var maxIndex = getMaxIndex( items );
+
+				slider.dataset.announcementIndex = String(
+					Math.min( maxIndex, Number( slider.dataset.announcementIndex || 0 ) + visibleCount )
+				);
+
 				updateSlider( slider, true );
 			} );
 		}
