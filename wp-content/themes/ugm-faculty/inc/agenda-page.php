@@ -740,8 +740,6 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 			</div>
 		</form>
 
-		<h2 class="ugm-agenda-page__subheading"><?php esc_html_e( 'Acara-acara', 'ugm-faculty' ); ?></h2>
-
 		<?php if ( $agenda_query->have_posts() ) : ?>
 			<div class="ugm-agenda-grid row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
 				<?php while ( $agenda_query->have_posts() ) : ?>

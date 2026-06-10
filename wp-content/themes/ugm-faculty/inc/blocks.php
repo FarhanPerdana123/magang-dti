@@ -685,21 +685,45 @@ function ugm_render_block_hero_section( $attrs ) {
 				<?php
 				$slide_count    = count( $slide_images );
 				$animation_time = $slide_count * 8;
-				foreach ( $slide_images as $slide_index => $slide_image ) :
-					$delay = $slide_index * 8;
-					?>
-					.<?php echo esc_html( $hero_id ); ?> .hero__slide--<?php echo esc_html( (string) $slide_index ); ?> {
-						animation-delay: <?php echo esc_html( (string) $delay ); ?>s;
-					}
-				<?php endforeach; ?>
-				.<?php echo esc_html( $hero_id ); ?> .hero__slide {
+				$step_percent   = 100 / $slide_count;
+				$hold_percent   = $step_percent * 0.72;
+				?>
+				.<?php echo esc_html( $hero_id ); ?> .hero__slides-track {
 					animation-duration: <?php echo esc_html( (string) $animation_time ); ?>s;
+					width: <?php echo esc_html( (string) ( ( $slide_count + 1 ) * 100 ) ); ?>%;
+				}
+				.<?php echo esc_html( $hero_id ); ?> .hero__slide {
+					flex-basis: <?php echo esc_html( (string) ( 100 / ( $slide_count + 1 ) ) ); ?>%;
+				}
+				@keyframes <?php echo esc_html( $hero_id ); ?>-slide {
+					<?php for ( $slide_index = 0; $slide_index < $slide_count; $slide_index++ ) : ?>
+						<?php
+						$start = $slide_index * $step_percent;
+						$hold  = min( 100, $start + $hold_percent );
+						$end   = min( 100, ( $slide_index + 1 ) * $step_percent );
+						$move  = $slide_index * -100 / ( $slide_count + 1 );
+						$next  = ( $slide_index + 1 ) * -100 / ( $slide_count + 1 );
+						?>
+						<?php echo esc_html( rtrim( rtrim( number_format( $start, 4, '.', '' ), '0' ), '.' ) ); ?>%,
+						<?php echo esc_html( rtrim( rtrim( number_format( $hold, 4, '.', '' ), '0' ), '.' ) ); ?>% {
+							transform: translate3d(<?php echo esc_html( rtrim( rtrim( number_format( $move, 4, '.', '' ), '0' ), '.' ) ); ?>%, 0, 0);
+						}
+						<?php echo esc_html( rtrim( rtrim( number_format( $end, 4, '.', '' ), '0' ), '.' ) ); ?>% {
+							transform: translate3d(<?php echo esc_html( rtrim( rtrim( number_format( $next, 4, '.', '' ), '0' ), '.' ) ); ?>%, 0, 0);
+						}
+					<?php endfor; ?>
+				}
+				.<?php echo esc_html( $hero_id ); ?> .hero__slides-track {
+					animation-name: <?php echo esc_html( $hero_id ); ?>-slide;
 				}
 			</style>
 			<div class="hero__slides" aria-hidden="true">
-				<?php foreach ( $slide_images as $slide_index => $slide_image ) : ?>
-					<span class="hero__slide hero__slide--<?php echo esc_attr( (string) $slide_index ); ?>" style="background-image: url('<?php echo esc_url( $slide_image['url'] ); ?>');"></span>
-				<?php endforeach; ?>
+				<div class="hero__slides-track">
+					<?php foreach ( $slide_images as $slide_index => $slide_image ) : ?>
+						<span class="hero__slide hero__slide--<?php echo esc_attr( (string) $slide_index ); ?>" style="background-image: url('<?php echo esc_url( $slide_image['url'] ); ?>');"></span>
+					<?php endforeach; ?>
+					<span class="hero__slide hero__slide--clone" style="background-image: url('<?php echo esc_url( $slide_images[0]['url'] ); ?>');"></span>
+				</div>
 			</div>
 		<?php endif; ?>
 		<?php if ( $has_video ) : ?>
@@ -3153,7 +3177,6 @@ function ugm_resolve_agenda_exclude_ids( $slug_attr ) {
 				}
 			}
 		}
-		return array();
 	}
 
 	// 2. Customizer setting.

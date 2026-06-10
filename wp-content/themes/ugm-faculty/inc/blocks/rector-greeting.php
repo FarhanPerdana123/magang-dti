@@ -627,6 +627,10 @@ function ugm_render_block_about_ugm_sidebar( $attrs ) {
 	ob_start();
 	?>
 	<aside class="ugm-about-sidebar" aria-labelledby="ugm-about-sidebar-title">
+		<button class="ugm-about-sidebar__mobile-toggle" type="button" aria-expanded="false">
+			<span class="ugm-about-sidebar__mobile-icon" aria-hidden="true"></span>
+			<span><?php esc_html_e( 'TAB MENU', 'ugm-faculty' ); ?></span>
+		</button>
 		<?php if ( '' !== $title ) : ?>
 			<h2 id="ugm-about-sidebar-title" class="ugm-about-sidebar__title"><?php echo esc_html( $title ); ?></h2>
 		<?php endif; ?>
@@ -717,6 +721,14 @@ function ugm_enqueue_rector_greeting_frontend_styles() {
 		get_template_directory_uri() . '/assets/css/blocks/rector-greeting.css',
 		array( 'ugm-style-content' ),
 		ugm_get_asset_version( '/assets/css/blocks/rector-greeting.css' )
+	);
+
+	wp_enqueue_script(
+		'ugm-rector-greeting',
+		get_template_directory_uri() . '/assets/js/rector-greeting.js',
+		array(),
+		ugm_get_asset_version( '/assets/js/rector-greeting.js' ),
+		true
 	);
 }
 add_action( 'wp_enqueue_scripts', 'ugm_enqueue_rector_greeting_frontend_styles', 20 );

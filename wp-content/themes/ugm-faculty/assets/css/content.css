@@ -2198,6 +2198,17 @@
 		font-size: 1.04rem;
 	}
 
+	.home-sections-triple .portal-card__body {
+		display: flex;
+		flex-direction: column;
+		min-height: 7.75rem;
+	}
+
+	.home-sections-triple .portal-card .card-date {
+		margin-top: auto;
+		padding-top: 8px;
+	}
+
 	.home-sections-triple .portal-column__list {
 		gap: 6px;
 	}
@@ -2327,6 +2338,9 @@
 	.section-academic .portal-card__body,
 	.section-profile .portal-card__body,
 	.section-achievement .portal-card__body {
+		display: flex;
+		flex-direction: column;
+		min-height: 7.75rem;
 		padding: 16px 0 0;
 	}
 
@@ -2351,7 +2365,8 @@
 	.section-academic .portal-card .card-date,
 	.section-profile .portal-card .card-date,
 	.section-achievement .portal-card .card-date {
-		margin-top: 8px;
+		margin-top: auto;
+		padding-top: 8px;
 		font-size: 0.98rem;
 	}
 
@@ -4915,25 +4930,28 @@
 	}
 
 	.section-faculty .faculty-slider-wrapper {
-		padding: 0 18px;
+		width: 100%;
+		max-width: none;
+		margin-inline: 0;
+		padding: 0;
 		overflow: visible;
 	}
 
 	.section-faculty .faculty-page {
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 30px 14px;
+		gap: 8px;
 		align-items: start;
 	}
 
 	.section-faculty .faculty-card {
 		position: relative;
 		height: auto;
-		aspect-ratio: 2.15 / 1;
+		aspect-ratio: 1.72 / 1;
 		border: 0;
 		border-radius: 0;
 		box-shadow: none;
-		overflow: visible;
+		overflow: hidden;
 		background: #dfe5ea;
 	}
 
@@ -4962,7 +4980,7 @@
 	.section-faculty .faculty-card__title {
 		position: absolute;
 		right: 8px;
-		bottom: -8px;
+		bottom: 8px;
 		left: 12px;
 		display: flex;
 		align-items: center;
@@ -4989,9 +5007,9 @@
 	}
 
 	.section-faculty .faculty-nav {
-		top: calc(50% - 3px);
-		width: 18px;
-		height: 30px;
+		top: 50%;
+		width: 20px;
+		height: 36px;
 		border: 1px solid #c9d0d7;
 		border-radius: 0;
 		background: rgba(240, 242, 245, 0.96);
