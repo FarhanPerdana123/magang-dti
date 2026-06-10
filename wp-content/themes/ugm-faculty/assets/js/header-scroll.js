@@ -237,6 +237,7 @@
 			parentItems.forEach(function (item) {
 				var submenu = item.querySelector(':scope > .sub-menu');
 				var hoverCloseTimer = null;
+				var topLevelItem = item.closest('.primary-menu__list > li');
 				if (!submenu) {
 					return;
 				}
@@ -267,8 +268,8 @@
 						return;
 					}
 					clearHoverCloseTimer();
-					closeDesktopHoverMenus(item);
-					item.classList.add('is-hovered');
+					closeDesktopHoverMenus(topLevelItem || item);
+					(topLevelItem || item).classList.add('is-hovered');
 				}
 
 				function scheduleDesktopHoverClose(event) {
@@ -277,15 +278,16 @@
 					}
 
 					var nextTarget = event && event.relatedTarget ? event.relatedTarget : null;
-					if (nextTarget && (item.contains(nextTarget) || submenu.contains(nextTarget))) {
+					var activeItem = topLevelItem || item;
+					if (nextTarget && activeItem.contains(nextTarget)) {
 						return;
 					}
 
 					clearHoverCloseTimer();
 					hoverCloseTimer = window.setTimeout(function () {
-						item.classList.remove('is-hovered');
+						activeItem.classList.remove('is-hovered');
 						hoverCloseTimer = null;
-					}, 180);
+					}, 260);
 				}
 
 				item.addEventListener('pointerenter', openDesktopHoverMenu);
