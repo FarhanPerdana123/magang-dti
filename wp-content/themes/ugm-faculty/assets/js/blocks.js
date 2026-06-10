@@ -1302,6 +1302,20 @@
 			var attrs      = props.attributes;
 			var setAttr    = props.setAttributes;
 			var items      = Array.isArray( attrs.items ) ? attrs.items : [];
+			function moveItem( index, direction ) {
+				var newIndex = index + direction;
+
+				if ( newIndex < 0 || newIndex >= items.length ) {
+					return;
+				}
+
+				var next = items.slice();
+				var movedItem = next.splice( index, 1 )[0];
+
+				next.splice( newIndex, 0, movedItem );
+
+				setAttr( { items: next } );
+			}
 			var Component  = wp.element.Component;
 
 			/* ---- Render each item card in the inspector ---- */
@@ -1317,15 +1331,54 @@
 
 					/* Header row */
 					el( 'div',
-						{ style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' } },
-						el( 'strong', null, 'Fakultas #' + ( index + 1 ) ),
-						el( Button, {
-							isDestructive: true, isSmall: true,
-							onClick: function () {
-								var next = items.filter( function ( _, i ) { return i !== index; } );
-								setAttr( { items: next } );
+						{
+							style: {
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+								marginBottom: '6px',
+								gap: '8px',
 							},
-						}, 'Hapus' )
+						},
+						el( 'strong', null, 'Fakultas #' + ( index + 1 ) ),
+						el(
+							'div',
+							{
+								style: {
+									display: 'flex',
+									alignItems: 'center',
+									gap: '4px',
+								},
+							},
+							el( Button, {
+								isSmall: true,
+								isSecondary: true,
+								disabled: index === 0,
+								title: 'Naikkan',
+								'aria-label': 'Naikkan Fakultas #' + ( index + 1 ),
+								onClick: function () {
+									moveItem( index, -1 );
+								},
+							}, '↑' ),
+							el( Button, {
+								isSmall: true,
+								isSecondary: true,
+								disabled: index === items.length - 1,
+								title: 'Turunkan',
+								'aria-label': 'Turunkan Fakultas #' + ( index + 1 ),
+								onClick: function () {
+									moveItem( index, 1 );
+								},
+							}, '↓' ),
+							el( Button, {
+								isDestructive: true,
+								isSmall: true,
+								onClick: function () {
+									var next = items.filter( function ( _, i ) { return i !== index; } );
+									setAttr( { items: next } );
+								},
+							}, 'Hapus' )
+						)
 					),
 
 					/* Name */
