@@ -1072,6 +1072,14 @@
 	height: 122px;
 	border-radius: 0;
 	overflow: hidden;
+	transform: scale(1);
+	transform-origin: center;
+	transition: transform 0.45s ease;
+}
+
+.faculty-card:hover {
+	z-index: 2;
+	transform: scale(1.035);
 }
 
 /* Link yang membungkus seluruh kartu (ugm/faculty-list block) */
@@ -1085,8 +1093,7 @@
 
 /* Efek zoom gambar saat hover */
 .faculty-card__link:hover .faculty-card__image {
-	transform: scale(1.04);
-	transition: transform 0.3s ease;
+	transform: none;
 }
 
 /* Gambar latar kartu (background-image via inline style) */
@@ -4940,8 +4947,9 @@
 	.section-faculty .faculty-page {
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 8px;
+		gap: 42px 8px;
 		align-items: start;
+		padding-bottom: 28px;
 	}
 
 	.section-faculty .faculty-card {
@@ -4951,7 +4959,7 @@
 		border: 0;
 		border-radius: 0;
 		box-shadow: none;
-		overflow: hidden;
+		overflow: visible;
 		background: #dfe5ea;
 	}
 
@@ -4979,16 +4987,16 @@
 
 	.section-faculty .faculty-card__title {
 		position: absolute;
-		right: 8px;
-		bottom: 8px;
-		left: 12px;
+		right: 10px;
+		bottom: -24px;
+		left: 14px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		width: auto;
-		min-height: 46px;
+		min-height: 58px;
 		margin: 0;
-		padding: 9px 14px 9px 20px;
+		padding: 12px 16px 12px 22px;
 		border-radius: 0;
 		background: #06446a;
 		color: #fff;
@@ -4998,7 +5006,8 @@
 		letter-spacing: 0;
 		text-align: center;
 		text-transform: none;
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+		z-index: 2;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.22);
 	}
 
 	.section-faculty .faculty-card__title::before {

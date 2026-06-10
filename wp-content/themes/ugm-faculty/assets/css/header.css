@@ -752,7 +752,7 @@
 @media (max-width: 899px) {
 	.primary-navigation {
 		width: min(22rem, calc(100vw - 4.5rem));
-		padding-top: calc(var(--site-header-height) - 0.2rem);
+		padding-top: calc(var(--site-header-height) + 1.5rem);
 	}
 
 	.primary-navigation a {
