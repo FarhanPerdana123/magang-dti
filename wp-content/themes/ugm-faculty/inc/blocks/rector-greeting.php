@@ -352,6 +352,45 @@ function ugm_get_primary_header_menu_items() {
 	return $items;
 }
 
+function ugm_get_about_sidebar_menu_object() {
+	$locations = get_nav_menu_locations();
+
+	if ( isset( $locations['about-ugm-sidebar'] ) ) {
+		$menu = wp_get_nav_menu_object( $locations['about-ugm-sidebar'] );
+		if ( $menu instanceof WP_Term ) {
+			return $menu;
+		}
+	}
+
+	return null;
+}
+
+function ugm_get_ordered_nav_menu_items( $menu ) {
+	if ( ! $menu instanceof WP_Term ) {
+		return array();
+	}
+
+	$items = wp_get_nav_menu_items(
+		$menu->term_id,
+		array(
+			'update_post_term_cache' => false,
+		)
+	);
+
+	if ( empty( $items ) || ! is_array( $items ) ) {
+		return array();
+	}
+
+	usort(
+		$items,
+		static function ( $left, $right ) {
+			return (int) $left->menu_order <=> (int) $right->menu_order;
+		}
+	);
+
+	return $items;
+}
+
 function ugm_get_primary_header_parent_menu_options() {
 	$items = ugm_get_primary_header_menu_items();
 	if ( empty( $items ) ) {
@@ -481,6 +520,23 @@ function ugm_find_about_sidebar_parent_menu_item( $items, $selected_parent_menu_
 }
 
 function ugm_get_about_sidebar_menu_state( $selected_parent_menu_id = 0, $selected_parent_menu_title = '' ) {
+	$sidebar_menu = ugm_get_about_sidebar_menu_object();
+	if ( $sidebar_menu instanceof WP_Term ) {
+		$sidebar_items = ugm_get_ordered_nav_menu_items( $sidebar_menu );
+		if ( empty( $sidebar_items ) ) {
+			return array(
+				'status' => 'missing_location_items',
+				'items'  => array(),
+			);
+		}
+
+		$active_ids = array();
+		return array(
+			'status' => 'ready',
+			'items'  => ugm_build_about_sidebar_menu_tree( $sidebar_items, 0, 0, $active_ids ),
+		);
+	}
+
 	$items = ugm_get_primary_header_menu_items();
 	if ( empty( $items ) ) {
 		return array(
@@ -580,11 +636,13 @@ function ugm_render_block_about_ugm_sidebar( $attrs ) {
 			</nav>
 		<?php else : ?>
 			<?php
-			$empty_message = __( 'Pilih parent menu dari menu utama/header.', 'ugm-faculty' );
+			$empty_message = __( 'Pilih menu untuk lokasi Tentang UGM Sidebar di Appearance > Menus.', 'ugm-faculty' );
 			if ( 'missing_menu' === $menu_state['status'] ) {
-				$empty_message = __( 'Menu utama/header belum tersedia.', 'ugm-faculty' );
+				$empty_message = __( 'Pilih menu untuk lokasi Tentang UGM Sidebar, atau siapkan menu utama/header sebagai fallback.', 'ugm-faculty' );
 			} elseif ( 'missing_children' === $menu_state['status'] ) {
 				$empty_message = __( 'Menu ini belum memiliki submenu.', 'ugm-faculty' );
+			} elseif ( 'missing_location_items' === $menu_state['status'] ) {
+				$empty_message = __( 'Menu pada lokasi Tentang UGM Sidebar belum memiliki item.', 'ugm-faculty' );
 			}
 			?>
 			<p class="ugm-about-sidebar__empty"><?php echo esc_html( $empty_message ); ?></p>

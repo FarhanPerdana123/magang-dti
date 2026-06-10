@@ -86,6 +86,10 @@
 	line-height: 1.58;
 }
 
+.ugm-rector-greeting--no-photo .ugm-rector-greeting__body {
+	max-width: none;
+}
+
 .ugm-rector-greeting__body p {
 	margin: 0 0 1.1em;
 }
@@ -523,6 +527,16 @@
 .editor-styles-wrapper .wp-block[data-type="ugm/rector-greeting-layout"] .ugm-rector-greeting__grid {
 	grid-template-columns: minmax(360px, 1fr) 280px !important;
 	gap: 48px !important;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting--no-photo .ugm-rector-greeting__grid,
+.editor-styles-wrapper .wp-block[data-type="ugm/rector-greeting-layout"] .ugm-rector-greeting--no-photo .ugm-rector-greeting__grid {
+	grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting--no-photo .ugm-rector-greeting__body,
+.editor-styles-wrapper .wp-block[data-type="ugm/rector-greeting-layout"] .ugm-rector-greeting--no-photo .ugm-rector-greeting__body {
+	max-width: none !important;
 }
 
 .editor-styles-wrapper .wp-block[data-type="ugm/rector-greeting-layout"] .ugm-about-sidebar {

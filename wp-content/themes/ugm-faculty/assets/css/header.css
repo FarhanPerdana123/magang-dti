@@ -1095,17 +1095,16 @@
 	.primary-menu__list > li.page_item_has_children > .sub-menu {
 		position: absolute;
 		top: 100%;
-		left: 0;
-		right: 0;
+		left: 50%;
+		right: auto;
 		z-index: 1100;
 		display: block !important;
-		columns: 4 12rem;
-		column-gap: 2.25rem;
-		column-rule: 1px solid rgba(5, 52, 90, 0.5);
-		width: 100%;
+		grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+		gap: 0.9rem 1.25rem;
+		width: 100vw;
 		min-height: 0;
 		margin: 0;
-		padding: 1.9rem max(1.5rem, calc((100vw - var(--content-max-width)) / 2)) 2.15rem;
+		padding: 1.55rem max(2.5rem, calc((100vw - var(--content-max-width)) / 2)) 1.85rem;
 		list-style: none;
 		background:
 			linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.88)),
@@ -1115,7 +1114,7 @@
 		box-shadow: 0 22px 34px rgba(5, 32, 56, 0.2);
 		opacity: 0;
 		visibility: hidden;
-		transform: translateY(10px);
+		transform: translate(-50%, 10px);
 		pointer-events: none;
 		transition: opacity 160ms ease, transform 160ms ease, visibility 0s linear 160ms;
 	}
@@ -1134,20 +1133,26 @@
 	.primary-menu__list > li.page_item_has_children.is-hovered > .sub-menu,
 	.primary-menu__list > li.menu-item-has-children.is-open > .sub-menu,
 	.primary-menu__list > li.page_item_has_children.is-open > .sub-menu {
+		display: grid !important;
 		opacity: 1;
 		visibility: visible;
-		transform: translateY(0);
+		transform: translate(-50%, 0);
 		pointer-events: auto;
 		transition-delay: 0s;
 	}
 
 	.primary-menu__list > li.menu-item-has-children > .sub-menu > li,
 	.primary-menu__list > li.page_item_has_children > .sub-menu > li {
-		break-inside: avoid;
-		margin: 0 0 0.55rem;
+		margin: 0;
 		min-width: 0;
-		padding: 0;
+		padding: 0 0.8rem 0 0;
 		border: 0;
+		border-right: 1px solid rgba(5, 52, 90, 0.55);
+	}
+
+	.primary-menu__list > li.menu-item-has-children > .sub-menu > li:nth-child(4n),
+	.primary-menu__list > li.page_item_has_children > .sub-menu > li:nth-child(4n) {
+		border-right: 0;
 	}
 
 	.primary-menu__list > li.menu-item-has-children > .sub-menu a,
@@ -1181,7 +1186,7 @@
 		display: block !important;
 		width: auto;
 		min-height: 0;
-		padding: 0.25rem 0 0;
+		padding: 0.55rem 0 0;
 		background: transparent;
 		border: 0;
 		box-shadow: none;
@@ -1206,8 +1211,8 @@
 
 	.primary-menu__list .sub-menu .sub-menu a {
 		position: relative;
-		margin-left: 0.25rem;
-		padding-left: 0.45rem;
+		margin-left: 0;
+		padding: 0.22rem 0;
 		color: rgba(0, 47, 95, 0.48) !important;
 		font-weight: 400 !important;
 		font-size: 0.86rem !important;
@@ -1387,8 +1392,21 @@
 ========================================= */
 @media (min-width: 900px) {
 	.site-header {
-		background: #05345a !important;
+		background: #083D62 !important;
 		box-shadow: none !important;
+	}
+
+	.site-header.is-front-page:not(.is-scrolled):not(.menu-open):not(.search-open) {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		background: linear-gradient(to bottom, #083D62 0 calc(100% - 2.55rem), transparent calc(100% - 2.55rem) 100%) !important;
+		--header-surface: #083D62;
+	}
+
+	body.admin-bar .site-header.is-front-page:not(.is-scrolled):not(.menu-open):not(.search-open) {
+		top: 32px;
 	}
 
 	.site-header__inner {
@@ -1501,25 +1519,56 @@
 	}
 
 	.primary-navigation {
-		position: static !important;
+		position: relative !important;
 		width: 100% !important;
 		display: flex !important;
 		justify-content: center !important;
 		align-items: center !important;
-		background: #05345a !important;
-		border-top: 1px solid #d2b343 !important;
+		background: transparent !important;
+		border-top: 0 !important;
+		border-left: 0 !important;
+		border-right: 0 !important;
 		padding: 0.46rem 0 0.56rem !important;
 		margin: 0 !important;
 		transform: none !important;
 		opacity: 1 !important;
 		visibility: visible !important;
 		pointer-events: auto !important;
+		z-index: 0;
+	}
+
+	.primary-navigation::before {
+		content: "";
+		position: absolute;
+		top: -2px;
+		left: 50%;
+		width: 100vw;
+		height: 1px;
+		background: #d2b343;
+		transform: translateX(-50%);
+	}
+
+	.primary-navigation::after {
+		content: "";
+		position: absolute;
+		inset: 0 auto 0 50%;
+		z-index: -1;
+		width: 100vw;
+		background: #1A2C43;
+		transform: translateX(-50%);
+	}
+
+	.site-header.is-front-page .primary-navigation::after {
+		background: transparent;
 	}
 
 	.primary-menu__list {
+		position: relative;
+		z-index: 1;
 		display: flex !important;
 		justify-content: center !important;
 		align-items: center !important;
+		flex-wrap: nowrap !important;
 		gap: 1.85rem !important;
 	}
 

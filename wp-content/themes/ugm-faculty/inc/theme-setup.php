@@ -53,6 +53,7 @@ function ugm_theme_setup() {
 		array(
 			'menu-1'             => esc_html__( 'Primary', 'ugm-faculty' ),
 			'header-quick-links' => esc_html__( 'Header Quick Links', 'ugm-faculty' ),
+			'about-ugm-sidebar'  => esc_html__( 'Tentang UGM Sidebar', 'ugm-faculty' ),
 			'footer-quick-links' => esc_html__( 'Footer Quick Links', 'ugm-faculty' ),
 			'mobile-quick-links' => esc_html__( 'Mobile Quick Links', 'ugm-faculty' ),
 		)

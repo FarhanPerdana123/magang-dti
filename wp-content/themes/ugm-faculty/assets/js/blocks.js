@@ -1258,6 +1258,7 @@
 			title:       __( 'Kumpulan Berita', 'ugm-faculty' ),
 			description: __( 'Beberapa section berita: 1 berita besar + 1 berita samping + grid berita.', 'ugm-faculty' ),
 			icon:        'layout',
+			supports:    { html: false, multiple: false, inserter: false },
 			attributes: {
 				sectionsCount: { type: 'integer', default: 4 },
 				postsPerRow:   { type: 'integer', default: 3 },
@@ -1309,6 +1310,7 @@
 			title:       __( 'Sidebar: Poster & Update', 'ugm-faculty' ),
 			description: __( 'Tombol UGM Peduli Bencana dan poster informasi di sidebar.', 'ugm-faculty' ),
 			icon:        'format-image',
+			supports:    { html: false, multiple: false, inserter: false },
 			attributes: {
 				buttonText:    { type: 'string',  default: 'UGM Peduli Bencana - Update' },
 				buttonUrl:     { type: 'string',  default: '/peduli-bencana/' },
@@ -1391,7 +1393,7 @@
 			description: block.description,
 			category:    'ugm-berita-terbaru',
 			icon:        block.icon,
-			supports:    { html: false, multiple: false },
+			supports:    block.supports || { html: false, multiple: false },
 			attributes:  block.attributes,
 			edit:        makeBeritaEdit( block.name, block.fields ),
 			save:        function () { return null; },
@@ -1952,14 +1954,6 @@
 			inserter: false,
 		},
 		edit: function () {
-			var isPreviewMode = useSelect( function ( select ) {
-				return !! select( 'core/block-editor' ).getSettings().isPreviewMode;
-			}, [] );
-
-			if ( ! isPreviewMode ) {
-				return null;
-			}
-
 			return el(
 				Fragment,
 				null,
@@ -1985,10 +1979,16 @@
 								'div',
 								{ className: 'ugmbt-main' },
 								el( ServerSideRender, {
-									block: 'ugm/bt-news-section',
+									block: 'ugm/bt-featured-row',
 									attributes: {
-										sectionsCount: 2,
-										postsPerRow: 3,
+										categorySlug: '',
+									},
+									httpMethod: 'POST',
+								} ),
+								el( ServerSideRender, {
+									block: 'ugm/bt-news-grid',
+									attributes: {
+										postsCount: 3,
 										categorySlug: '',
 									},
 									httpMethod: 'POST',
@@ -1997,14 +1997,6 @@
 							el(
 								'aside',
 								{ className: 'ugmbt-sidebar', 'aria-label': __( 'Sidebar', 'ugm-faculty' ) },
-								el( ServerSideRender, {
-									block: 'ugm/bt-sidebar-promo',
-									attributes: {
-										buttonText: 'UGM Peduli Bencana - Update',
-										buttonUrl: '/peduli-bencana/',
-									},
-									httpMethod: 'POST',
-								} ),
 								el( ServerSideRender, {
 									block: 'ugm/bt-sidebar-news',
 									attributes: {

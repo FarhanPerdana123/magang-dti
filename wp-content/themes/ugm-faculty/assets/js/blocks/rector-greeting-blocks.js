@@ -340,7 +340,7 @@
 			var attrs   = props.attributes;
 			var setAttr = props.setAttributes;
 			var hasPhoto = ( parseInt( attrs.photoId, 10 ) || 0 ) > 0 || !! attrs.photoUrl;
-			var showPhotoFrame = attrs.showPhotoFrame !== false;
+			var showPhoto = attrs.showPhotoFrame !== false;
 
 			useEffect( function () {
 				var nextAttrs = {};
@@ -399,6 +399,18 @@
 					el(
 						PanelBody,
 						{ title: __( 'Foto dan Identitas Rektor', 'ugm-faculty' ), initialOpen: true },
+						el( SelectControl, {
+							label: __( 'Tampilkan Foto', 'ugm-faculty' ),
+							value: showPhoto ? 'yes' : 'no',
+							options: [
+								{ label: __( 'Ya', 'ugm-faculty' ), value: 'yes' },
+								{ label: __( 'Tidak, teks penuh', 'ugm-faculty' ), value: 'no' },
+							],
+							onChange: function ( value ) {
+								setAttr( { showPhotoFrame: value === 'yes' } );
+							},
+							help: __( 'Pilih "Tidak" untuk menyembunyikan foto dan membuat teks melebar penuh di area konten.', 'ugm-faculty' ),
+						} ),
 						el( TextControl, {
 							label: __( 'Nama Rektor', 'ugm-faculty' ),
 							value: attrs.rectorName || '',
@@ -409,16 +421,18 @@
 							value: attrs.rectorRole || '',
 							onChange: function ( value ) { setAttr( { rectorRole: value } ); },
 						} ),
-						el( SelectControl, {
-							label: __( 'Posisi Foto', 'ugm-faculty' ),
-							value: attrs.photoPosition || 'right',
-							options: [
-								{ label: __( 'Kanan', 'ugm-faculty' ), value: 'right' },
-								{ label: __( 'Kiri', 'ugm-faculty' ), value: 'left' },
-							],
-							onChange: function ( value ) { setAttr( { photoPosition: value } ); },
-						} ),
-						attrs.photoUrl
+						showPhoto
+							? el( SelectControl, {
+								label: __( 'Posisi Foto', 'ugm-faculty' ),
+								value: attrs.photoPosition || 'right',
+								options: [
+									{ label: __( 'Kanan', 'ugm-faculty' ), value: 'right' },
+									{ label: __( 'Kiri', 'ugm-faculty' ), value: 'left' },
+								],
+								onChange: function ( value ) { setAttr( { photoPosition: value } ); },
+							} )
+							: null,
+						showPhoto && attrs.photoUrl
 							? el( 'img', {
 								src: attrs.photoUrl,
 								alt: '',
@@ -436,10 +450,10 @@
 									return el(
 										'div',
 										{ style: { display: 'grid', gap: '8px' } },
-										el( Button, { isSecondary: true, onClick: ref.open },
+										showPhoto ? el( Button, { isSecondary: true, onClick: ref.open },
 											hasPhoto ? __( 'Ganti Foto', 'ugm-faculty' ) : __( 'Pilih Foto', 'ugm-faculty' )
-										),
-										showPhotoFrame
+										) : null,
+										showPhoto
 											? el( Button, {
 												isSecondary: true,
 												isDestructive: true,
@@ -448,7 +462,7 @@
 											: el( Button, {
 												isSecondary: true,
 												onClick: function () { setAttr( { showPhotoFrame: true } ); },
-											}, __( 'Tampilkan Frame Foto', 'ugm-faculty' ) )
+											}, __( 'Tampilkan Foto', 'ugm-faculty' ) )
 									);
 								},
 							} )
@@ -519,7 +533,7 @@
 							onChange: function ( value ) { setAttr( { title: value } ); },
 						} ),
 						el( SelectControl, {
-							label: __( 'Parent Menu Header', 'ugm-faculty' ),
+							label: __( 'Fallback Parent Menu Header', 'ugm-faculty' ),
 							value: selectedParentMenuValue,
 							options: parentMenuOptions,
 							disabled: ! hasPrimaryHeaderMenu,
@@ -533,7 +547,7 @@
 									selectedParentMenuTitle: selected ? selected.title || '' : '',
 								} );
 							},
-							help: __( 'Sidebar menampilkan submenu dari parent menu utama/header yang dipilih.', 'ugm-faculty' ),
+							help: __( 'Utama: pilih menu di Appearance > Menus > Display location: Tentang UGM Sidebar. Pilihan ini hanya dipakai sebagai fallback jika location itu belum diisi.', 'ugm-faculty' ),
 						} )
 					)
 				),

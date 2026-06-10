@@ -384,9 +384,12 @@ function ugm_render_announcement_compact_card( WP_Post $post ) {
 	$post_id = (int) $post->ID;
 	?>
 	<article class="ugm-announcement-compact">
-		<a class="ugm-announcement-compact__media" href="<?php echo esc_url( get_permalink( $post_id ) ); ?>">
-			<img src="<?php echo esc_url( ugm_announcement_image_url( $post_id, 'thumbnail' ) ); ?>" alt="<?php echo esc_attr( get_the_title( $post_id ) ); ?>" loading="lazy" decoding="async">
-		</a>
+		<div class="ugm-announcement-compact__aside">
+			<a class="ugm-announcement-compact__media" href="<?php echo esc_url( get_permalink( $post_id ) ); ?>">
+				<img src="<?php echo esc_url( ugm_announcement_image_url( $post_id, 'thumbnail' ) ); ?>" alt="<?php echo esc_attr( get_the_title( $post_id ) ); ?>" loading="lazy" decoding="async">
+			</a>
+			<span class="ugm-announcement-compact__date"><?php echo esc_html( sprintf( __( 'Dipublikasikan: %s', 'ugm-faculty' ), get_the_date( 'j F Y', $post_id ) ) ); ?></span>
+		</div>
 		<div class="ugm-announcement-compact__body">
 			<h3><a href="<?php echo esc_url( get_permalink( $post_id ) ); ?>"><?php echo esc_html( get_the_title( $post_id ) ); ?></a></h3>
 			<p><?php echo esc_html( ugm_announcement_excerpt( $post_id, 15 ) ); ?></p>
@@ -742,6 +745,14 @@ function ugm_render_block_announcement_page( $attrs ) {
 
 	$list_items = ugm_query_announcement_section_posts( $other_category_slug, 10, $keyword, $shown_post_ids );
 	$has_posts  = $featured instanceof WP_Post || ! empty( $compact ) || ! empty( $list_items );
+	$mobile_items = array_merge( $compact, $list_items );
+	usort(
+		$mobile_items,
+		static function ( $left, $right ) {
+			return (int) get_post_timestamp( $right ) <=> (int) get_post_timestamp( $left );
+		}
+	);
+
 	ob_start();
 	?>
 	<section class="ugm-announcement-section" aria-labelledby="ugm-announcement-page-title">
@@ -808,22 +819,12 @@ function ugm_render_block_announcement_page( $attrs ) {
 						<?php ugm_render_announcement_mobile_card( $featured, $featured_label ); ?>
 					<?php endif; ?>
 
-					<?php if ( ! empty( $compact ) ) : ?>
-						<section class="ugm-announcement-mobile-group">
-							<h2><?php echo esc_html( '' !== $latest_title ? $latest_title : __( 'Pengumuman Terkini', 'ugm-faculty' ) ); ?></h2>
-							<?php foreach ( $compact as $compact_post ) : ?>
-								<?php ugm_render_announcement_mobile_row( $compact_post, 'latest' ); ?>
+					<?php if ( ! empty( $mobile_items ) ) : ?>
+						<div class="ugm-announcement-mobile-group">
+							<?php foreach ( $mobile_items as $mobile_post ) : ?>
+								<?php ugm_render_announcement_mobile_row( $mobile_post, 'latest' ); ?>
 							<?php endforeach; ?>
-						</section>
-					<?php endif; ?>
-
-					<?php if ( ! empty( $list_items ) ) : ?>
-						<section class="ugm-announcement-mobile-group ugm-announcement-mobile-group--other">
-							<h2><?php echo esc_html( '' !== $other_title ? $other_title : __( 'Pengumuman Lainnya', 'ugm-faculty' ) ); ?></h2>
-							<?php foreach ( array_slice( $list_items, 0, 4 ) as $list_post ) : ?>
-								<?php ugm_render_announcement_mobile_row( $list_post, 'other' ); ?>
-							<?php endforeach; ?>
-						</section>
+						</div>
 					<?php endif; ?>
 				</div>
 

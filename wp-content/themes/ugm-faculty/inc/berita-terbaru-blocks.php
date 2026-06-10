@@ -401,7 +401,7 @@ register_block_type( 'ugm/bt-news-section', array(
 	'category'        => 'ugm-berita-terbaru',
 	'icon'            => 'layout',
 	'render_callback' => 'ugmbt_render_block_news_section',
-	'supports'        => array( 'html' => false, 'multiple' => false ),
+	'supports'        => array( 'html' => false, 'multiple' => false, 'inserter' => false ),
 	'attributes'      => array(
 		'sectionsCount' => array( 'type' => 'integer', 'default' => 4 ),
 		'postsPerRow'   => array( 'type' => 'integer', 'default' => 3 ),
@@ -571,7 +571,7 @@ register_block_type( 'ugm/bt-sidebar-promo', array(
 	'category'        => 'ugm-berita-terbaru',
 	'icon'            => 'format-image',
 	'render_callback' => 'ugmbt_render_block_sidebar_promo',
-	'supports'        => array( 'html' => false, 'multiple' => false ),
+	'supports'        => array( 'html' => false, 'multiple' => false, 'inserter' => false ),
 	'attributes'      => array(
 		'buttonText'    => array( 'type' => 'string',  'default' => 'UGM Peduli Bencana - Update' ),
 		'buttonUrl'     => array( 'type' => 'string',  'default' => '/peduli-bencana/' ),
@@ -800,12 +800,12 @@ add_action( 'init', static function () {
 		'<div class="wp-block-group ugmbt-editor-shell ugmbt-page">' . "\n" .
 		'<!-- wp:group {"className":"ugmbt-editor-main","layout":{"type":"default"}} -->' . "\n" .
 		'<div class="wp-block-group ugmbt-editor-main">' . "\n" .
-		'<!-- wp:ugm/bt-news-section {"sectionsCount":4,"postsPerRow":3,"categorySlug":""} /-->' . "\n" .
+		'<!-- wp:ugm/bt-featured-row {"categorySlug":""} /-->' . "\n" .
+		'<!-- wp:ugm/bt-news-grid {"postsCount":3,"categorySlug":""} /-->' . "\n" .
 		'</div>' . "\n" .
 		'<!-- /wp:group -->' . "\n\n" .
 		'<!-- wp:group {"className":"ugmbt-editor-sidebar","layout":{"type":"default"}} -->' . "\n" .
 		'<div class="wp-block-group ugmbt-editor-sidebar">' . "\n" .
-		'<!-- wp:ugm/bt-sidebar-promo {"buttonText":"UGM Peduli Bencana - Update","buttonUrl":"/peduli-bencana/","posterOneId":0,"posterOneUrl":"","posterOneAlt":"","posterOneLink":"","posterTwoId":0,"posterTwoUrl":"","posterTwoAlt":"","posterTwoLink":""} /-->' . "\n" .
 		'<!-- wp:ugm/bt-sidebar-news {"widgetTitle":"Berita Terbaru","postsCount":5} /-->' . "\n" .
 		'<!-- wp:ugm/bt-sidebar-agenda {"widgetTitle":"Agenda Terbaru","postsCount":3,"agendaUrl":"/agenda/"} /-->' . "\n" .
 		'<!-- wp:ugm/bt-sidebar-categories {"widgetTitle":"Kategori"} /-->' . "\n" .

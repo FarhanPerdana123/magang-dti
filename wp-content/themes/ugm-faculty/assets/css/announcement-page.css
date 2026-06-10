@@ -222,6 +222,10 @@ body:has(.ugm-announcement-page) .site-content {
 	overflow: hidden;
 }
 
+.ugm-announcement-compact__aside {
+	min-width: 0;
+}
+
 .ugm-announcement-compact__body,
 .ugm-announcement-list-item__body {
 	min-width: 0;
@@ -250,6 +254,14 @@ body:has(.ugm-announcement-page) .site-content {
 	font-size: 0.78rem;
 	line-height: 1.25;
 	overflow-wrap: anywhere;
+}
+
+.ugm-announcement-compact__date {
+	display: block;
+	margin-top: 8px;
+	color: #6b7280;
+	font-size: 0.72rem;
+	line-height: 1.25;
 }
 
 .ugm-announcement-list-slider {

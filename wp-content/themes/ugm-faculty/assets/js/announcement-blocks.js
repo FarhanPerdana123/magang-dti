@@ -262,28 +262,18 @@
 							value: attrs.featuredLabel || '',
 							onChange: function ( v ) { setAttr( { featuredLabel: v } ); },
 						} ),
-						el( TextControl, {
-							label: __( 'Judul Pengumuman Terkini', 'ugm-faculty' ),
-							value: attrs.latestTitle || '',
-							onChange: function ( v ) { setAttr( { latestTitle: v } ); },
-						} ),
-						el( TextControl, {
-							label: __( 'Judul Pengumuman Lainnya', 'ugm-faculty' ),
-							value: attrs.otherTitle || '',
-							onChange: function ( v ) { setAttr( { otherTitle: v } ); },
-						} ),
 						el( CategoryChecklistControl, {
 							label: __( 'Kategori untuk Pengumuman Utama', 'ugm-faculty' ),
 							value: attrs.featuredCategorySlug || attrs.categorySlug || 'pengumuman',
 							onChange: function ( value ) { setAttr( { featuredCategorySlug: value } ); },
 						} ),
 						el( CategoryChecklistControl, {
-							label: __( 'Kategori untuk Pengumuman Terkini', 'ugm-faculty' ),
+							label: __( 'Kategori untuk Pengumuman Setelah Utama', 'ugm-faculty' ),
 							value: attrs.latestCategorySlug || attrs.categorySlug || 'pengumuman',
 							onChange: function ( value ) { setAttr( { latestCategorySlug: value } ); },
 						} ),
 						el( CategoryChecklistControl, {
-							label: __( 'Kategori untuk Pengumuman Lainnya', 'ugm-faculty' ),
+							label: __( 'Kategori Tambahan Setelah Utama', 'ugm-faculty' ),
 							value: attrs.otherCategorySlug || attrs.categorySlug || 'pengumuman',
 							onChange: function ( value ) { setAttr( { otherCategorySlug: value } ); },
 						} )
