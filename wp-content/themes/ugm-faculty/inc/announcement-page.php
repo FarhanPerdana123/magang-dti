@@ -16,7 +16,7 @@ function ugm_get_default_announcement_page_blocks() {
 		'<div class="wp-block-columns ugm-announcement-template-columns">' . "\n" .
 		'<!-- wp:column {"width":"1016px","className":"ugm-announcement-template-main"} -->' . "\n" .
 		'<div class="wp-block-column ugm-announcement-template-main" style="flex-basis:1016px">' . "\n" .
-		'<!-- wp:ugm/announcement-page {"title":"Pengumuman","featuredLabel":"Pengumuman Utama","latestTitle":"Pengumuman Terkini","otherTitle":"Pengumuman Lainnya","categorySlug":"pengumuman","featuredCategorySlug":"pengumuman","latestCategorySlug":"pengumuman","otherCategorySlug":"pengumuman","showFacebook":true,"facebookUrl":"","showTwitter":true,"twitterUrl":"","showWhatsapp":true,"whatsappUrl":""} /-->' . "\n" .
+		'<!-- wp:ugm/announcement-page {"title":"Pengumuman","categorySlug":"pengumuman","featuredCategorySlug":"pengumuman","latestCategorySlug":"pengumuman","showFacebook":true,"facebookUrl":"","showTwitter":true,"twitterUrl":"","showWhatsapp":true,"whatsappUrl":""} /-->' . "\n" .
 		'</div>' . "\n" .
 		'<!-- /wp:column -->' . "\n" .
 		'<!-- wp:column {"width":"270px","className":"ugm-announcement-template-sidebar"} -->' . "\n" .
@@ -634,12 +634,11 @@ function ugm_render_block_announcement_latest_agenda( $attrs ) {
 function ugm_render_block_announcement_page( $attrs ) {
 	$attrs                  = is_array( $attrs ) ? $attrs : array();
 	$title                  = trim( (string) ( $attrs['title'] ?? __( 'Pengumuman', 'ugm-faculty' ) ) );
-	$featured_label         = trim( (string) ( $attrs['featuredLabel'] ?? __( 'Pengumuman Utama', 'ugm-faculty' ) ) );
-	$latest_title           = trim( (string) ( $attrs['latestTitle'] ?? __( 'Pengumuman Terkini', 'ugm-faculty' ) ) );
-	$other_title            = trim( (string) ( $attrs['otherTitle'] ?? __( 'Pengumuman Lainnya', 'ugm-faculty' ) ) );
+	$featured_label         = __( 'Pengumuman Utama', 'ugm-faculty' );
+	$latest_title           = __( 'Pengumuman Terkini', 'ugm-faculty' );
 	$featured_category_slug = ugm_get_announcement_section_category_slug( $attrs, 'featuredCategorySlug' );
 	$latest_category_slug   = ugm_get_announcement_section_category_slug( $attrs, 'latestCategorySlug' );
-	$other_category_slug    = ugm_get_announcement_section_category_slug( $attrs, 'otherCategorySlug' );
+	$other_category_slug    = $latest_category_slug;
 	$keyword                = isset( $_GET['announcement_keyword'] ) ? sanitize_text_field( wp_unslash( $_GET['announcement_keyword'] ) ) : '';
 	$shown_post_ids         = array();
 
@@ -658,7 +657,7 @@ function ugm_render_block_announcement_page( $attrs ) {
 		}
 	}
 
-	$list_items = ugm_query_announcement_section_posts( $other_category_slug, 10, $keyword, $shown_post_ids );
+	$list_items = ugm_query_announcement_section_posts( $other_category_slug, 4, $keyword, $shown_post_ids );
 	$has_posts  = $featured instanceof WP_Post || ! empty( $compact ) || ! empty( $list_items );
 	ob_start();
 	?>
@@ -726,18 +725,14 @@ function ugm_render_block_announcement_page( $attrs ) {
 						<?php ugm_render_announcement_mobile_card( $featured, $featured_label ); ?>
 					<?php endif; ?>
 
-					<?php if ( ! empty( $compact ) ) : ?>
+					<?php if ( ! empty( $compact ) || ! empty( $list_items ) ) : ?>
 						<section class="ugm-announcement-mobile-group">
-							<h2><?php echo esc_html( '' !== $latest_title ? $latest_title : __( 'Pengumuman Terkini', 'ugm-faculty' ) ); ?></h2>
+							<h2><?php echo esc_html( $latest_title ); ?></h2>
+
 							<?php foreach ( $compact as $compact_post ) : ?>
 								<?php ugm_render_announcement_mobile_row( $compact_post, 'latest' ); ?>
 							<?php endforeach; ?>
-						</section>
-					<?php endif; ?>
 
-					<?php if ( ! empty( $list_items ) ) : ?>
-						<section class="ugm-announcement-mobile-group ugm-announcement-mobile-group--other">
-							<h2><?php echo esc_html( '' !== $other_title ? $other_title : __( 'Pengumuman Lainnya', 'ugm-faculty' ) ); ?></h2>
 							<?php foreach ( array_slice( $list_items, 0, 4 ) as $list_post ) : ?>
 								<?php ugm_render_announcement_mobile_row( $list_post, 'other' ); ?>
 							<?php endforeach; ?>
@@ -766,13 +761,9 @@ add_action( 'init', function () {
 		'supports'        => array( 'html' => false ),
 		'attributes'      => array(
 			'title'                => array( 'type' => 'string', 'default' => 'Pengumuman' ),
-			'featuredLabel'        => array( 'type' => 'string', 'default' => 'Pengumuman Utama' ),
-			'latestTitle'          => array( 'type' => 'string', 'default' => 'Pengumuman Terkini' ),
-			'otherTitle'           => array( 'type' => 'string', 'default' => 'Pengumuman Lainnya' ),
 			'categorySlug'         => array( 'type' => 'string', 'default' => 'pengumuman' ),
 			'featuredCategorySlug' => array( 'type' => 'string', 'default' => '' ),
 			'latestCategorySlug'   => array( 'type' => 'string', 'default' => '' ),
-			'otherCategorySlug'    => array( 'type' => 'string', 'default' => '' ),
 			'socialItems'          => array(
 				'type'    => 'array',
 				'default' => array(
