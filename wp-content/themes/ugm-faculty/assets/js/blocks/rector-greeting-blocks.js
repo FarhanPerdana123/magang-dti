@@ -13,6 +13,7 @@
 	var __                         = wp.i18n.__;
 	var ServerSideRender           = wp.serverSideRender;
 	var InspectorControls          = wp.blockEditor.InspectorControls;
+	var PanelColorSettings         = wp.blockEditor.PanelColorSettings;
 	var InnerBlocks                = wp.blockEditor.InnerBlocks;
 	var useBlockProps              = wp.blockEditor.useBlockProps;
 	var MediaUpload                = wp.blockEditor.MediaUpload;
@@ -435,11 +436,13 @@ function setupRectorGreetingTemplateChooserPreviewFix() {
 							body: getDefaultRectorBody(),
 							rectorName: 'Nama Rektor',
 							rectorRole: 'Jabatan Rektor',
+							rectorCaptionBackgroundColor: '',
 							photoPosition: 'right',
 							showPhotoFrame: true,
 						} ],
 						[ 'ugm/about-ugm-sidebar', {
 							title: 'Tentang UGM',
+							sidebarBackgroundColor: '',
 							selectedParentMenuTitle: 'Tentang',
 						} ],
 					],
@@ -466,6 +469,7 @@ function setupRectorGreetingTemplateChooserPreviewFix() {
 			body:             { type: 'string', default: getDefaultRectorBody() },
 			rectorName:       { type: 'string', default: 'Nama Rektor' },
 			rectorRole:       { type: 'string', default: 'Jabatan Rektor' },
+			rectorCaptionBackgroundColor: { type: 'string', default: '' },
 			photoId:          { type: 'integer', default: 0 },
 			photoUrl:         { type: 'string', default: '' },
 			photoPosition:    { type: 'string', default: 'right' },
@@ -553,6 +557,28 @@ function setupRectorGreetingTemplateChooserPreviewFix() {
 							value: attrs.rectorRole || '',
 							onChange: function ( value ) { setAttr( { rectorRole: value } ); },
 						} ),
+						PanelColorSettings
+							? el( PanelColorSettings, {
+								title: __( 'Warna Background Nama dan Jabatan', 'ugm-faculty' ),
+								initialOpen: true,
+								colorSettings: [
+									{
+										value: attrs.rectorCaptionBackgroundColor || '',
+										onChange: function ( value ) {
+											setAttr( { rectorCaptionBackgroundColor: value || '' } );
+										},
+										label: __( 'Background Nama dan Jabatan', 'ugm-faculty' ),
+									},
+								],
+							} )
+							: el( TextControl, {
+								label: __( 'Background Nama dan Jabatan', 'ugm-faculty' ),
+								type: 'color',
+								value: attrs.rectorCaptionBackgroundColor || '#00557a',
+								onChange: function ( value ) {
+									setAttr( { rectorCaptionBackgroundColor: value || '' } );
+								},
+							} ),
 						el( SelectControl, {
 							label: __( 'Posisi Foto', 'ugm-faculty' ),
 							value: attrs.photoPosition || 'right',
@@ -618,6 +644,7 @@ function setupRectorGreetingTemplateChooserPreviewFix() {
 		supports:    { html: false },
 		attributes:  {
 			title: { type: 'string', default: 'Tentang UGM' },
+			sidebarBackgroundColor: { type: 'string', default: '' },
 		},
 		edit: function ( props ) {
 			var attrs   = props.attributes;
@@ -660,6 +687,28 @@ function setupRectorGreetingTemplateChooserPreviewFix() {
 							value: attrs.title || '',
 							onChange: function ( value ) { setAttr( { title: value } ); },
 						} ),
+						PanelColorSettings
+							? el( PanelColorSettings, {
+								title: __( 'Warna Background Sidebar', 'ugm-faculty' ),
+								initialOpen: true,
+								colorSettings: [
+									{
+										value: attrs.sidebarBackgroundColor || '',
+										onChange: function ( value ) {
+											setAttr( { sidebarBackgroundColor: value || '' } );
+										},
+										label: __( 'Background Sidebar', 'ugm-faculty' ),
+									},
+								],
+							} )
+							: el( TextControl, {
+								label: __( 'Background Sidebar', 'ugm-faculty' ),
+								type: 'color',
+								value: attrs.sidebarBackgroundColor || '#00557a',
+								onChange: function ( value ) {
+									setAttr( { sidebarBackgroundColor: value || '' } );
+								},
+							} ),
 						el( 'p', {
 							style: {
 								marginTop: '8px',

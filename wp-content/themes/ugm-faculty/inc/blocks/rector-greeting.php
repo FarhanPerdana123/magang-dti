@@ -58,12 +58,14 @@ function ugm_get_default_rector_greeting_blocks() {
 		'body'            => ugm_get_default_rector_greeting_paragraphs(),
 		'rectorName'      => __( 'Nama Rektor', 'ugm-faculty' ),
 		'rectorRole'      => __( 'Jabatan Rektor', 'ugm-faculty' ),
+		'rectorCaptionBackgroundColor' => '',
 		'photoPosition'   => 'right',
 		'showPhotoFrame'  => true,
 	);
 
 	$sidebar_attrs = array(
 		'title'                   => __( 'Tentang UGM', 'ugm-faculty' ),
+		'sidebarBackgroundColor' => '',
 		'selectedParentMenuTitle' => __( 'Tentang', 'ugm-faculty' ),
 	);
 
@@ -234,6 +236,7 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 	$body              = array_key_exists( 'body', $attrs ) ? trim( (string) $attrs['body'] ) : ugm_get_default_rector_greeting_paragraphs();
 	$rector_name       = trim( (string) ( $attrs['rectorName'] ?? '' ) );
 	$rector_role       = trim( (string) ( $attrs['rectorRole'] ?? '' ) );
+	$rector_caption_background_color = sanitize_hex_color( $attrs['rectorCaptionBackgroundColor'] ?? '' );
 	$photo_position    = 'left' === ( $attrs['photoPosition'] ?? 'right' ) ? 'left' : 'right';
 	$photo_id          = absint( $attrs['photoId'] ?? 0 );
 	$show_photo_frame  = array_key_exists( 'showPhotoFrame', $attrs ) ? (bool) $attrs['showPhotoFrame'] : true;
@@ -262,6 +265,12 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 	}
 	if ( __( 'Rektor UGM', 'ugm-faculty' ) === $rector_role ) {
 		$rector_role = __( 'Jabatan Rektor', 'ugm-faculty' );
+	}
+
+	$rector_caption_style = '';
+
+	if ( ! empty( $rector_caption_background_color ) ) {
+		$rector_caption_style = ' style="background-color:' . esc_attr( $rector_caption_background_color ) . ';"';
 	}
 
 	$paragraphs = preg_split( "/\r\n\r\n|\n\n|\r\r/", $body );
@@ -308,7 +317,7 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 					<?php endif; ?>
 				</div>
 				<?php if ( '' !== $rector_name || '' !== $rector_role ) : ?>
-					<figcaption class="ugm-rector-card__caption">
+					<figcaption class="ugm-rector-card__caption"<?php echo $rector_caption_style; ?>>
 						<?php if ( '' !== $rector_name ) : ?>
 							<strong><?php echo esc_html( $rector_name ); ?></strong>
 						<?php endif; ?>
@@ -337,7 +346,7 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 				<?php endif; ?>
 			</div>
 			<?php if ( '' !== $rector_name || '' !== $rector_role ) : ?>
-				<figcaption class="ugm-rector-card__caption">
+				<figcaption class="ugm-rector-card__caption"<?php echo $rector_caption_style; ?>>
 					<?php if ( '' !== $rector_name ) : ?>
 						<strong><?php echo esc_html( $rector_name ); ?></strong>
 					<?php endif; ?>
@@ -367,6 +376,7 @@ register_block_type( 'ugm/rector-greeting-content', array(
 		'body'             => array( 'type' => 'string', 'default' => ugm_get_default_rector_greeting_paragraphs() ),
 		'rectorName'       => array( 'type' => 'string', 'default' => 'Nama Rektor' ),
 		'rectorRole'       => array( 'type' => 'string', 'default' => 'Jabatan Rektor' ),
+		'rectorCaptionBackgroundColor' => array( 'type' => 'string', 'default' => '' ),
 		'photoId'          => array( 'type' => 'integer', 'default' => 0 ),
 		'photoUrl'         => array( 'type' => 'string', 'default' => '' ),
 		'photoPosition'    => array( 'type' => 'string', 'default' => 'right' ),
@@ -662,15 +672,22 @@ function ugm_render_about_sidebar_menu_items( $items, $level = 0 ) {
 
 function ugm_render_block_about_ugm_sidebar( $attrs ) {
 	$title                      = trim( (string) ( $attrs['title'] ?? __( 'Tentang UGM', 'ugm-faculty' ) ) );
+	$sidebar_background_color = sanitize_hex_color( $attrs['sidebarBackgroundColor'] ?? '' );
 	$selected_parent_menu_id    = absint( $attrs['selectedParentMenuId'] ?? 0 );
 	$selected_parent_menu_title = trim( (string) ( $attrs['selectedParentMenuTitle'] ?? __( 'Tentang', 'ugm-faculty' ) ) );
 	$menu_state                 = ugm_get_about_sidebar_menu_state( $selected_parent_menu_id, $selected_parent_menu_title );
 	$items                      = $menu_state['items'];
 	$sidebar_title              = '' !== $title ? $title : __( 'Tentang UGM', 'ugm-faculty' );
 
+	$sidebar_style = '';
+
+	if ( ! empty( $sidebar_background_color ) ) {
+		$sidebar_style = ' style="background-color:' . esc_attr( $sidebar_background_color ) . ';"';
+	}
+
 	ob_start();
 	?>
-	<aside class="<?php echo esc_attr( ugm_get_rector_greeting_render_part_class( $attrs, 'ugm-about-sidebar' ) ); ?>" aria-labelledby="ugm-about-sidebar-title">
+	<aside class="<?php echo esc_attr( ugm_get_rector_greeting_render_part_class( $attrs, 'ugm-about-sidebar' ) ); ?>"<?php echo $sidebar_style; ?> aria-labelledby="ugm-about-sidebar-title">
 		<div class="ugm-about-sidebar__desktop">
 			<h2 id="ugm-about-sidebar-title" class="ugm-about-sidebar__title">
 				<?php echo esc_html( $sidebar_title ); ?>
@@ -731,6 +748,7 @@ register_block_type( 'ugm/about-ugm-sidebar', array(
 	'supports'        => array( 'html' => false ),
 	'attributes'      => array(
 		'title'                   => array( 'type' => 'string', 'default' => 'Tentang UGM' ),
+		'sidebarBackgroundColor' => array( 'type' => 'string', 'default' => '' ),
 		'selectedParentMenuId'    => array( 'type' => 'integer', 'default' => 0 ),
 		'selectedParentMenuTitle' => array( 'type' => 'string', 'default' => 'Tentang' ),
 		'_templateSlug'  => array( 'type' => 'string', 'default' => '' ),
@@ -753,6 +771,7 @@ function ugm_render_block_rector_greeting_template_preview() {
 			'body'             => ugm_get_default_rector_greeting_paragraphs(),
 			'rectorName'       => __( 'Nama Rektor', 'ugm-faculty' ),
 			'rectorRole'       => __( 'Jabatan Rektor', 'ugm-faculty' ),
+			'rectorCaptionBackgroundColor' => '',
 			'photoPosition'    => 'right',
 			'showPhotoFrame'   => true,
 		)
@@ -762,6 +781,7 @@ function ugm_render_block_rector_greeting_template_preview() {
 		$template_attrs,
 		array(
 			'title'                   => __( 'Tentang UGM', 'ugm-faculty' ),
+			'sidebarBackgroundColor' => '',
 			'selectedParentMenuTitle' => __( 'Tentang', 'ugm-faculty' ),
 		)
 	);
