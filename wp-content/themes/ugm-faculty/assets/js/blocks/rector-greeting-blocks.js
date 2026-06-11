@@ -29,6 +29,142 @@
 	var dispatch                   = wp.data.dispatch;
 	var createHigherOrderComponent = wp.compose.createHigherOrderComponent;
 
+	function documentHasRectorGreetingTemplateChooser( targetDocument ) {
+	var modals;
+
+	if ( ! targetDocument || ! targetDocument.querySelectorAll ) {
+		return false;
+	}
+
+	modals = targetDocument.querySelectorAll( '.components-modal__frame, .components-modal__content, [role="dialog"]' );
+
+	return Array.prototype.some.call( modals, function ( modal ) {
+		var text = modal.textContent || '';
+
+		return text.indexOf( 'Choose a template' ) !== -1 ||
+			text.indexOf( 'Pilih template' ) !== -1;
+	} );
+}
+
+function isRectorGreetingTemplateChooserOpen() {
+	if ( documentHasRectorGreetingTemplateChooser( document ) ) {
+		return true;
+	}
+
+	try {
+		if (
+			window.parent &&
+			window.parent !== window &&
+			window.parent.document &&
+			documentHasRectorGreetingTemplateChooser( window.parent.document )
+		) {
+			return true;
+		}
+	} catch ( error ) {}
+
+	return false;
+}
+
+function getRectorGreetingTemplateChooserStyleText() {
+	return [
+		'.ugm-rector-template-part--page-block'
+	].join( ',' ) + '{display:none!important;}';
+}
+
+function injectRectorGreetingTemplateChooserStyle( targetDocument ) {
+	var style;
+
+	if ( ! targetDocument || ! targetDocument.head ) {
+		return;
+	}
+
+	style = targetDocument.getElementById( 'ugm-rector-greeting-template-chooser-fix' );
+
+	if ( ! style ) {
+		style = targetDocument.createElement( 'style' );
+		style.id = 'ugm-rector-greeting-template-chooser-fix';
+		targetDocument.head.appendChild( style );
+	}
+
+	style.textContent = getRectorGreetingTemplateChooserStyleText();
+}
+
+function removeRectorGreetingTemplateChooserStyle( targetDocument ) {
+	var style;
+
+	if ( ! targetDocument ) {
+		return;
+	}
+
+	style = targetDocument.getElementById( 'ugm-rector-greeting-template-chooser-fix' );
+
+	if ( style && style.parentNode ) {
+		style.parentNode.removeChild( style );
+	}
+}
+
+function eachRectorGreetingEditorDocument( callback ) {
+	callback( document );
+
+	Array.prototype.forEach.call( document.querySelectorAll( 'iframe' ), function ( frame ) {
+		try {
+			if ( frame.contentDocument ) {
+				callback( frame.contentDocument );
+			}
+		} catch ( error ) {}
+	} );
+}
+
+function syncRectorGreetingTemplateChooserPreviewStyle() {
+	var chooserOpen = isRectorGreetingTemplateChooserOpen();
+
+	eachRectorGreetingEditorDocument( function ( targetDocument ) {
+		if ( chooserOpen ) {
+			injectRectorGreetingTemplateChooserStyle( targetDocument );
+		} else {
+			removeRectorGreetingTemplateChooserStyle( targetDocument );
+		}
+	} );
+
+	Array.prototype.forEach.call( document.querySelectorAll( 'iframe' ), function ( frame ) {
+		if ( frame.dataset.ugmRectorGreetingTemplateChooserFix ) {
+			return;
+		}
+
+		frame.dataset.ugmRectorGreetingTemplateChooserFix = '1';
+
+		frame.addEventListener( 'load', function () {
+			window.setTimeout( syncRectorGreetingTemplateChooserPreviewStyle, 50 );
+			window.setTimeout( syncRectorGreetingTemplateChooserPreviewStyle, 300 );
+		} );
+	} );
+}
+
+function setupRectorGreetingTemplateChooserPreviewFix() {
+	var attempts = 0;
+	var interval;
+
+	syncRectorGreetingTemplateChooserPreviewStyle();
+
+	if ( window.MutationObserver && document.body ) {
+		new MutationObserver( function () {
+			syncRectorGreetingTemplateChooserPreviewStyle();
+		} ).observe( document.body, {
+			childList: true,
+			subtree: true,
+		} );
+	}
+
+	interval = window.setInterval( function () {
+		syncRectorGreetingTemplateChooserPreviewStyle();
+
+		attempts++;
+		if ( attempts > 80 ) {
+			window.clearInterval( interval );
+		}
+	}, 250 );
+}
+
 	function getDefaultRectorBody() {
 		return [
 			'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vitae lectus at massa dictum fermentum. Donec sed augue non erat porta tempor.',
@@ -164,26 +300,11 @@
 
 			lastSeedSignature.current = seedSignature;
 
-			if ( ! isRectorGreetingTemplate( state.template ) ) {
-				if ( hasRectorGreetingBlock( contentBlocks ) ) {
-					dispatch( 'core/editor' ).editPost( {
-						content: wp.blocks.serialize( removeRectorGreetingBlocks( contentBlocks ) ).trim(),
-					} );
-				}
+			if ( typeof state.template === 'undefined' || state.template === null ) {
+				return;
+			}
 
-				if ( hasRectorGreetingBlock( state.blocks ) ) {
-					postContentBlock = findEditorBlockByName( state.blocks, 'core/post-content' );
-					if ( postContentBlock ) {
-						cleanedBlocks = removeRectorGreetingBlocks( postContentBlock.innerBlocks || [] );
-						dispatch( 'core/block-editor' ).replaceInnerBlocks(
-							postContentBlock.clientId,
-							cleanedBlocks,
-							false
-						);
-					} else {
-						dispatch( 'core/block-editor' ).resetBlocks( removeRectorGreetingBlocks( state.blocks ) );
-					}
-				}
+			if ( ! isRectorGreetingTemplate( state.template ) ) {
 				return;
 			}
 
@@ -249,6 +370,20 @@
 					renderingMode: getEditorRenderingMode( select ),
 				};
 			}, [] );
+
+			if (
+				isRectorGreetingTemplateChooserOpen() &&
+				isRectorGreetingBlockName( props.name )
+			) {
+				return null;
+			}
+
+			if (
+				isRectorGreetingBlockName( props.name ) &&
+				! isRectorGreetingTemplate( state.template )
+			) {
+				return null;
+			}
 
 			if (
 				props.name === 'ugm/rector-greeting-template-preview' &&
@@ -566,4 +701,12 @@
 		wp.plugins.registerPlugin( 'ugm-rector-greeting-page-seeder', {
 			render: RectorGreetingTemplateSeeder,
 		} );
-	}}() );
+	}
+
+	if ( wp.domReady ) {
+		wp.domReady( setupRectorGreetingTemplateChooserPreviewFix );
+	} else {
+		setupRectorGreetingTemplateChooserPreviewFix();
+	}
+
+	}() );

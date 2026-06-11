@@ -31,6 +31,142 @@
 	var dispatch                   = wp.data.dispatch;
 	var createHigherOrderComponent = wp.compose.createHigherOrderComponent;
 
+		function documentHasManagementTemplateChooser( targetDocument ) {
+		var modals;
+
+		if ( ! targetDocument || ! targetDocument.querySelectorAll ) {
+			return false;
+		}
+
+		modals = targetDocument.querySelectorAll( '.components-modal__frame, .components-modal__content, [role="dialog"]' );
+
+		return Array.prototype.some.call( modals, function ( modal ) {
+			var text = modal.textContent || '';
+
+			return text.indexOf( 'Choose a template' ) !== -1 ||
+				text.indexOf( 'Pilih template' ) !== -1;
+		} );
+	}
+
+	function isManagementTemplateChooserOpen() {
+		if ( documentHasManagementTemplateChooser( document ) ) {
+			return true;
+		}
+
+		try {
+			if (
+				window.parent &&
+				window.parent !== window &&
+				window.parent.document &&
+				documentHasManagementTemplateChooser( window.parent.document )
+			) {
+				return true;
+			}
+		} catch ( error ) {}
+
+		return false;
+	}
+
+	function getManagementTemplateChooserStyleText() {
+		return [
+			'.ugm-management-template-part--page-block'
+		].join( ',' ) + '{display:none!important;}';
+	}
+
+	function injectManagementTemplateChooserStyle( targetDocument ) {
+		var style;
+
+		if ( ! targetDocument || ! targetDocument.head ) {
+			return;
+		}
+
+		style = targetDocument.getElementById( 'ugm-management-template-chooser-fix' );
+
+		if ( ! style ) {
+			style = targetDocument.createElement( 'style' );
+			style.id = 'ugm-management-template-chooser-fix';
+			targetDocument.head.appendChild( style );
+		}
+
+		style.textContent = getManagementTemplateChooserStyleText();
+	}
+
+	function removeManagementTemplateChooserStyle( targetDocument ) {
+		var style;
+
+		if ( ! targetDocument ) {
+			return;
+		}
+
+		style = targetDocument.getElementById( 'ugm-management-template-chooser-fix' );
+
+		if ( style && style.parentNode ) {
+			style.parentNode.removeChild( style );
+		}
+	}
+
+	function eachManagementEditorDocument( callback ) {
+		callback( document );
+
+		Array.prototype.forEach.call( document.querySelectorAll( 'iframe' ), function ( frame ) {
+			try {
+				if ( frame.contentDocument ) {
+					callback( frame.contentDocument );
+				}
+			} catch ( error ) {}
+		} );
+	}
+
+	function syncManagementTemplateChooserPreviewStyle() {
+		var chooserOpen = isManagementTemplateChooserOpen();
+
+		eachManagementEditorDocument( function ( targetDocument ) {
+			if ( chooserOpen ) {
+				injectManagementTemplateChooserStyle( targetDocument );
+			} else {
+				removeManagementTemplateChooserStyle( targetDocument );
+			}
+		} );
+
+		Array.prototype.forEach.call( document.querySelectorAll( 'iframe' ), function ( frame ) {
+			if ( frame.dataset.ugmManagementTemplateChooserFix ) {
+				return;
+			}
+
+			frame.dataset.ugmManagementTemplateChooserFix = '1';
+
+			frame.addEventListener( 'load', function () {
+				window.setTimeout( syncManagementTemplateChooserPreviewStyle, 50 );
+				window.setTimeout( syncManagementTemplateChooserPreviewStyle, 300 );
+			} );
+		} );
+	}
+
+	function setupManagementTemplateChooserPreviewFix() {
+		var attempts = 0;
+		var interval;
+
+		syncManagementTemplateChooserPreviewStyle();
+
+		if ( window.MutationObserver && document.body ) {
+			new MutationObserver( function () {
+				syncManagementTemplateChooserPreviewStyle();
+			} ).observe( document.body, {
+				childList: true,
+				subtree: true,
+			} );
+		}
+
+		interval = window.setInterval( function () {
+			syncManagementTemplateChooserPreviewStyle();
+
+			attempts++;
+			if ( attempts > 80 ) {
+				window.clearInterval( interval );
+			}
+		}, 250 );
+	}
+
 	function isManagementTemplate( template ) {
 		return template === 'management-page' ||
 			template === 'page-templates/template-management.php';
@@ -144,25 +280,11 @@
 
 			lastSeedSignature.current = seedSignature;
 
-			if ( ! isManagementTemplate( state.template ) ) {
-				if ( hasManagementBlock( contentBlocks ) ) {
-					dispatch( 'core/editor' ).editPost( {
-						content: wp.blocks.serialize( removeManagementBlocks( contentBlocks ) ).trim(),
-					} );
-				}
+			if ( typeof state.template === 'undefined' || state.template === null ) {
+				return;
+			}
 
-				if ( hasManagementBlock( state.blocks ) ) {
-					var postContentBlock = findBlock( state.blocks, 'core/post-content' );
-					if ( postContentBlock ) {
-						dispatch( 'core/block-editor' ).replaceInnerBlocks(
-							postContentBlock.clientId,
-							removeManagementBlocks( postContentBlock.innerBlocks || [] ),
-							false
-						);
-					} else {
-						dispatch( 'core/block-editor' ).resetBlocks( removeManagementBlocks( state.blocks ) );
-					}
-				}
+			if ( ! isManagementTemplate( state.template ) ) {
 				return;
 			}
 
@@ -634,7 +756,7 @@
 		return found;
 	}
 
-	var withManagementTemplateVisibility = createHigherOrderComponent( function ( BlockListBlock ) {
+		var withManagementTemplateVisibility = createHigherOrderComponent( function ( BlockListBlock ) {
 		return function ( props ) {
 			var state = useSelect( function ( select ) {
 				var editor = select( 'core/editor' );
@@ -644,6 +766,26 @@
 					renderingMode: getEditorRenderingMode( select ),
 				};
 			}, [] );
+
+			/*
+			 * Saat modal Choose Template terbuka, post-content pada preview template
+			 * lain bisa membawa isi halaman aktif. Sembunyikan hanya block Management
+			 * yang berasal dari post-content, supaya tidak bocor ke template lain.
+			 * Block ugm/management-template-preview tetap dibiarkan muncul.
+			 */
+			if (
+				isManagementTemplateChooserOpen() &&
+				isManagementBlockName( props.name )
+			) {
+				return null;
+			}
+
+			if (
+				isManagementBlockName( props.name ) &&
+				! isManagementTemplate( state.template )
+			) {
+				return null;
+			}
 
 			if (
 				props.name === 'ugm/management-template-preview' &&
@@ -670,7 +812,7 @@
 		withManagementTemplateVisibility
 	);
 
-	function useManagementRenderState( attrs ) {
+		function useManagementRenderState( attrs ) {
 		var state = useSelect( function ( select ) {
 			var editor = select( 'core/editor' );
 
@@ -681,7 +823,9 @@
 		}, [] );
 
 		return {
-			isVisible:  isManagementTemplate( state.template ) && state.renderingMode !== 'post-only',
+			isVisible:  ! isManagementTemplateChooserOpen() &&
+				isManagementTemplate( state.template ) &&
+				state.renderingMode !== 'post-only',
 			attributes: Object.assign( {}, attrs, { _templateSlug: state.template } ),
 		};
 	}
@@ -1059,10 +1203,16 @@
 	/* ------------------------------------------------------------------
 	 * registerPlugin — seed blok ke konten kosong (pola agenda/gallery)
 	 * ------------------------------------------------------------------ */
-	if ( wp.plugins && wp.plugins.registerPlugin ) {
+		if ( wp.plugins && wp.plugins.registerPlugin ) {
 		wp.plugins.registerPlugin( 'ugm-management-page-seeder', {
 			render: ManagementTemplateSeeder,
 		} );
+	}
+
+	if ( wp.domReady ) {
+		wp.domReady( setupManagementTemplateChooserPreviewFix );
+	} else {
+		setupManagementTemplateChooserPreviewFix();
 	}
 
 }() );

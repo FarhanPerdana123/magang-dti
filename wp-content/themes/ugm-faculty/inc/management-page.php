@@ -335,7 +335,17 @@ function ugm_seed_existing_empty_management_pages() {
 }
 add_action( 'admin_init', 'ugm_seed_existing_empty_management_pages' );
 
-function ugm_migrate_management_pages_to_php_template() {
+/**
+ * Keep Management Page editor using the block-template slug.
+ *
+ * Previously this file migrated pages from `management-page` to
+ * `page-templates/template-management.php`. That makes Gutenberg show the
+ * page as "Pages" / default template after hard refresh.
+ *
+ * Frontend can still use the PHP template through `template_include`,
+ * but editor template meta must stay `management-page`.
+ */
+function ugm_restore_management_page_template_slug() {
 	if ( ! is_admin() ) {
 		return;
 	}
@@ -345,32 +355,25 @@ function ugm_migrate_management_pages_to_php_template() {
 			'post_type'      => 'page',
 			'post_status'    => array( 'publish', 'draft', 'private', 'pending' ),
 			'posts_per_page' => -1,
-			'meta_key'       => '_wp_page_template',
-			'meta_value'     => 'management-page',
+			'fields'         => 'ids',
 		)
 	);
 
-	foreach ( $pages as $page ) {
-		if ( ! $page instanceof WP_Post ) {
+	foreach ( $pages as $page_id ) {
+		$content = (string) get_post_field( 'post_content', $page_id );
+
+		if ( ! ugm_has_management_page_blocks( $content ) ) {
 			continue;
 		}
 
-		$content = ugm_upgrade_management_page_blocks( (string) $page->post_content );
-		if ( ! ugm_has_management_page_blocks( $content ) ) {
-			$content = ugm_get_default_management_page_blocks();
+		if ( 'management-page' === get_page_template_slug( $page_id ) ) {
+			continue;
 		}
 
-		wp_update_post(
-			array(
-				'ID'           => $page->ID,
-				'post_content' => $content,
-				'page_template' => 'page-templates/template-management.php',
-			)
-		);
-		update_post_meta( $page->ID, '_wp_page_template', 'page-templates/template-management.php' );
+		update_post_meta( $page_id, '_wp_page_template', 'management-page' );
 	}
 }
-add_action( 'admin_init', 'ugm_migrate_management_pages_to_php_template', 30 );
+add_action( 'admin_init', 'ugm_restore_management_page_template_slug', 31 );
 
 function ugm_repair_management_block_template() {
 	if ( ! is_admin() ) {
@@ -483,17 +486,36 @@ function ugm_render_management_person_card( $person, $modifier = '' ) {
 }
 
 function ugm_should_render_management_page_block( $attrs = array(), $block = null ) {
-	$template_slug = '';
+	$template_slug              = '';
+	$has_explicit_template_slug = false;
 
-	if ( is_array( $attrs ) && isset( $attrs['_templateSlug'] ) ) {
-		$template_slug = (string) $attrs['_templateSlug'];
+	if ( is_array( $attrs ) && isset( $attrs['_templateSlug'] ) && '' !== (string) $attrs['_templateSlug'] ) {
+		$template_slug              = (string) $attrs['_templateSlug'];
+		$has_explicit_template_slug = true;
 	}
 
-	if ( '' !== $template_slug ) {
+	/*
+	 * Template chooser / block preview memakai REST render.
+	 * Management blocks yang berasal dari post-content tidak membawa _templateSlug,
+	 * jadi jangan dirender di sana agar tidak bocor ke preview template lain.
+	 *
+	 * Block ugm/management-template-preview tetap boleh render karena dia
+	 * mengirim _templateSlug = management-page.
+	 */
+	if ( $has_explicit_template_slug ) {
 		return ugm_is_management_page_template_slug( $template_slug );
 	}
 
+	if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+		return false;
+	}
+
+	if ( function_exists( 'wp_is_json_request' ) && wp_is_json_request() ) {
+		return false;
+	}
+
 	$post_id = 0;
+
 	if ( $block instanceof WP_Block && ! empty( $block->context['postId'] ) ) {
 		$post_id = absint( $block->context['postId'] );
 	}
@@ -507,6 +529,20 @@ function ugm_should_render_management_page_block( $attrs = array(), $block = nul
 	}
 
 	return $post_id > 0 && ugm_is_management_page_template_slug( get_page_template_slug( $post_id ) );
+}
+
+function ugm_get_management_render_part_class( $attrs, $base_class ) {
+	$render_context = 'page-block';
+
+	if ( is_array( $attrs ) && ! empty( $attrs['_renderContext'] ) ) {
+		$render_context = sanitize_html_class( (string) $attrs['_renderContext'] );
+	}
+
+	if ( '' === $render_context ) {
+		$render_context = 'page-block';
+	}
+
+	return trim( $base_class . ' ugm-management-template-part ugm-management-template-part--' . $render_context );
 }
 
 function ugm_render_block_management_hero( $attrs, $content = '', $block = null ) {
@@ -535,7 +571,7 @@ function ugm_render_block_management_hero( $attrs, $content = '', $block = null 
 
 	ob_start();
 	?>
-	<header class="ugm-management-page__hero" style="<?php echo esc_attr( $hero_style ); ?>">
+	<header class="<?php echo esc_attr( ugm_get_management_render_part_class( $attrs, 'ugm-management-page__hero' ) ); ?>" style="<?php echo esc_attr( $hero_style ); ?>">
 		<h1><?php echo esc_html( $title ); ?></h1>
 	</header>
 	<?php
@@ -555,7 +591,7 @@ function ugm_render_block_management_section( $attrs, $content = '', $block = nu
 
 	ob_start();
 	?>
-	<section class="ugm-management-section" aria-labelledby="ugm-management-section-title">
+	<section class="<?php echo esc_attr( ugm_get_management_render_part_class( $attrs, 'ugm-management-section' ) ); ?>" aria-labelledby="ugm-management-section-title">
 		<header class="ugm-management-section__heading">
 			<h2 id="ugm-management-section-title"><?php echo esc_html( '' !== $title ? $title : __( 'Manajemen Fakultas', 'ugm-faculty' ) ); ?></h2>
 		</header>
@@ -614,7 +650,7 @@ function ugm_render_block_study_program_section( $attrs, $content = '', $block =
 
 	ob_start();
 	?>
-	<section class="ugm-study-program-section" aria-labelledby="ugm-study-program-section-title">
+	<section class="<?php echo esc_attr( ugm_get_management_render_part_class( $attrs, 'ugm-study-program-section' ) ); ?>" aria-labelledby="ugm-study-program-section-title">
 		<header class="ugm-management-section__heading">
 			<h2 id="ugm-study-program-section-title"><?php echo esc_html( '' !== $title ? $title : __( 'Program Studi', 'ugm-faculty' ) ); ?></h2>
 		</header>
@@ -713,7 +749,7 @@ function ugm_render_block_management_share_section( $attrs, $content = '', $bloc
 
 	ob_start();
 	?>
-	<section class="ugm-management-share" aria-label="<?php echo esc_attr( $title ); ?>">
+	<section class="<?php echo esc_attr( ugm_get_management_render_part_class( $attrs, 'ugm-management-share' ) ); ?>" aria-label="<?php echo esc_attr( $title ); ?>">
 		<span class="ugm-management-share__label"><?php echo esc_html( $title ); ?></span>
 		<div class="ugm-management-share__links">
 			<?php foreach ( $links as $link ) : ?>
@@ -733,9 +769,13 @@ function ugm_render_block_management_share_section( $attrs, $content = '', $bloc
 }
 
 function ugm_render_block_management_template_preview() {
-	$template_attr = array( '_templateSlug' => 'management-page' );
+	$template_attr = array(
+		'_templateSlug'   => 'management-page',
+		'_renderContext'  => 'template-preview',
+	);
 
-	return ugm_render_block_management_hero(
+	return '<div class="ugm-management-template-preview">' .
+		ugm_render_block_management_hero(
 		array_merge(
 			$template_attr,
 			array(
@@ -762,14 +802,15 @@ function ugm_render_block_management_template_preview() {
 			)
 		)
 	) .
-	ugm_render_block_management_share_section(
+		ugm_render_block_management_share_section(
 		array_merge(
 			$template_attr,
 			array(
 				'title' => 'Share This Page',
 			)
 		)
-	);
+	) .
+	'</div>';
 }
 
 function ugm_register_management_page_blocks() {

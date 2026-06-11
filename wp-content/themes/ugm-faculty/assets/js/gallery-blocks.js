@@ -18,10 +18,134 @@
 	var PanelBody         = wp.components.PanelBody;
 	var TextControl       = wp.components.TextControl;
 	var TextareaControl   = wp.components.TextareaControl;
+	var ColorPalette      = wp.components.ColorPalette;
 	var Button            = wp.components.Button;
 	var useSelect         = wp.data.useSelect;
 	var dispatch          = wp.data.dispatch;
 	var createHigherOrderComponent = wp.compose.createHigherOrderComponent;
+
+		function isGalleryTemplateChooserOpen() {
+		var modals = document.querySelectorAll( '.components-modal__frame, [role="dialog"]' );
+
+		return Array.prototype.some.call( modals, function ( modal ) {
+			var text = modal.textContent || '';
+
+			return text.indexOf( 'Choose a template' ) !== -1 ||
+				text.indexOf( 'Pilih template' ) !== -1;
+		} );
+	}
+
+	function getGalleryTemplateChooserStyleText( iframeMode ) {
+		if ( iframeMode ) {
+			return [
+				'.ugm-gallery-template--page-block',
+				'.ugm-gallery-template:not(.ugm-gallery-template--template-preview)'
+			].join( ',' ) + '{display:none!important;}';
+		}
+
+		return [
+			'.components-modal__frame .ugm-gallery-template--page-block',
+			'.components-modal__content .ugm-gallery-template--page-block',
+			'[role="dialog"] .ugm-gallery-template--page-block',
+			'.components-modal__frame .ugm-gallery-template:not(.ugm-gallery-template--template-preview)',
+			'.components-modal__content .ugm-gallery-template:not(.ugm-gallery-template--template-preview)',
+			'[role="dialog"] .ugm-gallery-template:not(.ugm-gallery-template--template-preview)'
+		].join( ',' ) + '{display:none!important;}';
+	}
+
+	function injectGalleryTemplateChooserStyle( targetDocument, iframeMode ) {
+		var style;
+
+		if ( ! targetDocument || ! targetDocument.head ) {
+			return;
+		}
+
+		style = targetDocument.getElementById( 'ugm-gallery-template-chooser-fix' );
+
+		if ( ! style ) {
+			style = targetDocument.createElement( 'style' );
+			style.id = 'ugm-gallery-template-chooser-fix';
+			targetDocument.head.appendChild( style );
+		}
+
+		style.textContent = getGalleryTemplateChooserStyleText( iframeMode );
+	}
+
+	function removeGalleryTemplateChooserStyle( targetDocument ) {
+		var style;
+
+		if ( ! targetDocument ) {
+			return;
+		}
+
+		style = targetDocument.getElementById( 'ugm-gallery-template-chooser-fix' );
+
+		if ( style && style.parentNode ) {
+			style.parentNode.removeChild( style );
+		}
+	}
+
+	function eachEditorDocument( callback ) {
+		callback( document, false );
+
+		Array.prototype.forEach.call( document.querySelectorAll( 'iframe' ), function ( frame ) {
+			try {
+				if ( frame.contentDocument ) {
+					callback( frame.contentDocument, true );
+				}
+			} catch ( error ) {}
+		} );
+	}
+
+	function syncGalleryTemplateChooserPreviewStyle() {
+		var chooserOpen = isGalleryTemplateChooserOpen();
+
+		eachEditorDocument( function ( targetDocument, iframeMode ) {
+			if ( chooserOpen ) {
+				injectGalleryTemplateChooserStyle( targetDocument, iframeMode );
+			} else {
+				removeGalleryTemplateChooserStyle( targetDocument );
+			}
+		} );
+
+		Array.prototype.forEach.call( document.querySelectorAll( 'iframe' ), function ( frame ) {
+			if ( frame.dataset.ugmGalleryTemplateChooserFix ) {
+				return;
+			}
+
+			frame.dataset.ugmGalleryTemplateChooserFix = '1';
+
+			frame.addEventListener( 'load', function () {
+				window.setTimeout( syncGalleryTemplateChooserPreviewStyle, 50 );
+				window.setTimeout( syncGalleryTemplateChooserPreviewStyle, 300 );
+			} );
+		} );
+	}
+
+	function setupGalleryTemplateChooserPreviewFix() {
+		var attempts = 0;
+		var interval;
+
+		syncGalleryTemplateChooserPreviewStyle();
+
+		if ( window.MutationObserver && document.body ) {
+			new MutationObserver( function () {
+				syncGalleryTemplateChooserPreviewStyle();
+			} ).observe( document.body, {
+				childList: true,
+				subtree: true,
+			} );
+		}
+
+		interval = window.setInterval( function () {
+			syncGalleryTemplateChooserPreviewStyle();
+
+			attempts++;
+			if ( attempts > 80 ) {
+				window.clearInterval( interval );
+			}
+		}, 250 );
+	}
 
 	function hasManagementPageBlocks( content ) {
 		return content.indexOf( '<!-- wp:ugm/management-hero' ) !== -1 ||
@@ -394,7 +518,28 @@
 					label: __( 'Label Tombol Hero', 'ugm-faculty' ),
 					value: attrs.buttonLabel || '',
 					onChange: function ( value ) { setAttr( { buttonLabel: value } ); },
-				} )
+				} ),
+				el( 'div',
+					{ style: { marginTop: '16px' } },
+					el( 'p',
+						{ style: { marginBottom: '8px', fontWeight: '600' } },
+						__( 'Warna Background Hero', 'ugm-faculty' )
+					),
+					el( ColorPalette, {
+						value: attrs.backgroundColor || '#004b73',
+						colors: [
+							{ name: 'UGM Biru', color: '#004b73' },
+							{ name: 'Biru Tua', color: '#003a5c' },
+							{ name: 'Hijau', color: '#006b5f' },
+							{ name: 'Ungu', color: '#4b2e83' },
+							{ name: 'Maroon', color: '#7a1f2b' },
+							{ name: 'Hitam', color: '#111827' },
+						],
+						onChange: function ( value ) {
+							setAttr( { backgroundColor: value || '#004b73' } );
+						},
+					} )
+				)
 			),
 			el(
 				PanelBody,
@@ -405,9 +550,10 @@
 	}
 
 	var galleryPageAttributes = {
-		title:        { type: 'string', default: 'Galeri' },
-		buttonLabel:  { type: 'string', default: 'Selengkapnya' },
-		galleryItems: { type: 'array', default: [] },
+		title:           { type: 'string', default: 'Galeri' },
+		buttonLabel:     { type: 'string', default: 'Selengkapnya' },
+		backgroundColor: { type: 'string', default: '#004b73' },
+		galleryItems:    { type: 'array', default: [] },
 	};
 
 	registerBlockType( 'ugm/gallery-page', {
@@ -465,6 +611,12 @@
 		wp.plugins.registerPlugin( 'ugm-gallery-page-seeder', {
 			render: GalleryTemplateSeeder,
 		} );
+	}
+
+		if ( wp.domReady ) {
+		wp.domReady( setupGalleryTemplateChooserPreviewFix );
+	} else {
+		setupGalleryTemplateChooserPreviewFix();
 	}
 
 }() );
