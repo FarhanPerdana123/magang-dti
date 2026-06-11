@@ -624,14 +624,12 @@ function ugm_render_gallery_page_markup( $attrs ) {
 	$hero_slides    = array();
 
 	foreach ( $manual_items as $manual_index => $manual_item ) {
-		$item_images = array_column( $manual_item['images'], 'url' );
-		foreach ( ! empty( $item_images ) ? array_chunk( $item_images, 4 ) : array( array() ) as $item_image_chunk ) {
-			$hero_slides[] = array(
-				'item'       => $manual_item,
-				'item_index' => $manual_index,
-				'images'     => $item_image_chunk,
-			);
-		}
+		$item_images   = array_column( $manual_item['images'], 'url' );
+		$hero_slides[] = array(
+			'item'       => $manual_item,
+			'item_index' => $manual_index,
+			'images'     => array_slice( $item_images, 0, 4 ),
+		);
 	}
 
 	if ( empty( $hero_slides ) ) {

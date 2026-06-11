@@ -738,7 +738,19 @@
 								{ label: __( 'Slider Gambar', 'ugm-faculty' ), value: 'slider' },
 								{ label: __( 'Video', 'ugm-faculty' ), value: 'video' },
 							],
-							onChange: function ( v ) { setAttr( { mediaType: v } ); },
+							onChange: function ( v ) {
+								if ( v === 'image' ) {
+									setAttr( { mediaType: v, slideImages: [], videoId: 0, videoUrl: '' } );
+									return;
+								}
+
+								if ( v === 'slider' ) {
+									setAttr( { mediaType: v, videoId: 0, videoUrl: '' } );
+									return;
+								}
+
+								setAttr( { mediaType: v } );
+							},
 							help: __( 'Slider gambar akan berjalan otomatis. Video akan berjalan otomatis dengan mode muted dan loop.', 'ugm-faculty' ),
 						} ),
 						( attrs.mediaType || 'image' ) === 'video'
@@ -793,7 +805,14 @@
 							null,
 							el( MediaUpload, {
 								onSelect: function ( media ) {
-									setAttr( { mediaType: 'image', imageId: media.id, imageUrl: media.url } );
+									setAttr( {
+										mediaType: 'image',
+										imageId: media.id,
+										imageUrl: media.url,
+										slideImages: [],
+										videoId: 0,
+										videoUrl: '',
+									} );
 								},
 								allowedTypes: [ 'image' ],
 								value: attrs.imageId || 0,
@@ -1409,14 +1428,14 @@
 		supports:    { html: false, multiple: false },
 		attributes: {
 			visibility:    { type: 'string', default: 'all' },
-			sectionTitle:  { type: 'string', default: 'Gallery' },
+			sectionTitle:  { type: 'string', default: 'Galeri' },
 			galleryPageId: { type: 'integer', default: 0 },
 			date:          { type: 'string', default: '' },
 			galleryTitle:  { type: 'string', default: 'Gallery Highlight' },
 			description:   { type: 'string', default: '' },
-			detailLabel:   { type: 'string', default: 'View Details' },
+			detailLabel:   { type: 'string', default: 'Selengkapnya' },
 			detailUrl:     { type: 'string', default: '' },
-			viewAllLabel:  { type: 'string', default: 'View All' },
+			viewAllLabel:  { type: 'string', default: 'Lihat Semua' },
 			viewAllUrl:    { type: 'string', default: '' },
 			images:        { type: 'array', default: [] },
 		},
@@ -1872,21 +1891,6 @@
 						}, __( 'Hapus', 'ugm-faculty' ) )
 					),
 
-					/* Label */
-					el( TextControl, {
-						label:    __( 'Label (Judul)', 'ugm-faculty' ),
-						value:    item.label || '',
-						onChange: function ( v ) { updateItem( { label: v } ); },
-					} ),
-
-					/* Sublabel */
-					el( TextControl, {
-						label:    __( 'Sub-label / Teks Kecil', 'ugm-faculty' ),
-						value:    item.sublabel || '',
-						onChange: function ( v ) { updateItem( { sublabel: v } ); },
-						help:     __( 'Contoh: aspirasi.ugm.ac.id', 'ugm-faculty' ),
-					} ),
-
 					/* Link URL */
 					el( TextControl, {
 						label:    __( 'URL Tujuan', 'ugm-faculty' ),
@@ -1897,66 +1901,36 @@
 						style:    { fontFamily: 'monospace' },
 					} ),
 
-					/* Icon image */
+					/* Card image */
 					el( 'div', { style: { marginBottom: '10px' } },
 						el( 'p', { style: { fontSize: '12px', fontWeight: '600', margin: '0 0 4px' } },
-							__( 'Ikon / Logo', 'ugm-faculty' )
+							__( 'Gambar Kartu', 'ugm-faculty' )
 						),
-						item.iconUrl
+						( item.imageUrl || item.bgUrl || item.iconUrl )
 							? el( 'div', { style: { marginBottom: '6px' } },
 								el( 'img', {
-									src: item.iconUrl, alt: '',
+									src: item.imageUrl || item.bgUrl || item.iconUrl, alt: '',
 									style: {
-										width: '52px', height: '52px', objectFit: 'contain',
-										borderRadius: '4px', display: 'block', marginBottom: '4px',
-										background: '#1a3a5c', padding: '4px',
+										width: '100%', height: '72px', objectFit: 'cover',
+										borderRadius: '3px', display: 'block', marginBottom: '4px',
 									},
 								} ),
 								el( Button, {
 									isDestructive: true, isSmall: true, style: { marginBottom: '4px' },
-									onClick: function () { updateItem( { iconUrl: '', iconId: 0 } ); },
-								}, __( 'Hapus Ikon', 'ugm-faculty' ) )
+									onClick: function () {
+										updateItem( { imageUrl: '', imageId: 0, bgUrl: '', bgId: 0, iconUrl: '', iconId: 0 } );
+									},
+								}, __( 'Hapus Gambar', 'ugm-faculty' ) )
 							)
 							: null,
 						el( MediaUploadCheck, null,
 							el( MediaUpload, {
 								allowedTypes: [ 'image' ],
-								value:        item.iconId || null,
-								onSelect:     function ( media ) { updateItem( { iconUrl: media.url, iconId: media.id } ); },
+								value:        item.imageId || item.bgId || item.iconId || null,
+								onSelect:     function ( media ) { updateItem( { imageUrl: media.url, imageId: media.id } ); },
 								render:       function ( ref ) {
 									return el( Button, { isSecondary: true, isSmall: true, onClick: ref.open },
-										item.iconUrl ? __( 'Ganti Ikon', 'ugm-faculty' ) : __( 'Pilih Ikon', 'ugm-faculty' )
-									);
-								},
-							} )
-						)
-					),
-
-					/* Background image */
-					el( 'div', null,
-						el( 'p', { style: { fontSize: '12px', fontWeight: '600', margin: '0 0 4px' } },
-							__( 'Gambar Latar Kartu (opsional)', 'ugm-faculty' )
-						),
-						item.bgUrl
-							? el( 'div', { style: { marginBottom: '6px' } },
-								el( 'img', {
-									src: item.bgUrl, alt: '',
-									style: { width: '100%', height: '52px', objectFit: 'cover', borderRadius: '3px', display: 'block', marginBottom: '4px' },
-								} ),
-								el( Button, {
-									isDestructive: true, isSmall: true, style: { marginBottom: '4px' },
-									onClick: function () { updateItem( { bgUrl: '', bgId: 0 } ); },
-								}, __( 'Hapus Gambar Latar', 'ugm-faculty' ) )
-							)
-							: null,
-						el( MediaUploadCheck, null,
-							el( MediaUpload, {
-								allowedTypes: [ 'image' ],
-								value:        item.bgId || null,
-								onSelect:     function ( media ) { updateItem( { bgUrl: media.url, bgId: media.id } ); },
-								render:       function ( ref ) {
-									return el( Button, { isSecondary: true, isSmall: true, onClick: ref.open },
-										item.bgUrl ? __( 'Ganti Gambar Latar', 'ugm-faculty' ) : __( 'Pilih Gambar Latar', 'ugm-faculty' )
+										( item.imageUrl || item.bgUrl || item.iconUrl ) ? __( 'Ganti Gambar', 'ugm-faculty' ) : __( 'Pilih Gambar', 'ugm-faculty' )
 									);
 								},
 							} )
@@ -1981,7 +1955,7 @@
 							isPrimary: true,
 							style: { width: '100%', justifyContent: 'center', marginTop: '8px' },
 							onClick: function () {
-								setAttr( { items: items.concat( [ { label: '', sublabel: '', link: '', iconUrl: '', iconId: 0, bgUrl: '', bgId: 0 } ] ) } );
+								setAttr( { items: items.concat( [ { link: '', imageUrl: '', imageId: 0 } ] ) } );
 							},
 						}, __( '+ Tambah Tautan', 'ugm-faculty' ) )
 					)

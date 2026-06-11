@@ -173,6 +173,44 @@ function ugmbt_get_image_url( $post_id = null, string $size = 'large' ): string 
 }
 
 /**
+ * Kategori non-berita yang harus disembunyikan dari halaman Berita.
+ *
+ * @return int[]
+ */
+function ugmbt_get_non_news_category_ids(): array {
+	$ids = array();
+	foreach ( array( 'fasilitas-mahasiswa', 'fasilitas', 'sarana-prasarana', 'sarana', 'prasarana', 'pengumuman', 'pengumuman-utama' ) as $slug ) {
+		$term = get_category_by_slug( $slug );
+		if ( $term instanceof WP_Term ) {
+			$ids[] = (int) $term->term_id;
+		}
+	}
+
+	return array_values( array_unique( array_filter( $ids ) ) );
+}
+
+/**
+ * Tambahkan pengecualian kategori non-berita ke query berita.
+ */
+function ugmbt_exclude_non_news_categories( array $args ): array {
+	$excluded_ids = ugmbt_get_non_news_category_ids();
+	if ( empty( $excluded_ids ) ) {
+		return $args;
+	}
+
+	$args['category__not_in'] = array_values(
+		array_unique(
+			array_merge(
+				array_map( 'absint', (array) ( $args['category__not_in'] ?? array() ) ),
+				$excluded_ids
+			)
+		)
+	);
+
+	return $args;
+}
+
+/**
  * Buat WP_Query berdasarkan categorySlug attribute.
  *
  * @param string $cat_slug Slug kategori (boleh kosong = semua).
@@ -192,6 +230,8 @@ function ugmbt_make_query( string $cat_slug, int $count, array $extra = array() 
 		),
 		$extra
 	);
+
+	$args = ugmbt_exclude_non_news_categories( $args );
 
 	if ( '' !== $cat_slug ) {
 		$term = get_category_by_slug( $cat_slug );
@@ -277,7 +317,7 @@ function ugmbt_render_sec_card( array $p ): void {
 			<?php endif; ?>
 			<span class="ugmbt-card__date"><?php echo esc_html( $p['date_full'] ); ?></span>
 		</div>
-		<p class="ugmbt-card__excerpt"><?php echo esc_html( wp_trim_words( $p['excerpt'], 22 ) ); ?></p>
+		<p class="ugmbt-card__excerpt ugmbt-card__excerpt--secondary"><?php echo esc_html( wp_trim_words( $p['excerpt'], 72 ) ); ?></p>
 	</article>
 	<?php
 }
@@ -610,6 +650,7 @@ function ugmbt_render_block_sidebar_news( array $attrs ): string {
 		'order'               => 'DESC',
 		'no_found_rows'       => true,
 	);
+	$query_args = ugmbt_exclude_non_news_categories( $query_args );
 	if ( function_exists( 'ugm_apply_non_agenda_date_query' ) ) {
 		$query_args = ugm_apply_non_agenda_date_query( $query_args );
 	}

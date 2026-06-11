@@ -597,7 +597,10 @@ register_block_type( 'ugm/site-header', array(
  */
 function ugm_render_block_hero_section( $attrs ) {
 	$visibility_class = ugm_block_visibility_class( $attrs );
-	$media_type       = isset( $attrs['mediaType'] ) && 'video' === $attrs['mediaType'] ? 'video' : 'image';
+	$media_type       = isset( $attrs['mediaType'] ) ? (string) $attrs['mediaType'] : 'image';
+	if ( ! in_array( $media_type, array( 'image', 'slider', 'video' ), true ) ) {
+		$media_type = 'image';
+	}
 	$image_id  = isset( $attrs['imageId'] ) ? absint( $attrs['imageId'] ) : 0;
 	$image_url = '';
 	$video_id  = isset( $attrs['videoId'] ) ? absint( $attrs['videoId'] ) : 0;
@@ -642,7 +645,7 @@ function ugm_render_block_hero_section( $attrs ) {
 		}
 	}
 
-	if ( ! $has_video && ! empty( $attrs['slideImages'] ) && is_array( $attrs['slideImages'] ) ) {
+	if ( 'slider' === $media_type && ! $has_video && ! empty( $attrs['slideImages'] ) && is_array( $attrs['slideImages'] ) ) {
 		foreach ( $attrs['slideImages'] as $slide_image ) {
 			if ( ! is_array( $slide_image ) ) {
 				continue;
@@ -665,14 +668,14 @@ function ugm_render_block_hero_section( $attrs ) {
 		}
 	}
 
-	if ( empty( $slide_images ) && '' !== $image_url ) {
+	if ( 'slider' === $media_type && empty( $slide_images ) && '' !== $image_url ) {
 		$slide_images[] = array(
 			'id'  => $image_id,
 			'url' => $image_url,
 		);
 	}
 
-	$has_slider = ! $has_video && count( $slide_images ) > 1;
+	$has_slider = 'slider' === $media_type && ! $has_video && count( $slide_images ) > 1;
 	$hero_id    = $has_slider ? 'ugm-hero-slider-' . wp_unique_id() : '';
 	$title = isset( $attrs['title'] ) ? trim( (string) $attrs['title'] ) : '';
 	$desc  = isset( $attrs['description'] ) ? trim( (string) $attrs['description'] ) : '';
@@ -2515,37 +2518,80 @@ function ugm_render_block_gallery_section( $attrs ) {
 	$visibility_class = ugm_block_visibility_class( $attrs );
 	$section_title    = ugm_resolve_section_title( $attrs, __( 'Gallery', 'ugm-faculty' ), 'sectionTitle' );
 	$source_data      = ugm_get_landing_gallery_source_data( $attrs );
-	$source_item      = is_array( $source_data['item'] ) ? $source_data['item'] : array();
 	$fallback_images  = ugm_normalize_landing_gallery_images( $attrs['images'] ?? array() );
-	$source_images    = isset( $source_item['images'] ) && is_array( $source_item['images'] ) ? $source_item['images'] : array();
-	$images           = ! empty( $source_images ) ? ugm_normalize_landing_gallery_images( $source_images ) : $fallback_images;
-	$date             = isset( $source_item['date'] ) && '' !== trim( (string) $source_item['date'] )
-		? trim( (string) $source_item['date'] )
-		: ( isset( $attrs['date'] ) ? trim( (string) $attrs['date'] ) : '' );
-	$gallery_title    = isset( $source_item['title'] ) && '' !== trim( (string) $source_item['title'] )
-		? trim( (string) $source_item['title'] )
-		: ( isset( $attrs['galleryTitle'] ) && '' !== trim( (string) $attrs['galleryTitle'] )
-			? trim( (string) $attrs['galleryTitle'] )
-			: __( 'Gallery Highlight', 'ugm-faculty' ) );
-	$description      = isset( $source_item['description'] ) && '' !== trim( (string) $source_item['description'] )
-		? trim( (string) $source_item['description'] )
-		: ( isset( $attrs['description'] ) ? trim( (string) $attrs['description'] ) : '' );
 	$detail_label     = isset( $attrs['detailLabel'] ) && '' !== trim( (string) $attrs['detailLabel'] )
 		? trim( (string) $attrs['detailLabel'] )
 		: __( 'View Details', 'ugm-faculty' );
-	$source_detail_url = ! empty( $source_data['page_url'] )
-		? add_query_arg( 'ugm_gallery_item', absint( $source_data['item_index'] ) + 1, $source_data['page_url'] )
-		: '';
-	$detail_url       = '' !== $source_detail_url ? esc_url( $source_detail_url ) : ( isset( $attrs['detailUrl'] ) ? esc_url( (string) $attrs['detailUrl'] ) : '' );
 	$view_all_label   = isset( $attrs['viewAllLabel'] ) && '' !== trim( (string) $attrs['viewAllLabel'] )
 		? trim( (string) $attrs['viewAllLabel'] )
 		: __( 'View All', 'ugm-faculty' );
 	$source_view_all_url = ! empty( $source_data['page_url'] ) ? $source_data['page_url'] : '';
 	$view_all_url     = '' !== $source_view_all_url ? esc_url( $source_view_all_url ) : ( isset( $attrs['viewAllUrl'] ) ? esc_url( (string) $attrs['viewAllUrl'] ) : '' );
-	$grid_count       = max( 4, count( $images ) );
+
+	if ( 'Gallery' === $section_title ) {
+		$section_title = __( 'Galeri', 'ugm-faculty' );
+	}
+	if ( 'View Details' === $detail_label ) {
+		$detail_label = __( 'Selengkapnya', 'ugm-faculty' );
+	}
+	if ( 'View All' === $view_all_label ) {
+		$view_all_label = __( 'Lihat Semua', 'ugm-faculty' );
+	}
+
+	$slides       = array();
+	$source_items = isset( $source_data['items'] ) && is_array( $source_data['items'] ) ? $source_data['items'] : array();
+
+	foreach ( $source_items as $item_index => $source_item ) {
+		if ( ! is_array( $source_item ) ) {
+			continue;
+		}
+
+		$slide_images = isset( $source_item['images'] ) && is_array( $source_item['images'] )
+			? array_slice( ugm_normalize_landing_gallery_images( $source_item['images'] ), 0, 4 )
+			: array();
+		if ( empty( $slide_images ) ) {
+			continue;
+		}
+
+		$slide_title  = '' !== trim( (string) ( $source_item['title'] ?? '' ) )
+			? trim( (string) $source_item['title'] )
+			: __( 'Galeri', 'ugm-faculty' );
+		$slide_date   = '' !== trim( (string) ( $source_item['date'] ?? '' ) )
+			? trim( (string) $source_item['date'] )
+			: ( isset( $attrs['date'] ) && '' !== trim( (string) $attrs['date'] )
+				? trim( (string) $attrs['date'] )
+				: date_i18n( 'l, j F Y' ) );
+		$slide_url    = ! empty( $source_data['page_url'] )
+			? add_query_arg( 'ugm_gallery_item', absint( $item_index ) + 1, $source_data['page_url'] )
+			: ( isset( $attrs['detailUrl'] ) ? esc_url( (string) $attrs['detailUrl'] ) : '' );
+
+		$slides[] = array(
+			'title'       => $slide_title,
+			'date'        => $slide_date,
+			'description' => trim( (string) ( $source_item['description'] ?? '' ) ),
+			'images'      => $slide_images,
+			'detail_url'  => $slide_url,
+		);
+	}
+
+	if ( empty( $slides ) ) {
+		$slides[] = array(
+			'title'       => isset( $attrs['galleryTitle'] ) && '' !== trim( (string) $attrs['galleryTitle'] )
+				? trim( (string) $attrs['galleryTitle'] )
+				: __( 'Gallery Highlight', 'ugm-faculty' ),
+			'date'        => isset( $attrs['date'] ) && '' !== trim( (string) $attrs['date'] )
+				? trim( (string) $attrs['date'] )
+				: date_i18n( 'l, j F Y' ),
+			'description' => isset( $attrs['description'] ) ? trim( (string) $attrs['description'] ) : '',
+			'images'      => array_slice( $fallback_images, 0, 4 ),
+			'detail_url'  => isset( $attrs['detailUrl'] ) ? esc_url( (string) $attrs['detailUrl'] ) : '',
+		);
+	}
+
+	$slide_count = count( $slides );
 
 	ob_start();
-	echo '<section class="home-section section-gallery ' . esc_attr( $visibility_class ) . '"';
+	echo '<section class="home-section section-gallery ' . esc_attr( $visibility_class ) . '" data-landing-gallery data-autoplay-delay="3000"';
 	echo '' !== $section_title
 		? ' aria-labelledby="block-gallery-title">'
 		: ' aria-label="' . esc_attr__( 'Gallery', 'ugm-faculty' ) . '">';
@@ -2559,43 +2605,51 @@ function ugm_render_block_gallery_section( $attrs ) {
 		echo '</header>';
 	}
 
-	if ( '' !== $date ) {
-		echo '<p class="section-gallery__date">' . esc_html( $date ) . '</p>';
-	}
+	foreach ( $slides as $slide_index => $slide ) {
+		echo '<div class="section-gallery__copy-slide' . ( 0 === $slide_index ? ' is-active' : '' ) . '" data-landing-gallery-copy>';
+		echo '<p class="section-gallery__date">' . esc_html( $slide['date'] ) . '</p>';
+		echo '<h3 class="section-gallery__headline">' . esc_html( $slide['title'] ) . '</h3>';
 
-	echo '<h3 class="section-gallery__headline">' . esc_html( $gallery_title ) . '</h3>';
-
-	if ( '' !== $description ) {
-		echo '<p class="section-gallery__description">' . esc_html( wp_trim_words( $description, 18, '...' ) ) . '</p>';
-	}
-
-	if ( '' !== $detail_url ) {
-		echo '<a class="section-gallery__button" href="' . esc_url( $detail_url ) . '">' . esc_html( $detail_label ) . '</a>';
-	} else {
-		echo '<span class="section-gallery__button section-gallery__button--disabled">' . esc_html( $detail_label ) . '</span>';
-	}
-
-	echo '<div class="section-gallery__pager" aria-hidden="true"><span></span><span></span><span></span></div>';
-	echo '</div>';
-
-	echo '<div class="section-gallery__media">';
-	echo '<div class="section-gallery__grid section-gallery__grid--count-' . esc_attr( (string) $grid_count ) . '">';
-
-	if ( ! empty( $images ) ) {
-		foreach ( $images as $index => $image ) {
-			$alt = '' !== $image['alt'] ? $image['alt'] : $gallery_title;
-			echo '<figure class="section-gallery__item section-gallery__item--' . esc_attr( (string) ( $index + 1 ) ) . '">';
-			echo '<img src="' . esc_url( $image['url'] ) . '" alt="' . esc_attr( $alt ) . '" loading="lazy" decoding="async">';
-			echo '</figure>';
+		if ( '' !== $slide['description'] ) {
+			echo '<p class="section-gallery__description">' . esc_html( wp_trim_words( $slide['description'], 18, '...' ) ) . '</p>';
 		}
-	}
 
-	for ( $i = count( $images ); $i < 4; $i++ ) {
-		echo '<div class="section-gallery__item section-gallery__item--placeholder section-gallery__item--' . esc_attr( (string) ( $i + 1 ) ) . '">';
-		echo '<span>' . esc_html__( 'Select gallery image', 'ugm-faculty' ) . '</span>';
+		if ( '' !== $slide['detail_url'] ) {
+			echo '<a class="section-gallery__button" href="' . esc_url( $slide['detail_url'] ) . '">' . esc_html( $detail_label ) . '</a>';
+		} else {
+			echo '<span class="section-gallery__button section-gallery__button--disabled">' . esc_html( $detail_label ) . '</span>';
+		}
 		echo '</div>';
 	}
 
+	if ( $slide_count > 1 ) {
+		echo '<div class="section-gallery__pager" aria-label="' . esc_attr__( 'Navigasi galeri landing', 'ugm-faculty' ) . '">';
+		foreach ( $slides as $slide_index => $slide ) {
+			echo '<button type="button" class="' . ( 0 === $slide_index ? 'is-active' : '' ) . '" data-landing-gallery-slide="' . esc_attr( (string) $slide_index ) . '" aria-label="' . esc_attr( sprintf( __( 'Tampilkan galeri %d', 'ugm-faculty' ), $slide_index + 1 ) ) . '"' . ( 0 === $slide_index ? ' aria-current="true"' : '' ) . '></button>';
+		}
+		echo '</div>';
+	}
+	echo '</div>';
+
+	echo '<div class="section-gallery__media">';
+	echo '<div class="section-gallery__media-slider" data-landing-gallery-slider>';
+	echo '<div class="section-gallery__media-track">';
+	foreach ( $slides as $slide_index => $slide ) {
+		echo '<div class="section-gallery__grid" data-landing-gallery-page>';
+		for ( $image_index = 0; $image_index < 4; $image_index++ ) {
+			$image = $slide['images'][ $image_index ] ?? null;
+			echo '<figure class="section-gallery__item section-gallery__item--' . esc_attr( (string) ( $image_index + 1 ) ) . '">';
+			if ( is_array( $image ) && ! empty( $image['url'] ) ) {
+				$alt = '' !== $image['alt'] ? $image['alt'] : $slide['title'];
+				echo '<img src="' . esc_url( $image['url'] ) . '" alt="' . esc_attr( $alt ) . '" loading="' . ( 0 === $slide_index ? 'eager' : 'lazy' ) . '" decoding="async">';
+			} else {
+				echo '<span class="section-gallery__placeholder" aria-hidden="true"></span>';
+			}
+			echo '</figure>';
+		}
+		echo '</div>';
+	}
+	echo '</div>';
 	echo '</div>';
 
 	if ( '' !== $view_all_url ) {
@@ -2618,14 +2672,14 @@ register_block_type( 'ugm/gallery-section', array(
 	'render_callback' => 'ugm_render_block_gallery_section',
 	'supports'        => array( 'html' => false ),
 	'attributes'      => array(
-		'sectionTitle'  => array( 'type' => 'string', 'default' => 'Gallery' ),
+		'sectionTitle'  => array( 'type' => 'string', 'default' => 'Galeri' ),
 		'galleryPageId' => array( 'type' => 'integer', 'default' => 0 ),
 		'date'          => array( 'type' => 'string', 'default' => '' ),
 		'galleryTitle'  => array( 'type' => 'string', 'default' => 'Gallery Highlight' ),
 		'description'   => array( 'type' => 'string', 'default' => '' ),
-		'detailLabel'   => array( 'type' => 'string', 'default' => 'View Details' ),
+		'detailLabel'   => array( 'type' => 'string', 'default' => 'Selengkapnya' ),
 		'detailUrl'     => array( 'type' => 'string', 'default' => '' ),
-		'viewAllLabel'  => array( 'type' => 'string', 'default' => 'View All' ),
+		'viewAllLabel'  => array( 'type' => 'string', 'default' => 'Lihat Semua' ),
 		'viewAllUrl'    => array( 'type' => 'string', 'default' => '' ),
 		'images'        => array( 'type' => 'array', 'default' => array() ),
 		'visibility'    => array( 'type' => 'string', 'default' => 'all' ),
@@ -2967,13 +3021,17 @@ function ugm_render_block_template_links( $attrs ) {
 		echo '<div class="template-links-grid">';
 
 		foreach ( $items as $item ) {
-			$label    = isset( $item['label'] )    ? trim( (string) $item['label'] )    : '';
-			$sublabel = isset( $item['sublabel'] ) ? trim( (string) $item['sublabel'] ) : '';
-			$link     = isset( $item['link'] )     ? esc_url( (string) $item['link'] )  : '';
-			$icon_url = isset( $item['iconUrl'] )  ? esc_url( (string) $item['iconUrl'] ) : '';
-			$bg_url   = isset( $item['bgUrl'] )    ? esc_url( (string) $item['bgUrl'] )   : '';
+			$label     = isset( $item['label'] )    ? trim( (string) $item['label'] )    : '';
+			$link      = isset( $item['link'] )     ? esc_url( (string) $item['link'] )  : '';
+			$image_url = isset( $item['imageUrl'] ) ? esc_url( (string) $item['imageUrl'] ) : '';
+			$bg_url    = isset( $item['bgUrl'] )    ? esc_url( (string) $item['bgUrl'] )   : '';
+			$icon_url  = isset( $item['iconUrl'] )  ? esc_url( (string) $item['iconUrl'] ) : '';
 
-			if ( '' === $label && '' === $link ) {
+			if ( '' === $image_url ) {
+				$image_url = '' !== $bg_url ? $bg_url : $icon_url;
+			}
+
+			if ( '' === $image_url && '' === $link ) {
 				continue;
 			}
 
@@ -2981,32 +3039,14 @@ function ugm_render_block_template_links( $attrs ) {
 			$link_attr = '' !== $link
 				? ' href="' . $link . '" target="_blank" rel="noopener noreferrer"'
 				: '';
-			$bg_style  = '' !== $bg_url
-				? ' style="--tlc-bg: url(' . $bg_url . ');"'
-				: '';
+			$alt       = '' !== $label ? $label : __( 'Layanan pilihan', 'ugm-faculty' );
 
-			echo '<' . $tag . ' class="template-link-card"' . $link_attr . $bg_style . '>'; // phpcs:ignore
-			echo '<div class="template-link-card__bg" aria-hidden="true"></div>';
-			echo '<div class="template-link-card__inner">';
-
-			if ( '' !== $icon_url ) {
-				echo '<div class="template-link-card__icon">';
-				echo '<img src="' . $icon_url . '" alt="' . esc_attr( $label ) . '" loading="lazy">';
-				echo '</div>';
+			echo '<' . $tag . ' class="template-link-card"' . $link_attr . '>'; // phpcs:ignore
+			if ( '' !== $image_url ) {
+				echo '<img class="template-link-card__image" src="' . $image_url . '" alt="' . esc_attr( $alt ) . '" loading="lazy">';
 			} else {
-				echo '<div class="template-link-card__icon template-link-card__icon--empty" aria-hidden="true"></div>';
+				echo '<span class="template-link-card__placeholder" aria-hidden="true"></span>';
 			}
-
-			echo '<div class="template-link-card__text">';
-			if ( '' !== $label ) {
-				echo '<span class="template-link-card__label">' . esc_html( $label ) . '</span>';
-			}
-			if ( '' !== $sublabel ) {
-				echo '<span class="template-link-card__sublabel">' . esc_html( $sublabel ) . '</span>';
-			}
-			echo '</div>'; // .template-link-card__text
-
-			echo '</div>'; // .template-link-card__inner
 			echo '</' . $tag . '>';
 		}
 
@@ -3016,16 +3056,7 @@ function ugm_render_block_template_links( $attrs ) {
 		echo '<div class="template-links-grid template-links-grid--skeleton">';
 		for ( $i = 0; $i < 7; $i++ ) {
 			echo '<div class="template-link-card template-link-card--skeleton">';
-			echo '<div class="template-link-card__bg" aria-hidden="true"></div>';
-			echo '<div class="template-link-card__inner">';
-			echo '<div class="template-link-card__icon">';
-			echo '<span class="ugm-skeleton-box" style="width:52px;height:52px;border-radius:8px;opacity:.35;"></span>';
-			echo '</div>';
-			echo '<div class="template-link-card__text">';
-			echo '<span class="ugm-skeleton-line ugm-skeleton-line--title" style="width:65%;margin-bottom:7px;opacity:.35;"></span>';
-			echo '<span class="ugm-skeleton-line ugm-skeleton-line--meta" style="width:48%;opacity:.25;"></span>';
-			echo '</div>';
-			echo '</div>';
+			echo '<span class="template-link-card__placeholder" aria-hidden="true"></span>';
 			echo '</div>';
 		}
 		echo '</div>';

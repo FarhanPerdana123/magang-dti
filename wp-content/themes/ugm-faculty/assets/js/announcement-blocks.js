@@ -395,7 +395,7 @@
 		icon:        'list-view',
 		supports:    { html: false },
 		attributes: {
-			title:        { type: 'string', default: 'Berita Terbaru' },
+			title:        { type: 'string', default: 'Berita' },
 			postsPerPage: { type: 'number', default: 5 },
 		},
 		edit: function ( props ) {
@@ -410,7 +410,7 @@
 					null,
 					el(
 						PanelBody,
-						{ title: __( 'Pengaturan Berita Terbaru', 'ugm-faculty' ), initialOpen: true },
+						{ title: __( 'Pengaturan Berita', 'ugm-faculty' ), initialOpen: true },
 						el( TextControl, {
 							label: __( 'Judul Block', 'ugm-faculty' ),
 							value: attrs.title || '',
@@ -444,7 +444,7 @@
 		icon:        'calendar-alt',
 		supports:    { html: false },
 		attributes: {
-			title:        { type: 'string', default: 'Agenda Terbaru' },
+			title:        { type: 'string', default: 'Agenda' },
 			categorySlug: { type: 'string', default: 'agenda' },
 			postsPerPage: { type: 'number', default: 3 },
 			buttonLabel:  { type: 'string', default: 'Semua Agenda' },
@@ -462,7 +462,7 @@
 					null,
 					el(
 						PanelBody,
-						{ title: __( 'Pengaturan Agenda Terbaru', 'ugm-faculty' ), initialOpen: true },
+						{ title: __( 'Pengaturan Agenda', 'ugm-faculty' ), initialOpen: true },
 						el( TextControl, {
 							label: __( 'Judul Block', 'ugm-faculty' ),
 							value: attrs.title || '',

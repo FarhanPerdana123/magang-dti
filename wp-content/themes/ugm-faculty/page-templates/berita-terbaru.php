@@ -161,6 +161,9 @@ $main_cat_slug = '' !== $bt_featured_cat ? $bt_featured_cat : $bt_grid_cat;
 if ( '' !== $main_cat_slug ) {
 	$main_query_args['category__in'] = ugmbt_resolve_cat_ids( $main_cat_slug );
 }
+if ( function_exists( 'ugmbt_exclude_non_news_categories' ) ) {
+	$main_query_args = ugmbt_exclude_non_news_categories( $main_query_args );
+}
 if ( function_exists( 'ugm_apply_non_agenda_date_query' ) ) {
 	$main_query_args = ugm_apply_non_agenda_date_query( $main_query_args );
 }
@@ -241,6 +244,9 @@ if ( $bt_has_sb_news ) {
 		'order'          => 'DESC',
 		'no_found_rows'  => true,
 	);
+	if ( function_exists( 'ugmbt_exclude_non_news_categories' ) ) {
+		$sidebar_news_args = ugmbt_exclude_non_news_categories( $sidebar_news_args );
+	}
 	if ( function_exists( 'ugm_apply_non_agenda_date_query' ) ) {
 		$sidebar_news_args = ugm_apply_non_agenda_date_query( $sidebar_news_args );
 	}
@@ -269,10 +275,14 @@ if ( $bt_has_sb_agenda ) {
 
 $all_categories = array();
 if ( $bt_has_sb_cats ) {
+	$exclude_category_ids = function_exists( 'ugmbt_get_non_news_category_ids' )
+		? ugmbt_get_non_news_category_ids()
+		: array();
 	$all_categories = get_categories( array(
 		'orderby'    => 'name',
 		'order'      => 'ASC',
 		'hide_empty' => true,
+		'exclude'    => $exclude_category_ids,
 	) );
 }
 
@@ -421,7 +431,7 @@ function ugmbt_render_pagination( int $current_page, int $total_pages ): void {
 							<?php endif; ?>
 							<span class="ugmbt-card__date"><?php echo esc_html( $sec_data['date'] ); ?></span>
 						</div>
-						<p class="ugmbt-card__excerpt"><?php echo esc_html( wp_trim_words( $sec_data['excerpt'], 24 ) ); ?></p>
+						<p class="ugmbt-card__excerpt ugmbt-card__excerpt--secondary"><?php echo esc_html( wp_trim_words( $sec_data['excerpt'], 72 ) ); ?></p>
 					</article>
 					<?php endif; ?>
 

@@ -30,6 +30,17 @@ $is_magazine_news_route = '1' === get_query_var( 'ugm_magazine_news' );
 $is_landing_template    = is_page_template( array( 'page-templates/template-landing-page.php', 'landing-page' ) );
 $is_front_landing       = $is_landing_template && ! $is_latest_news_route && ! $is_magazine_news_route;
 $front_route_no_hero    = is_front_page() && ! $is_front_landing;
+$landing_navbar_style   = get_theme_mod( 'ugm_landing_navbar_style', 'solid' );
+$landing_navbar_style   = in_array( $landing_navbar_style, array( 'solid', 'transparent' ), true ) ? $landing_navbar_style : 'solid';
+$header_classes         = array( 'site-header' );
+
+if ( $is_front_landing ) {
+	$header_classes[] = 'is-front-page';
+	$header_classes[] = 'is-front-page-navbar-' . $landing_navbar_style;
+} else {
+	$header_classes[] = 'is-solid';
+}
+
 $header_social_icons    = function_exists( 'ugm_get_header_social_items' ) ? ugm_get_header_social_items() : array();
 $header_quick_links     = array(
 	array(
@@ -72,7 +83,7 @@ if ( '' === $cs_link && '' !== $header_phone ) {
 <?php wp_body_open(); ?>
 
 <div id="page" class="site">
-	<header id="masthead" class="site-header <?php echo $is_front_landing ? 'is-front-page' : 'is-solid'; ?>" data-front-page="<?php echo $is_front_landing ? '1' : '0'; ?>">
+	<header id="masthead" class="<?php echo esc_attr( implode( ' ', $header_classes ) ); ?>" data-front-page="<?php echo $is_front_landing ? '1' : '0'; ?>">
 		<div class="menu-backdrop" aria-hidden="true"></div>
 		<div class="site-header__inner">
 			<button class="menu-toggle" type="button" aria-controls="primary-menu" aria-expanded="false">

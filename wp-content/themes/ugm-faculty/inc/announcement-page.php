@@ -14,15 +14,15 @@ function ugm_get_default_announcement_page_blocks() {
 		'<div class="wp-block-group ugm-announcement-template-layout">' . "\n" .
 		'<!-- wp:columns {"className":"ugm-announcement-template-columns"} -->' . "\n" .
 		'<div class="wp-block-columns ugm-announcement-template-columns">' . "\n" .
-		'<!-- wp:column {"width":"1016px","className":"ugm-announcement-template-main"} -->' . "\n" .
-		'<div class="wp-block-column ugm-announcement-template-main" style="flex-basis:1016px">' . "\n" .
+		'<!-- wp:column {"width":"760px","className":"ugm-announcement-template-main"} -->' . "\n" .
+		'<div class="wp-block-column ugm-announcement-template-main" style="flex-basis:760px">' . "\n" .
 		'<!-- wp:ugm/announcement-page {"title":"Pengumuman","categorySlug":"pengumuman","featuredCategorySlug":"pengumuman","latestCategorySlug":"pengumuman","showFacebook":true,"facebookUrl":"","showTwitter":true,"twitterUrl":"","showWhatsapp":true,"whatsappUrl":""} /-->' . "\n" .
 		'</div>' . "\n" .
 		'<!-- /wp:column -->' . "\n" .
-		'<!-- wp:column {"width":"270px","className":"ugm-announcement-template-sidebar"} -->' . "\n" .
-		'<div class="wp-block-column ugm-announcement-template-sidebar" style="flex-basis:270px">' . "\n" .
-		'<!-- wp:ugm/announcement-latest-news {"title":"Berita Terbaru","postsPerPage":5} /-->' . "\n" .
-		'<!-- wp:ugm/announcement-latest-agenda {"title":"Agenda Terbaru","categorySlug":"agenda","postsPerPage":3,"buttonLabel":"Semua Agenda","buttonUrl":"/agenda/"} /-->' . "\n" .
+		'<!-- wp:column {"width":"250px","className":"ugm-announcement-template-sidebar"} -->' . "\n" .
+		'<div class="wp-block-column ugm-announcement-template-sidebar" style="flex-basis:250px">' . "\n" .
+		'<!-- wp:ugm/announcement-latest-news {"title":"Berita","postsPerPage":5} /-->' . "\n" .
+		'<!-- wp:ugm/announcement-latest-agenda {"title":"Agenda","categorySlug":"agenda","postsPerPage":3,"buttonLabel":"Semua Agenda","buttonUrl":"/agenda/"} /-->' . "\n" .
 		'</div>' . "\n" .
 		'<!-- /wp:column -->' . "\n" .
 		'</div>' . "\n" .
@@ -32,8 +32,8 @@ function ugm_get_default_announcement_page_blocks() {
 }
 
 function ugm_get_default_announcement_sidebar_blocks() {
-	return '<!-- wp:ugm/announcement-latest-news {"title":"Berita Terbaru","postsPerPage":5} /-->' . "\n" .
-		'<!-- wp:ugm/announcement-latest-agenda {"title":"Agenda Terbaru","categorySlug":"agenda","postsPerPage":3,"buttonLabel":"Semua Agenda","buttonUrl":"/agenda/"} /-->';
+	return '<!-- wp:ugm/announcement-latest-news {"title":"Berita","postsPerPage":5} /-->' . "\n" .
+		'<!-- wp:ugm/announcement-latest-agenda {"title":"Agenda","categorySlug":"agenda","postsPerPage":3,"buttonLabel":"Semua Agenda","buttonUrl":"/agenda/"} /-->';
 }
 
 function ugm_is_announcement_sidebar_block_name( $block_name ) {
@@ -336,9 +336,10 @@ function ugm_query_announcement_section_posts( $category_slug, $limit, $keyword 
 		$term_ids = ugm_announcement_term_ids_from_slugs( 'pengumuman' );
 	}
 
-	$args     = array(
+	$posts_per_page = -1 === (int) $limit ? -1 : max( 1, absint( $limit ) );
+	$args          = array(
 		'post_type'           => 'post',
-		'posts_per_page'      => max( 1, absint( $limit ) ),
+		'posts_per_page'      => $posts_per_page,
 		'ignore_sticky_posts' => true,
 		'post_status'         => 'publish',
 		'orderby'             => 'date',
@@ -602,7 +603,10 @@ function ugm_render_announcement_mobile_share_links( $attrs = array() ) {
 
 function ugm_render_block_announcement_latest_news( $attrs ) {
 	$attrs          = is_array( $attrs ) ? $attrs : array();
-	$title          = trim( (string) ( $attrs['title'] ?? __( 'Berita Terbaru', 'ugm-faculty' ) ) );
+	$title          = trim( (string) ( $attrs['title'] ?? __( 'Berita', 'ugm-faculty' ) ) );
+	if ( __( 'Berita Terbaru', 'ugm-faculty' ) === $title ) {
+		$title = __( 'Berita', 'ugm-faculty' );
+	}
 	$posts_per_page = max( 1, min( 10, absint( $attrs['postsPerPage'] ?? 5 ) ) );
 	$agenda_ids     = ugm_announcement_term_ids_from_slugs( 'agenda,kegiatan,events,event' );
 	$query_args     = array(
@@ -624,7 +628,7 @@ function ugm_render_block_announcement_latest_news( $attrs ) {
 	ob_start();
 	?>
 	<section class="ugm-announcement-side-section">
-		<h2><?php echo esc_html( '' !== $title ? $title : __( 'Berita Terbaru', 'ugm-faculty' ) ); ?></h2>
+		<h2><?php echo esc_html( '' !== $title ? $title : __( 'Berita', 'ugm-faculty' ) ); ?></h2>
 		<?php foreach ( $posts as $news_post ) : ?>
 			<article class="ugm-announcement-side-news">
 				<h3><a href="<?php echo esc_url( get_permalink( $news_post ) ); ?>"><?php echo esc_html( get_the_title( $news_post ) ); ?></a></h3>
@@ -639,7 +643,10 @@ function ugm_render_block_announcement_latest_news( $attrs ) {
 
 function ugm_render_block_announcement_latest_agenda( $attrs ) {
 	$attrs          = is_array( $attrs ) ? $attrs : array();
-	$title          = trim( (string) ( $attrs['title'] ?? __( 'Agenda Terbaru', 'ugm-faculty' ) ) );
+	$title          = trim( (string) ( $attrs['title'] ?? __( 'Agenda', 'ugm-faculty' ) ) );
+	if ( __( 'Agenda Terbaru', 'ugm-faculty' ) === $title ) {
+		$title = __( 'Agenda', 'ugm-faculty' );
+	}
 	$category_slug  = trim( (string) ( $attrs['categorySlug'] ?? 'agenda' ) );
 	$posts_per_page = max( 1, min( 10, absint( $attrs['postsPerPage'] ?? 3 ) ) );
 	$button_label   = trim( (string) ( $attrs['buttonLabel'] ?? __( 'Semua Agenda', 'ugm-faculty' ) ) );
@@ -690,7 +697,7 @@ function ugm_render_block_announcement_latest_agenda( $attrs ) {
 	ob_start();
 	?>
 	<section class="ugm-announcement-side-section ugm-announcement-side-section--agenda">
-		<h2><?php echo esc_html( '' !== $title ? $title : __( 'Agenda Terbaru', 'ugm-faculty' ) ); ?></h2>
+		<h2><?php echo esc_html( '' !== $title ? $title : __( 'Agenda', 'ugm-faculty' ) ); ?></h2>
 		<?php if ( ! empty( $posts ) ) : ?>
 			<?php foreach ( $posts as $agenda_post ) : ?>
 				<?php
@@ -742,7 +749,7 @@ function ugm_render_block_announcement_page( $attrs ) {
 		}
 	}
 
-	$list_items = ugm_query_announcement_section_posts( $other_category_slug, 4, $keyword, $shown_post_ids );
+	$list_items = ugm_query_announcement_section_posts( $other_category_slug, -1, $keyword, $shown_post_ids );
 	$has_posts  = $featured instanceof WP_Post || ! empty( $compact ) || ! empty( $list_items );
 	$mobile_items = array_merge( $compact, $list_items );
 	usort(
@@ -902,7 +909,7 @@ add_action( 'init', function () {
 		'render_callback' => 'ugm_render_block_announcement_latest_news',
 		'supports'        => array( 'html' => false ),
 		'attributes'      => array(
-			'title'        => array( 'type' => 'string', 'default' => 'Berita Terbaru' ),
+			'title'        => array( 'type' => 'string', 'default' => 'Berita' ),
 			'postsPerPage' => array( 'type' => 'number', 'default' => 5 ),
 		),
 	) );
@@ -914,7 +921,7 @@ add_action( 'init', function () {
 		'render_callback' => 'ugm_render_block_announcement_latest_agenda',
 		'supports'        => array( 'html' => false ),
 		'attributes'      => array(
-			'title'        => array( 'type' => 'string', 'default' => 'Agenda Terbaru' ),
+			'title'        => array( 'type' => 'string', 'default' => 'Agenda' ),
 			'categorySlug' => array( 'type' => 'string', 'default' => 'agenda' ),
 			'postsPerPage' => array( 'type' => 'number', 'default' => 3 ),
 			'buttonLabel'  => array( 'type' => 'string', 'default' => 'Semua Agenda' ),

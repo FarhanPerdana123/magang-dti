@@ -131,6 +131,14 @@ function ugm_enqueue_assets() {
 			ugm_get_asset_version( '/assets/js/landing-scroll-reveal.js' ),
 			true
 		);
+
+		wp_enqueue_script(
+			'ugm-landing-gallery-slider',
+			get_template_directory_uri() . '/assets/js/landing-gallery-slider.js',
+			array(),
+			ugm_get_asset_version( '/assets/js/landing-gallery-slider.js' ),
+			true
+		);
 	}
 
 	$is_video_single = is_singular( 'post' )

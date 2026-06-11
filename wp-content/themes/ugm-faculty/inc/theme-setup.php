@@ -98,3 +98,54 @@ function ugm_custom_excerpt_more( $more ) {
 	return '&hellip;';
 }
 add_filter( 'excerpt_more', 'ugm_custom_excerpt_more' );
+
+/**
+ * Allow WebP images in the WordPress media uploader.
+ *
+ * @param array $mimes Allowed MIME types.
+ * @return array
+ */
+function ugm_allow_webp_uploads( $mimes ) {
+	$mimes['webp'] = 'image/webp';
+
+	return $mimes;
+}
+add_filter( 'upload_mimes', 'ugm_allow_webp_uploads' );
+
+/**
+ * Make WordPress validate WebP files correctly on stricter installs.
+ *
+ * @param array  $types    File data from WordPress.
+ * @param string $file     Full path to the file.
+ * @param string $filename Original uploaded filename.
+ * @param array  $mimes    Allowed MIME types.
+ * @return array
+ */
+function ugm_validate_webp_uploads( $types, $file, $filename, $mimes ) {
+	if ( 'webp' !== strtolower( pathinfo( $filename, PATHINFO_EXTENSION ) ) ) {
+		return $types;
+	}
+
+	$wp_filetype = wp_check_filetype( $filename, $mimes );
+	if ( 'image/webp' === $wp_filetype['type'] ) {
+		$types['ext']  = 'webp';
+		$types['type'] = 'image/webp';
+	}
+
+	return $types;
+}
+add_filter( 'wp_check_filetype_and_ext', 'ugm_validate_webp_uploads', 10, 4 );
+
+/**
+ * Allow WebP uploads even when the local image editor cannot create subsizes.
+ *
+ * Some local servers can display WebP in the browser but GD/Imagick cannot resize
+ * it, so WordPress blocks the upload with a "convert to JPEG or PNG" error.
+ *
+ * @param bool $prevent Whether unsupported image MIME uploads are blocked.
+ * @return bool
+ */
+function ugm_allow_webp_without_subsizes( $prevent ) {
+	return false;
+}
+add_filter( 'wp_prevent_unsupported_mime_type_uploads', 'ugm_allow_webp_without_subsizes' );

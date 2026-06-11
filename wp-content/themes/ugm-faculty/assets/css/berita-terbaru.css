@@ -285,6 +285,10 @@
 	overflow: hidden;
 }
 
+.ugmbt-card__excerpt--secondary {
+	-webkit-line-clamp: 12;
+}
+
 /* ── Empty State ──────────────────────────────────────────────────────────── */
 .ugmbt-empty {
 	padding: 20px;
@@ -713,6 +717,10 @@ body:not(.home):not(.front-page) .site-content:has(.ugmbt-page) {
 	font-size: 12px;
 	line-height: 1.45;
 	-webkit-line-clamp: 4;
+}
+
+.ugmbt-card__excerpt--secondary {
+	-webkit-line-clamp: 7;
 }
 
 .ugmbt-grid-card .ugmbt-card__excerpt {

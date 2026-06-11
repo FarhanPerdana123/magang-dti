@@ -53,6 +53,18 @@ function ugm_get_header_social_items() {
 }
 
 /**
+ * Sanitize the landing page navbar style choice.
+ *
+ * @param string $value Selected Customizer value.
+ * @return string
+ */
+function ugm_sanitize_landing_navbar_style( $value ) {
+	$allowed = array( 'solid', 'transparent' );
+
+	return in_array( $value, $allowed, true ) ? $value : 'solid';
+}
+
+/**
  * Add customizer settings and controls.
  *
  * @param WP_Customize_Manager $wp_customize Theme Customizer object.
@@ -157,6 +169,28 @@ function ugm_customize_register( $wp_customize ) {
 			'label'   => __( 'Branding Text Line 3', 'ugm-faculty' ),
 			'section' => 'ugm_branding',
 			'type'    => 'text',
+		)
+	);
+
+	$wp_customize->add_setting(
+		'ugm_landing_navbar_style',
+		array(
+			'default'           => 'solid',
+			'sanitize_callback' => 'ugm_sanitize_landing_navbar_style',
+		)
+	);
+
+	$wp_customize->add_control(
+		'ugm_landing_navbar_style',
+		array(
+			'label'       => __( 'Landing Page Navbar Style', 'ugm-faculty' ),
+			'description' => __( 'Mengatur tampilan navbar khusus landing page saat posisi halaman paling atas.', 'ugm-faculty' ),
+			'section'     => 'ugm_branding',
+			'type'        => 'radio',
+			'choices'     => array(
+				'solid'       => __( 'Full background', 'ugm-faculty' ),
+				'transparent' => __( 'Transparent on top', 'ugm-faculty' ),
+			),
 		)
 	);
 
