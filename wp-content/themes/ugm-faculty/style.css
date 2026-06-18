@@ -11,7 +11,7 @@ Requires PHP: 7.4
 Text Domain: ugm-faculty
 */
 
-/* Main stylesheet manifest. Styles are loaded from assets/css/*.css via inc/enqueue.php. */
+/* Main stylesheet manifest. Styles are loaded from assets/css/core, pages, blocks, and editor via inc/core/enqueue.php. */
 
 /* Majalah Kabar Digital */
 .section-majalah-digital .section-line {

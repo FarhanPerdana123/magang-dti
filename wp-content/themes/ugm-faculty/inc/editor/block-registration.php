@@ -3026,7 +3026,6 @@ register_block_type( 'ugm/template-links', array(
 	),
 ) );
 
-require_once get_theme_file_path( 'inc/blocks/index.php' );
 
 /* ==========================================================================
  * Shared rendering helper: portal column (featured + list cards)
@@ -3310,41 +3309,41 @@ add_filter( 'block_categories_all', function ( $categories ) {
 add_action( 'enqueue_block_editor_assets', function () {
 	wp_enqueue_script(
 		'ugm-blocks',
-		get_template_directory_uri() . '/assets/js/blocks.js',
+		get_template_directory_uri() . '/assets/js/editor/landing-blocks.js',
 		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render' ),
-		ugm_get_asset_version( '/assets/js/blocks.js' ),
+		ugm_get_asset_version( '/assets/js/editor/landing-blocks.js' ),
 		true
 	);
 
 	wp_enqueue_script(
 		'ugm-agenda-blocks',
-		get_template_directory_uri() . '/assets/js/agenda-blocks.js',
+		get_template_directory_uri() . '/assets/js/editor/agenda-blocks.js',
 		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render', 'wp-plugins', 'wp-edit-post' ),
-		ugm_get_asset_version( '/assets/js/agenda-blocks.js' ),
+		ugm_get_asset_version( '/assets/js/editor/agenda-blocks.js' ),
 		true
 	);
 
 	wp_enqueue_script(
 		'ugm-announcement-blocks',
-		get_template_directory_uri() . '/assets/js/announcement-blocks.js',
+		get_template_directory_uri() . '/assets/js/editor/announcement-blocks.js',
 		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-server-side-render', 'wp-plugins', 'wp-media-utils' ),
-		ugm_get_asset_version( '/assets/js/announcement-blocks.js' ),
+		ugm_get_asset_version( '/assets/js/editor/announcement-blocks.js' ),
 		true
 	);
 
 	wp_enqueue_script(
 		'ugm-announcement-slider',
-		get_template_directory_uri() . '/assets/js/announcement-slider.js',
+		get_template_directory_uri() . '/assets/js/frontend/announcement-slider.js',
 		array(),
-		ugm_get_asset_version( '/assets/js/announcement-slider.js' ),
+		ugm_get_asset_version( '/assets/js/frontend/announcement-slider.js' ),
 		true
 	);
 
 	wp_enqueue_script(
 		'ugm-gallery-blocks',
-		get_template_directory_uri() . '/assets/js/gallery-blocks.js',
+		get_template_directory_uri() . '/assets/js/editor/gallery-blocks.js',
 		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-compose', 'wp-data', 'wp-hooks', 'wp-plugins', 'wp-server-side-render' ),
-		ugm_get_asset_version( '/assets/js/gallery-blocks.js' ),
+		ugm_get_asset_version( '/assets/js/editor/gallery-blocks.js' ),
 		true
 	);
 
@@ -3380,51 +3379,51 @@ add_action( 'enqueue_block_editor_assets', function () {
 
 	wp_enqueue_style(
 		'ugm-editor-style-base',
-		get_template_directory_uri() . '/assets/css/base.css',
+		get_template_directory_uri() . '/assets/css/core/base.css',
 		array(),
-		ugm_get_asset_version( '/assets/css/base.css' )
+		ugm_get_asset_version( '/assets/css/core/base.css' )
 	);
 
 	wp_enqueue_style(
 		'ugm-editor-style-hero',
-		get_template_directory_uri() . '/assets/css/hero.css',
+		get_template_directory_uri() . '/assets/css/core/hero.css',
 		array( 'ugm-editor-style-base' ),
-		ugm_get_asset_version( '/assets/css/hero.css' )
+		ugm_get_asset_version( '/assets/css/core/hero.css' )
 	);
 
 	wp_enqueue_style(
 		'ugm-editor-style-content',
-		get_template_directory_uri() . '/assets/css/content.css',
+		get_template_directory_uri() . '/assets/css/core/content.css',
 		array( 'ugm-editor-style-base' ),
-		ugm_get_asset_version( '/assets/css/content.css' )
+		ugm_get_asset_version( '/assets/css/core/content.css' )
 	);
 
 	wp_enqueue_style(
 		'ugm-editor-style-agenda-page',
-		get_template_directory_uri() . '/assets/css/agenda-page.css',
+		get_template_directory_uri() . '/assets/css/pages/agenda-page.css',
 		array( 'ugm-editor-style-base', 'ugm-editor-style-content' ),
-		ugm_get_asset_version( '/assets/css/agenda-page.css' )
+		ugm_get_asset_version( '/assets/css/pages/agenda-page.css' )
 	);
 
 	wp_enqueue_style(
 		'ugm-editor-style-announcement-page',
-		get_template_directory_uri() . '/assets/css/announcement-page.css',
+		get_template_directory_uri() . '/assets/css/pages/announcement-page.css',
 		array( 'ugm-editor-style-base', 'ugm-editor-style-content' ),
-		ugm_get_asset_version( '/assets/css/announcement-page.css' )
+		ugm_get_asset_version( '/assets/css/pages/announcement-page.css' )
 	);
 
 	wp_enqueue_style(
 		'ugm-editor-style-gallery-page',
-		get_template_directory_uri() . '/assets/css/gallery-page.css',
+		get_template_directory_uri() . '/assets/css/pages/gallery-page.css',
 		array( 'ugm-editor-style-base', 'ugm-editor-style-content' ),
-		ugm_get_asset_version( '/assets/css/gallery-page.css' )
+		ugm_get_asset_version( '/assets/css/pages/gallery-page.css' )
 	);
 
 	wp_enqueue_style(
 		'ugm-editor-landing-preview',
-		get_template_directory_uri() . '/assets/css/landing-page-editor.css',
+		get_template_directory_uri() . '/assets/css/editor/landing-page-editor.css',
 		array( 'ugm-editor-style-base', 'ugm-editor-style-content', 'ugm-editor-style-agenda-page', 'ugm-editor-style-announcement-page', 'ugm-editor-style-gallery-page' ),
-		ugm_get_asset_version( '/assets/css/landing-page-editor.css' )
+		ugm_get_asset_version( '/assets/css/editor/landing-page-editor.css' )
 	);
 } );
 

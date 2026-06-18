@@ -1,6 +1,6 @@
 # UGM Faculty Theme
 
-WordPress theme for faculty websites with a mobile-first landing page, modular templates, and Customizer-driven content sections.
+WordPress theme for faculty websites with modular templates, server-rendered blocks, and Customizer-driven content sections.
 
 ## Requirements
 
@@ -12,7 +12,7 @@ WordPress theme for faculty websites with a mobile-first landing page, modular t
 The theme uses a thin-loader pattern at the root:
 
 - Root template files (`front-page.php`, `single.php`, `page.php`, `index.php`, `category.php`) only load files from `templates/`.
-- Main logic is organized under `inc/`, `parts/`, and `templates/`.
+- Main logic is organized under categorized `inc/` modules, `template-parts/`, `parts/`, `page-templates/`, and `templates/`.
 
 ## Current Folder Structure
 
@@ -20,25 +20,23 @@ The theme uses a thin-loader pattern at the root:
 ugm-faculty/
 |-- assets/
 |   |-- css/
-|   |   |-- base.css
-|   |   |-- header.css
-|   |   |-- hero.css
-|   |   |-- content.css
-|   |   `-- footer.css
+|   |   |-- core/                  # Global frontend styles
+|   |   |-- pages/                 # Page-template styles
+|   |   `-- editor/                # Admin editor preview styles
 |   |-- js/
-|   |   |-- header-scroll.js
-|   |   `-- faculty-slider.js
+|   |   |-- editor/                # Admin editor helper scripts
+|   |   `-- frontend/              # Public-facing interaction scripts
 |   `-- images/
 |
 |-- inc/
-|   |-- theme-setup.php         # Theme supports + menus
-|   |-- theme-routes.php        # Custom query route handling
-|   |-- front-page-helpers.php  # Reusable category/query helpers
-|   |-- enqueue.php             # CSS/JS enqueue
-|   |-- widgets.php             # Widget registration
-|   `-- customizer.php          # Customizer sections/settings/controls
+|   |-- class-ugm-theme.php     # Theme bootstrap and module loader
+|   |-- core/                   # Setup, routing, enqueue, widgets, Customizer, security
+|   |-- helpers/                # Shared helper functions
+|   |-- meta/                   # Post/page meta registration
+|   |-- pages/                  # Page-template seeding, routing, and render helpers
+|   `-- editor/                 # Gutenberg registration and editor integrations
 |
-|-- parts/
+|-- template-parts/
 |   |-- header/
 |   |   |-- site-branding.php
 |   |   |-- navigation.php
@@ -47,9 +45,16 @@ ugm-faculty/
 |   `-- content/
 |       `-- hero.php
 |
+|-- page-templates/
+|   |-- template-landing-page.php
+|   |-- template-agenda.php
+|   |-- template-announcement.php
+|   |-- template-gallery.php
+|   |-- template-management.php
+|   `-- template-rector-greeting.php
+|
 |-- templates/
 |   |-- front-page.php
-|   |-- latest-news.php
 |   |-- category.php
 |   |-- index.php
 |   |-- single.php
@@ -64,13 +69,14 @@ ugm-faculty/
 
 ## Template Flow
 
-- `functions.php` loads all modules from `inc/`.
+- `functions.php` loads `inc/class-ugm-theme.php`.
+- `inc/class-ugm-theme.php` loads modules from `inc/core`, `inc/helpers`, `inc/meta`, `inc/pages`, and `inc/editor`.
 - `header.php` loads header parts and conditional hero.
 - `front-page.php` (root) loads `templates/front-page.php`.
 - Latest news route:
   - URL: `/?ugm_latest_news=1`
-  - Router in `inc/theme-routes.php`
-  - Template: `templates/latest-news.php`
+  - Router in `inc/core/theme-routes.php`
+  - Template: `page-templates/latest-news.php`
 
 ## Customizer Sections Used on Landing Page
 
@@ -84,9 +90,11 @@ Each section supports auto/manual source mode and post count controls.
 ## Maintenance Conventions
 
 - Keep root templates as loaders only.
-- Put reusable logic in `inc/` helpers instead of duplicating in templates.
-- Keep visual styles in `assets/css/*` by concern (header, hero, content, footer).
-- When adding a new route, register query vars and template routing in `inc/theme-routes.php`.
+- Put reusable logic in `inc/helpers/` instead of duplicating in templates.
+- Put page-template behavior in `inc/pages/`.
+- Put Gutenberg/editor registration in `inc/editor/`.
+- Keep visual styles grouped by scope: `assets/css/core/`, `assets/css/pages/`, and `assets/css/editor/`.
+- When adding a new route, register query vars and template routing in `inc/core/theme-routes.php`.
 
 ## Notes
 

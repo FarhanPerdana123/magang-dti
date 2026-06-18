@@ -926,9 +926,9 @@ add_filter( 'block_categories_all', 'ugm_register_management_page_block_category
 function ugm_enqueue_management_page_editor_assets() {
 	wp_enqueue_script(
 		'ugm-management-blocks',
-		get_template_directory_uri() . '/assets/js/management-blocks.js',
+		get_template_directory_uri() . '/assets/js/editor/management-blocks.js',
 		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-compose', 'wp-data', 'wp-hooks', 'wp-plugins', 'wp-server-side-render' ),
-		ugm_get_asset_version( '/assets/js/management-blocks.js' ),
+		ugm_get_asset_version( '/assets/js/editor/management-blocks.js' ),
 		true
 	);
 
@@ -942,9 +942,9 @@ function ugm_enqueue_management_page_editor_assets() {
 
 	wp_enqueue_style(
 		'ugm-editor-style-management-page',
-		get_template_directory_uri() . '/assets/css/management-page.css',
+		get_template_directory_uri() . '/assets/css/pages/management-page.css',
 		array( 'ugm-editor-style-base', 'ugm-editor-style-content' ),
-		ugm_get_asset_version( '/assets/css/management-page.css' )
+		ugm_get_asset_version( '/assets/css/pages/management-page.css' )
 	);
 }
 add_action( 'enqueue_block_editor_assets', 'ugm_enqueue_management_page_editor_assets' );

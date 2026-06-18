@@ -9,8 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Reorganized internal code responsibilities:
-  - moved custom route hooks from `inc/theme-setup.php` to `inc/theme-routes.php`
-  - added `inc/front-page-helpers.php` for reusable category tree helpers
+  - moved setup, routing, enqueue, widgets, Customizer, image sizing, and security modules into `inc/core/`
+  - moved reusable helpers into `inc/helpers/`
+  - moved page-template behavior into `inc/pages/`
+  - moved meta registration into `inc/meta/`
+  - moved Gutenberg registration and editor integrations into `inc/editor/`
+  - grouped CSS assets into `assets/css/core/`, `assets/css/pages/`, and `assets/css/editor/`
+  - grouped JavaScript assets into `assets/js/editor/` and `assets/js/frontend/`
 - Updated `functions.php` module loading order to match responsibilities.
 - Refined front-page section query code to use shared helper functions.
 - Rewrote `README.md` to match the actual folder structure and runtime flow.
@@ -20,10 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial theme release
 - Modular file structure with organized `/inc/` and `/template-parts/` directories
-- Theme setup configuration (`inc/theme-setup.php`)
-- Scripts and styles enqueuing (`inc/enqueue.php`)
-- Widget areas registration (`inc/widgets.php`)
-- Theme Customizer settings (`inc/customizer.php`)
+- Theme setup configuration (`inc/core/theme-setup.php`)
+- Scripts and styles enqueuing (`inc/core/enqueue.php`)
+- Widget areas registration (`inc/core/widgets.php`)
+- Theme Customizer settings (`inc/core/customizer.php`)
 - Header template parts:
   - Site branding component
   - Navigation component

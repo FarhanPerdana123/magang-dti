@@ -71,7 +71,7 @@ function ugm_theme_setup() {
 	// (ServerSideRender) display with the same styling as the frontend.
 	add_theme_support( 'editor-styles' );
 	add_editor_style( 'style.css' );
-	foreach ( array( 'base', 'header', 'hero', 'content', 'agenda-page', 'announcement-page', 'gallery-page', 'management-page', 'footer' ) as $ugm_module ) {
+	foreach ( array( 'core/base', 'core/header', 'core/hero', 'core/content', 'pages/agenda-page', 'pages/announcement-page', 'pages/gallery-page', 'pages/management-page', 'core/footer' ) as $ugm_module ) {
 		add_editor_style( 'assets/css/' . $ugm_module . '.css' );
 	}
 }

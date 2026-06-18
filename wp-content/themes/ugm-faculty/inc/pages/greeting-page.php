@@ -36,28 +36,14 @@ function ugm_get_default_rector_greeting_paragraphs() {
 	);
 }
 
-function ugm_get_legacy_rector_greeting_paragraphs() {
-	return implode(
-		"\n\n",
-		array(
-			__( 'Selamat datang di Universitas Gadjah Mada (UGM), tempat Anda dapat mulai membuat perubahan nyata.', 'ugm-faculty' ),
-			__( 'Sebagai salah satu universitas terkemuka di Indonesia, Universitas Gadjah Mada berupaya untuk memfasilitasi generasi muda dari seluruh penjuru negeri dan dunia untuk mengembangkan diri dan memaksimalkan potensi yang dimiliki. Kami bertekad membekali komunitas yang dinamis dan penuh semangat ini dengan pendidikan berkualitas demi hari esok yang lebih baik.', 'ugm-faculty' ),
-			__( 'Keunggulan UGM mencakup spektrum bidang yang luas. Ada lebih dari 270 program studi dan 23 pusat penelitian yang akan membantu para mahasiswa memperluas wawasan dan memperkaya pengalaman dalam penelitian, kolaborasi interdisipliner, dan kehidupan secara umum.', 'ugm-faculty' ),
-			__( 'UGM memiliki jaringan kemitraan yang luas dengan institusi pendidikan nasional dan global, lembaga penelitian, lembaga pemerintah, LSM, dan industri. Kami bersinergi dalam pendidikan, pertukaran pengetahuan, transfer teknologi, dan banyak lagi. Saat ini, UGM memiliki lebih dari 120 program dual-degree dengan berbagai universitas terkenal di dunia.', 'ugm-faculty' ),
-			__( 'Kampus kami terletak di jantung kota Yogyakarta, sebuah kota yang terkenal akan sejarah dan warisan budayanya. Oleh karenanya, tak hanya pengalaman akademis, di sini, siapa pun Anda, dari mana pun Anda berasal, dapat merasakan secara langsung pengalaman antarbudaya yang kaya. Kami mengundang Anda belajar di kampus kami yang beragam dan inklusif, tempat kita dapat bahu-membahu menciptakan dampak nyata bagi bangsa dan dunia.', 'ugm-faculty' ),
-			__( 'Terima kasih telah mengunjungi halaman kami. Semoga kampus UGM memberikan kesan yang manis bagi Anda.', 'ugm-faculty' ),
-		)
-	);
-}
-
 function ugm_get_default_rector_greeting_blocks() {
 	$content_attrs = array(
 		'breadcrumbHome'  => __( 'Lorem Ipsum', 'ugm-faculty' ),
 		'breadcrumbParent' => __( 'Lorem Ipsum', 'ugm-faculty' ),
 		'title'           => __( 'Lorem Ipsum', 'ugm-faculty' ),
 		'body'            => ugm_get_default_rector_greeting_paragraphs(),
-		'rectorName'      => __( 'Nama Rektor', 'ugm-faculty' ),
-		'rectorRole'      => __( 'Jabatan Rektor', 'ugm-faculty' ),
+		'rectorName'      => __( 'Nama', 'ugm-faculty' ),
+		'rectorRole'      => __( 'Jabatan', 'ugm-faculty' ),
 		'rectorCaptionBackgroundColor' => '',
 		'photoPosition'   => 'right',
 		'showPhotoFrame'  => true,
@@ -248,7 +234,7 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 		$photo_url = esc_url_raw( (string) $attrs['photoUrl'] );
 	}
 
-	if ( __( 'Sambutan Rektor', 'ugm-faculty' ) === $title ) {
+	if ( __( 'Sambutan', 'ugm-faculty' ) === $title ) {
 		$title = __( 'Lorem Ipsum', 'ugm-faculty' );
 	}
 	if ( __( 'Beranda', 'ugm-faculty' ) === $breadcrumb_home ) {
@@ -261,10 +247,10 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 		$body = ugm_get_default_rector_greeting_paragraphs();
 	}
 	if ( __( 'Prof. dr. Ova Emilia, M.MedEd, SpOG (K), PhD', 'ugm-faculty' ) === $rector_name ) {
-		$rector_name = __( 'Nama Rektor', 'ugm-faculty' );
+		$rector_name = __( 'Nama', 'ugm-faculty' );
 	}
-	if ( __( 'Rektor UGM', 'ugm-faculty' ) === $rector_role ) {
-		$rector_role = __( 'Jabatan Rektor', 'ugm-faculty' );
+	if ( __( 'UGM', 'ugm-faculty' ) === $rector_role ) {
+		$rector_role = __( 'Jabatan', 'ugm-faculty' );
 	}
 
 	$rector_caption_style = '';
@@ -374,8 +360,8 @@ register_block_type( 'ugm/rector-greeting-content', array(
 		'breadcrumbParent' => array( 'type' => 'string', 'default' => 'Lorem Ipsum' ),
 		'title'            => array( 'type' => 'string', 'default' => 'Lorem Ipsum' ),
 		'body'             => array( 'type' => 'string', 'default' => ugm_get_default_rector_greeting_paragraphs() ),
-		'rectorName'       => array( 'type' => 'string', 'default' => 'Nama Rektor' ),
-		'rectorRole'       => array( 'type' => 'string', 'default' => 'Jabatan Rektor' ),
+		'rectorName'       => array( 'type' => 'string', 'default' => 'Nama' ),
+		'rectorRole'       => array( 'type' => 'string', 'default' => 'Jabatan' ),
 		'rectorCaptionBackgroundColor' => array( 'type' => 'string', 'default' => '' ),
 		'photoId'          => array( 'type' => 'integer', 'default' => 0 ),
 		'photoUrl'         => array( 'type' => 'string', 'default' => '' ),
@@ -769,8 +755,8 @@ function ugm_render_block_rector_greeting_template_preview() {
 			'breadcrumbParent' => __( 'Lorem Ipsum', 'ugm-faculty' ),
 			'title'            => __( 'Lorem Ipsum', 'ugm-faculty' ),
 			'body'             => ugm_get_default_rector_greeting_paragraphs(),
-			'rectorName'       => __( 'Nama Rektor', 'ugm-faculty' ),
-			'rectorRole'       => __( 'Jabatan Rektor', 'ugm-faculty' ),
+			'rectorName'       => __( 'Nama', 'ugm-faculty' ),
+			'rectorRole'       => __( 'Jabatan', 'ugm-faculty' ),
 			'rectorCaptionBackgroundColor' => '',
 			'photoPosition'    => 'right',
 			'showPhotoFrame'   => true,
@@ -811,9 +797,9 @@ register_block_type( 'ugm/rector-greeting-template-preview', array(
 function ugm_enqueue_rector_greeting_editor_assets() {
 	wp_enqueue_script(
 		'ugm-rector-greeting-blocks',
-		get_template_directory_uri() . '/assets/js/blocks/rector-greeting-blocks.js',
+		get_template_directory_uri() . '/assets/js/editor/greeting-blocks.js',
 		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-compose', 'wp-data', 'wp-hooks', 'wp-plugins', 'wp-server-side-render' ),
-		ugm_get_asset_version( '/assets/js/blocks/rector-greeting-blocks.js' ),
+		ugm_get_asset_version( '/assets/js/editor/greeting-blocks.js' ),
 		true
 	);
 
@@ -835,9 +821,9 @@ add_action( 'enqueue_block_editor_assets', 'ugm_enqueue_rector_greeting_editor_a
 function ugm_enqueue_rector_greeting_frontend_styles() {
 	wp_enqueue_style(
 		'ugm-style-rector-greeting',
-		get_template_directory_uri() . '/assets/css/blocks/rector-greeting.css',
+		get_template_directory_uri() . '/assets/css/pages/greeting-page.css',
 		array( 'ugm-style-content' ),
-		ugm_get_asset_version( '/assets/css/blocks/rector-greeting.css' )
+		ugm_get_asset_version( '/assets/css/pages/greeting-page.css' )
 	);
 }
 add_action( 'wp_enqueue_scripts', 'ugm_enqueue_rector_greeting_frontend_styles', 20 );
@@ -848,9 +834,9 @@ add_action( 'wp_enqueue_scripts', 'ugm_enqueue_rector_greeting_frontend_styles',
 function ugm_enqueue_rector_greeting_editor_styles() {
 	wp_enqueue_style(
 		'ugm-editor-style-rector-greeting',
-		get_template_directory_uri() . '/assets/css/blocks/rector-greeting.css',
+		get_template_directory_uri() . '/assets/css/pages/greeting-page.css',
 		array( 'ugm-editor-landing-preview' ),
-		ugm_get_asset_version( '/assets/css/blocks/rector-greeting.css' )
+		ugm_get_asset_version( '/assets/css/pages/greeting-page.css' )
 	);
 }
 add_action( 'enqueue_block_editor_assets', 'ugm_enqueue_rector_greeting_editor_styles', 20 );

@@ -31,140 +31,140 @@
 	var createHigherOrderComponent = wp.compose.createHigherOrderComponent;
 
 	function documentHasRectorGreetingTemplateChooser( targetDocument ) {
-	var modals;
+		var modals;
 
-	if ( ! targetDocument || ! targetDocument.querySelectorAll ) {
+		if ( ! targetDocument || ! targetDocument.querySelectorAll ) {
+			return false;
+		}
+
+		modals = targetDocument.querySelectorAll( '.components-modal__frame, .components-modal__content, [role="dialog"]' );
+
+		return Array.prototype.some.call( modals, function ( modal ) {
+			var text = modal.textContent || '';
+
+			return text.indexOf( 'Choose a template' ) !== -1 ||
+				text.indexOf( 'Pilih template' ) !== -1;
+		} );
+	}
+
+	function isRectorGreetingTemplateChooserOpen() {
+		if ( documentHasRectorGreetingTemplateChooser( document ) ) {
+			return true;
+		}
+
+		try {
+			if (
+				window.parent &&
+				window.parent !== window &&
+				window.parent.document &&
+				documentHasRectorGreetingTemplateChooser( window.parent.document )
+			) {
+				return true;
+			}
+		} catch ( error ) {}
+
 		return false;
 	}
 
-	modals = targetDocument.querySelectorAll( '.components-modal__frame, .components-modal__content, [role="dialog"]' );
-
-	return Array.prototype.some.call( modals, function ( modal ) {
-		var text = modal.textContent || '';
-
-		return text.indexOf( 'Choose a template' ) !== -1 ||
-			text.indexOf( 'Pilih template' ) !== -1;
-	} );
-}
-
-function isRectorGreetingTemplateChooserOpen() {
-	if ( documentHasRectorGreetingTemplateChooser( document ) ) {
-		return true;
+	function getRectorGreetingTemplateChooserStyleText() {
+		return [
+			'.ugm-rector-template-part--page-block'
+		].join( ',' ) + '{display:none!important;}';
 	}
 
-	try {
-		if (
-			window.parent &&
-			window.parent !== window &&
-			window.parent.document &&
-			documentHasRectorGreetingTemplateChooser( window.parent.document )
-		) {
-			return true;
-		}
-	} catch ( error ) {}
+	function injectRectorGreetingTemplateChooserStyle( targetDocument ) {
+		var style;
 
-	return false;
-}
-
-function getRectorGreetingTemplateChooserStyleText() {
-	return [
-		'.ugm-rector-template-part--page-block'
-	].join( ',' ) + '{display:none!important;}';
-}
-
-function injectRectorGreetingTemplateChooserStyle( targetDocument ) {
-	var style;
-
-	if ( ! targetDocument || ! targetDocument.head ) {
-		return;
-	}
-
-	style = targetDocument.getElementById( 'ugm-rector-greeting-template-chooser-fix' );
-
-	if ( ! style ) {
-		style = targetDocument.createElement( 'style' );
-		style.id = 'ugm-rector-greeting-template-chooser-fix';
-		targetDocument.head.appendChild( style );
-	}
-
-	style.textContent = getRectorGreetingTemplateChooserStyleText();
-}
-
-function removeRectorGreetingTemplateChooserStyle( targetDocument ) {
-	var style;
-
-	if ( ! targetDocument ) {
-		return;
-	}
-
-	style = targetDocument.getElementById( 'ugm-rector-greeting-template-chooser-fix' );
-
-	if ( style && style.parentNode ) {
-		style.parentNode.removeChild( style );
-	}
-}
-
-function eachRectorGreetingEditorDocument( callback ) {
-	callback( document );
-
-	Array.prototype.forEach.call( document.querySelectorAll( 'iframe' ), function ( frame ) {
-		try {
-			if ( frame.contentDocument ) {
-				callback( frame.contentDocument );
-			}
-		} catch ( error ) {}
-	} );
-}
-
-function syncRectorGreetingTemplateChooserPreviewStyle() {
-	var chooserOpen = isRectorGreetingTemplateChooserOpen();
-
-	eachRectorGreetingEditorDocument( function ( targetDocument ) {
-		if ( chooserOpen ) {
-			injectRectorGreetingTemplateChooserStyle( targetDocument );
-		} else {
-			removeRectorGreetingTemplateChooserStyle( targetDocument );
-		}
-	} );
-
-	Array.prototype.forEach.call( document.querySelectorAll( 'iframe' ), function ( frame ) {
-		if ( frame.dataset.ugmRectorGreetingTemplateChooserFix ) {
+		if ( ! targetDocument || ! targetDocument.head ) {
 			return;
 		}
 
-		frame.dataset.ugmRectorGreetingTemplateChooserFix = '1';
+		style = targetDocument.getElementById( 'ugm-rector-greeting-template-chooser-fix' );
 
-		frame.addEventListener( 'load', function () {
-			window.setTimeout( syncRectorGreetingTemplateChooserPreviewStyle, 50 );
-			window.setTimeout( syncRectorGreetingTemplateChooserPreviewStyle, 300 );
-		} );
-	} );
-}
+		if ( ! style ) {
+			style = targetDocument.createElement( 'style' );
+			style.id = 'ugm-rector-greeting-template-chooser-fix';
+			targetDocument.head.appendChild( style );
+		}
 
-function setupRectorGreetingTemplateChooserPreviewFix() {
-	var attempts = 0;
-	var interval;
+		style.textContent = getRectorGreetingTemplateChooserStyleText();
+	}
 
-	syncRectorGreetingTemplateChooserPreviewStyle();
+	function removeRectorGreetingTemplateChooserStyle( targetDocument ) {
+		var style;
 
-	if ( window.MutationObserver && document.body ) {
-		new MutationObserver( function () {
-			syncRectorGreetingTemplateChooserPreviewStyle();
-		} ).observe( document.body, {
-			childList: true,
-			subtree: true,
+		if ( ! targetDocument ) {
+			return;
+		}
+
+		style = targetDocument.getElementById( 'ugm-rector-greeting-template-chooser-fix' );
+
+		if ( style && style.parentNode ) {
+			style.parentNode.removeChild( style );
+		}
+	}
+
+	function eachRectorGreetingEditorDocument( callback ) {
+		callback( document );
+
+		Array.prototype.forEach.call( document.querySelectorAll( 'iframe' ), function ( frame ) {
+			try {
+				if ( frame.contentDocument ) {
+					callback( frame.contentDocument );
+				}
+			} catch ( error ) {}
 		} );
 	}
 
-	interval = window.setInterval( function () {
+	function syncRectorGreetingTemplateChooserPreviewStyle() {
+		var chooserOpen = isRectorGreetingTemplateChooserOpen();
+
+		eachRectorGreetingEditorDocument( function ( targetDocument ) {
+			if ( chooserOpen ) {
+				injectRectorGreetingTemplateChooserStyle( targetDocument );
+			} else {
+				removeRectorGreetingTemplateChooserStyle( targetDocument );
+			}
+		} );
+
+		Array.prototype.forEach.call( document.querySelectorAll( 'iframe' ), function ( frame ) {
+			if ( frame.dataset.ugmRectorGreetingTemplateChooserFix ) {
+				return;
+			}
+
+			frame.dataset.ugmRectorGreetingTemplateChooserFix = '1';
+
+			frame.addEventListener( 'load', function () {
+				window.setTimeout( syncRectorGreetingTemplateChooserPreviewStyle, 50 );
+				window.setTimeout( syncRectorGreetingTemplateChooserPreviewStyle, 300 );
+			} );
+		} );
+	}
+
+	function setupRectorGreetingTemplateChooserPreviewFix() {
+		var attempts = 0;
+		var interval;
+
 		syncRectorGreetingTemplateChooserPreviewStyle();
 
-		attempts++;
-		if ( attempts > 80 ) {
-			window.clearInterval( interval );
+		if ( window.MutationObserver && document.body ) {
+			new MutationObserver( function () {
+				syncRectorGreetingTemplateChooserPreviewStyle();
+			} ).observe( document.body, {
+				childList: true,
+				subtree: true,
+			} );
 		}
-	}, 250 );
-}
+
+		interval = window.setInterval( function () {
+			syncRectorGreetingTemplateChooserPreviewStyle();
+
+			attempts++;
+			if ( attempts > 80 ) {
+				window.clearInterval( interval );
+			}
+		}, 250 );
+	}
 
 	function getDefaultRectorBody() {
 		return [
@@ -226,26 +226,6 @@ function setupRectorGreetingTemplateChooserPreviewFix() {
 		);
 	}
 
-	function removeRectorGreetingBlocks( blocks ) {
-		return ( Array.isArray( blocks ) ? blocks : [] ).reduce( function ( nextBlocks, block ) {
-			if ( block.name === 'ugm/rector-greeting-layout' ) {
-				return nextBlocks;
-			}
-
-			if ( isRectorGreetingBlockName( block.name ) ) {
-				return nextBlocks;
-			}
-
-			if ( Array.isArray( block.innerBlocks ) && block.innerBlocks.length ) {
-				block = Object.assign( {}, block );
-				block.innerBlocks = removeRectorGreetingBlocks( block.innerBlocks );
-			}
-
-			nextBlocks.push( block );
-			return nextBlocks;
-		}, [] );
-	}
-
 	function hasMeaningfulEditorContent( content ) {
 		content = String( content || '' );
 		if (
@@ -293,7 +273,6 @@ function setupRectorGreetingTemplateChooserPreviewFix() {
 			var postContentBlock;
 			var innerBlocks;
 			var layoutBlock;
-			var cleanedBlocks;
 
 			if ( seedSignature === lastSeedSignature.current ) {
 				return;
@@ -434,8 +413,8 @@ function setupRectorGreetingTemplateChooserPreviewFix() {
 							breadcrumbParent: 'Lorem Ipsum',
 							title: 'Lorem Ipsum',
 							body: getDefaultRectorBody(),
-							rectorName: 'Nama Rektor',
-							rectorRole: 'Jabatan Rektor',
+							rectorName: 'Nama',
+							rectorRole: 'Jabatan',
 							rectorCaptionBackgroundColor: '',
 							photoPosition: 'right',
 							showPhotoFrame: true,
@@ -443,7 +422,6 @@ function setupRectorGreetingTemplateChooserPreviewFix() {
 						[ 'ugm/about-ugm-sidebar', {
 							title: 'Tentang UGM',
 							sidebarBackgroundColor: '',
-							selectedParentMenuTitle: 'Tentang',
 						} ],
 					],
 					templateLock: false,
@@ -467,8 +445,8 @@ function setupRectorGreetingTemplateChooserPreviewFix() {
 			breadcrumbParent: { type: 'string', default: 'Lorem Ipsum' },
 			title:            { type: 'string', default: 'Lorem Ipsum' },
 			body:             { type: 'string', default: getDefaultRectorBody() },
-			rectorName:       { type: 'string', default: 'Nama Rektor' },
-			rectorRole:       { type: 'string', default: 'Jabatan Rektor' },
+			rectorName:       { type: 'string', default: 'Nama' },
+			rectorRole:       { type: 'string', default: 'Jabatan' },
 			rectorCaptionBackgroundColor: { type: 'string', default: '' },
 			photoId:          { type: 'integer', default: 0 },
 			photoUrl:         { type: 'string', default: '' },
@@ -490,17 +468,17 @@ function setupRectorGreetingTemplateChooserPreviewFix() {
 				if ( attrs.breadcrumbParent === 'Tentang UGM' ) {
 					nextAttrs.breadcrumbParent = 'Lorem Ipsum';
 				}
-				if ( attrs.title === 'Sambutan Rektor' ) {
+				if ( attrs.title === 'Sambutan' ) {
 					nextAttrs.title = 'Lorem Ipsum';
 				}
 				if ( attrs.body === getLegacyRectorBody() ) {
 					nextAttrs.body = getDefaultRectorBody();
 				}
 				if ( attrs.rectorName === 'Prof. dr. Ova Emilia, M.MedEd, SpOG (K), PhD' ) {
-					nextAttrs.rectorName = 'Nama Rektor';
+					nextAttrs.rectorName = 'Nama';
 				}
-				if ( attrs.rectorRole === 'Rektor UGM' ) {
-					nextAttrs.rectorRole = 'Jabatan Rektor';
+				if ( attrs.rectorRole === 'UGM' ) {
+					nextAttrs.rectorRole = 'Jabatan';
 				}
 
 				if ( Object.keys( nextAttrs ).length ) {
@@ -546,9 +524,9 @@ function setupRectorGreetingTemplateChooserPreviewFix() {
 					),
 					el(
 						PanelBody,
-						{ title: __( 'Foto dan Identitas Rektor', 'ugm-faculty' ), initialOpen: true },
+						{ title: __( 'Foto dan Identitas', 'ugm-faculty' ), initialOpen: true },
 						el( TextControl, {
-							label: __( 'Nama Rektor', 'ugm-faculty' ),
+							label: __( 'Nama', 'ugm-faculty' ),
 							value: attrs.rectorName || '',
 							onChange: function ( value ) { setAttr( { rectorName: value } ); },
 						} ),
@@ -649,29 +627,6 @@ function setupRectorGreetingTemplateChooserPreviewFix() {
 		edit: function ( props ) {
 			var attrs   = props.attributes;
 			var setAttr = props.setAttributes;
-			var editorSettings = window.ugmRectorGreetingEditor || {};
-			var parentMenus = Array.isArray( editorSettings.primaryHeaderParentMenus )
-				? editorSettings.primaryHeaderParentMenus
-				: [];
-			var hasPrimaryHeaderMenu = !! editorSettings.primaryHeaderMenuAvailable;
-			var selectedParentMenuId = parseInt( attrs.selectedParentMenuId, 10 ) || 0;
-			var selectedParentMenuTitle = attrs.selectedParentMenuTitle || 'Tentang';
-			var selectedParentMenu = parentMenus.filter( function ( menu ) {
-				if ( selectedParentMenuId > 0 ) {
-					return parseInt( menu.id, 10 ) === selectedParentMenuId;
-				}
-
-				return String( menu.title || '' ).toLowerCase() === String( selectedParentMenuTitle || '' ).toLowerCase();
-			} )[0];
-			var selectedParentMenuValue = selectedParentMenu ? String( selectedParentMenu.id ) : '';
-			var parentMenuOptions = hasPrimaryHeaderMenu
-				? [ { label: __( 'Pilih parent menu', 'ugm-faculty' ), value: '' } ].concat( parentMenus.map( function ( menu ) {
-					return {
-						label: menu.title || '',
-						value: String( menu.id ),
-					};
-				} ) )
-				: [ { label: __( 'Menu utama/header belum tersedia.', 'ugm-faculty' ), value: '' } ];
 
 			return el(
 				Fragment,

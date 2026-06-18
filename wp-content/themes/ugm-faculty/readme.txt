@@ -19,7 +19,7 @@ UGM Faculty Theme is a clean, institutional WordPress theme designed specificall
 
 * Responsive design
 * Customizable hero section for the front page
-* Multilingual support (Polylang & WPML compatible)
+* Multilingual support (Polylang and WPML compatible)
 * Widget-ready footer areas
 * Custom logo support (light and dark versions)
 * Accessibility-ready components
@@ -64,27 +64,33 @@ The theme provides two footer widget areas:
 
 ```
 ugm-faculty/
-├── assets/
-│   ├── css/         # Stylesheets
-│   ├── js/          # JavaScript files
-│   └── images/      # Theme images
-├── inc/
-│   ├── theme-setup.php    # Theme setup and configuration
-│   ├── enqueue.php        # Scripts and styles enqueuing
-│   ├── widgets.php        # Widget area registration
-│   └── customizer.php     # Theme Customizer settings
-├── template-parts/
-│   ├── header/            # Header components
-│   ├── footer/            # Footer components
-│   └── content/           # Content templates
-├── functions.php          # Main theme functions file
-├── style.css             # Main stylesheet
-├── header.php            # Header template
-├── footer.php            # Footer template
-├── index.php             # Main template
-├── front-page.php        # Front page template
-├── single.php            # Single post template
-└── page.php              # Page template
+|-- assets/
+|   |-- css/
+|   |   |-- core/            # Global frontend styles
+|   |   |-- pages/           # Page-template styles
+|   |   `-- editor/          # Admin editor preview styles
+|   |-- js/
+|   |   |-- editor/          # Admin editor helper scripts
+|   |   `-- frontend/        # Public-facing interaction scripts
+|   `-- images/              # Theme images
+|-- inc/
+|   |-- class-ugm-theme.php  # Bootstrap and module loader
+|   |-- core/                # Setup, routes, enqueue, widgets, Customizer, security
+|   |-- helpers/             # Shared helper functions
+|   |-- meta/                # Meta registration
+|   |-- pages/               # Page-template behavior
+|   `-- editor/              # Gutenberg registration and editor integrations
+|-- page-templates/          # PHP page templates selectable in WordPress
+|-- template-parts/          # Header/content partials
+|-- templates/               # Thin template targets loaded by root templates
+|-- functions.php            # Loads the theme bootstrap
+|-- style.css                # Theme header and legacy styles
+|-- header.php               # Header template
+|-- footer.php               # Footer template
+|-- index.php                # Main template loader
+|-- front-page.php           # Front page template loader
+|-- single.php               # Single post template loader
+`-- page.php                 # Page template loader
 ```
 
 == Support ==
