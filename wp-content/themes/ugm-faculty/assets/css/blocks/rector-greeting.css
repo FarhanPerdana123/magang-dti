@@ -1,0 +1,1315 @@
+/**
+ * Sambutan Rektor block styles.
+ *
+ * Frontend and editor styles for Rector Greeting content/sidebar blocks.
+ *
+ * @package ugm-faculty
+ */
+
+/* ── Sambutan Rektor template blocks ───────────────────────────────────── */
+.ugm-rector-template-layout {
+	display: flex;
+	align-items: flex-start;
+	gap: clamp(32px, 5vw, 80px);
+	width: min(100% - 40px, 1240px);
+	margin: 0 auto;
+	padding: clamp(28px, 4vw, 58px) 0 clamp(44px, 6vw, 86px);
+}
+
+.ugm-rector-template-layout > .ugm-rector-greeting {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+.ugm-rector-template-layout > .ugm-about-sidebar {
+	flex: 0 0 clamp(280px, 30vw, 365px);
+	min-width: 280px;
+}
+
+.ugm-rector-greeting {
+	color: #4f4f58;
+}
+
+.ugm-rector-greeting__breadcrumb {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 7px;
+	margin: 0 0 18px;
+	color: #164c68;
+	font-size: 0.92rem;
+	line-height: 1.35;
+}
+
+.ugm-rector-greeting__breadcrumb span[aria-hidden="true"] {
+	color: #d1a51d;
+	font-weight: 700;
+}
+
+.ugm-rector-greeting__title {
+	margin: 0 0 18px;
+	color: #084666;
+	font-size: clamp(1.8rem, 3vw, 2.55rem);
+	font-weight: 700;
+	line-height: 1.12;
+}
+
+.ugm-rector-greeting__grid {
+	display: flex;
+	align-items: flex-start;
+	gap: clamp(28px, 4vw, 58px);
+}
+
+.ugm-rector-greeting__content {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+.ugm-rector-card {
+	flex: 0 0 280px;
+	max-width: 280px;
+}
+
+.ugm-rector-greeting--no-photo .ugm-rector-greeting__grid {
+	display: block;
+}
+
+.ugm-rector-greeting--no-photo .ugm-rector-greeting__content {
+	width: 100%;
+	max-width: none;
+}
+
+.ugm-rector-greeting--no-photo .ugm-rector-greeting__body {
+	max-width: none;
+}
+
+.ugm-rector-greeting--photo-left .ugm-rector-card {
+	order: -1;
+}
+
+.ugm-rector-greeting__body {
+	max-width: 58ch;
+	font-size: 1.04rem;
+	letter-spacing: 0;
+	line-height: 1.58;
+}
+
+.ugm-rector-greeting__body p {
+	margin: 0 0 1.1em;
+}
+
+.ugm-rector-card {
+	width: min(100%, 280px);
+	margin: 30px auto 0;
+	flex: 0 0 280px;
+	max-width: 280px;
+}
+
+.ugm-rector-card__photo {
+	aspect-ratio: 0.74;
+	background: #d9e0e5;
+	overflow: hidden;
+}
+
+.ugm-rector-card__photo img,
+.ugm-rector-card__photo span {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.ugm-rector-card__photo span {
+	background:
+		linear-gradient(145deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0)),
+		#cfd9df;
+}
+
+.ugm-rector-card__caption {
+	position: relative;
+	z-index: 1;
+	width: calc(100% - 38px);
+	min-height: 92px;
+	margin: -28px auto 0;
+	padding: 18px 18px 16px;
+	background: #07486f;
+	color: #fff;
+	text-align: center;
+}
+
+.ugm-rector-card__caption strong {
+	display: block;
+	font-size: 0.96rem;
+	font-weight: 700;
+	line-height: 1.4;
+}
+
+.ugm-rector-card__caption span {
+	display: block;
+	margin-top: 14px;
+	font-size: 0.9rem;
+	line-height: 1.35;
+}
+
+.ugm-about-sidebar {
+	position: relative;
+	overflow: hidden;
+	min-height: 600px;
+	padding: 32px 30px 26px;
+	background: #07486f;
+	color: #fff;
+}
+
+.ugm-about-sidebar::after {
+	content: "";
+	position: absolute;
+	top: 18px;
+	right: 24px;
+	width: 88px;
+	height: 88px;
+	border: 2px solid rgba(255, 255, 255, 0.08);
+	border-radius: 50%;
+	box-shadow:
+		0 0 0 12px rgba(255, 255, 255, 0.025),
+		0 0 0 25px rgba(255, 255, 255, 0.018);
+	pointer-events: none;
+}
+
+.ugm-about-sidebar__title {
+	position: relative;
+	z-index: 1;
+	margin: 0 0 18px;
+	color: #fff;
+	font-size: 1.45rem;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.ugm-about-sidebar__list,
+.ugm-about-sidebar__submenu {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.ugm-about-sidebar__submenu {
+	display: none;
+	padding-left: 16px;
+}
+
+.ugm-about-sidebar__details[open] > .ugm-about-sidebar__submenu {
+	display: flex;
+	flex-direction: column;
+}
+
+.ugm-about-sidebar__empty {
+	position: relative;
+	z-index: 1;
+	margin: 12px 0 0;
+	color: rgba(255, 255, 255, 0.82);
+	font-size: 0.95rem;
+	line-height: 1.5;
+}
+
+.ugm-about-sidebar__item {
+	border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.ugm-about-sidebar__submenu .ugm-about-sidebar__item:last-child {
+	border-bottom: 0;
+}
+
+.ugm-about-sidebar__details {
+	margin: 0;
+}
+
+.ugm-about-sidebar__link {
+	position: relative;
+	display: flex;
+	align-items: center;
+	min-height: 50px;
+	padding: 11px 30px 11px 20px;
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 0.96rem;
+	line-height: 1.35;
+	text-decoration: none;
+}
+
+.ugm-about-sidebar__summary {
+	width: 100%;
+	cursor: pointer;
+	list-style: none;
+}
+
+.ugm-about-sidebar__summary::-webkit-details-marker {
+	display: none;
+}
+
+.ugm-about-sidebar__link::before {
+	content: "\203A";
+	position: absolute;
+	top: 50%;
+	left: 0;
+	transform: translateY(-50%);
+	color: #d1a51d;
+	font-size: 1.2rem;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.ugm-about-sidebar__item--level-1 > .ugm-about-sidebar__link,
+.ugm-about-sidebar__item--level-1 > .ugm-about-sidebar__details > .ugm-about-sidebar__link {
+	padding-left: 36px;
+}
+
+.ugm-about-sidebar__item--level-1 > .ugm-about-sidebar__link::before,
+.ugm-about-sidebar__item--level-1 > .ugm-about-sidebar__details > .ugm-about-sidebar__link::before {
+	left: 17px;
+}
+
+.ugm-about-sidebar__item--level-2 > .ugm-about-sidebar__link,
+.ugm-about-sidebar__item--level-2 > .ugm-about-sidebar__details > .ugm-about-sidebar__link {
+	padding-left: 52px;
+}
+
+.ugm-about-sidebar__item--level-2 > .ugm-about-sidebar__link::before,
+.ugm-about-sidebar__item--level-2 > .ugm-about-sidebar__details > .ugm-about-sidebar__link::before {
+	left: 33px;
+}
+
+.ugm-about-sidebar__item--level-3 > .ugm-about-sidebar__link,
+.ugm-about-sidebar__item--level-3 > .ugm-about-sidebar__details > .ugm-about-sidebar__link {
+	padding-left: 68px;
+}
+
+.ugm-about-sidebar__item--level-3 > .ugm-about-sidebar__link::before,
+.ugm-about-sidebar__item--level-3 > .ugm-about-sidebar__details > .ugm-about-sidebar__link::before {
+	left: 49px;
+}
+
+.ugm-about-sidebar__item.is-active > .ugm-about-sidebar__link,
+.ugm-about-sidebar__item.is-active > .ugm-about-sidebar__details > .ugm-about-sidebar__link {
+	color: #fff;
+	font-weight: 700;
+}
+
+.ugm-about-sidebar__item.is-active:not(.has-children) > .ugm-about-sidebar__link::after {
+	content: "\203A";
+	position: absolute;
+	top: 50%;
+	right: 4px;
+	transform: translateY(-50%);
+	color: #d1a51d;
+	font-size: 2.1rem;
+	font-weight: 400;
+	line-height: 1;
+}
+
+.ugm-about-sidebar__item.has-children > .ugm-about-sidebar__details > .ugm-about-sidebar__summary::after {
+	content: "\203A";
+	position: absolute;
+	top: 50%;
+	right: 4px;
+	transform: translateY(-50%);
+	color: #d1a51d;
+	font-size: 1.5rem;
+	font-weight: 700;
+	line-height: 1;
+	transition: transform 160ms ease;
+}
+
+.ugm-about-sidebar__item.has-children > .ugm-about-sidebar__details[open] > .ugm-about-sidebar__summary::after {
+	transform: translateY(-50%) rotate(90deg);
+}
+
+.ugm-about-sidebar__link:hover,
+.ugm-about-sidebar__link:focus-visible {
+	color: #fff;
+	outline: none;
+}
+
+@media (max-width: 1024px) {
+	.ugm-rector-template-layout {
+		flex-direction: column;
+		width: min(100% - 32px, 760px);
+	}
+
+	.ugm-rector-template-layout > .ugm-rector-greeting,
+	.ugm-rector-template-layout > .ugm-about-sidebar {
+		flex: 0 1 auto;
+		width: 100%;
+		min-width: 0;
+	}
+
+	.ugm-about-sidebar {
+		min-height: 0;
+	}
+}
+
+@media (max-width: 720px) {
+	.ugm-rector-template-layout {
+		width: min(100% - 30px, 430px);
+		padding-top: 24px;
+		padding-bottom: 40px;
+	}
+
+	.ugm-rector-greeting__breadcrumb {
+		margin-bottom: 22px;
+		font-size: 0.95rem;
+	}
+
+	.ugm-rector-greeting__title {
+		margin-bottom: 28px;
+		font-size: 2rem;
+		line-height: 1.15;
+	}
+
+	.ugm-rector-greeting__grid {
+		display: block;
+	}
+
+	.ugm-rector-greeting__content {
+		display: block;
+		width: 100%;
+		max-width: none;
+	}
+
+	.ugm-rector-greeting__body {
+		max-width: none;
+		font-size: 1rem;
+		line-height: 1.48;
+		letter-spacing: 0.02em;
+	}
+
+	.ugm-rector-card {
+		float: right;
+		width: min(50vw, 204px);
+		max-width: 204px;
+		margin: 0 0 18px 24px;
+	}
+
+	.ugm-rector-greeting--photo-left .ugm-rector-card {
+		float: left;
+		margin: 0 24px 18px 0;
+		order: 0;
+	}
+
+	.ugm-rector-card__photo {
+		aspect-ratio: 0.68;
+	}
+
+	.ugm-rector-card__caption {
+		display: none;
+	}
+
+	.ugm-rector-greeting__body p {
+		margin-bottom: 1.1em;
+	}
+
+	.ugm-rector-greeting__grid::after {
+		content: "";
+		display: block;
+		clear: both;
+	}
+
+	.ugm-rector-greeting--no-photo .ugm-rector-card {
+		display: none;
+	}
+
+	.ugm-rector-greeting--no-photo .ugm-rector-greeting__body {
+		max-width: none;
+	}
+
+	.ugm-about-sidebar {
+		padding: 28px 24px 22px;
+	}
+}
+
+.ugm-rector-template {
+	margin-top: 0;
+	padding-top: 0;
+}
+
+.ugm-rector-template .ugm-rector-template__article {
+	margin-top: 0;
+	padding-top: 0;
+}
+
+.ugm-rector-template .ugm-rector-template__article > .ugm-rector-template-layout {
+	margin-top: clamp(-120px, -7vw, -80px);
+	padding-top: 0;
+}
+
+.editor-styles-wrapper .ugm-rector-template-layout {
+	width: 100%;
+	max-width: 1240px;
+}
+
+/* Sambutan Rektor: editor layout menggunakan flex, bukan grid. */
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor {
+	display: flex;
+	align-items: flex-start;
+	gap: clamp(32px, 5vw, 80px);
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor > .block-editor-inner-blocks {
+	display: contents;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor > .block-editor-inner-blocks > .block-editor-block-list__layout {
+	display: contents;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor .wp-block-ugm-rector-greeting-content,
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor .wp-block-ugm-about-ugm-sidebar,
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor .wp-block[data-type="ugm/rector-greeting-content"],
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor .wp-block[data-type="ugm/about-ugm-sidebar"] {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: none;
+	min-width: 0;
+	float: none;
+	margin: 0;
+	overflow-wrap: normal;
+	word-break: normal;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor .wp-block-ugm-rector-greeting-content,
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor .wp-block[data-type="ugm/rector-greeting-content"] {
+	flex: 1 1 0;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor .wp-block-ugm-about-ugm-sidebar,
+.editor-styles-wrapper .ugm-rector-greeting-layout-editor .wp-block[data-type="ugm/about-ugm-sidebar"] {
+	flex: 0 0 clamp(280px, 30vw, 365px);
+}
+
+/* Override ketika Gutenberg langsung menampilkan content + sidebar tanpa wrapper layout. */
+.editor-styles-wrapper .block-editor-block-list__layout:has(> .wp-block[data-type="ugm/rector-greeting-content"]):has(> .wp-block[data-type="ugm/about-ugm-sidebar"]) {
+	display: flex !important;
+	align-items: flex-start !important;
+	gap: 64px !important;
+	width: min(1240px, calc(100vw - 4rem)) !important;
+	max-width: none !important;
+	min-width: 0 !important;
+	margin-right: auto !important;
+	margin-left: auto !important;
+}
+
+.editor-styles-wrapper .block-editor-block-list__layout:has(> .wp-block[data-type="ugm/rector-greeting-content"]):has(> .wp-block[data-type="ugm/about-ugm-sidebar"]) > .wp-block[data-type="ugm/rector-greeting-content"] {
+	flex: 1 1 0 !important;
+	min-width: 0 !important;
+	max-width: none !important;
+	margin: 0 !important;
+}
+
+.editor-styles-wrapper .block-editor-block-list__layout:has(> .wp-block[data-type="ugm/rector-greeting-content"]):has(> .wp-block[data-type="ugm/about-ugm-sidebar"]) > .wp-block[data-type="ugm/about-ugm-sidebar"] {
+	flex: 0 0 365px !important;
+	min-width: 280px !important;
+	max-width: 365px !important;
+	margin: 0 !important;
+}
+
+/* Inner layout teks + foto di editor. */
+.editor-styles-wrapper .ugm-rector-greeting__grid {
+	display: flex !important;
+	align-items: flex-start !important;
+	gap: 48px !important;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting__content {
+	flex: 1 1 0 !important;
+	min-width: 0 !important;
+	max-width: none !important;
+}
+
+.editor-styles-wrapper .ugm-rector-card {
+	flex: 0 0 280px !important;
+	max-width: 280px !important;
+}
+
+/* Saat foto dihapus, teks melebar penuh di editor dan frontend. */
+.editor-styles-wrapper .ugm-rector-greeting--no-photo .ugm-rector-greeting__grid {
+	display: block !important;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting--no-photo .ugm-rector-greeting__content,
+.editor-styles-wrapper .ugm-rector-greeting--no-photo .ugm-rector-greeting__body {
+	width: 100% !important;
+	max-width: none !important;
+}
+
+@media (max-width: 1024px) {
+	.editor-styles-wrapper .ugm-rector-greeting-layout-editor,
+	.editor-styles-wrapper .block-editor-block-list__layout:has(> .wp-block[data-type="ugm/rector-greeting-content"]):has(> .wp-block[data-type="ugm/about-ugm-sidebar"]) {
+		flex-direction: column !important;
+		gap: 32px !important;
+		width: min(100% - 2rem, 760px) !important;
+	}
+
+	.editor-styles-wrapper .ugm-rector-greeting-layout-editor .wp-block-ugm-rector-greeting-content,
+	.editor-styles-wrapper .ugm-rector-greeting-layout-editor .wp-block-ugm-about-ugm-sidebar,
+	.editor-styles-wrapper .block-editor-block-list__layout:has(> .wp-block[data-type="ugm/rector-greeting-content"]):has(> .wp-block[data-type="ugm/about-ugm-sidebar"]) > .wp-block[data-type="ugm/rector-greeting-content"],
+	.editor-styles-wrapper .block-editor-block-list__layout:has(> .wp-block[data-type="ugm/rector-greeting-content"]):has(> .wp-block[data-type="ugm/about-ugm-sidebar"]) > .wp-block[data-type="ugm/about-ugm-sidebar"] {
+		flex: 0 1 auto !important;
+		width: 100% !important;
+		min-width: 0 !important;
+		max-width: none !important;
+	}
+}
+
+@media (max-width: 720px) {
+	.editor-styles-wrapper .ugm-rector-greeting__grid {
+		display: block !important;
+	}
+
+	.editor-styles-wrapper .ugm-rector-greeting__content {
+		display: block !important;
+		width: 100% !important;
+		max-width: none !important;
+	}
+
+	.editor-styles-wrapper .ugm-rector-card {
+		float: right !important;
+		width: min(50vw, 204px) !important;
+		max-width: 204px !important;
+		margin: 0 0 18px 24px !important;
+		flex: none !important;
+	}
+
+	.editor-styles-wrapper .ugm-rector-greeting--photo-left .ugm-rector-card {
+		float: left !important;
+		margin: 0 24px 18px 0 !important;
+	}
+
+	.editor-styles-wrapper .ugm-rector-card__caption {
+		display: none !important;
+	}
+
+	.editor-styles-wrapper .ugm-rector-greeting__grid::after {
+		content: "";
+		display: block;
+		clear: both;
+	}
+
+	.editor-styles-wrapper .ugm-rector-greeting--no-photo .ugm-rector-card {
+		display: none !important;
+	}
+
+	.editor-styles-wrapper .ugm-rector-greeting--no-photo .ugm-rector-greeting__body {
+		width: 100% !important;
+		max-width: none !important;
+	}
+}
+
+/* Sambutan Rektor: ketika foto/frame dihapus, area teks harus melebar penuh. */
+.ugm-rector-greeting--no-photo .ugm-rector-greeting__grid {
+	display: block;
+	gap: 0;
+}
+
+.ugm-rector-greeting--no-photo .ugm-rector-greeting__content,
+.ugm-rector-greeting--no-photo .ugm-rector-greeting__body {
+	width: 100%;
+	max-width: none;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting--no-photo .ugm-rector-greeting__grid {
+	display: block !important;
+	gap: 0 !important;
+}
+
+.editor-styles-wrapper .ugm-rector-greeting--no-photo .ugm-rector-greeting__content,
+.editor-styles-wrapper .ugm-rector-greeting--no-photo .ugm-rector-greeting__body {
+	width: 100% !important;
+	max-width: none !important;
+}
+
+/* =========================================================
+ * Rector Greeting: Desktop/Mobile separation
+ * ========================================================= */
+
+/* ---------- DESKTOP DEFAULT ---------- */
+.ugm-rector-card--mobile {
+	display: none !important;
+}
+
+.ugm-rector-card--desktop {
+	display: block !important;
+}
+
+.ugm-rector-greeting__grid {
+	display: flex;
+	align-items: flex-start;
+	gap: clamp(28px, 4vw, 58px);
+}
+
+.ugm-rector-greeting__content {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+.ugm-rector-card--desktop {
+	flex: 0 0 280px;
+	width: min(100%, 280px);
+	max-width: 280px;
+	margin: 30px auto 0;
+}
+
+.ugm-rector-greeting--photo-left .ugm-rector-card--desktop {
+	order: -1;
+}
+
+.ugm-rector-greeting--no-photo .ugm-rector-greeting__grid {
+	display: block;
+}
+
+.ugm-rector-greeting--no-photo .ugm-rector-greeting__content,
+.ugm-rector-greeting--no-photo .ugm-rector-greeting__body {
+	width: 100%;
+	max-width: none;
+}
+
+/* ---------- MOBILE ONLY ---------- */
+@media (max-width: 720px) {
+	.ugm-rector-template-layout {
+		display: flex;
+		flex-direction: column;
+		width: min(100% - 30px, 430px);
+		gap: 22px;
+		padding-top: 18px;
+		padding-bottom: 40px;
+	}
+
+	.ugm-rector-template-layout > .ugm-about-sidebar {
+		order: -1;
+		margin-top: 14px;
+	}
+
+	.ugm-rector-template-layout > .ugm-rector-greeting {
+		order: 0;
+	}
+
+	.ugm-rector-card--desktop {
+		display: none !important;
+	}
+
+	.ugm-rector-card--mobile {
+		display: block !important;
+		float: right;
+		width: min(50vw, 204px);
+		max-width: 204px;
+		margin: 0 0 18px 24px;
+	}
+
+	.ugm-rector-greeting--photo-left .ugm-rector-card--mobile {
+		float: left;
+		margin: 0 24px 18px 0;
+	}
+
+	.ugm-rector-card--mobile .ugm-rector-card__photo {
+		aspect-ratio: 0.68;
+	}
+
+	.ugm-rector-card--mobile .ugm-rector-card__caption {
+		display: block;
+		width: calc(100% - 24px);
+		min-height: auto;
+		margin: -20px auto 0;
+		padding: 12px 10px 11px;
+	}
+
+	.ugm-rector-card--mobile .ugm-rector-card__caption strong {
+		display: block;
+		font-size: 0.78rem;
+		line-height: 1.25;
+	}
+
+	.ugm-rector-card--mobile .ugm-rector-card__caption span {
+		display: block;
+		margin-top: 8px;
+		font-size: 0.74rem;
+		line-height: 1.25;
+	}
+
+	.ugm-rector-greeting__grid {
+		display: block;
+	}
+
+	.ugm-rector-greeting__content {
+		display: block;
+		width: 100%;
+		max-width: none;
+	}
+
+	.ugm-rector-greeting__content::after {
+		content: "";
+		display: block;
+		clear: both;
+	}
+
+	.ugm-rector-greeting__breadcrumb {
+		margin-bottom: 22px;
+		font-size: 0.95rem;
+	}
+
+	.ugm-rector-greeting__title {
+		margin-bottom: 26px;
+		font-size: 2rem;
+		line-height: 1.15;
+	}
+
+	.ugm-rector-greeting__body {
+		max-width: none;
+		font-size: 1rem;
+		line-height: 1.48;
+		letter-spacing: 0.02em;
+	}
+
+	.ugm-rector-greeting__body p {
+		margin-bottom: 1.1em;
+	}
+
+	.ugm-rector-greeting--no-photo .ugm-rector-card--mobile,
+	.ugm-rector-greeting--no-photo .ugm-rector-card--desktop {
+		display: none !important;
+	}
+
+	.ugm-rector-greeting--no-photo .ugm-rector-greeting__body {
+		width: 100%;
+		max-width: none;
+	}
+
+	.ugm-about-sidebar__nav {
+		display: block;
+		width: 100%;
+		margin-top: 12px;
+	}
+
+	.ugm-about-sidebar__empty {
+		display: block;
+		margin: 10px 0 0;
+		color: rgba(255, 255, 255, 0.86);
+		font-size: 0.9rem;
+	}
+
+	.ugm-about-sidebar__list,
+	.ugm-about-sidebar__submenu {
+		width: 100%;
+	}
+
+	.ugm-about-sidebar__submenu {
+		display: none;
+		padding-left: 14px;
+	}
+
+	.ugm-about-sidebar__details[open] > .ugm-about-sidebar__submenu {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.ugm-about-sidebar__link {
+		min-height: 44px;
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
+
+	.ugm-about-sidebar__summary {
+		cursor: pointer;
+	}
+}
+
+/* ---------- EDITOR DESKTOP ---------- */
+.editor-styles-wrapper .ugm-rector-card--mobile {
+	display: none !important;
+}
+
+.editor-styles-wrapper .ugm-rector-card--desktop {
+	display: block !important;
+}
+
+/* ---------- EDITOR MOBILE ONLY ---------- */
+@media (max-width: 720px) {
+	.editor-styles-wrapper .ugm-rector-card--desktop {
+		display: none !important;
+	}
+
+	.editor-styles-wrapper .ugm-rector-card--mobile {
+		display: block !important;
+		float: right !important;
+		width: min(50vw, 204px) !important;
+		max-width: 204px !important;
+		margin: 0 0 18px 24px !important;
+		flex: none !important;
+	}
+
+	.editor-styles-wrapper .ugm-rector-greeting--photo-left .ugm-rector-card--mobile {
+		float: left !important;
+		margin: 0 24px 18px 0 !important;
+	}
+
+	.editor-styles-wrapper .ugm-rector-card--mobile .ugm-rector-card__caption {
+		display: block !important;
+	}
+
+	.editor-styles-wrapper .ugm-rector-greeting__grid {
+		display: block !important;
+	}
+
+	.editor-styles-wrapper .ugm-rector-greeting__content {
+		display: block !important;
+		width: 100% !important;
+		max-width: none !important;
+	}
+
+	.editor-styles-wrapper .ugm-rector-greeting__content::after {
+		content: "";
+		display: block;
+		clear: both;
+	}
+}
+
+/* =========================================================
+ * Mobile tab menu toggle
+ * ========================================================= */
+
+/* Desktop: tetap sidebar biasa */
+.ugm-about-sidebar__toggle {
+	display: none;
+}
+
+.ugm-about-sidebar__panel {
+	display: block;
+}
+
+/* Mobile: sidebar berubah jadi tab menu klik */
+@media (max-width: 720px) {
+	.ugm-rector-template-layout > .ugm-about-sidebar {
+		order: -1;
+		margin-top: 14px;
+	}
+
+	.ugm-about-sidebar {
+		min-height: 0;
+		width: 100%;
+		padding: 0;
+		overflow: visible;
+		background: #07486f;
+		color: #fff;
+	}
+
+	.ugm-about-sidebar::before,
+	.ugm-about-sidebar::after {
+		display: none !important;
+		content: none !important;
+	}
+
+	.ugm-about-sidebar__toggle {
+		position: relative;
+		z-index: 2;
+		display: flex;
+		align-items: center;
+		width: 100%;
+		min-height: 56px;
+		padding: 0 18px;
+		border: 0;
+		background: transparent;
+		color: #fff;
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.ugm-about-sidebar__toggle-icon {
+		position: relative;
+		display: inline-block;
+		width: 18px;
+		height: 14px;
+		margin-right: 12px;
+		border-top: 2px solid currentColor;
+		border-bottom: 2px solid currentColor;
+	}
+
+	.ugm-about-sidebar__toggle-icon::before {
+		content: "";
+		position: absolute;
+		top: 5px;
+		left: 0;
+		width: 18px;
+		border-top: 2px solid currentColor;
+	}
+
+	.ugm-about-sidebar__toggle-title {
+		font-size: 1rem;
+		font-weight: 700;
+		line-height: 1.2;
+	}
+
+	.ugm-about-sidebar__toggle-label {
+		margin-left: auto;
+		font-size: 0.92rem;
+		font-weight: 700;
+		letter-spacing: 0.02em;
+	}
+
+	.ugm-about-sidebar__panel {
+		display: none;
+		padding: 0 18px 16px;
+	}
+
+	.ugm-about-sidebar.is-open .ugm-about-sidebar__panel {
+		display: block;
+	}
+
+	.ugm-about-sidebar__title {
+		display: none !important;
+	}
+
+	.ugm-about-sidebar__nav {
+		display: block;
+		width: 100%;
+		margin-top: 4px;
+	}
+
+	.ugm-about-sidebar__empty {
+		display: block;
+		margin: 0;
+		padding-top: 2px;
+		color: rgba(255, 255, 255, 0.88);
+		font-size: 0.92rem;
+		line-height: 1.5;
+	}
+
+	.ugm-about-sidebar__list,
+	.ugm-about-sidebar__submenu {
+		width: 100%;
+	}
+
+	.ugm-about-sidebar__submenu {
+		display: none;
+		padding-left: 14px;
+	}
+
+	.ugm-about-sidebar__details[open] > .ugm-about-sidebar__submenu {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.ugm-about-sidebar__link {
+		min-height: 44px;
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
+
+	.ugm-about-sidebar__summary {
+		cursor: pointer;
+	}
+}
+
+/* =========================================================
+ * About sidebar: desktop sidebar + mobile tab menu
+ * ========================================================= */
+
+/* Default / desktop */
+.ugm-about-sidebar__mobile-details {
+	display: block;
+}
+
+.ugm-about-sidebar__mobile-summary {
+	display: none;
+}
+
+.ugm-about-sidebar__mobile-panel {
+	display: block;
+}
+
+/* Mobile only */
+@media (max-width: 720px) {
+	.ugm-rector-template-layout {
+		gap: 24px;
+		padding-top: 18px;
+	}
+
+	.ugm-rector-template-layout > .ugm-about-sidebar {
+		order: -1;
+		margin-top: 12px;
+	}
+
+	.ugm-rector-template-layout > .ugm-rector-greeting {
+		order: 0;
+	}
+
+	.ugm-about-sidebar {
+		min-height: 0;
+		width: 100%;
+		padding: 0;
+		overflow: visible;
+		background: #07486f;
+		color: #fff;
+	}
+
+	.ugm-about-sidebar::before,
+	.ugm-about-sidebar::after {
+		display: none !important;
+		content: none !important;
+	}
+
+	.ugm-about-sidebar__mobile-details {
+		display: block;
+		width: 100%;
+	}
+
+	.ugm-about-sidebar__mobile-summary {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		min-height: 56px;
+		padding: 0 18px;
+		color: #fff;
+		cursor: pointer;
+		list-style: none;
+	}
+
+	.ugm-about-sidebar__mobile-summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.ugm-about-sidebar__mobile-icon {
+		position: relative;
+		display: inline-block;
+		width: 18px;
+		height: 14px;
+		margin-right: 12px;
+		border-top: 2px solid currentColor;
+		border-bottom: 2px solid currentColor;
+	}
+
+	.ugm-about-sidebar__mobile-icon::before {
+		content: "";
+		position: absolute;
+		top: 5px;
+		left: 0;
+		width: 18px;
+		border-top: 2px solid currentColor;
+	}
+
+	.ugm-about-sidebar__mobile-title {
+		font-size: 1rem;
+		font-weight: 700;
+		line-height: 1.2;
+	}
+
+	.ugm-about-sidebar__mobile-label {
+		margin-left: auto;
+		font-size: 0.92rem;
+		font-weight: 700;
+		letter-spacing: 0.02em;
+	}
+
+	.ugm-about-sidebar__mobile-panel {
+		display: none;
+		padding: 0 18px 16px;
+	}
+
+	.ugm-about-sidebar__mobile-details[open] .ugm-about-sidebar__mobile-panel {
+		display: block;
+	}
+
+	.ugm-about-sidebar__nav {
+		display: block;
+		width: 100%;
+		margin-top: 4px;
+	}
+
+	.ugm-about-sidebar__empty {
+		display: block;
+		margin: 0;
+		color: rgba(255, 255, 255, 0.88);
+		font-size: 0.92rem;
+		line-height: 1.5;
+	}
+
+	.ugm-about-sidebar__list,
+	.ugm-about-sidebar__submenu {
+		width: 100%;
+	}
+
+	.ugm-about-sidebar__submenu {
+		display: none;
+		padding-left: 14px;
+	}
+
+	.ugm-about-sidebar__details[open] > .ugm-about-sidebar__submenu {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.ugm-about-sidebar__link {
+		min-height: 44px;
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
+
+	.ugm-about-sidebar__summary {
+		cursor: pointer;
+	}
+}
+
+/* =========================================================
+ * About sidebar: desktop title + mobile tab toggle
+ * ========================================================= */
+
+/* Desktop default */
+.ugm-about-sidebar__desktop {
+	display: block;
+}
+
+.ugm-about-sidebar__mobile-details {
+	display: none;
+}
+
+/* Pastikan judul sidebar desktop tampil normal */
+.ugm-about-sidebar__desktop .ugm-about-sidebar__title {
+	display: block !important;
+	position: relative;
+	z-index: 1;
+	margin: 0 0 18px;
+	color: #fff;
+	font-size: 1.45rem;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.ugm-about-sidebar__desktop .ugm-about-sidebar__title::before,
+.ugm-about-sidebar__desktop .ugm-about-sidebar__title::after {
+	display: none !important;
+	content: none !important;
+}
+
+/* Mobile only */
+@media (max-width: 720px) {
+	.ugm-about-sidebar__desktop {
+		display: none !important;
+	}
+
+	.ugm-about-sidebar__mobile-details {
+		display: block !important;
+		width: 100%;
+	}
+
+	.ugm-rector-template-layout > .ugm-about-sidebar {
+		order: -1;
+		margin-top: 12px;
+	}
+
+	.ugm-about-sidebar {
+		min-height: 0 !important;
+		width: 100%;
+		padding: 0 !important;
+		overflow: visible !important;
+		background: #07486f;
+		color: #fff;
+	}
+
+	.ugm-about-sidebar::before,
+	.ugm-about-sidebar::after {
+		display: none !important;
+		content: none !important;
+	}
+
+	.ugm-about-sidebar__mobile-summary {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		min-height: 42px;
+		padding: 0 10px;
+		color: #fff;
+		cursor: pointer;
+		list-style: none;
+	}
+
+	.ugm-about-sidebar__mobile-summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.ugm-about-sidebar__mobile-icon {
+		position: relative;
+		display: inline-block;
+		width: 14px;
+		height: 10px;
+		border-top: 2px solid currentColor;
+		border-bottom: 2px solid currentColor;
+	}
+
+	.ugm-about-sidebar__mobile-icon::before {
+		content: "";
+		position: absolute;
+		top: 4px;
+		left: 0;
+		width: 14px;
+		border-top: 2px solid currentColor;
+	}
+
+	.ugm-about-sidebar__mobile-label {
+		margin-left: auto;
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.02em;
+	}
+
+	.ugm-about-sidebar__mobile-panel {
+		display: none;
+		padding: 0 10px 12px;
+	}
+
+	.ugm-about-sidebar__mobile-details[open] .ugm-about-sidebar__mobile-panel {
+		display: block;
+	}
+
+	.ugm-about-sidebar__mobile-panel .ugm-about-sidebar__nav {
+		display: block;
+		width: 100%;
+		margin-top: 4px;
+	}
+
+	.ugm-about-sidebar__mobile-panel .ugm-about-sidebar__empty {
+		display: block;
+		margin: 0;
+		color: rgba(255, 255, 255, 0.88);
+		font-size: 0.82rem;
+		line-height: 1.45;
+	}
+
+	.ugm-about-sidebar__mobile-panel .ugm-about-sidebar__list,
+	.ugm-about-sidebar__mobile-panel .ugm-about-sidebar__submenu {
+		width: 100%;
+	}
+
+	.ugm-about-sidebar__mobile-panel .ugm-about-sidebar__submenu {
+		display: none;
+		padding-left: 14px;
+	}
+
+	.ugm-about-sidebar__mobile-panel .ugm-about-sidebar__details[open] > .ugm-about-sidebar__submenu {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.ugm-about-sidebar__mobile-panel .ugm-about-sidebar__link {
+		min-height: 40px;
+		padding-top: 9px;
+		padding-bottom: 9px;
+		font-size: 0.9rem;
+	}
+
+	.ugm-about-sidebar__mobile-panel .ugm-about-sidebar__summary {
+		cursor: pointer;
+	}
+}

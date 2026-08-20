@@ -87,10 +87,6 @@ function ugm_get_gallery_render_source( $page_content = '', $template_slug = '' 
 		return ugm_get_default_gallery_page_blocks();
 	}
 
-	if ( function_exists( 'ugm_has_rector_greeting_blocks' ) && ugm_has_rector_greeting_blocks( $page_content ) ) {
-		return ugm_get_default_gallery_page_blocks();
-	}
-
 	if ( ugm_is_gallery_page_template_slug( $template_slug ) && ! ugm_has_gallery_page_block( $page_content ) ) {
 		return ugm_get_default_gallery_page_blocks();
 	}
@@ -127,8 +123,7 @@ function ugm_populate_empty_gallery_page( $post_id ) {
 	$has_text        = '' !== trim( wp_strip_all_tags( strip_shortcodes( $content ) ) );
 	$should_populate = '' === trim( $content )
 		|| ( ! ugm_has_gallery_page_block( $content ) && ! $has_text )
-		|| ( function_exists( 'ugm_has_management_page_blocks' ) && ugm_has_management_page_blocks( $content ) )
-		|| ( function_exists( 'ugm_has_rector_greeting_blocks' ) && ugm_has_rector_greeting_blocks( $content ) );
+		|| ( function_exists( 'ugm_has_management_page_blocks' ) && ugm_has_management_page_blocks( $content ) );
 
 	if ( ! $should_populate ) {
 		return false;
@@ -558,36 +553,26 @@ function ugm_render_block_gallery_page( $attrs, $content = '', $block = null ) {
 		return '';
 	}
 
-	return ugm_render_gallery_page_markup( $attrs, 'page-block' );
+	return ugm_render_gallery_page_markup( $attrs );
 }
 
 function ugm_render_block_gallery_template_preview( $attrs ) {
-	return ugm_render_gallery_page_markup( $attrs, 'template-preview' );
+	return ugm_render_gallery_page_markup( $attrs );
 }
 
-function ugm_render_gallery_page_markup( $attrs, $render_context = 'page-block' ) {
-	$render_context = sanitize_html_class( (string) $render_context );
-	if ( '' === $render_context ) {
-		$render_context = 'page-block';
-	}
-
+function ugm_render_gallery_page_markup( $attrs ) {
 	$attrs = wp_parse_args(
 		is_array( $attrs ) ? $attrs : array(),
 		array(
-			'title'           => 'Galeri',
-			'buttonLabel'     => 'Selengkapnya',
-			'backgroundColor' => '#004b73',
-			'galleryItems'    => array(),
+			'title'        => 'Galeri',
+			'buttonLabel'  => 'Selengkapnya',
+			'galleryItems' => array(),
 		)
 	);
 
-	$title            = trim( (string) $attrs['title'] );
-	$button_label     = trim( (string) $attrs['buttonLabel'] );
-	$background_color = sanitize_hex_color( $attrs['backgroundColor'] ?? '#004b73' );
-	if ( '' === $background_color || null === $background_color ) {
-		$background_color = '#004b73';
-	}
-	$manual_items     = ugm_gallery_manual_items( $attrs['galleryItems'] );
+	$title          = trim( (string) $attrs['title'] );
+	$button_label   = trim( (string) $attrs['buttonLabel'] );
+	$manual_items   = ugm_gallery_manual_items( $attrs['galleryItems'] );
 	$detail_index   = max( 0, absint( get_query_var( 'ugm_gallery_item' ) ) - 1 );
 	$has_detail     = '' !== (string) get_query_var( 'ugm_gallery_item' ) && isset( $manual_items[ $detail_index ] );
 
@@ -620,7 +605,7 @@ function ugm_render_gallery_page_markup( $attrs, $render_context = 'page-block' 
 
 	ob_start();
 	?>
-	<div class="ugm-gallery-template ugm-gallery-template--<?php echo esc_attr( $render_context ); ?>">
+	<div class="ugm-gallery-template">
 		<header class="ugm-gallery-page-head">
 			<nav class="ugm-gallery-breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'ugm-faculty' ); ?>">
 				<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Berita', 'ugm-faculty' ); ?></a>
@@ -630,7 +615,7 @@ function ugm_render_gallery_page_markup( $attrs, $render_context = 'page-block' 
 			<h1><?php echo esc_html( $title ); ?></h1>
 		</header>
 
-		<section class="ugm-gallery-hero" style="background-color: <?php echo esc_attr( $background_color ); ?>;" aria-label="<?php esc_attr_e( 'Sorotan galeri', 'ugm-faculty' ); ?>">
+		<section class="ugm-gallery-hero" aria-label="<?php esc_attr_e( 'Sorotan galeri', 'ugm-faculty' ); ?>">
 			<div class="ugm-gallery-hero__inner">
 				<div class="ugm-gallery-hero__copy">
 					<?php foreach ( $hero_slides as $page_index => $hero_slide ) : ?>
@@ -728,10 +713,9 @@ function ugm_render_gallery_page_markup( $attrs, $render_context = 'page-block' 
 
 function ugm_get_gallery_page_block_attributes() {
 	return array(
-		'title'           => array( 'type' => 'string', 'default' => 'Galeri' ),
-		'buttonLabel'     => array( 'type' => 'string', 'default' => 'Selengkapnya' ),
-		'backgroundColor' => array( 'type' => 'string', 'default' => '#004b73' ),
-		'galleryItems'    => array( 'type' => 'array', 'default' => array() ),
+		'title'        => array( 'type' => 'string', 'default' => 'Galeri' ),
+		'buttonLabel'  => array( 'type' => 'string', 'default' => 'Selengkapnya' ),
+		'galleryItems' => array( 'type' => 'array', 'default' => array() ),
 	);
 }
 

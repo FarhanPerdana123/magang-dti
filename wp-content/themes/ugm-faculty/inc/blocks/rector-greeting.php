@@ -56,16 +56,14 @@ function ugm_get_default_rector_greeting_blocks() {
 		'breadcrumbParent' => __( 'Lorem Ipsum', 'ugm-faculty' ),
 		'title'           => __( 'Lorem Ipsum', 'ugm-faculty' ),
 		'body'            => ugm_get_default_rector_greeting_paragraphs(),
-		'rectorName'      => __( 'Nama', 'ugm-faculty' ),
-		'rectorRole'      => __( 'Jabatan', 'ugm-faculty' ),
-		'rectorCaptionBackgroundColor' => '',
+		'rectorName'      => __( 'Nama Rektor', 'ugm-faculty' ),
+		'rectorRole'      => __( 'Jabatan Rektor', 'ugm-faculty' ),
 		'photoPosition'   => 'right',
 		'showPhotoFrame'  => true,
 	);
 
 	$sidebar_attrs = array(
 		'title'                   => __( 'Tentang UGM', 'ugm-faculty' ),
-		'sidebarBackgroundColor' => '',
 		'selectedParentMenuTitle' => __( 'Tentang', 'ugm-faculty' ),
 	);
 
@@ -199,22 +197,8 @@ function ugm_use_php_rector_greeting_template_on_frontend( $template ) {
 }
 add_filter( 'template_include', 'ugm_use_php_rector_greeting_template_on_frontend', 20 );
 
-function ugm_get_rector_greeting_render_part_class( $attrs, $base_class ) {
-	$render_context = 'page-block';
-
-	if ( is_array( $attrs ) && ! empty( $attrs['_renderContext'] ) ) {
-		$render_context = sanitize_html_class( (string) $attrs['_renderContext'] );
-	}
-
-	if ( '' === $render_context ) {
-		$render_context = 'page-block';
-	}
-
-	return trim( $base_class . ' ugm-rector-template-part ugm-rector-template-part--' . $render_context );
-}
-
 function ugm_render_block_rector_greeting_layout( $attrs, $content = '' ) {
-	return '<div class="' . esc_attr( ugm_get_rector_greeting_render_part_class( $attrs, 'ugm-rector-template-layout ugm-rector-greeting-layout' ) ) . '">' . $content . '</div>';
+	return '<div class="ugm-rector-template-layout ugm-rector-greeting-layout">' . $content . '</div>';
 }
 
 register_block_type( 'ugm/rector-greeting-layout', array(
@@ -223,10 +207,7 @@ register_block_type( 'ugm/rector-greeting-layout', array(
 	'category'        => 'ugm-sections',
 	'render_callback' => 'ugm_render_block_rector_greeting_layout',
 	'supports'        => array( 'html' => false ),
-	'attributes'      => array(
-		'_templateSlug'  => array( 'type' => 'string', 'default' => '' ),
-		'_renderContext' => array( 'type' => 'string', 'default' => '' ),
-	),
+	'attributes'      => array(),
 ) );
 
 function ugm_render_block_rector_greeting_content( $attrs ) {
@@ -236,7 +217,6 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 	$body              = array_key_exists( 'body', $attrs ) ? trim( (string) $attrs['body'] ) : ugm_get_default_rector_greeting_paragraphs();
 	$rector_name       = trim( (string) ( $attrs['rectorName'] ?? '' ) );
 	$rector_role       = trim( (string) ( $attrs['rectorRole'] ?? '' ) );
-	$rector_caption_background_color = sanitize_hex_color( $attrs['rectorCaptionBackgroundColor'] ?? '' );
 	$photo_position    = 'left' === ( $attrs['photoPosition'] ?? 'right' ) ? 'left' : 'right';
 	$photo_id          = absint( $attrs['photoId'] ?? 0 );
 	$show_photo_frame  = array_key_exists( 'showPhotoFrame', $attrs ) ? (bool) $attrs['showPhotoFrame'] : true;
@@ -248,7 +228,7 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 		$photo_url = esc_url_raw( (string) $attrs['photoUrl'] );
 	}
 
-	if ( __( 'Sambutan', 'ugm-faculty' ) === $title ) {
+	if ( __( 'Sambutan Rektor', 'ugm-faculty' ) === $title ) {
 		$title = __( 'Lorem Ipsum', 'ugm-faculty' );
 	}
 	if ( __( 'Beranda', 'ugm-faculty' ) === $breadcrumb_home ) {
@@ -261,16 +241,10 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 		$body = ugm_get_default_rector_greeting_paragraphs();
 	}
 	if ( __( 'Prof. dr. Ova Emilia, M.MedEd, SpOG (K), PhD', 'ugm-faculty' ) === $rector_name ) {
-		$rector_name = __( 'Nama', 'ugm-faculty' );
+		$rector_name = __( 'Nama Rektor', 'ugm-faculty' );
 	}
-	if ( __( 'UGM', 'ugm-faculty' ) === $rector_role ) {
-		$rector_role = __( 'Jabatan', 'ugm-faculty' );
-	}
-
-	$rector_caption_style = '';
-
-	if ( ! empty( $rector_caption_background_color ) ) {
-		$rector_caption_style = ' style="background-color:' . esc_attr( $rector_caption_background_color ) . ';"';
+	if ( __( 'Rektor UGM', 'ugm-faculty' ) === $rector_role ) {
+		$rector_role = __( 'Jabatan Rektor', 'ugm-faculty' );
 	}
 
 	$paragraphs = preg_split( "/\r\n\r\n|\n\n|\r\r/", $body );
@@ -283,14 +257,9 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 		)
 	);
 
-	$rector_section_class = 'ugm-rector-greeting ugm-rector-greeting--photo-' . sanitize_html_class( $photo_position );
-	if ( ! $show_photo_frame ) {
-		$rector_section_class .= ' ugm-rector-greeting--no-photo';
-	}
-
 	ob_start();
 	?>
-	<section class="<?php echo esc_attr( ugm_get_rector_greeting_render_part_class( $attrs, $rector_section_class ) ); ?>" aria-labelledby="ugm-rector-greeting-title">
+	<section class="ugm-rector-greeting ugm-rector-greeting--photo-<?php echo esc_attr( $photo_position ); ?> <?php echo $show_photo_frame ? '' : 'ugm-rector-greeting--no-photo'; ?>" aria-labelledby="ugm-rector-greeting-title">
 		<nav class="ugm-rector-greeting__breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'ugm-faculty' ); ?>">
 			<?php if ( '' !== $breadcrumb_home ) : ?>
 				<span><?php echo esc_html( $breadcrumb_home ); ?></span>
@@ -317,7 +286,7 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 					<?php endif; ?>
 				</div>
 				<?php if ( '' !== $rector_name || '' !== $rector_role ) : ?>
-					<figcaption class="ugm-rector-card__caption"<?php echo $rector_caption_style; ?>>
+					<figcaption class="ugm-rector-card__caption">
 						<?php if ( '' !== $rector_name ) : ?>
 							<strong><?php echo esc_html( $rector_name ); ?></strong>
 						<?php endif; ?>
@@ -346,7 +315,7 @@ function ugm_render_block_rector_greeting_content( $attrs ) {
 				<?php endif; ?>
 			</div>
 			<?php if ( '' !== $rector_name || '' !== $rector_role ) : ?>
-				<figcaption class="ugm-rector-card__caption"<?php echo $rector_caption_style; ?>>
+				<figcaption class="ugm-rector-card__caption">
 					<?php if ( '' !== $rector_name ) : ?>
 						<strong><?php echo esc_html( $rector_name ); ?></strong>
 					<?php endif; ?>
@@ -374,15 +343,12 @@ register_block_type( 'ugm/rector-greeting-content', array(
 		'breadcrumbParent' => array( 'type' => 'string', 'default' => 'Lorem Ipsum' ),
 		'title'            => array( 'type' => 'string', 'default' => 'Lorem Ipsum' ),
 		'body'             => array( 'type' => 'string', 'default' => ugm_get_default_rector_greeting_paragraphs() ),
-		'rectorName'       => array( 'type' => 'string', 'default' => 'Nama' ),
-		'rectorRole'       => array( 'type' => 'string', 'default' => 'Jabatan' ),
-		'rectorCaptionBackgroundColor' => array( 'type' => 'string', 'default' => '' ),
+		'rectorName'       => array( 'type' => 'string', 'default' => 'Nama Rektor' ),
+		'rectorRole'       => array( 'type' => 'string', 'default' => 'Jabatan Rektor' ),
 		'photoId'          => array( 'type' => 'integer', 'default' => 0 ),
 		'photoUrl'         => array( 'type' => 'string', 'default' => '' ),
 		'photoPosition'    => array( 'type' => 'string', 'default' => 'right' ),
 		'showPhotoFrame'   => array( 'type' => 'boolean', 'default' => true ),
-		'_templateSlug'  => array( 'type' => 'string', 'default' => '' ),
-		'_renderContext' => array( 'type' => 'string', 'default' => '' ),
 	),
 ) );
 
@@ -672,22 +638,15 @@ function ugm_render_about_sidebar_menu_items( $items, $level = 0 ) {
 
 function ugm_render_block_about_ugm_sidebar( $attrs ) {
 	$title                      = trim( (string) ( $attrs['title'] ?? __( 'Tentang UGM', 'ugm-faculty' ) ) );
-	$sidebar_background_color = sanitize_hex_color( $attrs['sidebarBackgroundColor'] ?? '' );
 	$selected_parent_menu_id    = absint( $attrs['selectedParentMenuId'] ?? 0 );
 	$selected_parent_menu_title = trim( (string) ( $attrs['selectedParentMenuTitle'] ?? __( 'Tentang', 'ugm-faculty' ) ) );
 	$menu_state                 = ugm_get_about_sidebar_menu_state( $selected_parent_menu_id, $selected_parent_menu_title );
 	$items                      = $menu_state['items'];
 	$sidebar_title              = '' !== $title ? $title : __( 'Tentang UGM', 'ugm-faculty' );
 
-	$sidebar_style = '';
-
-	if ( ! empty( $sidebar_background_color ) ) {
-		$sidebar_style = ' style="background-color:' . esc_attr( $sidebar_background_color ) . ';"';
-	}
-
 	ob_start();
 	?>
-	<aside class="<?php echo esc_attr( ugm_get_rector_greeting_render_part_class( $attrs, 'ugm-about-sidebar' ) ); ?>"<?php echo $sidebar_style; ?> aria-labelledby="ugm-about-sidebar-title">
+	<aside class="ugm-about-sidebar" aria-labelledby="ugm-about-sidebar-title">
 		<div class="ugm-about-sidebar__desktop">
 			<h2 id="ugm-about-sidebar-title" class="ugm-about-sidebar__title">
 				<?php echo esc_html( $sidebar_title ); ?>
@@ -748,47 +707,14 @@ register_block_type( 'ugm/about-ugm-sidebar', array(
 	'supports'        => array( 'html' => false ),
 	'attributes'      => array(
 		'title'                   => array( 'type' => 'string', 'default' => 'Tentang UGM' ),
-		'sidebarBackgroundColor' => array( 'type' => 'string', 'default' => '' ),
 		'selectedParentMenuId'    => array( 'type' => 'integer', 'default' => 0 ),
 		'selectedParentMenuTitle' => array( 'type' => 'string', 'default' => 'Tentang' ),
-		'_templateSlug'  => array( 'type' => 'string', 'default' => '' ),
-		'_renderContext' => array( 'type' => 'string', 'default' => '' ),
 	),
 ) );
 
 function ugm_render_block_rector_greeting_template_preview() {
-	$template_attrs = array(
-		'_templateSlug'  => 'rector-greeting-page',
-		'_renderContext' => 'template-preview',
-	);
-
-	$content_attrs = array_merge(
-		$template_attrs,
-		array(
-			'breadcrumbHome'   => __( 'Lorem Ipsum', 'ugm-faculty' ),
-			'breadcrumbParent' => __( 'Lorem Ipsum', 'ugm-faculty' ),
-			'title'            => __( 'Lorem Ipsum', 'ugm-faculty' ),
-			'body'             => ugm_get_default_rector_greeting_paragraphs(),
-			'rectorName'       => __( 'Nama', 'ugm-faculty' ),
-			'rectorRole'       => __( 'Jabatan', 'ugm-faculty' ),
-			'rectorCaptionBackgroundColor' => '',
-			'photoPosition'    => 'right',
-			'showPhotoFrame'   => true,
-		)
-	);
-
-	$sidebar_attrs = array_merge(
-		$template_attrs,
-		array(
-			'title'                   => __( 'Tentang UGM', 'ugm-faculty' ),
-			'sidebarBackgroundColor' => '',
-			'selectedParentMenuTitle' => __( 'Tentang', 'ugm-faculty' ),
-		)
-	);
-
-	return '<div class="' . esc_attr( ugm_get_rector_greeting_render_part_class( $template_attrs, 'ugm-rector-template-layout ugm-rector-greeting-layout' ) ) . '">' .
-		ugm_render_block_rector_greeting_content( $content_attrs ) .
-		ugm_render_block_about_ugm_sidebar( $sidebar_attrs ) .
+	return '<div class="ugm-rector-template-layout ugm-rector-greeting-layout">' .
+		do_blocks( ugm_get_default_rector_greeting_blocks() ) .
 		'</div>';
 }
 
@@ -811,9 +737,9 @@ register_block_type( 'ugm/rector-greeting-template-preview', array(
 function ugm_enqueue_rector_greeting_editor_assets() {
 	wp_enqueue_script(
 		'ugm-rector-greeting-blocks',
-		get_template_directory_uri() . '/assets/js/editor/greeting-blocks.js',
+		get_template_directory_uri() . '/assets/js/blocks/rector-greeting-blocks.js',
 		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-compose', 'wp-data', 'wp-hooks', 'wp-plugins', 'wp-server-side-render' ),
-		ugm_get_asset_version( '/assets/js/editor/greeting-blocks.js' ),
+		ugm_get_asset_version( '/assets/js/blocks/rector-greeting-blocks.js' ),
 		true
 	);
 
@@ -835,9 +761,9 @@ add_action( 'enqueue_block_editor_assets', 'ugm_enqueue_rector_greeting_editor_a
 function ugm_enqueue_rector_greeting_frontend_styles() {
 	wp_enqueue_style(
 		'ugm-style-rector-greeting',
-		get_template_directory_uri() . '/assets/css/pages/greeting-page.css',
+		get_template_directory_uri() . '/assets/css/blocks/rector-greeting.css',
 		array( 'ugm-style-content' ),
-		ugm_get_asset_version( '/assets/css/pages/greeting-page.css' )
+		ugm_get_asset_version( '/assets/css/blocks/rector-greeting.css' )
 	);
 }
 add_action( 'wp_enqueue_scripts', 'ugm_enqueue_rector_greeting_frontend_styles', 20 );
@@ -848,9 +774,9 @@ add_action( 'wp_enqueue_scripts', 'ugm_enqueue_rector_greeting_frontend_styles',
 function ugm_enqueue_rector_greeting_editor_styles() {
 	wp_enqueue_style(
 		'ugm-editor-style-rector-greeting',
-		get_template_directory_uri() . '/assets/css/pages/greeting-page.css',
+		get_template_directory_uri() . '/assets/css/blocks/rector-greeting.css',
 		array( 'ugm-editor-landing-preview' ),
-		ugm_get_asset_version( '/assets/css/pages/greeting-page.css' )
+		ugm_get_asset_version( '/assets/css/blocks/rector-greeting.css' )
 	);
 }
 add_action( 'enqueue_block_editor_assets', 'ugm_enqueue_rector_greeting_editor_styles', 20 );

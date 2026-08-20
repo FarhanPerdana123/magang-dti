@@ -10,7 +10,6 @@
 	var el                = wp.element.createElement;
 	var Fragment          = wp.element.Fragment;
 	var useEffect         = wp.element.useEffect;
-	var useRef            = wp.element.useRef;
 	var __                = wp.i18n.__;
 	var ServerSideRender  = wp.serverSideRender;
 	var InspectorControls = wp.blockEditor.InspectorControls;
@@ -19,134 +18,10 @@
 	var PanelBody         = wp.components.PanelBody;
 	var TextControl       = wp.components.TextControl;
 	var TextareaControl   = wp.components.TextareaControl;
-	var ColorPalette      = wp.components.ColorPalette;
 	var Button            = wp.components.Button;
 	var useSelect         = wp.data.useSelect;
 	var dispatch          = wp.data.dispatch;
 	var createHigherOrderComponent = wp.compose.createHigherOrderComponent;
-
-		function isGalleryTemplateChooserOpen() {
-		var modals = document.querySelectorAll( '.components-modal__frame, [role="dialog"]' );
-
-		return Array.prototype.some.call( modals, function ( modal ) {
-			var text = modal.textContent || '';
-
-			return text.indexOf( 'Choose a template' ) !== -1 ||
-				text.indexOf( 'Pilih template' ) !== -1;
-		} );
-	}
-
-	function getGalleryTemplateChooserStyleText( iframeMode ) {
-		if ( iframeMode ) {
-			return [
-				'.ugm-gallery-template--page-block',
-				'.ugm-gallery-template:not(.ugm-gallery-template--template-preview)'
-			].join( ',' ) + '{display:none!important;}';
-		}
-
-		return [
-			'.components-modal__frame .ugm-gallery-template--page-block',
-			'.components-modal__content .ugm-gallery-template--page-block',
-			'[role="dialog"] .ugm-gallery-template--page-block',
-			'.components-modal__frame .ugm-gallery-template:not(.ugm-gallery-template--template-preview)',
-			'.components-modal__content .ugm-gallery-template:not(.ugm-gallery-template--template-preview)',
-			'[role="dialog"] .ugm-gallery-template:not(.ugm-gallery-template--template-preview)'
-		].join( ',' ) + '{display:none!important;}';
-	}
-
-	function injectGalleryTemplateChooserStyle( targetDocument, iframeMode ) {
-		var style;
-
-		if ( ! targetDocument || ! targetDocument.head ) {
-			return;
-		}
-
-		style = targetDocument.getElementById( 'ugm-gallery-template-chooser-fix' );
-
-		if ( ! style ) {
-			style = targetDocument.createElement( 'style' );
-			style.id = 'ugm-gallery-template-chooser-fix';
-			targetDocument.head.appendChild( style );
-		}
-
-		style.textContent = getGalleryTemplateChooserStyleText( iframeMode );
-	}
-
-	function removeGalleryTemplateChooserStyle( targetDocument ) {
-		var style;
-
-		if ( ! targetDocument ) {
-			return;
-		}
-
-		style = targetDocument.getElementById( 'ugm-gallery-template-chooser-fix' );
-
-		if ( style && style.parentNode ) {
-			style.parentNode.removeChild( style );
-		}
-	}
-
-	function eachEditorDocument( callback ) {
-		callback( document, false );
-
-		Array.prototype.forEach.call( document.querySelectorAll( 'iframe' ), function ( frame ) {
-			try {
-				if ( frame.contentDocument ) {
-					callback( frame.contentDocument, true );
-				}
-			} catch ( error ) {}
-		} );
-	}
-
-	function syncGalleryTemplateChooserPreviewStyle() {
-		var chooserOpen = isGalleryTemplateChooserOpen();
-
-		eachEditorDocument( function ( targetDocument, iframeMode ) {
-			if ( chooserOpen ) {
-				injectGalleryTemplateChooserStyle( targetDocument, iframeMode );
-			} else {
-				removeGalleryTemplateChooserStyle( targetDocument );
-			}
-		} );
-
-		Array.prototype.forEach.call( document.querySelectorAll( 'iframe' ), function ( frame ) {
-			if ( frame.dataset.ugmGalleryTemplateChooserFix ) {
-				return;
-			}
-
-			frame.dataset.ugmGalleryTemplateChooserFix = '1';
-
-			frame.addEventListener( 'load', function () {
-				window.setTimeout( syncGalleryTemplateChooserPreviewStyle, 50 );
-				window.setTimeout( syncGalleryTemplateChooserPreviewStyle, 300 );
-			} );
-		} );
-	}
-
-	function setupGalleryTemplateChooserPreviewFix() {
-		var attempts = 0;
-		var interval;
-
-		syncGalleryTemplateChooserPreviewStyle();
-
-		if ( window.MutationObserver && document.body ) {
-			new MutationObserver( function () {
-				syncGalleryTemplateChooserPreviewStyle();
-			} ).observe( document.body, {
-				childList: true,
-				subtree: true,
-			} );
-		}
-
-		interval = window.setInterval( function () {
-			syncGalleryTemplateChooserPreviewStyle();
-
-			attempts++;
-			if ( attempts > 80 ) {
-				window.clearInterval( interval );
-			}
-		}, 250 );
-	}
 
 	function hasManagementPageBlocks( content ) {
 		return content.indexOf( '<!-- wp:ugm/management-hero' ) !== -1 ||
@@ -170,14 +45,8 @@
 			: '';
 	}
 
-	function getBlockStructureSignature( blocks ) {
-		return ( Array.isArray( blocks ) ? blocks : [] ).map( function ( block ) {
-			return block.name + '[' + getBlockStructureSignature( block.innerBlocks ) + ']';
-		} ).join( ',' );
-	}
-
 	function hasGalleryPageBlockInTree( candidateBlocks ) {
-		return ( candidateBlocks || [] ).some( function ( block ) {
+		return candidateBlocks.some( function ( block ) {
 			return block.name === 'ugm/gallery-page' ||
 				( Array.isArray( block.innerBlocks ) && hasGalleryPageBlockInTree( block.innerBlocks ) );
 		} );
@@ -204,15 +73,23 @@
 	}
 
 	function hasMeaningfulContent( content ) {
-		if ( content.indexOf( '<!-- wp:ugm/gallery-page' ) !== -1 ) {
-			return true;
-		}
-
 		return content
 			.replace( /<!--[\s\S]*?-->/g, '' )
 			.replace( /<[^>]+>/g, '' )
 			.replace( /&nbsp;/g, ' ' )
 			.trim() !== '';
+	}
+
+	function hasEditablePageContent( content ) {
+		var blocks = wp.blocks.parse( content || '' );
+
+		if ( ! blocks.length ) {
+			return false;
+		}
+
+		return blocks.some( function ( block ) {
+			return ! isEmptyEditorBlock( block );
+		} );
 	}
 
 	function isEmptyEditorBlock( block ) {
@@ -244,40 +121,20 @@
 	}
 
 	function GalleryTemplateSeeder() {
-		var lastSeedSignature = useRef( '' );
 		var state = useSelect( function ( select ) {
 			var editor = select( 'core/editor' );
 			var blockEditor = select( 'core/block-editor' );
 
 			return {
 				template: editor.getEditedPostAttribute( 'template' ),
-				content:  editor.getEditedPostAttribute( 'content' ) || '',
-				blocks:   blockEditor.getBlocks(),
+				content: editor.getEditedPostAttribute( 'content' ) || '',
+				blocks: blockEditor.getBlocks(),
 			};
 		} );
 
 		useEffect( function () {
-			var contentBlocks = wp.blocks.parse( state.content || '' );
-			var contentHasMeaning = hasMeaningfulContent( state.content );
-			var seedSignature = [
-				state.template || '',
-				contentHasMeaning ? 'meaningful' : 'empty',
-				getBlockStructureSignature( contentBlocks ),
-				getBlockStructureSignature( state.blocks ),
-			].join( '|' );
-
-			if ( seedSignature === lastSeedSignature.current ) {
-				return;
-			}
-
-			lastSeedSignature.current = seedSignature;
-
-			if ( typeof state.template === 'undefined' || state.template === null ) {
-				return;
-			}
-
 			if ( ! isGalleryPageTemplate( state.template ) ) {
-				if ( hasOnlyGalleryPageBlocks( contentBlocks ) ) {
+				if ( hasOnlyGalleryPageBlocks( wp.blocks.parse( state.content || '' ) ) ) {
 					if ( hasOnlyGalleryPageBlocks( state.blocks ) ) {
 						dispatch( 'core/block-editor' ).resetBlocks( [] );
 					}
@@ -290,33 +147,30 @@
 				return;
 			}
 
+			if ( hasGalleryPageBlock( state.content ) || hasGalleryPageBlockInTree( state.blocks ) ) {
+				return;
+			}
+
+			if (
+				state.content.trim() &&
+				hasMeaningfulContent( state.content ) &&
+				! hasManagementPageBlocks( state.content )
+			) {
+				return;
+			}
+
+			if ( hasEditablePageContent( state.content ) ) {
+				return;
+			}
+
 			var defaultBlocks = wp.blocks.parse( ugmGalleryPageEditor.defaultBlocks );
-			if ( ! defaultBlocks || ! defaultBlocks.length ) {
-				return;
-			}
-
 			var postContentBlock = findBlockByName( state.blocks, 'core/post-content' );
-			if ( postContentBlock ) {
-				var innerBlocks = Array.isArray( postContentBlock.innerBlocks ) ? postContentBlock.innerBlocks : [];
-				if ( ! contentHasMeaning || ! hasGalleryPageBlockInTree( innerBlocks ) ) {
-					dispatch( 'core/block-editor' ).replaceInnerBlocks(
-						postContentBlock.clientId,
-						defaultBlocks,
-						false
-					);
-					dispatch( 'core/editor' ).editPost( {
-						content: ugmGalleryPageEditor.defaultBlocks,
-					} );
-				}
-				return;
+
+			if ( postContentBlock && hasOnlyEmptyEditorBlocks( postContentBlock.innerBlocks || [] ) ) {
+				dispatch( 'core/block-editor' ).replaceInnerBlocks( postContentBlock.clientId, defaultBlocks, true );
 			}
 
-			if ( ! contentHasMeaning || ! hasGalleryPageBlockInTree( state.blocks ) ) {
-				dispatch( 'core/block-editor' ).insertBlocks( defaultBlocks );
-				dispatch( 'core/editor' ).editPost( {
-					content: ugmGalleryPageEditor.defaultBlocks,
-				} );
-			}
+			dispatch( 'core/editor' ).editPost( { content: ugmGalleryPageEditor.defaultBlocks } );
 		}, [ state.template, state.content, state.blocks ] );
 
 		return null;
@@ -540,28 +394,7 @@
 					label: __( 'Label Tombol Hero', 'ugm-faculty' ),
 					value: attrs.buttonLabel || '',
 					onChange: function ( value ) { setAttr( { buttonLabel: value } ); },
-				} ),
-				el( 'div',
-					{ style: { marginTop: '16px' } },
-					el( 'p',
-						{ style: { marginBottom: '8px', fontWeight: '600' } },
-						__( 'Warna Background Hero', 'ugm-faculty' )
-					),
-					el( ColorPalette, {
-						value: attrs.backgroundColor || '#004b73',
-						colors: [
-							{ name: 'UGM Biru', color: '#004b73' },
-							{ name: 'Biru Tua', color: '#003a5c' },
-							{ name: 'Hijau', color: '#006b5f' },
-							{ name: 'Ungu', color: '#4b2e83' },
-							{ name: 'Maroon', color: '#7a1f2b' },
-							{ name: 'Hitam', color: '#111827' },
-						],
-						onChange: function ( value ) {
-							setAttr( { backgroundColor: value || '#004b73' } );
-						},
-					} )
-				)
+				} )
 			),
 			el(
 				PanelBody,
@@ -572,10 +405,9 @@
 	}
 
 	var galleryPageAttributes = {
-		title:           { type: 'string', default: 'Galeri' },
-		buttonLabel:     { type: 'string', default: 'Selengkapnya' },
-		backgroundColor: { type: 'string', default: '#004b73' },
-		galleryItems:    { type: 'array', default: [] },
+		title:        { type: 'string', default: 'Galeri' },
+		buttonLabel:  { type: 'string', default: 'Selengkapnya' },
+		galleryItems: { type: 'array', default: [] },
 	};
 
 	registerBlockType( 'ugm/gallery-page', {
@@ -633,12 +465,6 @@
 		wp.plugins.registerPlugin( 'ugm-gallery-page-seeder', {
 			render: GalleryTemplateSeeder,
 		} );
-	}
-
-		if ( wp.domReady ) {
-		wp.domReady( setupGalleryTemplateChooserPreviewFix );
-	} else {
-		setupGalleryTemplateChooserPreviewFix();
 	}
 
 }() );
