@@ -135,17 +135,48 @@ body:has(.ugm-agenda-page) .site-content {
 	fill: currentColor;
 }
 
+.ugm-agenda-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 12px;
+	margin: 0 0 32px;
+}
+
+.ugm-agenda-tab {
+	display: inline-flex;
+	align-items: center;
+	padding: 9px 20px;
+	border-radius: 50px;
+	background: #f1f5f9;
+	color: #334155;
+	font-size: 0.95rem;
+	font-weight: 500;
+	text-decoration: none;
+	border: 1px solid #e2e8f0;
+	transition: all 0.2s ease-in-out;
+}
+
+.ugm-agenda-tab:hover {
+	background: #e2e8f0;
+	color: #0f172a;
+	text-decoration: none;
+}
+
+.ugm-agenda-tab.is-active {
+	background: #074a73;
+	color: #ffffff;
+	border-color: #074a73;
+	font-weight: 600;
+	box-shadow: 0 3px 10px rgba(7, 74, 115, 0.2);
+}
+
 .ugm-agenda-page__subheading {
 	margin: 0 0 26px;
 	font-size: 1.65rem;
 	font-weight: 600;
 	line-height: 1.25;
 	color: #111a24;
-}
-
-.ugm-agenda-grid {
-	--bs-gutter-x: 1.5rem;
-	--bs-gutter-y: 1.5rem;
 }
 
 .ugm-agenda-grid.row {

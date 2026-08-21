@@ -273,6 +273,7 @@ function ugm_register_agenda_post_meta() {
 		'agenda_event_end_date',
 		'agenda_location',
 		'agenda_event_type',
+		'agenda_speaker',
 	);
 
 	foreach ( $meta_fields as $meta_key ) {
@@ -293,6 +294,23 @@ function ugm_register_agenda_post_meta() {
 	}
 }
 add_action( 'init', 'ugm_register_agenda_post_meta' );
+
+/**
+ * Get the agenda speaker / narasumber.
+ *
+ * @param int $post_id Post ID.
+ * @return string
+ */
+function ugm_get_agenda_event_speaker( $post_id ) {
+	$post_id = absint( $post_id );
+	$speaker = trim( (string) get_post_meta( $post_id, 'agenda_speaker', true ) );
+
+	if ( '' === $speaker ) {
+		$speaker = trim( (string) get_post_meta( $post_id, '_agenda_speaker', true ) );
+	}
+
+	return $speaker;
+}
 
 /**
  * Get a timestamp for the agenda event date metadata.
@@ -529,11 +547,12 @@ add_action( 'admin_init', 'ugm_seed_existing_empty_agenda_pages' );
  * @return void
  */
 function ugm_render_agenda_listing_card() {
-	$post_id   = get_the_ID();
-	$timestamp = ugm_get_agenda_event_timestamp( $post_id );
-	$date_text = ugm_get_agenda_event_date_text( $post_id );
-	$location  = ugm_get_agenda_event_location( $post_id );
+	$post_id    = get_the_ID();
+	$timestamp  = ugm_get_agenda_event_timestamp( $post_id );
+	$date_text  = ugm_get_agenda_event_date_text( $post_id );
+	$location   = ugm_get_agenda_event_location( $post_id );
 	$type_label = ugm_get_agenda_event_type_label( $post_id );
+	$speaker    = function_exists( 'ugm_get_agenda_event_speaker' ) ? ugm_get_agenda_event_speaker( $post_id ) : '';
 	?>
 	<article id="post-<?php the_ID(); ?>" <?php post_class( 'ugm-agenda-card card h-100 rounded-0' ); ?>>
 		<?php /* Badge diposisikan di luar <a> agar menjadi anak langsung article */ ?>
@@ -561,6 +580,12 @@ function ugm_render_agenda_listing_card() {
 					<span class="ugm-agenda-card__meta-icon" aria-hidden="true">&#9906;</span>
 					<?php echo esc_html( $location ); ?>
 				</li>
+				<?php if ( '' !== $speaker ) : ?>
+					<li>
+						<span class="ugm-agenda-card__meta-icon" aria-hidden="true">&#9881;</span>
+						<?php echo esc_html( sprintf( __( 'Pembicara: %s', 'ugm-faculty' ), $speaker ) ); ?>
+					</li>
+				<?php endif; ?>
 			</ul>
 			<span class="ugm-agenda-card__tag"><?php echo esc_html( $type_label ); ?></span>
 		</div>
@@ -581,10 +606,15 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 	$posts_per_page = max( 1, min( 24, absint( $attrs['postsPerPage'] ?? 12 ) ) );
 	$paged          = max( 1, (int) get_query_var( 'paged' ), (int) get_query_var( 'page' ) );
 
-	$keyword = isset( $_GET['agenda_keyword'] ) ? sanitize_text_field( wp_unslash( $_GET['agenda_keyword'] ) ) : '';
+	$keyword     = isset( $_GET['agenda_keyword'] ) ? sanitize_text_field( wp_unslash( $_GET['agenda_keyword'] ) ) : '';
+	$current_tab = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : 'upcoming';
+	if ( ! in_array( $current_tab, array( 'upcoming', 'past', 'all' ), true ) ) {
+		$current_tab = 'upcoming';
+	}
 
 	$agenda_term_ids = ugm_resolve_agenda_exclude_ids( $category_slug );
 	$tax_ids         = $agenda_term_ids;
+	$today           = current_time( 'Y-m-d' );
 
 	$query_args = array(
 		'post_type'           => 'post',
@@ -592,9 +622,78 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 		'paged'               => $paged,
 		'ignore_sticky_posts' => true,
 		'post_status'         => 'publish',
-		'orderby'             => 'date',
-		'order'               => 'DESC',
 	);
+
+	if ( 'upcoming' === $current_tab ) {
+		// Agenda Mendatang: Tanggal acara >= hari ini (atau end date >= hari ini, atau event baru tanpa meta tanggal)
+		$query_args['meta_query'] = array(
+			'relation' => 'OR',
+			array(
+				'key'     => 'agenda_event_date',
+				'value'   => $today,
+				'compare' => '>=',
+				'type'    => 'DATE',
+			),
+			array(
+				'key'     => 'agenda_event_end_date',
+				'value'   => $today,
+				'compare' => '>=',
+				'type'    => 'DATE',
+			),
+			array(
+				'key'     => 'agenda_event_date',
+				'compare' => 'NOT EXISTS',
+			),
+			array(
+				'key'     => 'agenda_event_date',
+				'value'   => '',
+				'compare' => '=',
+			),
+		);
+		$query_args['meta_key'] = 'agenda_event_date';
+		$query_args['orderby']  = array(
+			'meta_value' => 'ASC',
+			'date'       => 'ASC',
+		);
+	} elseif ( 'past' === $current_tab ) {
+		// Agenda Telah Berlangsung: Tanggal acara < hari ini DAN end date < hari ini (atau kosong)
+		$query_args['meta_query'] = array(
+			'relation' => 'AND',
+			array(
+				'key'     => 'agenda_event_date',
+				'value'   => $today,
+				'compare' => '<',
+				'type'    => 'DATE',
+			),
+			array(
+				'relation' => 'OR',
+				array(
+					'key'     => 'agenda_event_end_date',
+					'value'   => $today,
+					'compare' => '<',
+					'type'    => 'DATE',
+				),
+				array(
+					'key'     => 'agenda_event_end_date',
+					'value'   => '',
+					'compare' => '=',
+				),
+				array(
+					'key'     => 'agenda_event_end_date',
+					'compare' => 'NOT EXISTS',
+				),
+			),
+		);
+		$query_args['meta_key'] = 'agenda_event_date';
+		$query_args['orderby']  = array(
+			'meta_value' => 'DESC',
+			'date'       => 'DESC',
+		);
+	} else {
+		// Semua Agenda
+		$query_args['orderby'] = 'date';
+		$query_args['order']   = 'DESC';
+	}
 
 	if ( '' !== $keyword ) {
 		$query_args['s'] = $keyword;
@@ -606,8 +705,13 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 		$query_args['post__in'] = array( 0 );
 	}
 
-	$agenda_query = new WP_Query( $query_args );
+	$agenda_query     = new WP_Query( $query_args );
 	$breadcrumb_label = ugm_get_landing_agenda_section_title( $title );
+	$page_permalink   = get_permalink();
+
+	$url_upcoming = add_query_arg( array( 'tab' => 'upcoming', 'agenda_keyword' => $keyword ? $keyword : null ), $page_permalink );
+	$url_past     = add_query_arg( array( 'tab' => 'past', 'agenda_keyword' => $keyword ? $keyword : null ), $page_permalink );
+	$url_all      = add_query_arg( array( 'tab' => 'all', 'agenda_keyword' => $keyword ? $keyword : null ), $page_permalink );
 
 	ob_start();
 	?>
@@ -623,7 +727,8 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 			<span class="ugm-agenda-page__line" aria-hidden="true"></span>
 		</header>
 
-		<form class="ugm-agenda-filter" action="<?php echo esc_url( get_permalink() ); ?>" method="get">
+		<form class="ugm-agenda-filter" action="<?php echo esc_url( $page_permalink ); ?>" method="get">
+			<input type="hidden" name="tab" value="<?php echo esc_attr( $current_tab ); ?>">
 			<div class="ugm-agenda-filter__search input-group">
 				<input class="form-control" type="search" name="agenda_keyword" value="<?php echo esc_attr( $keyword ); ?>" placeholder="<?php esc_attr_e( 'Pencarian Agenda...', 'ugm-faculty' ); ?>">
 				<button class="btn" type="submit" aria-label="<?php esc_attr_e( 'Cari agenda', 'ugm-faculty' ); ?>">
@@ -634,7 +739,29 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 			</div>
 		</form>
 
-		<h2 class="ugm-agenda-page__subheading"><?php esc_html_e( 'Acara-acara', 'ugm-faculty' ); ?></h2>
+		<nav class="ugm-agenda-tabs" aria-label="<?php esc_attr_e( 'Filter Kategori Agenda', 'ugm-faculty' ); ?>">
+			<a href="<?php echo esc_url( $url_upcoming ); ?>" class="ugm-agenda-tab <?php echo 'upcoming' === $current_tab ? 'is-active' : ''; ?>">
+				<?php esc_html_e( 'Agenda Mendatang', 'ugm-faculty' ); ?>
+			</a>
+			<a href="<?php echo esc_url( $url_past ); ?>" class="ugm-agenda-tab <?php echo 'past' === $current_tab ? 'is-active' : ''; ?>">
+				<?php esc_html_e( 'Agenda Telah Berlangsung', 'ugm-faculty' ); ?>
+			</a>
+			<a href="<?php echo esc_url( $url_all ); ?>" class="ugm-agenda-tab <?php echo 'all' === $current_tab ? 'is-active' : ''; ?>">
+				<?php esc_html_e( 'Semua Agenda', 'ugm-faculty' ); ?>
+			</a>
+		</nav>
+
+		<h2 class="ugm-agenda-page__subheading">
+			<?php
+			if ( 'upcoming' === $current_tab ) {
+				esc_html_e( 'Agenda Mendatang', 'ugm-faculty' );
+			} elseif ( 'past' === $current_tab ) {
+				esc_html_e( 'Agenda Telah Berlangsung', 'ugm-faculty' );
+			} else {
+				esc_html_e( 'Semua Acara', 'ugm-faculty' );
+			}
+			?>
+		</h2>
 
 		<?php if ( $agenda_query->have_posts() ) : ?>
 			<div class="ugm-agenda-grid row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -657,7 +784,8 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 						'next_text' => '&#8594;',
 						'add_args'  => array_filter(
 							array(
-								'agenda_keyword' => $keyword,
+								'tab'            => 'upcoming' !== $current_tab ? $current_tab : null,
+								'agenda_keyword' => $keyword ? $keyword : null,
 							)
 						),
 					)
@@ -665,7 +793,19 @@ function ugm_render_block_agenda_list_page( $attrs ) {
 				?>
 			</nav>
 		<?php else : ?>
-			<p class="section-empty"><?php esc_html_e( 'Belum ada agenda yang sesuai pencarian.', 'ugm-faculty' ); ?></p>
+			<p class="section-empty">
+				<?php
+				if ( '' !== $keyword ) {
+					esc_html_e( 'Belum ada agenda yang sesuai pencarian.', 'ugm-faculty' );
+				} elseif ( 'upcoming' === $current_tab ) {
+					esc_html_e( 'Belum ada agenda mendatang saat ini.', 'ugm-faculty' );
+				} elseif ( 'past' === $current_tab ) {
+					esc_html_e( 'Belum ada agenda yang telah berlangsung.', 'ugm-faculty' );
+				} else {
+					esc_html_e( 'Belum ada agenda.', 'ugm-faculty' );
+				}
+				?>
+			</p>
 		<?php endif; ?>
 		<?php wp_reset_postdata(); ?>
 	</section>

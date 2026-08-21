@@ -173,6 +173,12 @@
 				help: __( 'Contoh: Workshop, Webinar, Kuliah Umum, Pelatihan.', 'ugm-faculty' ),
 				value: meta.agenda_event_type || '',
 				onChange: function ( value ) { updateMeta( 'agenda_event_type', value ); },
+			} ),
+			el( TextControl, {
+				label: __( 'Pembicara / Narasumber', 'ugm-faculty' ),
+				help: __( 'Nama pembicara, pemateri, atau narasumber kegiatan.', 'ugm-faculty' ),
+				value: meta.agenda_speaker || '',
+				onChange: function ( value ) { updateMeta( 'agenda_speaker', value ); },
 			} )
 		);
 	}

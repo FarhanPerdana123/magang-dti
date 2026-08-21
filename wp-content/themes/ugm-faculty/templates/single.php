@@ -26,6 +26,9 @@ get_header();
 			$date_label    = ugm_get_agenda_event_date_text( $post_id );
 			$date_datetime = wp_date( DATE_W3C, ugm_get_agenda_event_timestamp( $post_id ) );
 		}
+		$ugm_is_agenda_post_item = function_exists( 'ugm_is_agenda_post' ) && ugm_is_agenda_post( $post_id );
+		$ugm_speaker             = function_exists( 'ugm_get_agenda_event_speaker' ) ? ugm_get_agenda_event_speaker( $post_id ) : '';
+		$ugm_location            = function_exists( 'ugm_get_agenda_event_location' ) ? ugm_get_agenda_event_location( $post_id ) : '';
 		?>
 		<article id="post-<?php the_ID(); ?>" <?php post_class( 'ugm-article' ); ?>>
 			<div class="ugm-article__container">
@@ -45,6 +48,14 @@ get_header();
 					<?php the_title( '<h1 class="ugm-article__title">', '</h1>' ); ?>
 					<div class="ugm-article__meta">
 						<time datetime="<?php echo esc_attr( $date_datetime ); ?>"><?php echo esc_html( $date_label ); ?></time>
+						<?php if ( $ugm_is_agenda_post_item && '' !== $ugm_location ) : ?>
+							<span class="ugm-article__meta-sep" aria-hidden="true">|</span>
+							<span class="ugm-article__location">&#9906; <?php echo esc_html( $ugm_location ); ?></span>
+						<?php endif; ?>
+						<?php if ( $ugm_is_agenda_post_item && '' !== $ugm_speaker ) : ?>
+							<span class="ugm-article__meta-sep" aria-hidden="true">|</span>
+							<span class="ugm-article__speaker">&#9881; <?php echo esc_html( sprintf( __( 'Pembicara: %s', 'ugm-faculty' ), $ugm_speaker ) ); ?></span>
+						<?php endif; ?>
 						<?php $categories_list = get_the_category_list( ', ' ); ?>
 						<?php if ( $categories_list ) : ?>
 							<span class="ugm-article__meta-sep" aria-hidden="true">|</span>

@@ -54,12 +54,12 @@ function ugm_register_majalah_post_type() {
 add_action( 'init', 'ugm_register_majalah_post_type' );
 
 /**
- * Register magazine PDF meta box.
+ * Register magazine PDF & edition meta box.
  */
 function ugm_register_magazine_pdf_meta_box() {
 	add_meta_box(
 		'ugm-majalah-pdf-meta-box',
-		__( 'File PDF Majalah', 'ugm-faculty' ),
+		__( 'Informasi & File PDF Majalah', 'ugm-faculty' ),
 		'ugm_render_magazine_pdf_meta_box',
 		'majalah',
 		'side',
@@ -69,17 +69,24 @@ function ugm_register_magazine_pdf_meta_box() {
 add_action( 'add_meta_boxes', 'ugm_register_magazine_pdf_meta_box' );
 
 /**
- * Render magazine PDF meta box.
+ * Render magazine PDF & edition meta box.
  *
  * @param WP_Post $post Post object.
  */
 function ugm_render_magazine_pdf_meta_box( $post ) {
-	$pdf_value = get_post_meta( $post->ID, '_ugm_majalah_pdf', true );
+	$pdf_value     = get_post_meta( $post->ID, '_ugm_majalah_pdf', true );
+	$edition_value = get_post_meta( $post->ID, '_ugm_majalah_edisi', true );
 	wp_nonce_field( 'ugm_majalah_pdf_meta_box', 'ugm_majalah_pdf_meta_box_nonce' );
 	?>
 	<p>
-		<label for="ugm_majalah_pdf_field"><?php esc_html_e( 'Upload atau pilih file PDF majalah.', 'ugm-faculty' ); ?></label>
-		<input type="text" id="ugm_majalah_pdf_field" name="ugm_majalah_pdf_field" value="<?php echo esc_attr( (string) $pdf_value ); ?>" style="width:100%;" />
+		<label for="ugm_majalah_edisi_field"><strong><?php esc_html_e( 'Nomor Edisi / Terbitan:', 'ugm-faculty' ); ?></strong></label>
+		<input type="text" id="ugm_majalah_edisi_field" name="ugm_majalah_edisi_field" value="<?php echo esc_attr( (string) $edition_value ); ?>" placeholder="<?php esc_attr_e( 'Contoh: Edisi 12 / 2024', 'ugm-faculty' ); ?>" style="width:100%; margin-top:4px;" />
+		<span class="description" style="display:block; margin-top:4px; font-size:12px; color:#666;"><?php esc_html_e( 'Masukkan nomor edisi atau periode terbit majalah/buletin.', 'ugm-faculty' ); ?></span>
+	</p>
+	<hr style="margin: 12px 0; border: 0; border-top: 1px solid #ddd;" />
+	<p>
+		<label for="ugm_majalah_pdf_field"><strong><?php esc_html_e( 'File PDF Majalah:', 'ugm-faculty' ); ?></strong></label>
+		<input type="text" id="ugm_majalah_pdf_field" name="ugm_majalah_pdf_field" value="<?php echo esc_attr( (string) $pdf_value ); ?>" style="width:100%; margin-top:4px;" />
 	</p>
 	<p>
 		<button type="button" class="button ugm-majalah-pdf-upload"><?php esc_html_e( 'Upload/Pilih PDF', 'ugm-faculty' ); ?></button>
@@ -90,7 +97,7 @@ function ugm_render_magazine_pdf_meta_box( $post ) {
 }
 
 /**
- * Save magazine PDF post meta.
+ * Save magazine PDF & edition post meta.
  *
  * @param int $post_id Post ID.
  */
@@ -111,6 +118,17 @@ function ugm_save_magazine_pdf_meta_box( $post_id ) {
 		return;
 	}
 
+	// Save Nomor Edisi
+	if ( isset( $_POST['ugm_majalah_edisi_field'] ) ) {
+		$edition = sanitize_text_field( wp_unslash( $_POST['ugm_majalah_edisi_field'] ) );
+		if ( '' !== $edition ) {
+			update_post_meta( $post_id, '_ugm_majalah_edisi', $edition );
+		} else {
+			delete_post_meta( $post_id, '_ugm_majalah_edisi' );
+		}
+	}
+
+	// Save File PDF
 	if ( ! isset( $_POST['ugm_majalah_pdf_field'] ) ) {
 		delete_post_meta( $post_id, '_ugm_majalah_pdf' );
 		return;

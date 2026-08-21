@@ -82,6 +82,22 @@ function ugm_get_magazine_pdf_url( $post_id ) {
 }
 
 /**
+ * Get edition text for magazine post.
+ *
+ * @param int $post_id Post ID.
+ * @return string
+ */
+function ugm_get_magazine_edition( $post_id ) {
+	$post_id = absint( $post_id );
+	if ( $post_id < 1 ) {
+		return '';
+	}
+
+	$edition = get_post_meta( $post_id, '_ugm_majalah_edisi', true );
+	return is_string( $edition ) ? sanitize_text_field( $edition ) : '';
+}
+
+/**
  * Render a visual skeleton placeholder for empty landing page sections.
  *
  * @param string $layout  Skeleton layout key.
