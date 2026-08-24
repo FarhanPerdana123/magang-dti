@@ -747,6 +747,12 @@ register_block_type( 'ugm/hero-section', array(
  * ========================================================================== */
 
 function ugm_render_block_site_footer( $attrs ) {
+	static $rendering = false;
+	if ( $rendering ) {
+		return '';
+	}
+	$rendering = true;
+
 	$visibility_class = ugm_block_visibility_class( $attrs );
 	ob_start();
 	// Render the <footer> element using the widgetized footer output.
@@ -775,7 +781,9 @@ function ugm_render_block_site_footer( $attrs ) {
 		}
 		?>
 	</footer><?php
-	return ob_get_clean();
+	$output = ob_get_clean();
+	$rendering = false;
+	return $output;
 }
 
 register_block_type( 'ugm/site-footer', array(
